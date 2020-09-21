@@ -1,0 +1,26 @@
+{
+  "name": "perspective-api",
+  "version": "1.1.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm run clean && npm i",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json cost-parser.zip node_modules/ && zip -urj cost-parser.zip costParser.js",
+    "build:dist": "mkdir dist && mv cost-parser.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist"
+  },
+  "author": "damackli",
+  "license": "ISC",
+  "dependencies": {
+    "mime-types": "2.1.27",
+    "unzipper": "0.10.11"
+  },
+  "devDependencies": {
+    "aws-sdk": "2.747.0",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0"
+  }
+}

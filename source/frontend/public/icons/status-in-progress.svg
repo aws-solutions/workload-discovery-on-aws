@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <defs>
+        <style>
+            .cls-2{fill:none;stroke:#ff9900;stroke-width:2px;stroke-linecap:round;stroke-miterlimit:10}
+        </style>
+    </defs>
+    <title>
+        status-in-progress
+    </title>
+    <g id="icons">
+        <circle cx="8" cy="8" r="7" style="stroke-linejoin:round;fill:none;stroke:#ff9900;stroke-width:2px"/>
+        <rect class="cls-2" x="4.99" y="7.995" width="0.01" height="0.01"/>
+        <rect class="cls-2" x="7.99" y="7.995" width="0.01" height="0.01"/>
+        <rect class="cls-2" x="10.99" y="7.995" width="0.01" height="0.01"/>
+    </g>
+</svg>

@@ -1,0 +1,11 @@
+export const atRiskActionsResources = "{\"Action\":[\"*\"],\"Resource\":\"*\",\"Effect\":\"Allow\"}"
+export const atRiskActionsNeedsAttentionResources = "{\"Action\":[\"*\"],\"Resource\":\"arn::some:*\",\"Effect\":\"Allow\"}"
+export const needsAttentionActionsNeedsAttentionResources = "{\"Action\":[\"s3:get*\"],\"Resource\":\"arn::some:*\",\"Effect\":\"Allow\"}"
+export const okActionsAtRiskResources = "{\"Action\":[\"s3:getObject\"],\"Resource\":\"*\",\"Effect\":\"Allow\"}"
+export const atRiskActionsOKResources = "{\"Action\":[\"*\"],\"Resource\":\"arn:to:some:resource\",\"Effect\":\"Allow\"}"
+export const okActionsNeedsAttentionResources = "{\"Action\":[\"s3:getObject\"],\"Resource\":\"arn:some:resource:*\",\"Effect\":\"Allow\"}"
+export const needsAttentionActionsOKResources = "{\"Action\":[\"s3:get*\"],\"Resource\":\"arn:to:some:resource\",\"Effect\":\"Allow\"}"
+export const okActionsOKResources = "{\"Action\":[\"s3:getObject\"],\"Resource\":\"arn:some:resource\",\"Effect\":\"Allow\"}"
+export const okActionsNotArrayOKResources = "{\"Action\":\"s3:getObject\",\"Resource\":\"arn:some:resource\",\"Effect\":\"Allow\"}"
+export const okActionsOKResourcesArray = "{\"Action\":[\"s3:getObject\"],\"Resource\":[\"arn:some:resource\"],\"Effect\":\"Allow\"}"
+

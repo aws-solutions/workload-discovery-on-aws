@@ -1,0 +1,33 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <title>
+        Amazon-EC2_Spot-Instance_light-bg
+    </title>
+    <g transform="translate(4, 5) scale(1.25)">
+        <path d="M29.75,31.43h-9.5a1.65,1.65,0,0,1-1.65-1.65v-9.5a1.65,1.65,0,0,1,1.65-1.65h9.5a1.65,1.65,0,0,1,1.65,1.65v9.5A1.65,1.65,0,0,1,29.75,31.43Zm-9.15-2h8.8v-8.8H20.6Z" style="fill:#d86613"/>
+        <!-- <path d="M24.58,36.83h-10a1.43,1.43,0,0,1-1.42-1.42v-10A1.43,1.43,0,0,1,14.62,24H17.8v2H15.2v8.8H24v-2.6h2v3.18A1.43,1.43,0,0,1,24.58,36.83Z" style="fill:#d86613"/> -->
+        <!-- <path d="M35.38,26H32.2V24h2.6v-8.8H26V17.8H24V14.65a1.43,1.43,0,0,1,1.42-1.42h10a1.43,1.43,0,0,1,1.42,1.42v10A1.43,1.43,0,0,1,35.38,26Z" style="fill:#d86613"/> -->
+        <rect x="10.95" y="3.71" width="2" height="16.55" transform="translate(-4.97 11.96) rotate(-45)" style="fill:#d86613"/>
+        <rect x="37.05" y="29.81" width="2" height="16.55" transform="translate(-15.78 38.06) rotate(-45)" style="fill:#d86613"/>
+        <rect x="4.8" y="39.78" width="8.91" height="2" transform="translate(-26.13 18.48) rotate(-45)" style="fill:#d86613"/>
+        <rect x="36.3" y="8.28" width="8.91" height="2" transform="translate(5.37 31.53) rotate(-45)" style="fill:#d86613"/>
+        <rect x="2.5" y="24.03" width="5.4" height="2" style="fill:#d86613"/>
+        <rect x="42.1" y="24.03" width="5.4" height="2" style="fill:#d86613"/>
+        <rect x="24" y="42.13" width="2" height="5.34" style="fill:#d86613"/>
+        <rect x="24" y="2.53" width="2" height="5.4" style="fill:#d86613"/>
+        <path d="M41.87,37.21,40.25,36a18.85,18.85,0,0,0,0-22l1.62-1.17a20.84,20.84,0,0,1,0,24.36Z" style="fill:#d86613"/>
+        <path d="M36,9.78a18.85,18.85,0,0,0-22,0L12.82,8.16a20.84,20.84,0,0,1,24.36,0Z" style="fill:#d86613"/>
+        <path d="M25,45.83A20.68,20.68,0,0,1,12.82,41.9L14,40.28a18.85,18.85,0,0,0,22,0l1.17,1.62A20.68,20.68,0,0,1,25,45.83Z" style="fill:#d86613"/>
+        <path d="M8.13,37.21a20.84,20.84,0,0,1,0-24.36L9.75,14a18.85,18.85,0,0,0,0,22Z" style="fill:#d86613"/>
+    </g>
+    <style type="text/css">
+        .st4{fill:#1d8102}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(58,0)">
+            <path class="st4" d="M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6
+			S11.3,14,8,14z"/>
+            <polygon class="st4" points="7,8.6 5,6.6 3.6,8 7,11.4 11.9,6.5 10.5,5.1 		"/>
+        </g>
+    </g>
+</svg>

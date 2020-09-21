@@ -1,0 +1,29 @@
+{
+  "name": "perspective-settings",
+  "version": "1.1.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc mocha test/*.js",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rq --exclude=package-lock.json settings.zip node_modules/ && zip -urj settings.zip src/",
+    "build:dist": "mkdir dist && mv settings.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test"
+  },
+  "author": "svozza",
+  "license": "ISC",
+  "dependencies": {
+    "@tuplo/dynoexpr": "^1.9.0",
+    "production": "0.0.2",
+    "ramda": "0.27.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.726.0",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0",
+    "sinon": "^9.0.2"
+  }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 75" width="75" height="75">
+    <defs>
+        <style>
+            .cls-1{fill:transparent}
+        </style>
+    </defs>
+    <title>
+        Amazon-CloudFront_Streaming-Distribution_light-bg
+    </title>
+    <g id="Working">
+        <path style="fill:#693cc5" class="cls-1" d="M25,48.5A23.5,23.5,0,1,1,48.5,25,23.52,23.52,0,0,1,25,48.5Zm0-45A21.5,21.5,0,1,0,46.5,25,21.52,21.52,0,0,0,25,3.5Z"/>
+        <rect style="fill:#693cc5" class="cls-1" x="24" y="9.06" width="2" height="29.06"/>
+        <path style="fill:#693cc5" class="cls-1" d="M25,40.06a1,1,0,0,1-.71-.29l-8.43-8.44,1.41-1.41L25,37.65l7.73-7.73,1.41,1.41-8.43,8.44A1,1,0,0,1,25,40.06Z"/>
+    </g>
+</svg>

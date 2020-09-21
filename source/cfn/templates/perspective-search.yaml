@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: AWS Perspective Elasticsearch Lambda Stack
+
+Parameters:
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  VPCCidrBlock:
+    Type: String
+
+  PrivateSubnet0:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+
+  ElasticsearchSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  ElasticsearchLambdaRoleArn:
+    Type: String
+
+  ElasticsearchDomainEndpoint:
+    Type: String
+
+Resources:
+  SearchLambdaSg:
+    Type: AWS::EC2::SecurityGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: We are looking to introduce VPCe for Config that will let us lock this down futher.
+    Properties:
+      GroupDescription: Security group for Search lambda
+      VpcId: !Ref VpcId
+
+  ElasticseachSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress Security Group for Elasticsearch
+      FromPort: 443
+      ToPort: 443
+      GroupId: !Ref ElasticsearchSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref SearchLambdaSg
+
+  ElasticsearchFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: cfn_nag is not scanning the Role that it is actually using. You will see in then ElasticSearchLambdaRole template that it does have access
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !Ref ElasticsearchLambdaRoleArn
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Sub ${DeploymentBucketKey}/search.zip
+      Runtime: nodejs12.x
+      Description: Lambda for querying and writing to Elasticsearch
+      Timeout: 10
+      TracingConfig:
+       Mode: Active
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SearchLambdaSg
+        SubnetIds:
+          - !Ref PrivateSubnet0
+          - !Ref PrivateSubnet1
+      MemorySize: 1024
+      Environment:
+        Variables:
+          ES_REGION: !Sub ${AWS::Region}
+          ES_DOMAIN: !Ref ElasticsearchDomainEndpoint
+
+  ElasticsearchLambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Alarm if Elasticsearch lambda function errors out too many times
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ElasticsearchFunction
+      Statistic: Sum
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 10
+      EvaluationPeriods: 3
+      Period: 60
+      TreatMissingData: breaching
+
+Outputs:
+  ElasticARN:
+    Description: Gremlin function details
+    Value: !GetAtt ElasticsearchFunction.Arn

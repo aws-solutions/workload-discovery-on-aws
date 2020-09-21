@@ -1,0 +1,11 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <title>
+        Amazon-EC2_T2-Instance_light-bg
+    </title>
+    <g transform="scale(1.5)">
+        <text transform="translate(2, 16)" font-size="14" fill="#d86613" font-family="Amazon Ember, Helvetica, Arial, sans-serif" font-weight="bold">
+            <tspan x="1em" dy="1em">AZ</tspan>
+        </text>
+        <path d="M44.31,44.31H5.69V5.69H44.31Zm-36.62-2H42.31V7.69H7.69Z" style="fill:#d86613"/>
+    </g>
+</svg>

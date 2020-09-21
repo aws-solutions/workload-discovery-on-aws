@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <title>
+        Env-variable-light-bg
+    </title>
+    <rect width="75" height="75" fill="transparent"/>
+    <g transform="translate(5,2)">
+        <path d="M29,44.8H6.5a.94.94,0,0,1-1-1v-29a.94.94,0,0,1,1-1h30a.94.94,0,0,1,1,1l.1,18.8h-2l-.1-17.8H7.5V42.9H29Z" transform="translate(-5.4 -2.5) scale(1.5)" fill="#cd2264"/>
+        <path d="M36.5,12H6.4a1,1,0,0,1-1-1,1.42,1.42,0,0,1,.2-.6L11,2.9a.91.91,0,0,1,.8-.4H31.1a1.23,1.23,0,0,1,.8.4l5.3,7.5a1.08,1.08,0,0,1-.2,1.4A.76.76,0,0,1,36.5,12ZM8.4,10H34.6L30.7,4.5H12.3Z" transform="translate(-5.4 -2.5) scale(1.5)" fill="#cd2264"/>
+        <path d="M28.1,38.3H14.9a.94.94,0,0,1-1-1V20.4a.94.94,0,0,1,1-1H28a.94.94,0,0,1,1,1V37.3A.92.92,0,0,1,28.1,38.3Zm-12.2-2H27V21.4H15.9Z" transform="translate(-5.4 -2.5) scale(1.5)" fill="#cd2264"/>
+        <rect x="12.3" y="21.6" width="7.5" height="2" fill="#cd2264" transform="scale(1.5)"/>
+        <rect x="12.3" y="25.3" width="7.5" height="2" fill="#cd2264" transform="scale(1.5)"/>
+        <rect x="12.3" y="29.1" width="7.5" height="2" fill="#cd2264" transform="scale(1.5)"/>
+        <path d="M33.8,37.4s4,.4,4,4-4.1,4.1-4.1,4.1" transform="translate(-5.4 -2.5) scale(1.5)" fill="none" stroke="#cd2264" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <path d="M44.2,37.4s-4,.4-4,4,4.1,4.1,4.1,4.1" transform="translate(-5.4 -2.5) scale(1.5)" fill="none" stroke="#cd2264" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    </g>
+</svg>

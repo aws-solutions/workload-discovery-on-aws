@@ -1,0 +1,1864 @@
+{
+    "UserDetailList": [],
+    "GroupDetailList": [],
+    "RoleDetailList": [],
+    "Policies": [
+        {
+            "PolicyName": "start-pipeline-execution-eu-west-1-zoom-api",
+            "PolicyId": "ANPA5XIWUT3P4MSGYBY25",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/start-pipeline-execution-eu-west-1-zoom-api",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v2",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-06-24T12:51:40Z",
+            "UpdateDate": "2019-06-24T12:51:40Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "codepipeline:StartPipelineExecution"
+                                ],
+                                "Resource": [
+                                    "arn:aws:codepipeline:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-06-24T12:51:40Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "codepipeline:StartPipelineExecution"
+                                ],
+                                "Resource": [
+                                    "arn:aws:codepipeline:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-24T12:51:40Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AwsSecurityNacundaAuditPolicy",
+            "PolicyId": "ANPA5XIWUT3P75I565ABS",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/AwsSecurityNacundaAuditPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-04-03T09:07:23Z",
+            "UpdateDate": "2019-04-03T09:07:23Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "guardduty:CreateDetector",
+                                    "guardduty:GetDetector",
+                                    "guardduty:ListDetectors",
+                                    "guardduty:UpdateDetector"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "iam:CreateServiceLinkedRole"
+                                ],
+                                "Resource": "arn:aws:iam::XXXXXXXXXXXX:role/aws-service-role/guardduty.amazonaws.com/AWSServiceRoleForAmazonGuardDuty",
+                                "Condition": {
+                                    "StringLike": {
+                                        "iam:AWSServiceName": "guardduty.amazonaws.com"
+                                    }
+                                }
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "events:PutRule"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "events:DeleteRule",
+                                    "events:DescribeRule",
+                                    "events:DisableRule",
+                                    "events:EnableRule",
+                                    "events:ListTargetsByRule",
+                                    "events:PutTargets",
+                                    "events:RemoveTargets"
+                                ],
+                                "Resource": "arn:aws:events:*:XXXXXXXXXXXX:rule/AwsSecurityNacundaAuditFindings-DO-NOT-DELETE"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-04-03T09:07:23Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeBuildBasePolicy-zoom-api-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3P7CLHX2ZMO",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/CodeBuildBasePolicy-zoom-api-eu-west-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v5",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-06-24T12:03:58Z",
+            "UpdateDate": "2019-06-24T12:26:36Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-api-bucket",
+                                    "arn:aws:s3:::zoom-api-bucket/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v5",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-06-24T12:26:36Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-api-bucket",
+                                    "arn:aws:s3:::zoom-api-bucket/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v4",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-24T12:23:26Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-api",
+                                    "arn:aws:s3:::zoom-api/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v3",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-24T12:20:18Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-24T12:08:22Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-api:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-api"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-24T12:03:58Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "dev-appname-neptune-cw-policy-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3P7UWZPSO6L",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/dev-appname-neptune-cw-policy-eu-west-1",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-08-12T16:31:23Z",
+            "UpdateDate": "2019-08-12T16:31:23Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:PutRetentionPolicy"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:log-group:/aws/neptune/*"
+                                ],
+                                "Effect": "Allow",
+                                "Sid": "EnableLogGroups"
+                            },
+                            {
+                                "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents",
+                                    "logs:DescriptLogStreams",
+                                    "logs:GetLogEvents"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:log-group:/aws/neptune/*:log-stream:*"
+                                ],
+                                "Effect": "Allow",
+                                "Sid": "EnableLogStreams"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-08-12T16:31:23Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AWS_Events_Invoke_ECS_1857758633",
+            "PolicyId": "ANPA5XIWUT3P7Y43QNS7O",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/AWS_Events_Invoke_ECS_1857758633",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-08-07T00:40:13Z",
+            "UpdateDate": "2019-08-07T00:40:13Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ecs:RunTask"
+                                ],
+                                "Resource": [
+                                    "arn:aws:ecs:*:XXXXXXXXXXXX:task-definition/Scratch-TaskDefinition"
+                                ],
+                                "Condition": {
+                                    "ArnLike": {
+                                        "ecs:cluster": "arn:aws:ecs:*:XXXXXXXXXXXX:cluster/Scratch-Cluster"
+                                    }
+                                }
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": "iam:PassRole",
+                                "Resource": [
+                                    "*"
+                                ],
+                                "Condition": {
+                                    "StringLike": {
+                                        "iam:PassedToService": "ecs-tasks.amazonaws.com"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-08-07T00:40:13Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AWSLambdaBasicExecutionRole-6c1b4505-af7c-4018-9512-9128f0b5a04c",
+            "PolicyId": "ANPA5XIWUT3PQZCZZTZNJ",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/AWSLambdaBasicExecutionRole-6c1b4505-af7c-4018-9512-9128f0b5a04c",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-06-04T10:51:11Z",
+            "UpdateDate": "2019-06-04T10:51:11Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "logs:CreateLogGroup",
+                                "Resource": "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/lambda/gremlin-dev:*"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-06-04T10:51:11Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "zoom-bootstrap-policy",
+            "PolicyId": "ANPA5XIWUT3PR7TBVFPVQ",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/zoom-bootstrap-policy",
+            "Path": "/",
+            "DefaultVersionId": "v5",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-06-13T09:34:15Z",
+            "UpdateDate": "2019-07-30T10:30:47Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "VisualEditor0",
+                                "Effect": "Allow",
+                                "Action": "s3:ListBucket",
+                                "Resource": "arn:aws:s3:::bucket-name"
+                            },
+                            {
+                                "Sid": "VisualEditor1",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": "arn:aws:s3:::zoom-discovery-data/*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:*Object"
+                                ],
+                                "Resource": "arn:aws:s3:::zoom-discovery-bucket-aws-dev/*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject"
+                                ],
+                                "Resource": "arn:aws:s3:::zoom-discovery-bucket-aws-dev",
+                                "Effect": "Allow"
+                            }
+                        ]
+                    },
+                    "VersionId": "v5",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-07-30T10:30:47Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "VisualEditor0",
+                                "Effect": "Allow",
+                                "Action": "s3:ListBucket",
+                                "Resource": "arn:aws:s3:::bucket-name"
+                            },
+                            {
+                                "Sid": "VisualEditor1",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": "arn:aws:s3:::zoom-discovery-data/*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject"
+                                ],
+                                "Resource": "arn:aws:s3:::zoom-discovery-bucket-aws-dev/*",
+                                "Effect": "Allow"
+                            }
+                        ]
+                    },
+                    "VersionId": "v4",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-07-30T10:29:03Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "VisualEditor0",
+                                "Effect": "Allow",
+                                "Action": "s3:ListBucket",
+                                "Resource": "arn:aws:s3:::bucket-name"
+                            },
+                            {
+                                "Sid": "VisualEditor1",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": "arn:aws:s3:::zoom-discovery-data/*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:*Object"
+                                ],
+                                "Resource": "arn:aws:s3:::zoom-discovery-bucket-aws-dev/*",
+                                "Effect": "Allow"
+                            }
+                        ]
+                    },
+                    "VersionId": "v3",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-07-29T16:01:50Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "VisualEditor0",
+                                "Effect": "Allow",
+                                "Action": "s3:ListBucket",
+                                "Resource": "arn:aws:s3:::bucket-name"
+                            },
+                            {
+                                "Sid": "VisualEditor1",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": "arn:aws:s3:::zoom-discovery-data/*"
+                            },
+                            {
+                                "Action": [
+                                    "s3:*Object"
+                                ],
+                                "Resource": "arn:aws:s3:::zoom-discovery-bucket-aws-dev",
+                                "Effect": "Allow"
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-07-29T15:54:57Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "VisualEditor0",
+                                "Effect": "Allow",
+                                "Action": "s3:ListBucket",
+                                "Resource": "arn:aws:s3:::bucket-name"
+                            },
+                            {
+                                "Sid": "VisualEditor1",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": "arn:aws:s3:::zoom-discovery-data/*"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-06-13T09:34:15Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AWSCloudTrailAccessPolicy",
+            "PolicyId": "ANPA5XIWUT3PRL4FSZTUD",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/AWSCloudTrailAccessPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-04-03T09:07:23Z",
+            "UpdateDate": "2019-04-03T09:07:23Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:CreateBucket",
+                                    "s3:PutBucketPolicy",
+                                    "s3:PutLifecycleConfiguration"
+                                ],
+                                "Resource": "arn:aws:s3:::cloudtrail-awslogs-*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:ListAllMyBuckets"
+                                ],
+                                "Resource": "arn:aws:s3:::*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudtrail:CreateTrail",
+                                    "cloudtrail:StartLogging"
+                                ],
+                                "Resource": "*"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-04-03T09:07:23Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeBuildBasePolicy-zoom_discovery-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3PSXI6FK57R",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/CodeBuildBasePolicy-zoom_discovery-eu-west-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v3",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-15T10:53:17Z",
+            "UpdateDate": "2019-05-15T11:48:50Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-discovery-codebuild",
+                                    "arn:aws:s3:::zoom-discovery-codebuild/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v3",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-15T11:48:50Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-discovery-codebuild",
+                                    "arn:aws:s3:::zoom-discovery-codebuild/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-15T11:47:43Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom_discovery:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-discovery-codebuild",
+                                    "arn:aws:s3:::zoom-discovery-codebuild/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-15T10:53:17Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "start-pipeline-execution-eu-west-1-zoom-discovery",
+            "PolicyId": "ANPA5XIWUT3PTSOS4EAST",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/start-pipeline-execution-eu-west-1-zoom-discovery",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v2",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-17T15:20:52Z",
+            "UpdateDate": "2019-05-17T15:20:52Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "codepipeline:StartPipelineExecution"
+                                ],
+                                "Resource": [
+                                    "arn:aws:codepipeline:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-17T15:20:52Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "codepipeline:StartPipelineExecution"
+                                ],
+                                "Resource": [
+                                    "arn:aws:codepipeline:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-17T15:20:52Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeBuildBasePolicy-zoom-discovery-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3PUSMAS3GEO",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/CodeBuildBasePolicy-zoom-discovery-eu-west-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-15T10:49:10Z",
+            "UpdateDate": "2019-05-15T10:49:10Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-discovery",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-discovery:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-discovery"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-discovery-codeBuild",
+                                    "arn:aws:s3:::zoom-discovery-codeBuild/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-15T10:49:10Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeDeploy-EC2-Permissions",
+            "PolicyId": "ANPA5XIWUT3PVWIUE4O2M",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/CodeDeploy-EC2-Permissions",
+            "Path": "/",
+            "DefaultVersionId": "v2",
+            "AttachmentCount": 3,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-17T11:00:41Z",
+            "UpdateDate": "2019-05-17T14:00:09Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:Get*",
+                                    "s3:List*"
+                                ],
+                                "Resource": "*"
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-17T14:00:09Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:Get*",
+                                    "s3:List*"
+                                ],
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-discovery-codebuild/*",
+                                    "arn:aws:s3:::aws-codedeploy-us-east-2/*",
+                                    "arn:aws:s3:::aws-codedeploy-us-east-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-us-west-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-us-west-2/*",
+                                    "arn:aws:s3:::aws-codedeploy-ca-central-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-eu-west-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-eu-west-2/*",
+                                    "arn:aws:s3:::aws-codedeploy-eu-west-3/*",
+                                    "arn:aws:s3:::aws-codedeploy-eu-central-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-east-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-northeast-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-northeast-2/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-southeast-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-southeast-2/*",
+                                    "arn:aws:s3:::aws-codedeploy-ap-south-1/*",
+                                    "arn:aws:s3:::aws-codedeploy-sa-east-1/*"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-17T11:00:41Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "ConfigAccessPolicy",
+            "PolicyId": "ANPA5XIWUT3PXNZWZKOKL",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/ConfigAccessPolicy",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-04-03T09:07:24Z",
+            "UpdateDate": "2019-04-03T09:07:24Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:CreateBucket",
+                                    "s3:DeleteBucket",
+                                    "s3:PutBucketPolicy"
+                                ],
+                                "Resource": "arn:aws:s3:::config-bucket-trustedservice-do-not-delete-*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:ListAllMyBuckets"
+                                ],
+                                "Resource": "arn:aws:s3:::*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "config:*"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "iam:GetRole",
+                                    "iam:PassRole",
+                                    "iam:CreateServiceLinkedRole",
+                                    "iam:DeleteServiceLinkedRole",
+                                    "iam:GetServiceLinkedRoleDeletionStatus"
+                                ],
+                                "Resource": "arn:aws:iam::*:role/aws-service-role/config.amazonaws.com/*"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-04-03T09:07:24Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeBuildBasePolicy-zoom-ui-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3PXXDERMG6N",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/CodeBuildBasePolicy-zoom-ui-eu-west-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v6",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-20T14:32:42Z",
+            "UpdateDate": "2019-05-20T15:30:00Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-ui"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-ui",
+                                    "arn:aws:s3:::zoom-ui/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v6",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-20T15:30:00Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-ui"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-ui",
+                                    "arn:aws:s3:::zoom-ui/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v5",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-20T15:15:01Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-ui"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-ui",
+                                    "arn:aws:s3:::zoom-ui/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v4",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-20T15:01:46Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-ui"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-ui",
+                                    "arn:aws:s3:::zoom-ui/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v3",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-20T14:39:07Z"
+                },
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:/aws/codebuild/zoom-ui:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::codepipeline-eu-west-1-*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetObject",
+                                    "s3:GetObjectVersion",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:codecommit:eu-west-1:XXXXXXXXXXXX:zoom-ui"
+                                ],
+                                "Action": [
+                                    "codecommit:GitPull"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:s3:::zoom-ui",
+                                    "arn:aws:s3:::zoom-ui/*"
+                                ],
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:GetBucketAcl",
+                                    "s3:GetBucketLocation"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v2",
+                    "IsDefaultVersion": false,
+                    "CreateDate": "2019-05-20T14:37:27Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AWSCodePipelineServiceRole-eu-west-1-zoom-discovery",
+            "PolicyId": "ANPA5XIWUT3PYAQ6FAKPI",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/AWSCodePipelineServiceRole-eu-west-1-zoom-discovery",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-17T15:20:49Z",
+            "UpdateDate": "2019-05-17T15:20:49Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:PassRole"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow",
+                                "Condition": {
+                                    "StringEqualsIfExists": {
+                                        "iam:PassedToService": [
+                                            "cloudformation.amazonaws.com",
+                                            "elasticbeanstalk.amazonaws.com",
+                                            "ec2.amazonaws.com",
+                                            "ecs-tasks.amazonaws.com"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "Action": [
+                                    "codecommit:CancelUploadArchive",
+                                    "codecommit:GetBranch",
+                                    "codecommit:GetCommit",
+                                    "codecommit:GetUploadArchiveStatus",
+                                    "codecommit:UploadArchive"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "codedeploy:CreateDeployment",
+                                    "codedeploy:GetApplication",
+                                    "codedeploy:GetApplicationRevision",
+                                    "codedeploy:GetDeployment",
+                                    "codedeploy:GetDeploymentConfig",
+                                    "codedeploy:RegisterApplicationRevision"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "elasticbeanstalk:*",
+                                    "ec2:*",
+                                    "elasticloadbalancing:*",
+                                    "autoscaling:*",
+                                    "cloudwatch:*",
+                                    "s3:*",
+                                    "sns:*",
+                                    "cloudformation:*",
+                                    "rds:*",
+                                    "sqs:*",
+                                    "ecs:*"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "lambda:InvokeFunction",
+                                    "lambda:ListFunctions"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "opsworks:CreateDeployment",
+                                    "opsworks:DescribeApps",
+                                    "opsworks:DescribeCommands",
+                                    "opsworks:DescribeDeployments",
+                                    "opsworks:DescribeInstances",
+                                    "opsworks:DescribeStacks",
+                                    "opsworks:UpdateApp",
+                                    "opsworks:UpdateStack"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "cloudformation:CreateStack",
+                                    "cloudformation:DeleteStack",
+                                    "cloudformation:DescribeStacks",
+                                    "cloudformation:UpdateStack",
+                                    "cloudformation:CreateChangeSet",
+                                    "cloudformation:DeleteChangeSet",
+                                    "cloudformation:DescribeChangeSet",
+                                    "cloudformation:ExecuteChangeSet",
+                                    "cloudformation:SetStackPolicy",
+                                    "cloudformation:ValidateTemplate"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "codebuild:BatchGetBuilds",
+                                    "codebuild:StartBuild"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "devicefarm:ListProjects",
+                                    "devicefarm:ListDevicePools",
+                                    "devicefarm:GetRun",
+                                    "devicefarm:GetUpload",
+                                    "devicefarm:CreateUpload",
+                                    "devicefarm:ScheduleRun"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "servicecatalog:ListProvisioningArtifacts",
+                                    "servicecatalog:CreateProvisioningArtifact",
+                                    "servicecatalog:DescribeProvisioningArtifact",
+                                    "servicecatalog:DeleteProvisioningArtifact",
+                                    "servicecatalog:UpdateProduct"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudformation:ValidateTemplate"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ecr:DescribeImages"
+                                ],
+                                "Resource": "*"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-17T15:20:49Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "AWSCodePipelineServiceRole-eu-west-1-zoom-api",
+            "PolicyId": "ANPA5XIWUT3PYCWBHZSHU",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/AWSCodePipelineServiceRole-eu-west-1-zoom-api",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-06-24T12:51:39Z",
+            "UpdateDate": "2019-06-24T12:51:39Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "iam:PassRole"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow",
+                                "Condition": {
+                                    "StringEqualsIfExists": {
+                                        "iam:PassedToService": [
+                                            "cloudformation.amazonaws.com",
+                                            "elasticbeanstalk.amazonaws.com",
+                                            "ec2.amazonaws.com",
+                                            "ecs-tasks.amazonaws.com"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "Action": [
+                                    "codecommit:CancelUploadArchive",
+                                    "codecommit:GetBranch",
+                                    "codecommit:GetCommit",
+                                    "codecommit:GetUploadArchiveStatus",
+                                    "codecommit:UploadArchive"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "codedeploy:CreateDeployment",
+                                    "codedeploy:GetApplication",
+                                    "codedeploy:GetApplicationRevision",
+                                    "codedeploy:GetDeployment",
+                                    "codedeploy:GetDeploymentConfig",
+                                    "codedeploy:RegisterApplicationRevision"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "elasticbeanstalk:*",
+                                    "ec2:*",
+                                    "elasticloadbalancing:*",
+                                    "autoscaling:*",
+                                    "cloudwatch:*",
+                                    "s3:*",
+                                    "sns:*",
+                                    "cloudformation:*",
+                                    "rds:*",
+                                    "sqs:*",
+                                    "ecs:*"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "lambda:InvokeFunction",
+                                    "lambda:ListFunctions"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "opsworks:CreateDeployment",
+                                    "opsworks:DescribeApps",
+                                    "opsworks:DescribeCommands",
+                                    "opsworks:DescribeDeployments",
+                                    "opsworks:DescribeInstances",
+                                    "opsworks:DescribeStacks",
+                                    "opsworks:UpdateApp",
+                                    "opsworks:UpdateStack"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "cloudformation:CreateStack",
+                                    "cloudformation:DeleteStack",
+                                    "cloudformation:DescribeStacks",
+                                    "cloudformation:UpdateStack",
+                                    "cloudformation:CreateChangeSet",
+                                    "cloudformation:DeleteChangeSet",
+                                    "cloudformation:DescribeChangeSet",
+                                    "cloudformation:ExecuteChangeSet",
+                                    "cloudformation:SetStackPolicy",
+                                    "cloudformation:ValidateTemplate"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "codebuild:BatchGetBuilds",
+                                    "codebuild:StartBuild"
+                                ],
+                                "Resource": "*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "devicefarm:ListProjects",
+                                    "devicefarm:ListDevicePools",
+                                    "devicefarm:GetRun",
+                                    "devicefarm:GetUpload",
+                                    "devicefarm:CreateUpload",
+                                    "devicefarm:ScheduleRun"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "servicecatalog:ListProvisioningArtifacts",
+                                    "servicecatalog:CreateProvisioningArtifact",
+                                    "servicecatalog:DescribeProvisioningArtifact",
+                                    "servicecatalog:DeleteProvisioningArtifact",
+                                    "servicecatalog:UpdateProduct"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudformation:ValidateTemplate"
+                                ],
+                                "Resource": "*"
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ecr:DescribeImages"
+                                ],
+                                "Resource": "*"
+                            }
+                        ],
+                        "Version": "2012-10-17"
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-06-24T12:51:39Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "dev-appname-neptune-s3-policy-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3PYGPR54GZS",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/dev-appname-neptune-s3-policy-eu-west-1",
+            "Path": "/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-08-12T16:31:23Z",
+            "UpdateDate": "2019-08-12T16:31:23Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Action": [
+                                    "s3:Get*",
+                                    "s3:List*"
+                                ],
+                                "Resource": [
+                                    "arn:aws:s3:::*"
+                                ],
+                                "Effect": "Allow",
+                                "Sid": "AllowNeptuneAccessToS3"
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-08-12T16:31:23Z"
+                }
+            ]
+        },
+        {
+            "PolicyName": "CodeBuildCloudWatchLogsPolicy-zoom_discovery-eu-west-1",
+            "PolicyId": "ANPA5XIWUT3PZWY35FBHP",
+            "Arn": "arn:aws:iam::XXXXXXXXXXXX:policy/service-role/CodeBuildCloudWatchLogsPolicy-zoom_discovery-eu-west-1",
+            "Path": "/service-role/",
+            "DefaultVersionId": "v1",
+            "AttachmentCount": 1,
+            "PermissionsBoundaryUsageCount": 0,
+            "IsAttachable": true,
+            "CreateDate": "2019-05-15T20:43:53Z",
+            "UpdateDate": "2019-05-15T20:43:53Z",
+            "PolicyVersionList": [
+                {
+                    "Document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Resource": [
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:zoom-discovery",
+                                    "arn:aws:logs:eu-west-1:XXXXXXXXXXXX:log-group:zoom-discovery:*"
+                                ],
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ]
+                            }
+                        ]
+                    },
+                    "VersionId": "v1",
+                    "IsDefaultVersion": true,
+                    "CreateDate": "2019-05-15T20:43:53Z"
+                }
+            ]
+        }
+    ]
+}

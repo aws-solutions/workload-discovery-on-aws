@@ -1,0 +1,24 @@
+{
+    "command": "runGremlin",
+    "data": [
+    {
+        "as":
+        {
+            "parameter": "a"
+        }
+    },
+    {
+        #if($where) "where": [{"both": {"parameter": "$where.constraint", "subFunction": [{"count": {} }, {"is": {"parameter": $where.constraintValue } }] } }]#end
+
+    },
+    {
+        "select":
+        {
+            "parameter": "a"
+        }
+    },
+    {
+        #foreach( $property in $properties )"has": [{"$property.name": "$property.value"}]#end
+        
+    }]
+}

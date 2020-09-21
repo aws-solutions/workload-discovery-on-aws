@@ -1,0 +1,252 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "command": {
+      "enum": [
+        "addNode",
+        "addEdge",
+        "viewAllNodesAndLinks",
+        "viewAllNodes",
+        "viewAllEdges",
+        "downloadAccountCloudFormation",
+        "downloadRegionCloudFormation",
+        "getDiscoveryConfig",
+        "storeDiscoveryConfig",
+        "getImportMetaData",
+        "deleteAllNodes",
+        "getDeletedLinkedNodes",
+        "linkedNodes",
+        "linkedNodesHierarchy",
+        "filterNodes",
+        "filterNodesHierarchy",
+        "runGremlin",
+        "deleteNodes",
+        "hardDeleteNodes",
+        "getAllResources",
+        "getNodeFromId"
+      ]
+    },
+    "data": {
+      "type": ["object", "array"],
+      "properties": {
+        "properties": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "accountFilter": {
+          "type": "object",
+          "patternProperties": {
+            "^[0-9]+$": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resourceValue": {
+          "type": "string"
+        },
+        "deleteDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zoomConfiguration": {
+          "type": "object",
+          "required": [
+            "importAccounts"
+          ],
+          "properties": {
+            "importAccounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "accountId"
+                ],
+                "properties": {
+                  "accountId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "addNode",
+            "getNodeFromId",
+            "linkedNodes",
+            "linkedNodesHierarchy"
+          ]
+        },
+        "data": {
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "getDeletedLinkedNodes"
+          ]
+        },
+        "data": {
+          "required": [
+            "id",
+            "deleteDate"
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "addEdge"
+          ]
+        },
+        "data": {
+          "required": [
+            "source",
+            "target"
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "storeDiscoveryConfig"
+          ]
+        },
+        "data": {
+          "required": [
+            "zoomConfiguration"
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "description": "These commands do not require a data parameter",
+      "properties": {
+        "command": {
+          "enum": [
+            "viewAllNodes",
+            "viewAllEdges",
+            "viewAllNodesAndLinks",
+            "downloadAccountCloudFormation",
+            "downloadRegionCloudFormation",
+            "getDiscoveryConfig",
+            "getImportMetaData",
+            "deleteAllNodes",
+            "getAllResources"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "deleteNodes",
+            "hardDeleteNodes"
+          ]
+        },
+        "data": {
+          "required": [
+            "nodes"
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "properties": {
+        "command": {
+          "enum": [
+            "filterNodes",
+            "filterNodesHierarchy"
+          ]
+        },
+        "data": {
+          "anyOf": [
+            {
+              "required": [
+                "resourceId"
+              ]
+            },
+            {
+              "required": [
+                "resourceType"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    {
+      "description": "These commands do not have full schemas",
+      "properties": {
+        "command": {
+          "enum": [
+            "runGremlin"
+          ]
+        }
+      }
+    }
+  ],
+  "required": [
+    "command"
+  ]
+}

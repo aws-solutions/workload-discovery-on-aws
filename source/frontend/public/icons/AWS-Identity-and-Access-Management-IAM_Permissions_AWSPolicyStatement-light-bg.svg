@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <title>AWS-Identity-and-Access-Management-IAM_Permissions_light-bg</title>
+    <g id="Working" transform="scale(1.5)">
+        <path style="fill:#693cc5" d="M41,48.5H9a2.81,2.81,0,0,1-2.8-2.81V4.31A2.81,2.81,0,0,1,9,1.5H41a2.81,2.81,0,0,1,2.8,2.81V45.69A2.81,2.81,0,0,1,41,48.5ZM9,3.5a.8.8,0,0,0-.8.81V45.69a.8.8,0,0,0,.8.81H41a.8.8,0,0,0,.8-.81V4.31A.8.8,0,0,0,41,3.5Z"/>
+        <rect style="fill:#693cc5" x="15.09" y="31.69" width="2" height="11.93" transform="translate(-21.91 22.41) rotate(-45)"/>
+        <rect style="fill:#693cc5" x="10.13" y="36.66" width="11.93" height="2" transform="translate(-21.91 22.41) rotate(-45)"/>
+        <path style="fill:#693cc5" d="M14.69,15.69a1,1,0,0,1-.71-.3l-3.75-3.75,1.41-1.41,3,3,6.79-6.79,1.41,1.41-7.5,7.5A1,1,0,0,1,14.69,15.69Z"/>
+        <path style="fill:#693cc5" d="M14.69,27.88a1,1,0,0,1-.71-.3l-3.75-3.75,1.41-1.41,3,3,6.79-6.79,1.41,1.41-7.5,7.5A1,1,0,0,1,14.69,27.88Z"/>
+    </g>
+</svg>

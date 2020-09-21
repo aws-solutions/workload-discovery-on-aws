@@ -1,0 +1,19 @@
+<svg id="Layer_1" data-name="Layer 1" 
+    xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <g transform="scale(2.0) translate(0,0)">
+    <rect width="75" height="75" style="fill:transparent"/>
+    <path d="M17.51,17.83a2.38,2.38,0,0,0-.5,4.71v3.29h1V22.54a2.38,2.38,0,0,0-.5-4.71Zm0,3.76a1.38,1.38,0,1,1,1.38-1.38A1.38,1.38,0,0,1,17.51,21.59Z" style="fill:#248814"/>
+    <path d="M22.72,14.3V11.63a5.22,5.22,0,1,0-10.44,0V14.3H9.14V28.59H25.86V14.3Zm-9.44-2.67a4.22,4.22,0,1,1,8.44,0V14.3H13.28Zm11.58,16H10.14V15.3H24.86Z" style="fill:#248814"/>
+    </g>
+    <style type="text/css">
+        .st4{fill:#1d8102}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(50,2)">
+            <path class="st4" d="M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6
+			S11.3,14,8,14z"/>
+            <polygon class="st4" points="7,8.6 5,6.6 3.6,8 7,11.4 11.9,6.5 10.5,5.1 		"/>
+        </g>
+    </g>
+</svg>

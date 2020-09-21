@@ -1,0 +1,12 @@
+<svg id="Layer_1" data-name="Layer 1" 
+    xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
+    <title>Amazon-VPC_Router_light-bg</title>
+    <path d="M25,48.5A23.5,23.5,0,1,1,48.5,25,23.52,23.52,0,0,1,25,48.5Zm0" stroke="#693cc5" fill="#FFFFFF" fill-opacity="1.0"/>
+    <path d="M28.9,12.46,25,7.92l-3.9,4.54-1.51-1.3,4.65-5.43a1,1,0,0,1,1.52,0l4.65,5.43Z" style="fill:#693cc5"/>
+    <rect x="24" y="7.12" width="2" height="35.75" style="fill:#693cc5"/>
+    <path d="M25,44.62h0a1,1,0,0,1-.71-.29l-4.65-4.66,1.41-1.41,3.95,4,3.95-4,1.41,1.41-4.65,4.66A1,1,0,0,1,25,44.62Z" style="fill:#693cc5"/>
+    <path d="M18,30.36,16.53,29,20.48,25l-3.95-3.95L18,19.64l4.65,4.65a1,1,0,0,1,0,1.42Z" style="fill:#693cc5"/>
+    <path d="M32.05,30.36,27.4,25.71a1,1,0,0,1,0-1.42l4.65-4.65,1.42,1.41L29.52,25,33.47,29Z" style="fill:#693cc5"/>
+    <rect x="28.1" y="24" width="17.07" height="2" style="fill:#693cc5"/>
+    <rect x="4.83" y="24" width="17.07" height="2" style="fill:#693cc5"/>
+</svg>

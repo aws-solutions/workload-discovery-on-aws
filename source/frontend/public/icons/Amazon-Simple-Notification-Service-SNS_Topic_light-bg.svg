@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#cd2264}
+        </style>
+    </defs>
+    <title>
+        Amazon-Simple-Notification-Service-SNS_Topic_light-bg
+    </title>
+    <g id="Working" transform="scale(1.5)">
+        <path class="cls-1" d="M47.5,17.09H2.5a1,1,0,0,1-1-1V5.78a1,1,0,0,1,1-1h45a1,1,0,0,1,1,1V16.09A1,1,0,0,1,47.5,17.09Zm-44-2h43V6.78H3.5Z"/>
+        <path class="cls-1" d="M47.5,31.16h-2v-2h1v-1h2v2A1,1,0,0,1,47.5,31.16Z"/>
+        <path class="cls-1" d="M43.64,31.16H39.91v-2h3.73Zm-5.59,0H34.32v-2h3.73Zm-5.59,0H28.73v-2h3.73Zm-5.6,0H23.14v-2h3.72Zm-5.59,0H17.55v-2h3.72Zm-5.59,0H12v-2h3.72Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M4.5,31.16h-2a1,1,0,0,1-1-1v-2h2v1h1Z"/>
+        <rect class="cls-1" x="1.5" y="23.42" width="2" height="3.16"/>
+        <path class="cls-1" d="M3.5,21.84h-2v-2a1,1,0,0,1,1-1h2v2h-1Z"/>
+        <path class="cls-1" d="M43.64,20.84H39.91v-2h3.73Zm-5.6,0H34.32v-2H38Zm-5.59,0H28.73v-2h3.72Zm-5.59,0H23.14v-2h3.72Zm-5.59,0H17.54v-2h3.73Zm-5.59,0H12v-2h3.73Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M48.5,21.84h-2v-1h-1v-2h2a1,1,0,0,1,1,1Z"/>
+        <rect class="cls-1" x="46.5" y="23.42" width="2" height="3.16"/>
+        <path class="cls-1" d="M47.5,45.22h-2v-2h1v-1h2v2A1,1,0,0,1,47.5,45.22Z"/>
+        <path class="cls-1" d="M43.64,45.22H39.91v-2h3.73Zm-5.59,0H34.32v-2h3.73Zm-5.59,0H28.73v-2h3.73Zm-5.6,0H23.14v-2h3.72Zm-5.59,0H17.55v-2h3.72Zm-5.59,0H12v-2h3.72Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M4.5,45.22h-2a1,1,0,0,1-1-1v-2h2v1h1Z"/>
+        <rect class="cls-1" x="1.5" y="37.48" width="2" height="3.16"/>
+        <path class="cls-1" d="M3.5,35.91h-2v-2a1,1,0,0,1,1-1h2v2h-1Z"/>
+        <path class="cls-1" d="M43.64,34.91H39.91v-2h3.73Zm-5.6,0H34.32v-2H38Zm-5.59,0H28.73v-2h3.72Zm-5.59,0H23.14v-2h3.72Zm-5.59,0H17.54v-2h3.73Zm-5.59,0H12v-2h3.73Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M48.5,35.91h-2v-1h-1v-2h2a1,1,0,0,1,1,1Z"/>
+        <rect class="cls-1" x="46.5" y="37.48" width="2" height="3.16"/>
+    </g>
+</svg>

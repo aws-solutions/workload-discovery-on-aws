@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <title>
+        status-pending
+    </title>
+    <g id="icons">
+        <circle cx="8" cy="8" r="7" style="stroke-linejoin:round;fill:none;stroke:#ff9900;stroke-width:2px"/>
+        <polyline points="8 5 8 9 5 9" style="stroke-linecap:square;stroke-miterlimit:10;fill:none;stroke:#ff9900;stroke-width:2px"/>
+    </g>
+</svg>

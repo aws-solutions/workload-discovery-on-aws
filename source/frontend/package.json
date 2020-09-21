@@ -1,0 +1,109 @@
+{
+  "name": "perspective-ui",
+  "version": "1.1.1",
+  "private": true,
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.9.6",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-react": "^7.8.3",
+    "@types/jest": "^25.1.3",
+    "@types/node": "^12.12.17",
+    "amplify-graphql-docs-generator": "^2.1.16",
+    "nyc": "^15.0.0",
+    "react-test-renderer": "^16.13.0"
+  },
+  "dependencies": {
+    "@aws-amplify/ui-components": "^0.5.1",
+    "@aws-amplify/ui-react": "^0.2.8",
+    "@material-ui/core": "^4.9.14",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.53",
+    "@material-ui/styles": "^4.9.0",
+    "aws-amplify": "^3.0.15",
+    "aws-sdk": "^2.686.0",
+    "browserslist": "^4.9.1",
+    "cytoscape": "3.14.2",
+    "cytoscape-cola": "2.3.1",
+    "cytoscape-context-menus": "3.1.0",
+    "cytoscape-expand-collapse": "3.2.1",
+    "cytoscape-grid-guide": "2.3.1",
+    "cytoscape-popper": "1.0.7",
+    "dayjs": "^1.8.28",
+    "eslint-plugin-flowtype": "^4.6.0",
+    "file-saver": "^2.0.2",
+    "filefy": "^0.1.10",
+    "jquery": "^3.5.1",
+    "jszip": "^3.2.2",
+    "lodash.difference": "^4.5.0",
+    "lodash.findindex": "^4.6.0",
+    "lodash.forown": "^4.4.0",
+    "lodash.groupby": "^4.6.0",
+    "lodash.has": "^4.5.2",
+    "lodash.isobject": "^3.0.2",
+    "lodash.keys": "^4.2.0",
+    "lodash.keysin": "^4.2.0",
+    "lodash.sortby": "^4.7.0",
+    "lodash.uniqby": "^4.7.0",
+    "match-sorter": "^4.0.2",
+    "material-table": "^1.40.1",
+    "object-hash": "^2.0.2",
+    "randomcolor": "^0.5.4",
+    "react": "^16.13.1",
+    "react-cytoscapejs": "^1.2.1",
+    "react-datepicker": "^2.12.1",
+    "react-dom": "^16.13.1",
+    "react-dropzone": "^10.2.1",
+    "react-json-view": "^1.19.1",
+    "react-scripts": "^3.4.1",
+    "react-splitter-layout": "^4.0.0",
+    "regenerator-runtime": "^0.13.5",
+    "tsutils": "^3.17.1",
+    "typescript": "^3.8.3",
+    "velocityjs": "^1.1.3"
+  },
+  "resolutions": {
+    "acorn": "6.4.1"
+  },
+  "scripts": {
+    "preinstall": "npx npm-force-resolutions",
+    "start": "react-scripts start",
+    "build": "npm run graphql-gen && npm run clean && npm i --production && react-scripts --max_old_space_size=4096 build && npm run build:zip && npm run build:dist",
+    "test": "jest --coverage --passWithNoTests && npm prune --production",
+    "build:zip": "cd build && zip -rq ../ui.zip . && cd ..",
+    "eject": "react-scripts eject",
+    "pretest": "npm run clean && npm i",
+    "clean": "rm -rf build && rm -rf node_modules",
+    "build:dist": "mv ui.zip build/",
+    "graphql-gen": "npm i -save-dev amplify-graphql-docs-generator && amplify-graphql-docs-generator --schema ../backend/functions/settings/schema/perspectiveConfig.graphql --output src/API/GraphQL/ --language javascript --separateFiles true"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-runtime"
+    ]
+  },
+  "jest": {
+    "clearMocks": true,
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "verbose": true
+  }
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#3b48cc}
+        </style>
+    </defs>
+    <title>
+        Amazon-DynamoDB_Table_light-bg
+    </title>
+    <g id="Working" transform="scale(1.5)">
+        <path class="cls-1" d="M11.94,11.94H1.5V1.5H11.94Zm-8.44-2H9.94V3.5H3.5Z"/>
+        <path class="cls-1" d="M11.94,24.12H1.5V13.69H11.94Zm-8.44-2H9.94V15.69H3.5Z"/>
+        <path class="cls-1" d="M11.94,36.31H1.5V25.88H11.94Zm-8.44-2H9.94V27.88H3.5Z"/>
+        <path class="cls-1" d="M11.94,48.5H1.5V38.06H11.94Zm-8.44-2H9.94V40.06H3.5Z"/>
+        <path class="cls-1" d="M48.5,11.94H13.69V1.5H48.5Zm-32.81-2H46.5V3.5H15.69Z"/>
+        <path class="cls-1" d="M48.5,24.12H13.69V13.69H48.5Zm-32.81-2H46.5V15.69H15.69Z"/>
+        <path class="cls-1" d="M48.5,36.31H13.69V25.88H48.5Zm-32.81-2H46.5V27.88H15.69Z"/>
+        <path class="cls-1" d="M48.5,48.5H13.69V38.06H48.5Zm-32.81-2H46.5V40.06H15.69Z"/>
+    </g>
+</svg>

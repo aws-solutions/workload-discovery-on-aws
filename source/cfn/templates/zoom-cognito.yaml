@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: This CloudFormation sets up the Amazon Cognito authentication.
+Parameters:
+  AmplifyStorageBucket:
+    Type: String
+    Description: The bucket that will store saved maps
+Resources:
+
+  AuthPerspectiveRole:
+    Type: AWS::IAM::Role
+    Properties:      
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: authenticated
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: "{{resolve:ssm:PerspectiveCognitoIdentityPoolId:1}}"
+      Policies:
+        - PolicyName: AuthPerspectiveCognitoExecuteApiAndStorageBucket
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action: 
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:PutObjectAcl
+                Resource:
+                  - Fn::Sub:
+                      - arn:aws:s3:::${AmplifyStorageBucket}/private/${CognitoSub}/*
+                      - AmplifyStorageBucket: !Ref AmplifyStorageBucket
+                        CognitoSub: '${cognito-identity.amazonaws.com:sub}'
+                  - Fn::Sub:
+                      - arn:aws:s3:::${AmplifyStorageBucket}/protected/${CognitoSub}/*
+                      - AmplifyStorageBucket: !Ref AmplifyStorageBucket
+                        CognitoSub: '${cognito-identity.amazonaws.com:sub}'
+                  - !Sub "arn:aws:s3:::${AmplifyStorageBucket}/public/*"                
+                Effect: Allow
+              - Action: s3:PutObject
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}/uploads/*"
+                Effect: Allow
+              - Action: s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}/protected/*"
+                Effect: Allow
+                Condition:
+                  StringLike: 
+                    s3:prefix:
+                      - "public/"
+                      - "public/*"
+                      - "protected/"
+                      - "protected/*"
+                      - "private/${cognito-identity.amazonaws.com:sub}/"
+                      - "private/${cognito-identity.amazonaws.com:sub}/*"
+              - Action: s3:ListBucket
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}"
+                Effect: "Allow"
+              - Effect: Allow
+                Action:
+                  - execute-api:Invoke
+                Resource: 
+                  - !Sub
+                    - arn:aws:execute-api:${region}:${accountId}:${PerspectiveWebRestAPIId}/*
+                    - PerspectiveWebRestAPIId: '{{resolve:ssm:PerspectiveWebRestAPIId:1}}'
+                      region: !Ref AWS::Region
+                      accountId: !Ref AWS::AccountId
+                  - !Sub
+                    - arn:aws:execute-api:${region}:${accountId}:${PerspectiveDrawioWebRestAPIId}/*
+                    - PerspectiveDrawioWebRestAPIId: '{{resolve:ssm:PerspectiveDrawioWebRestAPIId:1}}'
+                      region: !Ref AWS::Region
+                      accountId: !Ref AWS::AccountId
+
+  IdentityPoolRoleMap:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: "{{resolve:ssm:PerspectiveCognitoIdentityPoolId:1}}"
+      Roles:
+        authenticated:
+          Fn::GetAtt:
+            - AuthPerspectiveRole
+            - Arn
