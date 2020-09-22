@@ -4,6 +4,32 @@ AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as archite
 
 To find out more about AWS Perspective visit the [AWS Perspective Solution Page](https://aws.amazon.com/solutions/implementations/aws-perspective).
 
+## Features
+
+### Build architecture diagrams
+
+AWS Perspective lets you build, customize, and share detailed architecture diagrams. Perspective maintains an inventory of the AWS resources across your accounts and Regions, mapping relationships between them and displaying them in a web user interface (UI).
+
+![Generating an architecture diagram.](/docs/screenshots/full-arch.png "An example of the architecture diagrams you can create")
+
+### Search across Accounts and Regions
+
+The search feature lets you use basic information e.g. resource name, Tag name, or IP address to locate the resources you are interested in.
+
+![Searching for an IP will bring back resources you might be interested in.](/docs/screenshots/ip-search.png "Searching for IP address")
+
+### Explore your AWS Resources
+
+Explore resources provisioned across your accounts and Regions using the resource directory. It contains all the resources Perspective has discovered. You can start building your architecture diagrams with a single click of a resource.
+
+![See the resource directory, detailing each resource that we have discovered.](/docs/screenshots/resource-directory.png "Using the resource directory")
+
+### Save & export architecture diagrams
+
+You can save your architecture diagram to revisit later or share it with other Perspective users. If you need to use the diagrams outside of Perspective you can export to PNG, JSON, CSV, or DrawIO.
+
+To find out more about AWS Perspective visit our [AWS Solutions](https://aws.amazon.com/solutions/implementations/aws-perspective) page.
+
 ## Launch AWS Perspective
 
 | Region   |      Launch      |  Template Link |
