@@ -1,10 +1,34 @@
 # AWS Perspective
 
-AWS Perspective, is a solution that makes it easy for customers to create visualizations of their AWS cloud workloads. Perspective maintains an inventory of AWS resources across accounts and regions, derives relationships between them and makes them available via its console. Customers can build detailed architecture diagrams of their workloads that they can customize and share, with the knowledge that the data is always up to date.
+AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, mapping relationships between them, and displaying them in a web user interface (web UI).
+
+To find out more about AWS Perspective visit the [AWS Perspective Solution Page](https://aws.amazon.com/solutions/implementations/aws-perspective).
+
+## Features
+
+### Build architecture diagrams
+
+AWS Perspective lets you build, customize, and share detailed architecture diagrams. Perspective maintains an inventory of the AWS resources across your accounts and Regions, mapping relationships between them and displaying them in a web user interface (UI).
+
+![Generating an architecture diagram.](/docs/screenshots/full-arch.png "An example of the architecture diagrams you can create")
+
+### Search across Accounts and Regions
+
+The search feature lets you use basic information e.g. resource name, Tag name, or IP address to locate the resources you are interested in.
+
+![Searching for an IP will bring back resources you might be interested in.](/docs/screenshots/ip-search.png "Searching for IP address")
+
+### Explore your AWS Resources
+
+Explore resources provisioned across your accounts and Regions using the resource directory. It contains all the resources Perspective has discovered. You can start building your architecture diagrams with a single click of a resource.
+
+![See the resource directory, detailing each resource that we have discovered.](/docs/screenshots/resource-directory.png "Using the resource directory")
+
+### Save & export architecture diagrams
+
+You can save your architecture diagram to revisit later or share it with other Perspective users. If you need to use the diagrams outside of Perspective you can export to PNG, JSON, CSV, or DrawIO.
 
 To find out more about AWS Perspective visit our [AWS Solutions](https://aws.amazon.com/solutions/implementations/aws-perspective) page.
-
-To see our roadmap and vote on the features you would like to see implemented, please go to our [project board](https://github.com/awslabs/aws-perspective/projects/2)
 
 ## Launch AWS Perspective
 
@@ -23,39 +47,54 @@ To see our roadmap and vote on the features you would like to see implemented, p
 | Europe (London) (eu-west-2) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-west-2#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
 | Europe (Frankfurt) (eu-central-1)| [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
 
-
-## Feature requests
-
-If you have an idea for a feature you would like to see implemented, please create an issue [here](https://github.com/awslabs/aws-perspective/issues) and use the 'enhancement' label. This will be available on the [project board](https://github.com/awslabs/aws-perspective/projects/2) for others to vote on.
-
 ## Installation
 
-The solution is available as an AWS CloudFormation template and should take about 30 minutes to deploy. See the deployment guide on the [AWS Solutions](https://aws.amazon.com/solutions/) site, for one-click deployment instructions, and the cost overview guide to learn about costs.
+AWS Perspective is deployed to your account using an AWS CloudFormation template and should take approximately 30 minutes to deploy. See the [deployment guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/automated-deployment.html) for instructions, and [the cost overview](https://docs.aws.amazon.com/solutions/latest/aws-perspective/overview.html#cost) to learn about costs.
 
 ## Usage
 
-The solution provides a web user interface.
+A web interface is included with AWS Perspective. To login to the interface, follow the [Post-deployment configuration steps](https://docs.aws.amazon.com/solutions/latest/aws-perspective/automated-deployment.html#step-2.-post-deployment-configuration-tasks) of the installation guide.
 
-See the user guide on the [AWS Solutions](https://aws.amazon.com/solutions/) site to learn how to use the solution.
+Refer to the [implementation guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/appendix-a-web-ui-features-and-common-tasks.html) to learn how to use AWS Perspective.
+
+## Feature requests
+
+To submit an idea for a feature you would like to see implemented, please [create an issue](https://github.com/awslabs/aws-perspective/issues) and use the 'enhancement' label. Your issue will be available on the [project board](https://github.com/awslabs/aws-perspective/projects/2) for others to vote on.
 
 ## Architecture
 
 ![Architecture diagram showing full set of deployment resources](/docs/architecture-diagrams/full-arch-diagram.png "Full architecture diagram")
 
-The AWS CloudFormation template deploys six components to maintain an inventory of AWS resources and display the relationships between them. [Amazon CloudFront](https://aws.amazon.com/cloudfront/) delivers content for the Web UI component. The UI is written in [React](https://reactjs.org/) and hosted from an [Amazon Simple Storage Service (Amazon S3)](https://aws.amazon.com/s3/) bucket (WebUIBucket) and [Lambda@Edge](https://aws.amazon.com/lambda/edge/) appends secure headers to each request. [AWS Amplify](https://aws.amazon.com/amplify/) aids the API integration and provides an abstraction layer for communicating with Amazon S3 (AmplifyStorageBucket) to manage storage actions. Amazon Cognito authenticates users and the [Amazon API Gateway](https://aws.amazon.com/api-gateway/) Client API (PerspectiveWebRestAPI) provides access to relationship data. [AWS AppSync](https://aws.amazon.com/appsync/)
+AWS Perspective is deployed to your account using an AWS CloudFormation template consisting of six components. Following is a high level overview of the components. For additional details about each component, refer to the [Solution components guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/solution-components.html).
 
-An [Amazon Virtual Private Cloud (Amazon VPC)](https://aws.amazon.com/vpc/) contains the data and discovery components. The Lambda function (GremlinFunction) processes requests from API Gateway Client API (PerspectiveWebRestAPI) and queries [Amazon Neptune](https://aws.amazon.com/neptune/) and the cost component to gather the requested data. The API Gateway Server API (ServerGremlinAPI ) receives requests from the AWS Fargate task in the discovery component. The Lambda function (ElasticsearchFunction) processes incoming requests and communicates with the [Amazon Elasticsearch Service (ES) cluster](https://aws.amazon.com/elasticsearch-service/). [Amazon Elastic Container Service (Amazon ECS)](https://aws.amazon.com/ecs/) runs an [AWS Fargate](https://aws.amazon.com/fargate/) task using the container image (using [Docker](https://docs.docker.com/get-started/#images-and-containers)) downloaded from [Amazon Elastic Container Registry (Amazon ECR)](https://aws.amazon.com/ecr/). [AWS Config](https://aws.amazon.com/config/) is used to gather the data about resources running in each account and Region that is made discoverable to AWS Perspective. AWS API calls are used to gather data about resources that are not currently supported by AWS Config.
+The web user interface (UI) interacts with the data component via [Amazon API Gateway](http://aws.amazon.com/api-gateway/) and [AWS AppSync](http://aws.amazon.com/appsync/) endpoints. The web UI requests resource relationship data from the data component. The data component queries and returns data from an [Amazon Neptune](http://aws.amazon.com/neptune/) database.
 
-An [AWS Cost and Usage Report](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html) is published to the Amazon S3 bucket (PerspectiveCostBucket). When the new Amazon S3 object is uploaded, it triggers the Cost Parser Lambda function. An [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) global table stores data for the cost component. Lastly, [AWS CodePipeline](https://aws.amazon.com/codepipeline/) and [AWS CodeBuild](https://aws.amazon.com/codebuild/) build the container image from the code hosted in the Amazon S3 bucket (DiscoveryBucket). 
+The storage management component stores user preferences and saved architecture diagrams. This is implemented using [AWS Amplify](http://aws.amazon.com/amplify/) and an [Amazon Simple Storage Service](http://aws.amazon.com/s3/) (Amazon S3) bucket.
 
+The discovery component uses [AWS Config](http://aws.amazon.com/config) and AWS API calls to maintain an inventory of resource data from imported accounts and Regions, then stores its findings in the data componenet. This runs every 15 minutes as a container task on [AWS Fargate](http://aws.amazon.com/fargate/). The discovery component container image is built in the image deployment component using [AWS CodePipeline](http://aws.amazon.com/codepipeline/) and [AWS CodeBuild](http://aws.amazon.com/codebuild/).
 
-## Local Build Testing
+The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html) (AWS CUR) to make cost data available in AWS Perspective. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html) to deliver the reports to the PerspectiveCostBucket Amazon S3 bucket. When an AWS CUR is delivered, it triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to process the cost data and store it in an [Amazon DynamoDB](http://aws.amazon.com/dynamodb/) table. The data component queries this DynamoDB table to provide the costs associated with the individual resources for display in the web UI. If you do not create an AWS CUR, cost data will not be included in AWS Perspective architecture diagrams. 
+
+## Development
+### Directory structure
+
+```
+|-deployment/
+  |-build-s3-dist.sh             [ shell script for packaging distribution assets ]
+  |-run-unit-tests.sh            [ shell script for executing unit tests ]
+  |-perspective-setup.yaml       [ the main CloudFormation deployment template ]
+|-source/
+  |-frontend/                    [ the frontend ui code ]
+  |-backend/                     [ the backend code ]
+    |-discovery/                 [ the code for the discovery process ]
+    |-functions/                 [ the code for the Lambda functions ]
+  |-cfn/                         [ the CloudFormation templates that deploy aws-perspective ]
+```
 
 ### Running unit tests
 
 ```
 cd ./deployment
-chmod +x ./run-unit-tests.sh
 ./run-unit-tests.sh
 ```
 
@@ -63,26 +102,25 @@ chmod +x ./run-unit-tests.sh
 
 ```
 cd ./deployment
-chmod +x ./build-s3-dist.sh solutions-bucket aws-perspective v1.0.0 image-tag
 ./build-s3-dist.sh
 ```
 
-## Deployment
+### Deployment
 
 When you have made changes to the code, you can build it locally and upload the deployment artefacts to Amazon S3 by running the following bash script.
 
-### Prerequistes
+#### Prerequistes
 
 1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed.
 2. The CLI [configured](https://docs.aws.amazon.com/cli/latest/reference/configure/) with credentials/profile that will allow:
    * S3 Bucket creation
    * S3 Object creation
 
-### Create deployment script
+#### Create deployment script
 
 1. Create a shell script in the root project directory.
    ```touch local-deploy-script.sh```
-2. Copy the contents below and paste in local-deploy-script.sh and save.
+2. Copy the contents below and paste in local-deploy-script.sh. Substitute the value placeholders (marked with angle brackets) with your own values, then save the script.
 
 ```
 #!/usr/bin/env bash
@@ -139,7 +177,7 @@ This will:
 * Run the build
 * Deploy artefacts to your chosen S3 Bucket.
 
-### Deploying the CloudFormation template
+#### Deploying the CloudFormation template
 
 Once you have the deployment artefacts in S3, you can deploy the **aws-perspective.template** in the CloudFormation console. Just pass the link to the template in S3 to CloudFormation and it will do the rest.
 
@@ -155,26 +193,10 @@ Parameters required by the template:
 
 **Note** - You will need to deploy in the same account and region as the S3 bucket.
 
-***
-
-## Directory structure
-
-```
-|-deployment/
-  |-build-s3-dist.sh             [ shell script for packaging distribution assets ]
-  |-run-unit-tests.sh            [ shell script for executing unit tests ]
-  |-perspective-setup.yaml       [ the main CloudFormation deployment template ]
-|-source/
-  |-frontend/                    [ the frontend ui code ]
-  |-backend/                     [ the backend code ]
-    |-discovery/                 [ the code for the discovery process ]
-    |-functions/                 [ the code for the Lambda functions ]
-  |-cfn/                         [ the CloudFormation templates that deploy aws-perspective ]
-```
 
 ## Web API Examples
 
-### Getting Bearer Token
+### Getting a Bearer Token
 
 #### Via Browser
 
@@ -237,10 +259,8 @@ curl --location --request POST 'https://<your-api-gateway-id>.execute-api.<deplo
 
 You will receive a URL that when clicked will open up DrawIO in the browser and show your graph.
 
+***
+
 Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
-Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-
-    http://www.apache.org/licenses/
-
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
+Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at https://www.apache.org/licenses/ or in the "[license](LICENSE.txt)" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
