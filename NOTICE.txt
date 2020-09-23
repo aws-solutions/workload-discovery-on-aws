@@ -1,0 +1,115 @@
+aws-perspective
+Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except 
+in compliance with the License. A copy of the License is located at http://www.apache.org/licenses/LICENSE-2.0 
+or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the 
+specific language governing permissions and limitations under the License. 
+
+**********************
+THIRD PARTY COMPONENTS
+**********************
+This software includes third party software subject to the following copyrights:
+
+**********************
+Apache 2.0 License
+**********************
+AWS SDK
+boto3
+aws-amplify 
+typescript
+gremlin
+better-ajv-errors
+crhelper
+
+**********************
+MIT License
+**********************
+pip
+cfn-nag 
+uuid 
+material-ui 
+browserslist
+cytoscape
+cytoscape-cola
+cytoscape-context-menus
+cytoscape-expand-collapse
+cytoscape-grid-guide
+cytoscape-popper
+dayjs
+file-saver
+filefy
+jquery
+jszip
+lodash
+match-sorter
+material-table
+object-hash
+react
+react-cytoscapejs
+react-datepicker
+react-dom
+react-dropzone
+react-json-view
+react-scripts
+react-splitter-layout
+regenerator-runtime
+tsutils
+velocityjs
+babel
+jest
+react-test-renderer
+adm-zip
+aws4
+axios
+ramda
+winston
+ws
+chai
+mocha
+rewire
+socks5-https-client
+ajv
+moment-timezone
+unzipper
+mime-types
+node-fetch
+
+**********************
+BSD-3-Clause
+**********************
+eslint-plugin-flowtype
+sinon
+
+**********************
+CC0
+**********************
+randomcolor
+
+**********************
+ISC
+**********************
+nyc
+
+***********************************************
+Other Licenses found in Dependency Tree include
+***********************************************
+"(Apache-2.0 OR MPL-1.1)"
+"(BSD-2-Clause OR MIT OR Apache-2.0)"
+"(BSD-3-Clause OR GPL-2.0)"
+"(MIT AND BSD-3-Clause)"
+"(MIT AND Zlib)"
+"(MIT OR Apache-2.0)"
+"(MIT OR CC0-1.0)"
+"(WTFPL OR MIT)"
+"BSD"
+"BSD-2-Clause"
+"BSD-like"
+"CC-BY-3.0"
+"CC-BY-4.0"
+"CC0-1.0"
+"EPL-1.0"
+"GNU GPLv3"
+"MIT"
+"Public Domain"
+"WTFPL"

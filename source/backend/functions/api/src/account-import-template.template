@@ -1,0 +1,336 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description:
+  This Cloudformation template sets up the roles needed to import data into AWS Perspective.
+  It also sets up the main AWS Perspective configuration aggregator for this account and
+  authorises it to push its data to the main AWS Perspective aggregation account.
+  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v1.0.0)
+Parameters:
+  AccountId:
+    Type: String
+    Default: <<substitute_zoom_account_id>>
+    Description: The Perspective account Id
+  AggregationRegion:
+    Type: String
+    Default: <<substitute_zoom_region>>
+    Description: The region where the Perspective account was installed
+  ConfigAggregator:
+    Type: String
+    Default: PerspectiveConfigAggregator
+    Description: The name that you want to give to the configAggregator.
+  AlreadyHaveConfigSetup:
+    Type: String
+    Default: 'No'
+    Description: 'Is AWS Config set-up within this account?'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    ConstraintDescription: 'Please specify if this account has config set-up (Yes / No)'
+
+Conditions:
+  SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
+
+Resources:
+  ConfigurationAggregator:
+    Type: AWS::Config::ConfigurationAggregator
+    #Condition: SetUpConfig
+    Properties:
+      AccountAggregationSources:
+        - AccountIds:
+            - !Ref AWS::AccountId
+          AllAwsRegions: true
+      ConfigurationAggregatorName: !Ref ConfigAggregator
+
+  ConfigRecorder:
+    Type: AWS::Config::ConfigurationRecorder
+    Condition: SetUpConfig
+    Properties:
+      Name: default
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: true
+      RoleARN: !GetAtt [ConfigRole, Arn]
+
+  DeliveryChannel:
+    Type: AWS::Config::DeliveryChannel
+    Condition: SetUpConfig
+    Properties:
+      S3BucketName: !Ref ConfigBucket
+
+  AggregationAuthorization:
+    Type: 'AWS::Config::AggregationAuthorization'
+    Properties:
+      AuthorizedAccountId: !Ref AccountId
+      AuthorizedAwsRegion: !Ref AggregationRegion
+
+  ConfigBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: 'only accessed by config, writes very frequently so will be costly'
+          - id: W41
+            reason: 'S3 Bucket should have encryption option set'
+    Condition: SetUpConfig
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  ConfigBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: SetUpConfig
+    Properties:
+      Bucket: !Ref ConfigBucket
+      PolicyDocument: !Sub | 
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AWSConfigBucketPermissionsCheck",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                "config.amazonaws.com"
+                ]
+              },
+              "Action": "s3:GetBucketAcl",
+              "Resource": "arn:aws:s3:::${ConfigBucket}"
+            },
+            {
+              "Sid": "AWSConfigBucketExistenceCheck",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "config.amazonaws.com"
+                ]
+              },
+              "Action": "s3:ListBucket",
+              "Resource": "arn:aws:s3:::${ConfigBucket}"
+            },
+            {
+              "Sid": " AWSConfigBucketDelivery",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                "config.amazonaws.com"    
+                ]
+              },
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/Config/*",
+              "Condition": { 
+                "StringEquals": { 
+                  "s3:x-amz-acl": "bucket-owner-full-control" 
+                }
+              }
+            },
+            {
+              "Sid": "HttpsOnly"
+              "Action": "*"
+              "Effect": "Deny",
+              "Resource": "arn:aws:s3:::${ConfigBucket}/*",
+              "Principal": '*'
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+
+  ConfigRole:
+    Type: AWS::IAM::Role
+    Condition: SetUpConfig
+    Metadata:
+      ManagedPolicy:
+        "The use of this policy is advised in the AWS Config docs"
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'following AWS config best practices as documented online.'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [config.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/service-role/AWSConfigRole']
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:GetBucketAcl
+                Resource:
+                  Fn::Sub: arn:aws:s3:::${ConfigBucket}
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource:
+                  Fn::Sub: arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/*
+                Condition:
+                  StringEquals:
+                    s3:x-amz-acl: bucket-owner-full-control
+              - Effect: Allow
+                Action: config:Put*
+                Resource: '*'
+
+  ZoomDiscoveryRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      wildcard_resources:
+        - 'We have locked down resources as much as we can. 
+          The nature of the role requires read-only access 
+          to many services in order to discover what is in the account'
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: 'Role is used in external accounts and calls back to master config account to allow access to external config aggregators'
+          - id: W11
+            reason: 'We have locked down resources as far as we can. It is read only access. Tags require wildcard "*"'  
+    Properties:
+      RoleName: 'ZoomDiscoveryRole'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: ['sts:AssumeRole']
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AccountId}:root'
+        Version: '2012-10-17'
+      Policies:
+        - PolicyName: perspectiveAutoscaling
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: autoscaling:Describe*
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: perspectiveEC2
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:Get*
+                  - ec2:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveIAM
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:Get*
+                  - iam:List*
+                Resource: '*'
+        - PolicyName: perspectiveAPIGateway
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - apigateway:Get
+                Resource: 'arn:aws:apigateway:*::/*'
+        - PolicyName: perspectiveLoadBalancers
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: elasticloadbalancing:Describe*
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: perspectiveRDS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - rds:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveLambda
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:List*
+                  - lambda:Get*
+                Resource: '*'
+        - PolicyName: perspectiveCloudFormation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:List*
+                  - logs:Describe*
+                  - logs:Get*
+                Resource: '*'
+        - PolicyName: perspectiveCloudWatch
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:List*
+                  - cloudwatch:Describe*
+                  - cloudwatch:Get*
+                Resource: '*'
+        - PolicyName: perspectiveECS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:List*
+                  - ecs:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveConfig
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - config:Get*
+                  - config:Deliver*
+                  - config:List*
+                  - config:SelectResourceConfig
+                  - config:PutDeliveryChannel
+                Resource: '*'
+        - PolicyName: perspectiveCloudtrail
+          PolicyDocument:
+             Version: '2012-10-17'
+             Statement:
+              - Effect: Allow
+                Action:
+                  - cloudtrail:GetTrailStatus
+                Resource: !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail*'
+        - PolicyName: perspectiveCloudtrailWildcards
+          PolicyDocument:
+             Version: '2012-10-17'
+             Statement:
+              - Effect: Allow
+                Action:
+                  - cloudtrail:DescribeTrails
+                  - cloudtrail:LookupEvents
+                Resource: '*'
+        - PolicyName: perspectiveTags
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - tag:GetResources
+                  - tag:GetTagKeys
+                Resource: '*'

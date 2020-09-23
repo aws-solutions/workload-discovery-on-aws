@@ -1,0 +1,22 @@
+{
+  "name": "lambda-custom-resource",
+  "version": "1.1.1",
+  "private": true,
+  "description": "Setup the static S3 files",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm run clean && npm i",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json setup.zip .",
+    "build:dist": "mkdir dist && mv setup.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist"
+  },
+  "dependencies": {
+    "aws-sdk": "2.713.0",
+    "lodash": "4.17.19",
+    "mime-types": "2.1.27",
+    "unzipper": "0.10.11",
+    "uuid": "3.3.3"
+  },
+  "devDependencies": {}
+}

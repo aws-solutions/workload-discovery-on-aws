@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ElasticsearchDomain service linked role
+
+Parameters:
+  CreateElasticSearchServiceRole:
+    Type: String
+
+Conditions:
+  DeployESServiceRole: !Equals [!Ref CreateElasticSearchServiceRole, 'Yes']
+
+Resources:
+  # As this stack has no dependencies it should be created first giving sufficient time for
+  # the IAM role to have propagated before the creation of the ES cluster.
+  ElasticSearchServiceLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Condition: DeployESServiceRole
+    Properties:
+      AWSServiceName: es.amazonaws.com
+      Description: Role to enable Amazon ES to manage your cluster.
+
+  # Needs to be in here to avoid a circular dependency between the Search lambda stack
+  # and the Elasticsearch db stack
+  SearchLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+Outputs:
+  ElasticsearchLambdaRoleArn:
+    Description: Search function required for ES cluster access role Arn
+    Value: !GetAtt SearchLambdaRole.Arn

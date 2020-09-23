@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#693cc5}
+        </style>
+    </defs>
+    <title>
+        Elastic-Load-Balancing-ELB_Application-load-balancer_light-bg
+    </title>
+    <g id="Reference" transform="scale(1.25) translate(2,5)">
+        <path class="cls-1" d="M25,50A25,25,0,1,1,50,25,25,25,0,0,1,25,50ZM25,2A23,23,0,1,0,48,25,23,23,0,0,0,25,2Z"/>
+        <path class="cls-1" d="M39.9,32H38V28a1,1,0,0,0-1-1H34V23a1,1,0,0,0-1-1H26V19h7a1,1,0,0,0,1-1V9a1,1,0,0,0-1-1H17a1,1,0,0,0-1,1v9a1,1,0,0,0,1,1h7v3H17a1,1,0,0,0-1,1v4H13a1,1,0,0,0-1,1v4H10.1a1,1,0,0,0-1,1v5a1,1,0,0,0,1,1H15a1,1,0,0,0,1-1V33a1,1,0,0,0-1-1H14V29h5v3H18a1,1,0,0,0-1,1v5a1,1,0,0,0,1,1h5a1,1,0,0,0,1-1V33a1,1,0,0,0-1-1H21V28a1,1,0,0,0-1-1H18V24H32v3H30a1,1,0,0,0-1,1v4H27a1,1,0,0,0-1,1v5a1,1,0,0,0,1,1h5a1,1,0,0,0,1-1V33a1,1,0,0,0-1-1H31V29h5v3H34.93a1,1,0,0,0-1,1v5a1,1,0,0,0,1,1h5a1,1,0,0,0,1-1V33A1,1,0,0,0,39.9,32ZM14,37H11.1V34H14Zm8-3v3H19V34ZM18,17V10H32v7ZM31,37H28V34h3Zm7.9,0h-3V34h3Z"/>
+    </g>
+    <style type="text/css">
+        .st4{fill:#f90}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(59,0)">
+            <path class="st4" d="M15.9,14.6l-7-14c-0.3-0.7-1.5-0.7-1.8,0l-7,14c-0.2,0.3-0.1,0.7,0,1C0.3,15.8,0.7,16,1,16h14
+			c0.3,0,0.7-0.2,0.9-0.5C16,15.2,16,14.9,15.9,14.6z M2.6,14L8,3.2L13.4,14H2.6z"/>
+            <polygon class="st4" points="7,11 7,13 9,13 9,11 		"/>
+            <rect x="7" y="6" class="st4" width="2" height="4"/>
+        </g>
+    </g>
+</svg>
+

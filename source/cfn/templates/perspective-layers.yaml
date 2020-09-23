@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Required Layers
+
+Parameters:
+  LayerBucket:
+    Type: String
+    Description: The bucket with the zip files containing required libraries
+  DeploymentBucketKey:
+    Type: String
+    Description: The key within the bucket that contains the source code zips
+
+Resources:
+  AWSSDK:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: AWSSDK
+      Description: Latest confirmed compatible AWS SDK
+      CompatibleRuntimes:
+        - python3.8
+      Content:
+        S3Bucket:
+          Ref: LayerBucket
+        S3Key: !Sub '${DeploymentBucketKey}/aws_sdk.zip'
+  BotoUtils:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: BotoUtils
+      Description: Latest confirmed compatible AWS SDK
+      CompatibleRuntimes:
+        - python3.8
+      Content:
+        S3Bucket:
+          Ref: LayerBucket
+        S3Key: !Sub '${DeploymentBucketKey}/boto_utils.zip'
+  Decorators:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: Decorators
+      Description: Latest confirmed compatible AWS SDK
+      CompatibleRuntimes:
+        - python3.8
+      Content:
+        S3Bucket:
+          Ref: LayerBucket
+        S3Key: !Sub '${DeploymentBucketKey}/decorators.zip'
+  CustomResourceHelper:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: CustomResourceHelper
+      Description: Latest confirmed compatible AWS SDK
+      CompatibleRuntimes:
+        - python3.8
+      Content:
+        S3Bucket:
+          Ref: LayerBucket
+        S3Key: !Sub '${DeploymentBucketKey}/cr_helper.zip'
+
+Outputs:
+  AWSSDK:
+    Description: AWS SDK Layer
+    Value: !Ref AWSSDK
+  BotoUtils:
+    Description: Boto Utils Layer
+    Value: !Ref BotoUtils
+  CustomResourceHelper:
+    Description: Custom Resource Helper Layer
+    Value: !Ref CustomResourceHelper
+  Decorators:
+    Description: Decorators Layer
+    Value: !Ref Decorators

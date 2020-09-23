@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <title>
+        status-stopped
+    </title>
+    <g id="icons">
+        <circle cx="8" cy="8" r="7" style="stroke-linejoin:round;fill:none;stroke:#d13212;stroke-width:2px"/>
+        <line x1="11" y1="8" x2="5" y2="8" style="stroke-linecap:square;stroke-miterlimit:10;fill:none;stroke:#d13212;stroke-width:2px"/>
+    </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#cd2264}
+        </style>
+    </defs>
+    <title>
+        AWS-CloudFormation_Stack_light-bg
+    </title>
+    <g id="Reference" transform="scale(1.5)">
+        <path class="cls-1" d="M48.5,16.16H1.5V2h47Zm-45-2h43V4H3.5Z"/>
+        <path class="cls-1" d="M24.12,32.09H1.5V17.91H24.12Zm-20.62-2H22.12V19.91H3.5Z"/>
+        <path class="cls-1" d="M15.69,48H1.5V33.84H15.69ZM3.5,46H13.69V35.84H3.5Z"/>
+        <path class="cls-1" d="M32.56,48H17.44V33.84H32.56ZM19.44,46H30.56V35.84H19.44Z"/>
+        <path class="cls-1" d="M48.5,48H34.31V33.84H48.5ZM36.31,46H46.5V35.84H36.31Z"/>
+        <path class="cls-1" d="M48.5,32.09H25.88V17.91H48.5Zm-20.62-2H46.5V19.91H27.88Z"/>
+    </g>
+</svg>

@@ -1,0 +1,27 @@
+<svg id="Layer_1" data-name="Layer 1" 
+    xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <title>Amazon-Elastic-Container-Service_Service_light-bg</title>
+    <g id="Art" transform="scale(1.5)">
+        <path d="M43.15,48.5h-27a1,1,0,0,1-1-1v-36a1,1,0,0,1,1-1h27a1,1,0,0,1,1,1v36A1,1,0,0,1,43.15,48.5Zm-26-2h25v-34h-25Z" style="fill:#d86613"/>
+        <path d="M24.39,21.5h-4.5a1,1,0,0,1-1-1V16a1,1,0,0,1,1-1h4.5a1,1,0,0,1,1,1v4.5A1,1,0,0,1,24.39,21.5Zm-3.5-2h2.5V17h-2.5Z" style="fill:#d86613"/>
+        <path d="M24.39,32h-4.5a1,1,0,0,1-1-1V26.5a1,1,0,0,1,1-1h4.5a1,1,0,0,1,1,1V31A1,1,0,0,1,24.39,32Zm-3.5-2h2.5V27.5h-2.5Z" style="fill:#d86613"/>
+        <path d="M24.39,42.51h-4.5a1,1,0,0,1-1-1V37a1,1,0,0,1,1-1h4.5a1,1,0,0,1,1,1v4.51A1,1,0,0,1,24.39,42.51Zm-3.5-2h2.5V38h-2.5Z" style="fill:#d86613"/>
+        <rect x="26.65" y="17.25" width="13.51" height="2" style="fill:#d86613"/>
+        <rect x="26.65" y="27.74" width="13.51" height="2" style="fill:#d86613"/>
+        <rect x="26.65" y="38.25" width="13.51" height="2" style="fill:#d86613"/>
+        <path d="M16.15,44h-4.5a1,1,0,0,1-1-1V7a1,1,0,0,1,1-1h27a1,1,0,0,1,1,1v4.5h-2V8h-25V42h3.5Z" style="fill:#d86613"/>
+        <path d="M11.35,39.51H6.85a1,1,0,0,1-1-1V2.5a1,1,0,0,1,1-1h27a1,1,0,0,1,1,1V7h-2V3.5h-25v34h3.5Z" style="fill:#d86613"/>
+    </g>
+
+    <style type="text/css">
+        .st4{fill:#1d8102}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(59,2)">
+            <path class="st4" d="M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6
+			S11.3,14,8,14z"/>
+            <polygon class="st4" points="7,8.6 5,6.6 3.6,8 7,11.4 11.9,6.5 10.5,5.1 		"/>
+        </g>
+    </g>
+</svg>

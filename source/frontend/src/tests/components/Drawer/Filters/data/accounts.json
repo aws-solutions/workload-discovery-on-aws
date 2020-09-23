@@ -1,0 +1,124 @@
+[
+  {
+    "key": "XXXXXXXXXXX1",
+    "label": "XXXXXXXXXXX1",
+    "index": 0,
+    "regions": [
+      {
+        "key": "XXXXXXXXXXX1-global",
+        "label": "global",
+        "index": 0,
+        "filter": {
+          "accountId": "XXXXXXXXXXX1",
+          "region": "global",
+          "label": "XXXXXXXXXXX1-global"
+        }
+      },
+      {
+        "key": "XXXXXXXXXXX1-eu-west-1",
+        "label": "eu-west-1",
+        "index": 1,
+        "filter": {
+          "accountId": "XXXXXXXXXXX1",
+          "region": "eu-west-1",
+          "label": "XXXXXXXXXXX1-eu-west-1"
+        }
+      }
+    ],
+    "filter": { "accountId": "XXXXXXXXXXX1", "label": "XXXXXXXXXXX1" }
+  },
+  {
+    "key": "XXXXXXXXXXX2",
+    "label": "XXXXXXXXXXX2",
+    "index": 1,
+    "regions": [
+      {
+        "key": "XXXXXXXXXXX2-us-east-1",
+        "label": "us-east-1",
+        "index": 0,
+        "filter": {
+          "accountId": "XXXXXXXXXXX2",
+          "region": "us-east-1",
+          "label": "XXXXXXXXXXX2-us-east-1"
+        }
+      },
+      {
+        "key": "XXXXXXXXXXX2-us-east-2",
+        "label": "us-east-2",
+        "index": 1,
+        "filter": {
+          "accountId": "XXXXXXXXXXX2",
+          "region": "us-east-2",
+          "label": "XXXXXXXXXXX2-us-east-2"
+        }
+      },
+      {
+        "key": "XXXXXXXXXXX2-global",
+        "label": "global",
+        "index": 2,
+        "filter": {
+          "accountId": "XXXXXXXXXXX2",
+          "region": "global",
+          "label": "XXXXXXXXXXX2-global"
+        }
+      },
+      {
+        "key": "XXXXXXXXXXX2-eu-west-1",
+        "label": "eu-west-1",
+        "index": 3,
+        "filter": {
+          "accountId": "XXXXXXXXXXX2",
+          "region": "eu-west-1",
+          "label": "XXXXXXXXXXX2-eu-west-1"
+        }
+      }
+    ],
+    "filter": { "accountId": "XXXXXXXXXXX2", "label": "XXXXXXXXXXX2" }
+  },
+  {
+    "key": "XXXXXXXXXXX3",
+    "label": "XXXXXXXXXXX3",
+    "index": 2,
+    "regions": [
+      {
+        "key": "XXXXXXXXXXX3-eu-west-1",
+        "label": "eu-west-1",
+        "index": 0,
+        "filter": {
+          "accountId": "XXXXXXXXXXX3",
+          "region": "eu-west-1",
+          "label": "XXXXXXXXXXX3-eu-west-1"
+        }
+      },
+      {
+        "key": "XXXXXXXXXXX3-global",
+        "label": "global",
+        "index": 1,
+        "filter": {
+          "accountId": "XXXXXXXXXXX3",
+          "region": "global",
+          "label": "XXXXXXXXXXX3-global"
+        }
+      }
+    ],
+    "filter": { "accountId": "XXXXXXXXXXX3", "label": "XXXXXXXXXXX3" }
+  },
+  {
+    "key": "global",
+    "label": "global",
+    "index": 3,
+    "regions": [
+      {
+        "key": "global-global",
+        "label": "global",
+        "index": 0,
+        "filter": {
+          "accountId": "global",
+          "region": "global",
+          "label": "global-global"
+        }
+      }
+    ],
+    "filter": { "accountId": "global", "label": "global" }
+  }
+]

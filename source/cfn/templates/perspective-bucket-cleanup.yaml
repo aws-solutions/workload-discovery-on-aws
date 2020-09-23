@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Description: AWS Perspective S3 Bucket Cleanup Stack
+
+Parameters:
+
+  S3CleanupBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  PerspectiveCostBucket:
+    Type: String
+
+  CodeBuildArtifactBucket:
+    Type: String
+
+  ConfigBucket:
+    Type: String
+    Default: false
+
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues:
+      - CRITICAL
+      - FATAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - NOTSET
+
+Conditions:
+
+  HasConfig: !Not [!Equals [!Ref ConfigBucket, false]]
+
+Resources:
+
+  CleanupBucketFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: cleanup_bucket.handler
+      CodeUri:
+        Bucket: !Ref S3CleanupBucket
+        Key: !Sub ${DeploymentBucketKey}/cleanup-bucket.zip
+      Runtime: python3.8
+      Description: Custom Lambda resource for emptying S3 buckets on stack deletion
+      Timeout: 60
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:DeleteObject*
+                - s3:ListBucket*
+                - s3:ListObject*
+              Resource:
+                - !Sub arn:aws:s3:::${PerspectiveCostBucket}
+                - !Sub arn:aws:s3:::${PerspectiveCostBucket}/*
+                - !Sub arn:aws:s3:::${CodeBuildArtifactBucket}
+                - !Sub arn:aws:s3:::${CodeBuildArtifactBucket}/*
+                - !If
+                  - HasConfig
+                  - !Sub arn:aws:s3:::${ConfigBucket}
+                  - !Ref AWS::NoValue
+                - !If
+                  - HasConfig
+                  - !Sub arn:aws:s3:::${ConfigBucket}/*
+                  - !Ref AWS::NoValue
+
+  CleanupPerspectiveCostBucket:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: !Ref LogLevel
+      Bucket: !Ref PerspectiveCostBucket
+
+  CleanupCodeBuildArtifactBucket:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: !Ref LogLevel
+      Bucket: !Ref CodeBuildArtifactBucket
+
+  CleanupConfigBucket:
+    Condition: HasConfig
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: !Ref LogLevel
+      Bucket: !Ref ConfigBucket

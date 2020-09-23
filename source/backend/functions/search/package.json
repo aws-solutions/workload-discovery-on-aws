@@ -1,0 +1,27 @@
+{
+  "name": "perspective-search",
+  "version": "1.1.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm run clean && npm i",
+    "test": "nyc mocha test/*.js && npm prune --production",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rquj --exclude=*tests* --exclude=package-lock.json search.zip src/",
+    "build:dist": "mkdir dist && mv search.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test",
+    "local:test": "sam local invoke 'elastic' -e ./tests/event.json"
+  },
+  "author": "damackli",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "2.714.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0"
+  }
+}

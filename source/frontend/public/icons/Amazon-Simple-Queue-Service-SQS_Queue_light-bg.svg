@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#cd2264}
+        </style>
+    </defs>
+    <title>
+        Amazon-Simple-Queue-Service-SQS_Queue_light-bg
+    </title>
+    <g id="Working" transform="scale(1.5)">
+        <path class="cls-1" d="M47.5,40.12H2.5a1,1,0,0,1-1-1V12.88a1,1,0,0,1,1-1h45a1,1,0,0,1,1,1V39.12A1,1,0,0,1,47.5,40.12Zm-44-2h43V13.88H3.5Z"/>
+        <rect class="cls-1" x="18.38" y="15.69" width="2" height="20.62"/>
+        <rect class="cls-1" x="24" y="15.69" width="2" height="20.62"/>
+        <rect class="cls-1" x="29.63" y="15.69" width="2" height="20.62"/>
+        <path class="cls-1" d="M10,30.88a1,1,0,0,1-.42-.09A1,1,0,0,1,9,29.88V22.12a1,1,0,0,1,1.64-.77l4.66,3.88a1,1,0,0,1,0,1.54l-4.66,3.88A1,1,0,0,1,10,30.88Zm1-6.62v3.48L13.09,26Z"/>
+        <path class="cls-1" d="M40,30.88a1,1,0,0,1-.64-.23L34.7,26.77a1,1,0,0,1,0-1.54l4.66-3.88a1,1,0,0,1,1.64.77v7.76a1,1,0,0,1-.58.91A1,1,0,0,1,40,30.88ZM36.91,26,39,27.74V24.26Z"/>
+    </g>
+</svg>

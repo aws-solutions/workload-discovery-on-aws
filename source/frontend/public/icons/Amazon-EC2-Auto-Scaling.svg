@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#d86613}
+        </style>
+    </defs>
+    <title>
+        Amazon-EC2_Auto-Scaling_light-bg
+    </title>
+    <g id="Working" transform="scale(1.5)">
+        <path class="cls-1" d="M30,9.83l-5-5-5,5L18.56,8.42l5.73-5.73a1,1,0,0,1,1.42,0l5.72,5.73Z"/>
+        <rect class="cls-1" x="24" y="3.4" width="2" height="10.8"/>
+        <path class="cls-1" d="M25,47.6a1,1,0,0,1-.71-.29l-5.73-5.73L20,40.17l5,5,5-5,1.41,1.41-5.72,5.73A1,1,0,0,1,25,47.6Z"/>
+        <rect class="cls-1" x="24" y="35.8" width="2" height="10.8"/>
+        <path class="cls-1" d="M30.61,32.3H19.39a1.69,1.69,0,0,1-1.69-1.69V19.39a1.69,1.69,0,0,1,1.69-1.69H30.61a1.69,1.69,0,0,1,1.69,1.69V30.61A1.69,1.69,0,0,1,30.61,32.3Zm-10.91-2H30.3V19.7H19.7Z"/>
+        <rect class="cls-1" x="18.6" y="16" width="2" height="2.7"/>
+        <rect class="cls-1" x="22.2" y="16" width="2" height="2.7"/>
+        <rect class="cls-1" x="25.8" y="16" width="2" height="2.7"/>
+        <rect class="cls-1" x="29.4" y="16" width="2" height="2.7"/>
+        <rect class="cls-1" x="18.6" y="31.3" width="2" height="2.7"/>
+        <rect class="cls-1" x="22.2" y="31.3" width="2" height="2.7"/>
+        <rect class="cls-1" x="25.8" y="31.3" width="2" height="2.7"/>
+        <rect class="cls-1" x="29.4" y="31.3" width="2" height="2.7"/>
+        <rect class="cls-1" x="16" y="29.4" width="2.7" height="2"/>
+        <rect class="cls-1" x="16" y="25.8" width="2.7" height="2"/>
+        <rect class="cls-1" x="16" y="22.2" width="2.7" height="2"/>
+        <rect class="cls-1" x="16" y="18.6" width="2.7" height="2"/>
+        <rect class="cls-1" x="31.3" y="29.4" width="2.7" height="2"/>
+        <rect class="cls-1" x="31.3" y="25.8" width="2.7" height="2"/>
+        <rect class="cls-1" x="31.3" y="22.2" width="2.7" height="2"/>
+        <rect class="cls-1" x="31.3" y="18.6" width="2.7" height="2"/>
+        <path class="cls-1" d="M8.22,31.5,6.8,30.08l5-5-5-5,1.42-1.41,5.72,5.72a1,1,0,0,1,0,1.42Z"/>
+        <rect class="cls-1" x="2.5" y="24" width="10.8" height="2"/>
+        <path class="cls-1" d="M41.78,31.5l-5.73-5.73a1,1,0,0,1,0-1.42l5.73-5.72L43.19,20l-5,5,5,5Z"/>
+        <rect class="cls-1" x="36.7" y="24" width="10.8" height="2"/>
+    </g>
+</svg>

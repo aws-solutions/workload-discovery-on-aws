@@ -1,0 +1,21 @@
+<svg id="Layer_1" data-name="Layer 1" 
+    xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <title>VPC-subnet-private_light-bg</title>
+    <g transform="scale(2.0) translate(0,0)">
+    <rect width="75" height="75" style="fill:transparent"/>
+    <path d="M17.51,17.83a2.38,2.38,0,0,0-.5,4.71v3.29h1V22.54a2.38,2.38,0,0,0-.5-4.71Zm0,3.76a1.38,1.38,0,1,1,1.38-1.38A1.38,1.38,0,0,1,17.51,21.59Z" style="fill:#147eba"/>
+    <path d="M22.72,14.3V11.63a5.22,5.22,0,1,0-10.44,0V14.3H9.14V28.59H25.86V14.3Zm-9.44-2.67a4.22,4.22,0,1,1,8.44,0V14.3H13.28Zm11.58,16H10.14V15.3H24.86Z" style="fill:#147eba"/>
+    </g>
+    <style type="text/css">
+        .st4{fill:#f90}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(50,2)">
+            <path class="st4" d="M15.9,14.6l-7-14c-0.3-0.7-1.5-0.7-1.8,0l-7,14c-0.2,0.3-0.1,0.7,0,1C0.3,15.8,0.7,16,1,16h14
+			c0.3,0,0.7-0.2,0.9-0.5C16,15.2,16,14.9,15.9,14.6z M2.6,14L8,3.2L13.4,14H2.6z"/>
+            <polygon class="st4" points="7,11 7,13 9,13 9,11 		"/>
+            <rect x="7" y="6" class="st4" width="2" height="4"/>
+        </g>
+    </g>
+</svg>

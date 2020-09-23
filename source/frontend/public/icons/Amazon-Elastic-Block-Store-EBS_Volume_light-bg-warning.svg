@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#3f8624}
+        </style>
+    </defs>
+    <title>
+        Amazon-Elastic-Block-Store-EBS_Volume_light-bg
+    </title>
+    <g id="Working" transform="scale(1.25) translate(0,10)">
+        <path class="cls-1" d="M42.84,48.5H7.22a1,1,0,0,1-1-1V14.69a1,1,0,0,1,1-1H42.84a1,1,0,0,1,1,1V47.5A1,1,0,0,1,42.84,48.5Zm-34.62-2H41.84V15.69H8.22Z"/>
+        <path class="cls-1" d="M42.84,11.94H7.16a1,1,0,0,1-.9-.56,1,1,0,0,1,.1-1L12.7,1.9a1,1,0,0,1,.8-.4h23a1,1,0,0,1,.8.4l6.34,8.44a1,1,0,0,1,.1,1A1,1,0,0,1,42.84,11.94Zm-33.68-2H40.84L36,3.5H14Z"/>
+    </g>
+    <style type="text/css">
+        .st4{fill:#f90}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(55,0)">
+            <path class="st4" d="M15.9,14.6l-7-14c-0.3-0.7-1.5-0.7-1.8,0l-7,14c-0.2,0.3-0.1,0.7,0,1C0.3,15.8,0.7,16,1,16h14
+			c0.3,0,0.7-0.2,0.9-0.5C16,15.2,16,14.9,15.9,14.6z M2.6,14L8,3.2L13.4,14H2.6z"/>
+            <polygon class="st4" points="7,11 7,13 9,13 9,11 		"/>
+            <rect x="7" y="6" class="st4" width="2" height="4"/>
+        </g>
+    </g>
+</svg>

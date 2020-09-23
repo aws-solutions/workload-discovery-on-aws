@@ -1,0 +1,46 @@
+# compiled output
+**/dist
+**/global-s3-assets
+**/regional-s3-assets
+**/open-source
+**/*.zip
+**/.zip
+**/tmp
+**/out-tsc
+/templates
+**/settings.js
+**/packaged.template
+
+# dependencies
+**/node_modules
+**/coverage
+
+# e2e
+**/e2e/*.js
+**/e2e/*.map
+
+# misc
+**/npm-debug.log
+**/testem.log
+# package-lock.json
+**/.vscode/settings.json
+**/setenv.sh
+
+# System Files
+**/.DS_Store
+*.DS_Store
+**/.vscode
+
+#nyc output
+**/.nyc_output
+
+# build
+source/backend/functions/lambda-layers/aws_sdk/python
+source/backend/functions/lambda-layers/cr_helper/python
+source/backend/functions/lambda-layers/decorators/python
+source/backend/functions/lambda-layers/boto_utils/python
+!source/backend/functions/lambda-layers/decorators/python/decorators.py
+!source/backend/functions/lambda-layers/boto_utils/python/boto_utils.py
+source/backend/functions/cleanup-bucket/package
+
+local-deploy-perspective.sh

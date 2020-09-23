@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This CloudFormation sets up the role that is assumed by the import process.
+Parameters:
+  AppName:
+    Type: String
+    Description: The name given to this stack.
+  NeptuneClusterResourceId:
+    Type: String
+  DiscoveryBucketARN:
+    Type: String
+    Description: The bucket where the perspective import process will store its data.
+  AppSyncArn:
+    Type: String
+    Description: The AppSync GraphQl Arn
+
+Resources:
+  PerspectiveDiscoveryServerRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      wildcard_resources:
+        - 'We have locked down resources as much as we can. 
+          The nature of the role requires read-only access 
+          to many services in order to discover what is in the account'
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: 'Role is with ECS task. It defines the roles that are to be assumed and also read-only actions required for Task Definition'
+          - id: W11
+            reason: 'We have locked down resources as far as we can. It is read only access. The actions we define require wildcard resources'  
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ecs-tasks.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+        - PolicyName: perspective-discovery-bucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*Object
+                  - s3:Get*
+                  - s3:List*
+                Resource:
+                  Fn::Sub: ${DiscoveryBucketARN}/*
+        - PolicyName: perspective-discovery-cluster
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:ListTasks
+                Resource: !Sub "arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:container-instance/*"
+        - PolicyName: perspective-parameter-store
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                Resource:
+                  Fn::Sub: arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
+        - PolicyName: assume-perspective-discovery-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource: '{{resolve:ssm:PerspectiveDiscoveryRoleArn:1}}'
+        - PolicyName: assume-perspective-remote-discovery-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource: arn:aws:iam::*:role/ZoomDiscoveryRole
+        - PolicyName: list-aggregate-discovery-resources
+          PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - config:ListAggregateDiscoveredResources
+                  Resource: '*'
+        - PolicyName: access-neptune
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - neptune-db:connect
+                Resource: !Sub arn:aws:neptune-db:${AWS::Region}:${AWS::AccountId}:${NeptuneClusterResourceId}/*
+        - PolicyName: access-appsync
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - appsync:GraphQL
+                Resource: !Sub ${AppSyncArn}/*
+
+Outputs:
+
+  DiscoveryServerTaskRoleArn:
+    Description: Task Role for Discovery Process
+    Value: !GetAtt PerspectiveDiscoveryServerRole.Arn

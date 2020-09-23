@@ -1,0 +1,374 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Perspective Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:v1.0.0)
+
+Parameters:
+  AppName:
+    Description: Application name
+    Type: String
+    Default: aws-perspective
+  AccessLogsBucket:
+    Description: The bucket that will store access logs for buckets that require them.
+    Type: String
+  ImageVersion:
+    Description: The version to use as the 'tag' for docker image
+    Type: String
+  ExistingConfigInstallation:
+    Type: String
+    Description: 'Is AWS Config set-up within this account?'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  DeploymentBucket:
+    Description: The Bucket that contains the nested stack templates.
+    Type: String
+  AmplifyStorageBucket:
+    Description: The Bucket that will contain any saved maps or preferences.
+    Type: String
+  DeploymentBucketName:
+    Description: The name of the Bucket that will host the code.
+    Type: String
+  DeploymentBucketKey:
+    Description: The key of the objects within the Bucket that will host the code.
+    Type: String
+  DiscoveryBucket:
+    Description: The bucket that will contain the code for the image creation
+    Type: String
+  ResourcePrefix:
+    Description: The prefix used for uniquely named resources
+    Type: String
+    Default: P9E
+  CloneRegion:
+    Description: Target for Lambda function copy
+    Type: String
+    Default: us-east-1
+  CreateElasticSearchServiceRole:
+    Description: Flag for deploying the ES service role in elastic-service-role stack.
+    Type: String
+  NeptuneInstanceClass:
+    Description: Neptune DB instance class that will be used for primary and all replicas
+    Type: String
+  CreateNeptuneReplica:
+    Description: Create a Neptune instance replica in a separate AZ
+    Type: String
+    Default: 'No'
+  PerspectiveAppSyncApiId:
+    Description: Id for AppSync API
+    Type: String
+  PerspectiveAppSyncApiArn:
+    Description: Arn for AppSync API
+    Type: String
+  PerspectiveAppSyncApiUrl:
+    Description: Url for AppSync API
+    Type: String
+
+Conditions:
+  SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
+
+Resources:
+  LayerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        LayerBucket:
+          Ref: DeploymentBucketName
+        DeploymentBucketKey:
+          Ref: DeploymentBucketKey
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-layers.template
+      TimeoutInMinutes: 60
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AccessLogsBucket: !Ref AccessLogsBucket
+        AWSSDK:
+          Fn::GetAtt: LayerStack.Outputs.AWSSDK
+        Decorators:
+          Fn::GetAtt: LayerStack.Outputs.Decorators
+        BotoUtils:
+          Fn::GetAtt: LayerStack.Outputs.BotoUtils
+        CustomResourceHelper:
+          Fn::GetAtt: LayerStack.Outputs.CustomResourceHelper
+        ResourcePrefix:
+          Ref: ResourcePrefix
+        CloneRegion:
+          Ref: CloneRegion
+        SecuredEdgeBucket:
+          Ref: DeploymentBucketName
+        DeploymentBucketKey:
+          Ref: DeploymentBucketKey
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-cloudfront.template
+      TimeoutInMinutes: 60
+
+  BucketCleanup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        S3CleanupBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+        PerspectiveCostBucket: !GetAtt CostAndUsage.Outputs.PerspectiveCostBucket
+        CodeBuildArtifactBucket: !GetAtt TaskStack.Outputs.CodeBuildArtifactBucket
+        ConfigBucket:
+          !If
+            - SetUpConfig
+            - !GetAtt DiscoveryImport.Outputs.ConfigBucket
+            - !Ref AWS::NoValue
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-bucket-cleanup.template
+      TimeoutInMinutes: 60
+
+  VpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-vpc.template
+      TimeoutInMinutes: 60
+
+  NeptuneStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-neptune.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !Ref AppName
+        AvailabilityZone0: !GetAtt VpcStack.Outputs.AvailabilityZone0
+        AvailabilityZone1: !GetAtt VpcStack.Outputs.AvailabilityZone1
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
+        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        Port: 6174
+        CreateNeptuneReplica: !Ref CreateNeptuneReplica
+        DBInstanceClass: !Ref NeptuneInstanceClass
+
+  DiscoveryImport:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-import-and-aggregator.template
+      TimeoutInMinutes: 60
+      Parameters:
+        ExistingConfigInstallation:
+          Ref: ExistingConfigInstallation
+
+  ElasticsearcRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-elasticsearch-roles.template
+      TimeoutInMinutes: 60
+      Parameters:
+        CreateElasticSearchServiceRole: !Ref CreateElasticSearchServiceRole
+
+  ElasticsearchStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-elasticsearch.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName:
+          Ref: AppName
+        PrivateSubnet0:
+          Fn::GetAtt:
+            - VpcStack
+            - Outputs.PrivateSubnet0
+        PrivateSubnet1:
+          Fn::GetAtt:
+            - VpcStack
+            - Outputs.PrivateSubnet1
+        PerspectiveVPCId:
+          Fn::GetAtt:
+            - VpcStack
+            - Outputs.VPCId
+        PerspectiveVpcCidr:
+          Fn::GetAtt:
+            - VpcStack
+            - Outputs.VpcCidr
+        SearchLambdaIAMRoleARN:
+          Fn::GetAtt:
+            - ElasticsearcRoleStack
+            - Outputs.ElasticsearchLambdaRoleArn
+
+  DiscoveryServerRole:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-discovery-server-role.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !Ref AppName
+        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
+        DiscoveryBucketARN: '{{resolve:ssm:DiscoveryCodeBucket:1}}'
+        AppSyncArn: !Ref PerspectiveAppSyncApiArn
+
+  TaskStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-discovery-crawler.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AccessLogsBucket: !Ref AccessLogsBucket
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VpcEndpointsSg: !GetAtt VpcStack.Outputs.VpcEndpointsSg
+        NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
+        NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
+        NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
+        ImageVersion: !Ref ImageVersion
+        ConfigurationAggregator: !GetAtt DiscoveryImport.Outputs.PerspectiveConfigurationAggregator
+        RestApiUrl: !GetAtt ServerAPIStack.Outputs.RootUrl
+        AppSyncApiUrl: !Ref PerspectiveAppSyncApiUrl
+        DiscoveryBucket: !Ref DiscoveryBucket
+        AppName: !Ref AppName
+        Cpu: 1024
+        Memory: 2048
+        DiscoveryServerRoleArn: !GetAtt DiscoveryServerRole.Outputs.DiscoveryServerTaskRoleArn
+        AWSSDK: !GetAtt LayerStack.Outputs.AWSSDK
+        Decorators: !GetAtt LayerStack.Outputs.Decorators
+        BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
+        CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        EcrCleanupBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+
+  CognitoStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-cognito.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AmplifyStorageBucket: !Ref AmplifyStorageBucket
+
+  GremlinStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-gremlin.template
+      TimeoutInMinutes: 60
+      Parameters:
+        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
+        NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
+        NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
+        NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        DeploymentBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+        ConfigurationAggregator: !GetAtt DiscoveryImport.Outputs.PerspectiveConfigurationAggregator
+        DiscoveryStoreBucket: '{{resolve:ssm:DiscoveryCodeBucketName:1}}'
+        PerspectiveCostTableName: !GetAtt CostAndUsage.Outputs.PerspectiveCostDBTable
+        PerspectiveCostTableArn: !GetAtt CostAndUsage.Outputs.PerspectiveCostDBTableARN
+
+  SearchStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-search.template
+      TimeoutInMinutes: 60
+      Parameters:
+        ElasticsearchDomainEndpoint: !GetAtt ElasticsearchStack.Outputs.DomainEndpoint
+        ElasticsearchSg: !GetAtt ElasticsearchStack.Outputs.ElasticsearchSg
+        ElasticsearchLambdaRoleArn: !GetAtt ElasticsearcRoleStack.Outputs.ElasticsearchLambdaRoleArn
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        DeploymentBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+
+  DrawIoLambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${DeploymentBucket}/perspective-drawio-lambda.template
+      TimeoutInMinutes: 60
+      Parameters:
+        DrawioCodeBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+
+  ClientAPIStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-api-gateway.template
+      TimeoutInMinutes: 60
+      Parameters:
+        GremlinARN:
+          Fn::GetAtt:
+            - GremlinStack
+            - Outputs.GremlinARN
+        ElasticARN:
+          Fn::GetAtt:
+            - SearchStack
+            - Outputs.ElasticARN
+        DrawioLambdaARN:
+          Fn::GetAtt:
+            - DrawIoLambdaStack
+            - Outputs.DrawioLambdaARN
+
+  ServerAPIStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-server-api-gateway.template
+      TimeoutInMinutes: 60
+      Parameters:
+        GremlinARN:
+          Fn::GetAtt:
+            - GremlinStack
+            - Outputs.GremlinARN
+        ElasticARN:
+          Fn::GetAtt:
+            - SearchStack
+            - Outputs.ElasticARN
+
+  AppSyncApiStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${DeploymentBucket}/perspective-appsync-api.template
+      TimeoutInMinutes: 60
+      Parameters:
+        DeploymentBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+        PerspectiveAppSyncApiId: !Ref PerspectiveAppSyncApiId
+        ConfigurationAggregator: !GetAtt DiscoveryImport.Outputs.PerspectiveConfigurationAggregator
+
+  ParameterStore:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/zoom-parameter-store.template
+      TimeoutInMinutes: 60
+      Parameters:
+        DiscoveryBucketName: '{{resolve:ssm:DiscoveryCodeBucketName:1}}'
+        PerspectiveServerEndpoint:
+          Fn::GetAtt:
+            - ServerAPIStack
+            - Outputs.RootUrl
+        PerspectiveConfigurationAggregator:
+          Fn::GetAtt:
+            - DiscoveryImport
+            - Outputs.PerspectiveConfigurationAggregator
+        PerspectiveClusterName:
+          Fn::GetAtt:
+            - TaskStack
+            - Outputs.Endpoint
+
+  CostAndUsage:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-cost-usage.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AccessLogsBucket: !Ref AccessLogsBucket
+        PerspectiveCostUsageReportBucketName: !Sub ${AWS::StackName}-cost-bucket
+        CostReportCodeBucket: !Ref DeploymentBucketName
+        CostReportCodeBucketKey: !Ref DeploymentBucketKey

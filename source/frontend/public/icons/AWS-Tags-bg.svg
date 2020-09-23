@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75" transform="scale(1.6)">
+    <title>exp-AWS-Tags-bg</title>   
+    <!-- <rect width="41.8" height="41.8" fill="#fff"/>  -->
+    <circle cx="9.8" cy="9.6" r="2.5" fill="none" stroke="#cd2264" stroke-miterlimit="10" stroke-width="2" transform="translate(20,20)"/>
+    <polygon points="17.8 3.5 3.5 3.5 3.5 17.8 3.5 17.8 24 38.3 38.3 24 17.8 3.5" fill="none" stroke="#cd2264" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.01" transform="translate(20,20)"/>
+</svg>

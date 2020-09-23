@@ -1,0 +1,582 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Description: AWS Perspective Discovery Crawler Scheduled Task
+
+Parameters:
+  AppName:
+    Type: String
+
+  AccessLogsBucket:
+    Description: Access logs bucket that will store the access logs from buckets that require them.
+    Type: String
+
+  ContainerPort:
+    Type: Number
+    Default: 80
+
+  PrivateSubnet0:
+    Description: Private Subnet
+    Type: String
+
+  PrivateSubnet1:
+    Description: Private Subnet
+    Type: String
+
+  Cpu:
+    Description: Cpu size
+    Type: String
+
+  Memory:
+    Description: Memory size
+    Type: String
+
+  DiscoveryServerRoleArn:
+    Description: The task role for the discovery process
+    Type: String
+
+  ImageVersion:
+    Description: Release version
+    Type: String
+
+  RetainedImageCount:
+    Type: Number
+    Default: 5
+
+  DiscoveryBucket:
+    Type: String
+
+  EcrCleanupBucket:
+    Type: String
+    Description: The bucket where the zip files containing the source code for the ECR cleanup lambda
+
+  DeploymentBucketKey:
+    Type: String
+    Description: The key within the bucket that contains the source code zips
+
+  AWSSDK:
+    Type: String
+    Description: Required library
+
+  Decorators:
+    Type: String
+    Description: Required library
+
+  BotoUtils:
+    Type: String
+    Description: Required library
+
+  CustomResourceHelper:
+    Type: String
+    Description: Required library
+
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues:
+      - CRITICAL
+      - FATAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - NOTSET
+
+  NeptuneClusterURL:
+    Type: String
+
+  NeptuneClusterPort:
+    Type: String
+
+  NeptuneDbSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  RestApiUrl:
+    Type: String
+
+  AppSyncApiUrl:
+    Type: String
+
+  ConfigurationAggregator:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  VpcEndpointsSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+
+  PerspectiveContainerRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      LifecyclePolicy:
+        LifecyclePolicyText: !Sub
+          - '{"rules":[{"rulePriority":1,"description":"Retained Image count: ${RetainedImageCount}","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":${RetainedImageCount}},"action":{"type":"expire"}}]}'
+          - { RetainedImageCount: !Ref RetainedImageCount }
+      RepositoryPolicyText:
+        Version: '2012-10-17'
+        Statement:
+          Sid: AllowPull
+          Effect: Allow
+          Principal:
+            AWS: !GetAtt EcsTaskExecutionRole.Arn
+          Action:
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+
+  TaskSg:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: Needs open egress for API as it is on the internet.
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Discovery Task
+      VpcId: !Ref VpcId
+      
+
+  VpcEndpointsSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress Security Group for ECR Vpc Endpoint
+      FromPort: 443
+      ToPort: 443
+      GroupId: !Ref VpcEndpointsSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref TaskSg
+
+  NeptuneDbSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress Security Group for Neptune
+      FromPort: !Ref NeptuneClusterPort
+      ToPort: !Ref NeptuneClusterPort
+      GroupId: !Ref NeptuneDbSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref TaskSg
+
+  CleanupRepositoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: cleanup_ecr.handler
+      CodeUri:
+        Bucket: !Ref EcrCleanupBucket
+        Key: !Sub ${DeploymentBucketKey}/cleanup-ecr.zip
+      Runtime: python3.8
+      Layers:
+        - !Ref AWSSDK
+        - !Ref Decorators
+        - !Ref BotoUtils
+        - !Ref CustomResourceHelper
+      Description: Custom Lambda resource for deleting images in ECR on stack deletion
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ecr:BatchDeleteImage
+                - ecr:ListImages
+              Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${PerspectiveContainerRepo}
+
+  CleanupECRRepository:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupRepositoryFunction.Arn
+      LogLevel: !Ref LogLevel
+      Repository: !Ref PerspectiveContainerRepo
+
+  CodeBuildArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: 'image-builder-codebuild-bucket/'
+
+  CodeBuildArtifactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CodeBuildArtifactBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Action: '*'
+            Effect: Deny
+            Resource: !Sub arn:aws:s3:::${CodeBuildArtifactBucket}/*
+            Principal: '*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'we only have invokeLambda defined'
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Action": "sts:AssumeRole",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "codepipeline.amazonaws.com"
+                }
+            }]
+        }
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-codepipeline
+          PolicyDocument: !Sub
+            - |
+              {
+                  "Statement": [
+                      {
+                          "Action": [
+                              "s3:GetBucketVersioning",
+                              "s3:PutObject",
+                              "s3:GetObject",
+                              "s3:GetObjectVersion"
+                          ],
+                          "Resource": [
+                              "arn:aws:s3:::${DiscoveryBucket}*",
+                              "arn:aws:s3:::${CodeBuildArtifactBucket}*"
+                          ],
+                          "Effect": "Allow"
+                      },
+                      {
+                          "Action": [
+                              "codebuild:BatchGetBuilds",
+                              "codebuild:StartBuild"
+                          ],
+                          "Resource": "${CodeBuildProjectArn}",
+                          "Effect": "Allow"
+                      }
+                  ]
+              }
+            - CodeBuildProjectArn: !GetAtt CodeBuildProject.Arn
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Action": "sts:AssumeRole",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "codebuild.amazonaws.com"
+                }
+            }]
+        }
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-codebuild
+          PolicyDocument: !Sub |
+            {
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Resource": [ "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*" ],
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents"
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Resource": [
+                            "arn:aws:s3:::${DiscoveryBucket}*",
+                            "arn:aws:s3:::${CodeBuildArtifactBucket}*"
+                        ],
+                        "Action": [
+                            "s3:GetObject",
+                            "s3:GetObjectVersion",
+                            "s3:PutObject"
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Resource": [
+                            "${TaskDefinition}"
+                        ],
+                        "Action": [
+                            "ecs:DescribeServices",
+                            "ecs:DescribeTaskDefinition",
+                            "ecs:DescribeTasks",
+                            "ecs:ListTasks",
+                            "ecs:RegisterTaskDefinition",
+                            "ecs:UpdateService"
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Resource": [                          
+                            "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${PerspectiveContainerRepo}*"
+                        ],
+                        "Action": [
+                            "ecr:GetAuthorizationToken",
+                            "ecr:GetDownloadUrlForLayer",
+                            "ecr:BatchGetImage",
+                            "ecr:BatchCheckLayerAvailability",
+                            "ecr:PutImage",
+                            "ecr:InitiateLayerUpload",
+                            "ecr:UploadLayerPart",
+                            "ecr:CompleteLayerUpload",
+                            "ecr:GetAuthorizationToken"
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Resource": [                          
+                            "*"
+                        ],
+                        "Action": [
+                            "ecr:GetAuthorizationToken"
+                        ]
+                    }
+                ]
+            }
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodeBuildArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: S3
+              Configuration:
+                S3Bucket: !Sub ${DiscoveryBucket}
+                S3ObjectKey: discovery.zip
+              OutputArtifacts:
+                - Name: AWS-PERSPECTIVE
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: AWS-PERSPECTIVE
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W32
+            reason: 'Happy with the default behaviour of using AWS-managed CMK'
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Source:
+        Type: NO_SOURCE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - echo ${IMAGE_VERSION}
+                - $(aws ecr get-login --no-include-email)
+                - IMAGE_URI="${REPOSITORY_URI}"                
+            build:
+              commands:
+                - echo Build started on `date`
+                - echo Building the Docker image...
+                - docker build --tag $IMAGE_URI:${IMAGE_VERSION} .
+            post_build:
+              commands:
+                - echo Build completed on `date`
+                - echo Pushing the Docker image...
+                - docker push $IMAGE_URI:${IMAGE_VERSION}
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/docker:18.09.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${PerspectiveContainerRepo}
+          - Name: IMAGE_VERSION
+            Value: !Ref ImageVersion
+      Name: !Ref AWS::StackName
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName:
+        Fn::Sub: ${AppName}-cluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  EcsTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Fn::Sub: ${AppName}-taskgroup
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu:
+        Ref: Cpu
+      Memory:
+        Ref: Memory
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - EcsTaskExecutionRole
+          - Arn
+      TaskRoleArn:
+        Ref: DiscoveryServerRoleArn
+      ContainerDefinitions:
+        - Name:
+            Ref: AppName
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${PerspectiveContainerRepo}:${ImageVersion}
+          User: discovery:discovery
+          PortMappings:
+            - ContainerPort:
+                Ref: ContainerPort
+          Environment:
+            - Name: AWS_ACCOUNT_ID
+              Value: !Ref AWS::AccountId
+            - Name: AWS_REGION
+              Value: !Ref AWS::Region
+            - Name: CLUSTER
+              Value: !Ref Cluster
+            - Name: NEPTUNE_URL
+              Value: !Ref NeptuneClusterURL
+            - Name: NEPTUNE_PORT
+              Value: !Ref NeptuneClusterPort
+            - Name: REST_API_URL
+              Value: !Ref RestApiUrl
+            - Name: GRAPHQL_API_URL
+              Value: !Ref AppSyncApiUrl
+            - Name: CONFIG_AGGREGATOR
+              Value: !Ref ConfigurationAggregator
+            - Name: DATA_PATH
+              Value: resources
+            - Name: SEARCH_PATH
+              Value: search
+            - Name: DISCOVERY_ROLE
+              Value: '{{resolve:ssm:PerspectiveDiscoveryRoleArn:1}}'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-stream-prefix: ecs
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /ecs/${AppName}-task
+
+  ZoomCrawlerTaskSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: AWS Perspective Discovery service
+      Name:
+        Fn::Sub: ${AppName}-rule
+      RoleArn:
+        Fn::GetAtt:
+          - EcsTaskExecutionRole
+          - Arn
+      ScheduleExpression: cron(0/15 * * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - Cluster
+              - Arn
+          RoleArn:
+            Fn::GetAtt:
+              - EcsTaskExecutionRole
+              - Arn
+          Id: apiScheduledTask
+          EcsParameters:
+            TaskDefinitionArn:
+              Ref: TaskDefinition
+            LaunchType: FARGATE
+            PlatformVersion: LATEST
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                SecurityGroups:
+                  - Ref: TaskSg
+                Subnets:
+                  - Ref: PrivateSubnet0
+                  - Ref: PrivateSubnet1
+
+Outputs:
+  Endpoint:
+    Description: Cluster
+    Value:
+      Ref: Cluster
+
+  TaskDef:
+    Description: Task Name
+    Value:
+      Ref: TaskDefinition
+
+  EcsRoleDef:
+    Description: ECS Role Name
+    Value:
+      Fn::GetAtt:
+        - EcsTaskExecutionRole
+        - Arn
+
+  CodeBuildArtifactBucket:
+    Value: !Ref CodeBuildArtifactBucket

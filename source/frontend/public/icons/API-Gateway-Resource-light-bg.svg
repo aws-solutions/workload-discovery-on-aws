@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75" >
+    <title>exp-API-Gateway_Resource_light-bg</title>
+    <rect width="75" height="75" fill="none"/>
+    <path d="M34.5,2h-19L2,15.5V34.6L15.5,48H34.6L48,34.5v-19ZM46,33.7,33.7,46H16.3L4,33.7V16.3L16.3,4H33.7L46,16.3Z" transform="scale(1.5)" fill="#d6242d"/>
+    <rect x="19" y="22" width="2" height="2" fill="#d6242d" transform="scale(1.5) translate(2,2)"/>
+    <rect x="22" y="22" width="2" height="2" fill="#d6242d" transform="scale(1.5) translate(2,2)"/>
+    <rect x="25" y="22" width="2" height="2" fill="#d6242d" transform="scale(1.5) translate(2,2)"/>
+    <path d="M35.1,25.2A10,10,0,0,1,32,32.4v6l7-6.2V17.8l-7-6.2V18A10.14,10.14,0,0,1,35.1,25.2Z" transform="scale(1.5)" fill="none"/>
+    <path d="M11,17.8V32.4l7,6.2v-6a9.91,9.91,0,0,1,0-14.4V11.8Z" transform="scale(1.5)" fill="none"/>
+    <path d="M18,38.5l-7-6.2V17.8l7-6.2V18a9.51,9.51,0,0,1,2-1.5v-7l-.5-.3a2.78,2.78,0,0,0-1.8,0l-8,7A1.71,1.71,0,0,0,9,17.5V32.6a1.56,1.56,0,0,0,.8,1.3l7.7,6.8.3.2a3.55,3.55,0,0,0,1,.2,1.2,1.2,0,0,0,.8-.2l.5-.3V34a9.51,9.51,0,0,1-2-1.5v6Z" transform="scale(1.5)" fill="#d6242d"/>
+    <path d="M40.2,16.2,32.5,9.4l-.3-.2a2.48,2.48,0,0,0-1.7,0l-.5.3v7A9.51,9.51,0,0,1,32,18V11.6l7,6.2V32.4l-7,6.2v-6a9.51,9.51,0,0,1-2,1.5v6.6l.5.3a1.88,1.88,0,0,0,.8.2,3.55,3.55,0,0,0,1-.2l8-7a1.56,1.56,0,0,0,.7-1.3V17.5A1.56,1.56,0,0,0,40.2,16.2Z" transform="scale(1.5)" fill="#d6242d"/>
+    <circle cx="23.1" cy="23.1" r="7.9" fill="none" stroke="#d6242d" stroke-miterlimit="10" stroke-width="1.84" transform="scale(1.5) translate(2,2)"/>
+</svg>

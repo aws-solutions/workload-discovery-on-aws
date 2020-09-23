@@ -1,0 +1,186 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: AWS Perspective Cloudfront Distribution
+
+Parameters:
+  AccessLogsBucket:
+    Description: The bucket that contains the access logs for Perspective buckets.
+    Type: String
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues:
+      - CRITICAL
+      - FATAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - NOTSET
+  SecuredEdgeBucket:
+    Type: String
+    Description: The bucket where the zip files containing the source code for the SecuredEdge Lambda
+  DeploymentBucketKey:
+    Type: String
+    Description: The key within the bucket that contains the source code zips
+  ResourcePrefix:
+    Type: String
+    Description: The prefix used for uniquely named resources
+  AWSSDK:
+    Type: String
+    Description: Required library
+  Decorators:
+    Type: String
+    Description: Required library
+  BotoUtils:
+    Type: String
+    Description: Required library
+  CustomResourceHelper:
+    Type: String
+    Description: Required library
+  CloneRegion:
+    Type: String
+    Description: Target for Lambda function copy
+
+Resources:
+  SecuredEdgeLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Custom Lambda resource for the AWS Perspective Stack
+      Handler: create_regional_edge_lambda.handler
+      Code:
+        S3Bucket: !Sub '${SecuredEdgeBucket}'
+        S3Key: !Sub '${DeploymentBucketKey}/create_regional_edge_lambda.zip'
+      Layers:
+        - !Ref 'AWSSDK'
+        - !Ref 'Decorators'
+        - !Ref 'BotoUtils'
+        - !Ref 'CustomResourceHelper'
+      Role: !GetAtt 'RegionalEdgeLambdaFunctionRole.Arn'
+      Timeout: 3
+      Runtime: python3.8
+
+  SecuredEdgeLambda:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt SecuredEdgeLambdaFunction.Arn
+      LogLevel: !Ref LogLevel
+      RoleArn: !GetAtt LambdaEdgeFunctionRole.Arn
+      ResourcePrefix: !Ref ResourcePrefix
+
+  LambdaEdgeFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowLambdaServiceToAssumeRole
+            Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+
+  RegionalEdgeLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CreateRegionalEdgeLambdaFunctionRolePolicy0
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                Resource: !Sub 'arn:aws:lambda:${CloneRegion}:${AWS::AccountId}:function:${ResourcePrefix}*'
+                Effect: Allow
+              - Action: iam:PassRole
+                Resource: !GetAtt 'LambdaEdgeFunctionRole.Arn'
+                Effect: Allow
+
+
+  WebUIBucketReadPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: '{{resolve:ssm:WebUIBucketName:1}}'
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource:
+              Fn::Sub:
+                - arn:aws:s3:::${WebUIBucketName}/*
+                - WebUIBucketName: '{{resolve:ssm:WebUIBucketName:1}}'
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - CloudFrontOriginAccessIdentity
+                  - S3CanonicalUserId
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: '{{resolve:ssm:WebUIBucketName:1}}'
+
+  CloudFrontDistribution:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W70
+            reason: 'If the distribution uses the CloudFront domain name such as d111111abcdef8.cloudfront.net (you set CloudFrontDefaultCertificate to true), CloudFront automatically sets the security policy to TLSv1 regardless of the value that you set here.'
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: '{{resolve:ssm:WebUIBucketRegionalDomainName:1}}'
+            Id: myS3Origin-perspective
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Sub: origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+        Enabled: true
+        HttpVersion: http2
+        Comment: The Distribution for the Perspective Web UI
+        DefaultRootObject: index.html
+        Logging:
+          Bucket: !Sub ${AccessLogsBucket}.s3.amazonaws.com
+          IncludeCookies: false
+          Prefix: 'aws-perspective-ui'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - HEAD
+            - GET
+            - OPTIONS
+          TargetOriginId: myS3Origin-perspective
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - EventType: origin-response
+              IncludeBody: false
+              LambdaFunctionARN: !GetAtt SecuredEdgeLambda.FunctionArnWithVersion
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+          MinimumProtocolVersion: TLSv1.1_2016
+
+Outputs:
+  url:
+    Value:
+      Fn::Sub: https://${CloudFrontDistribution.DomainName}
+    Description: WebUI URL

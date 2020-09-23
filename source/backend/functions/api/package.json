@@ -1,0 +1,40 @@
+{
+  "name": "perspective-api",
+  "version": "1.1.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm run clean && npm i",
+    "test": "nyc mocha tests/*.js && npm prune --production",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json api.zip node_modules/ && zip -urj api.zip src/",
+    "build:dist": "mkdir dist && mv api.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test",
+    "local:test": "sam local invoke 'gremlin' -e ./tests/event.json"
+  },
+  "author": "damackli",
+  "contributors": [
+    "svozza"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "6.12.3",
+    "aws4": "1.10.0",
+    "axios": "0.19.2",
+    "better-ajv-errors": "0.6.7",
+    "gremlin": "3.4.7",
+    "moment-timezone": "0.5.21",
+    "ramda": "0.27.0",
+    "uuid": "3.4.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "latest",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0",
+    "sinon": "^7.5.0",
+    "socks5-https-client": "^1.2.0"
+  }
+}

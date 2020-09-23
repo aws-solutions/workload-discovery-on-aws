@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1{fill:#cd2264}
+        </style>
+    </defs>
+    <title>
+        Amazon-Simple-Notification-Service-SNS_Email-Notification_light-bg
+    </title>
+    <g id="Working">
+        <path class="cls-1" d="M47.5,20.38H2.5a1,1,0,0,1-1-1V14.69h2v3.69h43V10.06H16.56v-2H47.5a1,1,0,0,1,1,1V19.38A1,1,0,0,1,47.5,20.38Z"/>
+        <path class="cls-1" d="M47.5,34.44h-2v-2h1v-1h2v2A1,1,0,0,1,47.5,34.44Z"/>
+        <path class="cls-1" d="M43.64,34.44H39.91v-2h3.73Zm-5.59,0H34.32v-2h3.73Zm-5.59,0H28.73v-2h3.73Zm-5.6,0H23.14v-2h3.72Zm-5.59,0H17.55v-2h3.72Zm-5.59,0H12v-2h3.72Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M4.5,34.44h-2a1,1,0,0,1-1-1v-2h2v1h1Z"/>
+        <rect class="cls-1" x="1.5" y="26.7" width="2" height="3.16"/>
+        <path class="cls-1" d="M3.5,25.12h-2v-2a1,1,0,0,1,1-1h2v2h-1Z"/>
+        <path class="cls-1" d="M43.64,24.12H39.91v-2h3.73Zm-5.6,0H34.32v-2H38Zm-5.59,0H28.73v-2h3.72Zm-5.59,0H23.14v-2h3.72Zm-5.59,0H17.54v-2h3.73Zm-5.59,0H12v-2h3.73Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M48.5,25.12h-2v-1h-1v-2h2a1,1,0,0,1,1,1Z"/>
+        <rect class="cls-1" x="46.5" y="26.7" width="2" height="3.16"/>
+        <path class="cls-1" d="M47.5,48.5h-2v-2h1v-1h2v2A1,1,0,0,1,47.5,48.5Z"/>
+        <path class="cls-1" d="M43.64,48.5H39.91v-2h3.73Zm-5.59,0H34.32v-2h3.73Zm-5.59,0H28.73v-2h3.73Zm-5.6,0H23.14v-2h3.72Zm-5.59,0H17.55v-2h3.72Zm-5.59,0H12v-2h3.72Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M4.5,48.5h-2a1,1,0,0,1-1-1v-2h2v1h1Z"/>
+        <rect class="cls-1" x="1.5" y="40.77" width="2" height="3.16"/>
+        <path class="cls-1" d="M3.5,39.19h-2v-2a1,1,0,0,1,1-1h2v2h-1Z"/>
+        <path class="cls-1" d="M43.64,38.19H39.91v-2h3.73Zm-5.6,0H34.32v-2H38Zm-5.59,0H28.73v-2h3.72Zm-5.59,0H23.14v-2h3.72Zm-5.59,0H17.54v-2h3.73Zm-5.59,0H12v-2h3.73Zm-5.59,0H6.36v-2h3.73Z"/>
+        <path class="cls-1" d="M48.5,39.19h-2v-1h-1v-2h2a1,1,0,0,1,1,1Z"/>
+        <rect class="cls-1" x="46.5" y="40.77" width="2" height="3.16"/>
+        <path class="cls-1" d="M17.82,17.59V11.1h4v.77H18.78v2h2.58v.77H18.78v2.2h3.08v.76Z"/>
+        <path class="cls-1" d="M28.5,17.59V12.48l-1.83,3.45H25.8L24,12.48v5.11h-.88V11.1h1.07l2.1,4,2.09-4h1v6.49Z"/>
+        <path class="cls-1" d="M35.1,17.59l-.6-1.72H31.82l-.58,1.72h-1l2.4-6.49h1l2.4,6.49Zm-3-2.44h2.18L33.16,12Z"/>
+        <path class="cls-1" d="M37,17.59V11.1h1v6.49Z"/>
+        <path class="cls-1" d="M39.58,17.59V11.1h1v5.71H43.6v.78Z"/>
+        <path class="cls-1" d="M8.13,14.75a6.63,6.63,0,1,1,6.62-6.63A6.63,6.63,0,0,1,8.13,14.75Zm0-11.25a4.63,4.63,0,1,0,4.62,4.62A4.63,4.63,0,0,0,8.13,3.5Z"/>
+    </g>
+</svg>
