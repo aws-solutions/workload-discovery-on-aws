@@ -12,6 +12,7 @@ import SnackbarContent from '@material-ui/core/SnackbarContent';
 import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/core/styles';
 import ReplayIcon from '@material-ui/icons/Replay';
+import { Typography } from '@material-ui/core';
 
 const variantIcon = {
   success: CheckCircleIcon,
@@ -65,6 +66,9 @@ const useStyles = makeStyles((theme) => ({
   externalIcon: {
     width: '18px',
   },
+  errorMessage:{
+    fontSize: '0.75rem'
+  }
 }));
 
 function MySnackbarContentWrapper(props) {
@@ -128,6 +132,10 @@ export default ({
     </IconButton>
   );
 
+  const errorMessage = () => (
+    <Typography className={classes.errorMessage}>{message.endsWith('.') ? `${message}` : `${message}.`} See <a href="https://github.com/awslabs/aws-perspective/issues" target="_blank">GitHub issues</a>{ 'for help resolving the issue'}</Typography>
+  )
+
   return (
     <Snackbar
       anchorOrigin={{
@@ -138,7 +146,7 @@ export default ({
       onClose={handleClose}>
       <MySnackbarContentWrapper
         variant={type}
-        message={message}
+        message={type === 'error' ? errorMessage() : `${message}`}
         onClose={handleClose}
         progress={progress}
         action={retryFunction ? action() : null}

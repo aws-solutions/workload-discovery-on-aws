@@ -251,12 +251,12 @@ const getDateThreshold = (lineItems) => {
 const mergeRecord = (newRecord, oldRecord) => {
     let modified = false;
 
-    let dateThreshold = getDateThreshold(oldRecord.lineItems);
-    //console.log(dateThreshold)
+    let dateTheshold = getDateThreshold(oldRecord.lineItems);
+    //console.log(dateTheshold)
 
     newRecord.lineItems.forEach(newElement => {
 
-        if (new Date(newElement.startBillingInterval) > dateThreshold) {
+        if (new Date(newElement.startBillingInterval) > dateTheshold) {
             //console.log("adding record");
             //console.log(util.inspect(newElement, { depth: 10 }));
             oldRecord.lineItems.push(newElement);
@@ -277,7 +277,7 @@ const handleLineData = (line) => {
 
     addKeyToObject(data, "lineItemId", columns[0]);
 
-    let timeInterval = separateDates(columns[1]);
+    let timeInterval = seperateDates(columns[1]);
 
     addKeyToObject(data, "startBillingInterval", timeInterval[0]);
     addKeyToObject(data, "endBillingInterval", timeInterval[1]);
@@ -332,7 +332,7 @@ const getDayOfYear = (inputDate) => {
     return day;
 }
 
-const separateDates = (dateString) => {
+const seperateDates = (dateString) => {
     return dateString.split("/");
 }
 

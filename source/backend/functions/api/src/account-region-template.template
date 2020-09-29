@@ -120,11 +120,11 @@ Resources:
                 }
               },
               {
-              "Sid": "HttpsOnly"
-              "Action": "*"
+               "Sid": "HttpsOnly",
+              "Action": "*",
               "Effect": "Deny",
               "Resource": "arn:aws:s3:::${ConfigBucket}/*",
-              "Principal": '*'
+              "Principal": "*",
               "Condition": {
                 "Bool": {
                   "aws:SecureTransport": "false"

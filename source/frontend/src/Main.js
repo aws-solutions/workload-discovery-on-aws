@@ -60,11 +60,14 @@ export default (...props) => {
 
   useEffect(() => {
     wrapRequest(getAccounts).then((response) => {
-      accounts.current = handleResponse(response).body.data.getAccounts;
-      setShowImportLandingPage(accounts.current.length === 0);
-      setShowImportingSnackbar(discoveryProcessingRunning());
-      checkRender();
-      importInterval = setInterval(monitorProgress, 30000);
+      if (response.error) setShowError(true);
+      else {
+        accounts.current = response.body.data.getAccounts;
+        setShowImportLandingPage(accounts.current.length === 0);
+        setShowImportingSnackbar(discoveryProcessingRunning());
+        checkRender();
+        importInterval = setInterval(monitorProgress, 30000);
+      }
     });
 
     getObject('filters/accounts/filters', 'private').then((response) => {
@@ -166,7 +169,7 @@ export default (...props) => {
           vertical='bottom'
           horizontal='center'
           type='error'
-          message='We could not retrieve your import configuration. Please refresh the page and try again'
+          message='We could not retrieve your import configuration or it has been corrupted.'
         />
       )}
     </div>

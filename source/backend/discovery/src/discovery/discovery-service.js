@@ -51,7 +51,8 @@ class DiscoveryService {
       "AWS::KMS::Key",
       "AWS::CodeBuild::Project",
       "AWS::CodePipeline::Pipeline",
-      "AWS::SQS::Queue"
+      "AWS::SQS::Queue",
+      "AWS::QLDB::Ledger"
     ];
 
     // Scan in all resources in parallel

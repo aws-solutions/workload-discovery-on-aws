@@ -95,33 +95,56 @@ function deleteAccounts(docClient, configService, TableName, {configAggregator, 
         .then(unprocessedAccounts => ({unprocessedAccounts}))
 }
 
+function handleUpdateItemNotExistsError(err) {
+    if(err.code === "ConditionalCheckFailedException") {
+        throw new Error("Cannot update item that does not exist");
+    }
+    throw err;
+}
+
 function updateAccount(docClient, TableName, {accountId, ...Update}) {
+    const PK = 'Account';
+    const SK = `ACCNUMBER#${accountId}#METADATA`;
+
     return docClient.update(dynoexpr({
             TableName,
             Key: {
-                PK: 'Account',
-                SK: `ACCNUMBER#${accountId}#METADATA`
+                PK,
+                SK
+            },
+            Condition: {
+                PK,
+                SK
             },
             Update
         }
     )).promise()
         .then(() => ({accountId, ...Update}))
+        .catch(handleUpdateItemNotExistsError)
 }
 
 function updateRegions(docClient, TableName, {accountId, regions}) {
     return Promise.resolve(regions)
-        .then(R.map(({name, ...Update}) => (dynoexpr({
+        .then(R.tap(console.log))
+        .then(R.map(({name, ...Update}) => {
+            const PK = 'Account';
+            const SK = `ACCNUMBER#${accountId}#REGION#${name}`;
+
+            return dynoexpr({
                     TableName,
                     Key: {
-                        PK: 'Account',
-                        SK: `ACCNUMBER#${accountId}#REGION#${name}`
+                        PK, SK
+                    },
+                    Condition: {
+                        PK, SK
                     },
                     Update
                 }
             )
-        )))
+        }))
         .then(R.map(update(docClient)))
         .then(all)
+        .catch(handleUpdateItemNotExistsError)
         .then(() => ({accountId, regions}))
 }
 

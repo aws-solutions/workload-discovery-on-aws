@@ -1,0 +1,22 @@
+{
+  "edge": false,
+  "data": {
+    "id": "ACCOUNT_ID-woah-this-is-my-parent",
+    "parent": "woah-this-is-my-parent",
+    "level": 1,
+    "title": "ACCOUNT_ID",
+    "label": "ACCOUNT_ID",
+    "plainLabel": "ACCOUNT_ID",
+    "type": "ACCOUNT",
+    "borderStyle": "solid",
+    "color": "#fff",
+    "borderColour": "#AAB7B8",
+    "opacity": "0",
+    "cost": 0,
+    "children": true,
+    "accountColour": "rgba(175, 17, 83, 0.5)",
+    "regionColour": "rgba(9, 86, 99, 0.5)",
+    "aZColour": "#00A1C9"
+  },
+  "classes": ["ACCOUNT", "removeAll"]
+}

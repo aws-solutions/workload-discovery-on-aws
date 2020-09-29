@@ -19,6 +19,16 @@ const downloadTemplate = (command) => {
   return requestWrapper(sendGetRequest, query);
 };
 
+export function downloadCloudFormationTemplateForAccount() {
+  return downloadTemplate('downloadAccountCloudFormation')
+    .then(template => (template.body))
+}
+
+export function downloadCloudFormationTemplateForRegion() {
+  return downloadTemplate('downloadRegionCloudFormation')
+    .then(template => (template.body))
+}
+
 export function uploadCloudFormationTemplateForAccount() {
   let templateName;
   return downloadTemplate('downloadAccountCloudFormation')

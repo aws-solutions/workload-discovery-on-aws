@@ -1,0 +1,361 @@
+[
+  {
+    "edge": false,
+    "data": {
+      "id": "XXXXXXXXXXXX",
+      "level": 0,
+      "title": "XXXXXXXXXXXX",
+      "label": "XXXXXXXXXXXX - $0",
+      "plainLabel": "XXXXXXXXXXXX",
+      "type": "account",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/AWS-Cloud-alt_light-bg.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(178, 121, 8, 0.5)",
+      "regionColour": "rgba(9, 86, 99, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["account", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "id": "eu-west-1-XXXXXXXXXXXX",
+      "parent": "XXXXXXXXXXXX",
+      "level": 1,
+      "title": "eu-west-1",
+      "label": "eu-west-1 - $0",
+      "plainLabel": "eu-west-1",
+      "type": "region",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/Region_light-bg.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(137, 46, 6, 0.5)",
+      "regionColour": "rgba(79, 16, 163, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["region", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "id": "eu-west-1b-eu-west-1-XXXXXXXXXXXX",
+      "parent": "eu-west-1-XXXXXXXXXXXX",
+      "level": 2,
+      "title": "eu-west-1b",
+      "label": "eu-west-1b - $0",
+      "plainLabel": "eu-west-1b",
+      "type": "availabilityZone",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/availabilityZone.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(137, 46, 6, 0.5)",
+      "regionColour": "rgba(9, 86, 99, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["availabilityZone", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "id": "DBInstance-eu-west-1b-eu-west-1-XXXXXXXXXXXX",
+      "parent": "eu-west-1b-eu-west-1-XXXXXXXXXXXX",
+      "level": 3,
+      "title": "DBInstance",
+      "label": "1x DBInstance - $0",
+      "plainLabel": "DBInstance",
+      "type": "type",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/Amazon-RDS_Amazon-RDS_instance_light-bg-menu.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(137, 46, 6, 0.5)",
+      "regionColour": "rgba(9, 86, 99, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["type", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "parent": "DBInstance-eu-west-1b-eu-west-1-XXXXXXXXXXXX",
+      "level": 4,
+      "id": "ebc5cd4c047867d5ab6154d07ff468f9",
+      "title": "TITLE",
+      "label": "TITLE...",
+      "shape": "image",
+      "type": "resource",
+      "accountColour": "rgba(178, 121, 8, 0.5)",
+      "regionColour": "rgba(79, 16, 163, 0.5)",
+      "color": "#1D8102",
+      "borderStyle": "dotted",
+      "borderColour": "#1D8102",
+      "borderOpacity": 0.25,
+      "borderSize": 1,
+      "opacity": "0",
+      "clickedId": "ebc5cd4c047867d5ab6154d07ff468f9",
+      "state": {
+        "status": "status-available",
+        "text": "available",
+        "color": "#1D8102"
+      },
+      "image": "/icons/Amazon-Neptune_light-bg.svg",
+      "cost": 62.98,
+      "private": false,
+      "detailsComponent": {
+        "key": null,
+        "ref": null,
+        "props": {
+          "title": "Instance Details",
+          "configuration": "CONFIG"
+        },
+        "_owner": null,
+        "_store": {}
+      },
+      "resource": {
+        "id": "TITLE",
+        "name": "NAME",
+        "type": "AWS::RDS::DBInstance",
+        "tags": "TAGS",
+        "arn": "arn:aws:rds:eu-west-1:XXXXXXXXXXXX:db:NAME",
+        "region": "eu-west-1",
+        "accountId": "XXXXXXXXXXXX"
+      },
+      "highlight": true,
+      "existing": false,
+      "properties": {
+        
+      }
+    },
+    "classes": [
+      "resource",
+      null,
+      "highlight",
+      null,
+      null,
+      null,
+      "image",
+      "selectable",
+      "hoverover"
+    ]
+  },
+  {
+    "edge": false,
+    "data": {
+      "id": "EnvironmentVariable-eu-west-1-XXXXXXXXXXXX",
+      "parent": "eu-west-1-XXXXXXXXXXXX",
+      "level": 2,
+      "title": "EnvironmentVariable",
+      "label": "1x EnvironmentVariable - $0",
+      "plainLabel": "EnvironmentVariable",
+      "type": "type",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/Env-variable-light-bg.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(137, 46, 6, 0.5)",
+      "regionColour": "rgba(9, 86, 99, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["type", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "parent": "EnvironmentVariable-eu-west-1-XXXXXXXXXXXX",
+      "level": 3,
+      "id": "8c9c85e4ed8893d29378b98075d60fc6",
+      "title": "neptuneConnectURL:CLUSTER_ID.cluster-ADDRESS",
+      "label": "neptuneConne...",
+      "shape": "image",
+      "type": "resource",
+      "accountColour": "rgba(178, 121, 8, 0.5)",
+      "regionColour": "rgba(79, 16, 163, 0.5)",
+      "color": "#fff",
+      "borderStyle": "solid",
+      "borderColour": "#545B64",
+      "borderOpacity": 0.25,
+      "borderSize": 1,
+      "opacity": "0",
+      "clickedId": "8c9c85e4ed8893d29378b98075d60fc6",
+      "image": "/icons/Env-variable-light-bg.svg",
+      "cost": 0,
+      "private": false,
+      "resource": {
+        "id": "neptuneConnectURL_CLUSTER_ID.cluster-ADDRESS_XXXXXXXXXXXX_eu-west-1",
+        "type": "AWS::Lambda::EnvironmentVariable",
+        "region": "eu-west-1",
+        "accountId": "XXXXXXXXXXXX"
+      },
+      "highlight": true,
+      "existing": false,
+      "properties": {
+        "accountId": "XXXXXXXXXXXX",
+        "resourceId": "neptuneConnectURL_CLUSTER_ID.cluster-ADDRESS_XXXXXXXXXXXX_eu-west-1",
+        "awsRegion": "eu-west-1",
+        "perspectiveBirthDate": "2020-02-25T14:52:27.455Z",
+        "linkedLambda": "gremlin",
+        "title": "neptuneConnectURL:CLUSTER_ID.cluster-ADDRESS",
+        "value": "CLUSTER_ID.cluster-ADDRESS",
+        "resourceType": "AWS::Lambda::EnvironmentVariable"
+      }
+    },
+    "classes": [
+      "resource",
+      null,
+      "highlight",
+      null,
+      null,
+      null,
+      "image",
+      "selectable",
+      "hoverover"
+    ]
+  },
+  {
+    "edge": false,
+    "data": {
+      "id": "DBCluster-eu-west-1-XXXXXXXXXXXX",
+      "parent": "eu-west-1-XXXXXXXXXXXX",
+      "level": 2,
+      "title": "DBCluster",
+      "label": "1x DBCluster - $0",
+      "plainLabel": "DBCluster",
+      "type": "type",
+      "borderStyle": "solid",
+      "color": "#fff",
+      "borderColour": "#AAB7B8",
+      "opacity": "0",
+      "image": "/icons/Amazon-DBCluster.svg",
+      "cost": 0,
+      "children": true,
+      "accountColour": "rgba(137, 46, 6, 0.5)",
+      "regionColour": "rgba(9, 86, 99, 0.5)",
+      "aZColour": "#00A1C9"
+    },
+    "classes": ["type", "removeAll"]
+  },
+  {
+    "edge": false,
+    "data": {
+      "parent": "DBCluster-eu-west-1-XXXXXXXXXXXX",
+      "level": 3,
+      "id": "d9842531e9f0b7d801694190aa606e22",
+      "title": "CLUSTER_ID",
+      "label": "perspective-...",
+      "shape": "image",
+      "type": "resource",
+      "accountColour": "rgba(178, 121, 8, 0.5)",
+      "regionColour": "rgba(79, 16, 163, 0.5)",
+      "color": "#fff",
+      "borderStyle": "solid",
+      "borderColour": "#545B64",
+      "borderOpacity": 0.25,
+      "borderSize": 1,
+      "opacity": "0",
+      "clickedId": "d9842531e9f0b7d801694190aa606e22",
+      "image": "/icons/Amazon-DBCluster.svg",
+      "cost": 0,
+      "private": false,
+      "resource": {
+        "id": "CLUSTER_ID_eu-west-1_XXXXXXXXXXXX",
+        "type": "AWS::RDS::DBCluster",
+        "arn": "arn:aws:rds:eu-west-1:XXXXXXXXXXXX:cluster:CLUSTER_ID_eu-west-1_XXXXXXXXXXXX",
+        "region": "eu-west-1",
+        "accountId": "XXXXXXXXXXXX"
+      },
+      "highlight": true,
+      "existing": false,
+      "properties": {
+        "temporary": "TEMPORARY",
+        "resourceId": "CLUSTER_ID_eu-west-1_XXXXXXXXXXXX",
+        "vpcSecurityGroups_Status_2": "active",
+        "associatedRoles": "[]",
+        "dbClusterMembers_PromotionTier_4": "1",
+        "availabilityZones": "eu-west-1c,eu-west-1a,eu-west-1b",
+        "title": "CLUSTER_ID",
+        "preferredBackupWindow": "02:00-03:00",
+        "deletionProtection": "false",
+        "dbClusterIdentifier": "CLUSTER_ID",
+        "dbClusterMembers": "CLUSTER_MEMBERS",
+        "endpoint": "CLUSTER_ID.cluster-ADDRESS",
+        "perspectiveBirthDate": "2020-02-25T14:52:08.580Z",
+        "engineMode": "provisioned",
+        "engine": "neptune",
+        "readerEndpoint": "CLUSTER_ID.cluster-ro-ADDRESS",
+        "earliestRestorableTime": "2020-01-28T12:08:07.818Z",
+        "arn": "arn:aws:rds:eu-west-1:XXXXXXXXXXXX:cluster:CLUSTER_ID_eu-west-1_XXXXXXXXXXXX",
+        "clusterCreateTime": "2020-01-28T12:07:32.983Z",
+        "dbClusterMembers_IsClusterWriter_2": "true",
+        "engineVersion": "1.0.2.1",
+        "awsRegion": "eu-west-1",
+        "multiAZ": "false",
+        "dbClusterMembers_DBClusterParameterGroupStatus_3": "in-sync",
+        "storageEncrypted": "true",
+        "vpcSecurityGroups_VpcSecurityGroupId_1": "SG_NAME",
+        "dBSubnetGroup": "SBNET_GRP",
+        "vpcSecurityGroups": "[{\"VpcSecurityGroupId\":\"SG_NAME\",\"Status\":\"active\"}]",
+        "httpEndpointEnabled": "false",
+        "hostedZoneId": "HOSTED_ZONE",
+        "accountId": "XXXXXXXXXXXX",
+        "dbClusterArn": "arn:aws:rds:eu-west-1:XXXXXXXXXXXX:cluster:CLUSTER_ID",
+        "port": "PORT",
+        "dbClusterMembers_DBInstanceIdentifier_1": "NAME",
+        "resourceType": "AWS::RDS::DBCluster"
+      }
+    },
+    "classes": [
+      "resource",
+      null,
+      "highlight",
+      null,
+      "clicked",
+      null,
+      "image",
+      "selectable",
+      "hoverover"
+    ]
+  },
+  {
+    "edge": true,
+    "data": {
+      "id": "d9842531e9f0b7d801694190aa606e22-ebc5cd4c047867d5ab6154d07ff468f9",
+      "label": "CLUSTER_ID-TITLE",
+      "source": "d9842531e9f0b7d801694190aa606e22",
+      "sourceMetadata": { "childIds": [] },
+      "target": "ebc5cd4c047867d5ab6154d07ff468f9",
+      "targetMetadata": { "childIds": [] }
+    },
+    "classes": ["highlight"]
+  },
+  {
+    "edge": true,
+    "data": {
+      "id": "d9842531e9f0b7d801694190aa606e22-8c9c85e4ed8893d29378b98075d60fc6",
+      "label": "CLUSTER_ID-neptuneConnectURL:CLUSTER_ID.cluster-ADDRESS",
+      "source": "d9842531e9f0b7d801694190aa606e22",
+      "sourceMetadata": { "childIds": [] },
+      "target": "8c9c85e4ed8893d29378b98075d60fc6",
+      "targetMetadata": { "childIds": [] }
+    },
+    "classes": ["highlight"]
+  }
+]

@@ -5,11 +5,13 @@ import Link from '@material-ui/core/Link';
 import { useImportConfigState } from '../../../../Contexts/ImportDataContext';
 import FormAutoComplete from '../../../../../Utils/Forms/FormAutoComplete';
 import OpenInNew from '@material-ui/icons/OpenInNew';
-import { uploadCloudFormationTemplateForAccount } from './TemplateGenerator';
+import {
+  downloadCloudFormationTemplateForAccount,
+  uploadCloudFormationTemplateForAccount,
+} from './TemplateGenerator';
 import FormField from '../../../../../Utils/Forms/FormField';
 import { generateCloudFormationLink } from './CloudFormationURLGenerator';
 import { AWSIconButton } from '../../../../../Utils/Forms/AWSIconButton';
-import { useAccountsState } from '../../../../Contexts/AccountsContext';
 import {
   addAccounts,
   wrapRequest,
@@ -17,6 +19,7 @@ import {
   handleResponse,
 } from '../../../../../API/GraphQLHandler';
 import CustomSnackbar from '../../../../../Utils/SnackBar/CustomSnackbar';
+var fileDownload = require('js-file-download');
 
 const regionMap = [
   { id: 'us-east-1', name: 'US East (N. Virginia)' },
@@ -242,6 +245,7 @@ export default ({}) => {
                 <AWSIconButton
                   show
                   label='Deploy Template'
+                  newtab={true}
                   action={() =>
                     window.open(
                       generateCloudFormationLink(
@@ -256,16 +260,28 @@ export default ({}) => {
                 <div>
                   <AWSIconButton
                     show
-                    label='View Template'
-                    action={() =>
-                      window.open(templateUrl, '_blank')
+                    label='Save Template'
+                    download={true}
+                    action={async () =>
+                      fileDownload(
+                        await downloadCloudFormationTemplateForAccount(),
+                        'import-account.template'
+                      )
                     }></AWSIconButton>
                 </div>
               </div>
               <div>
                 <Typography classes={{ root: classes.note }}>
-                  Ensure you are logged into the account you are importing
-                  before you attempt to deploy the template.
+                  Ensure you are logged into the AWS account you are importing
+                  and have completed the first item in the{' '}
+                  <a href='https://docs.aws.amazon.com/solutions/latest/aws-perspective/automated-deployment.html#step-2.-post-deployment-configuration-tasks'>
+                    Post-deployment steps
+                  </a>{' '}
+                  before clicking <strong>Deploy Template</strong>.
+                  <br />
+                  <br />
+                  Alternatively, You can click <strong>Save Template</strong> to download the
+                  AWS CloudFormation template and deploy yourself.
                 </Typography>
               </div>
             </div>

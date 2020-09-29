@@ -40,7 +40,7 @@ test('when passing a node that represents an account to our factory it returns a
   );
 });
 
-test('when passing a node that represents an child to our factory it returns a bounding box node', () => {
+test('when passing a node that represents a child to our factory it returns a bounding box node', () => {
     process.env.PUBLIC_URL = '';
     const builtBox = buildBoundingBox(boundingBoxNodeToBuildParent, 'woah-this-is-my-parent', 1);
     expect(JSON.stringify(builtBox)).toMatch(

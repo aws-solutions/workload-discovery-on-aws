@@ -264,7 +264,11 @@ const serviceIconMap = {
   'AWS-WAF_regional-webacl-bg':'AWS::WAFRegional::WebACL',
   'AWS-Shield-bg':'AWS::Shield::Protection',
   'AWS-Shield_regional-bg':'AWS::ShieldRegional::Protection',
-  'Amazon-Simple-Queue-Service-SQS_Queue_light-bg': 'AWS::SQS::Queue'
+  'Amazon-Simple-Queue-Service-SQS_Queue_light-bg': 'AWS::SQS::Queue',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-error': 'AWS::QLDB::Ledger-status-negative',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-menu' : 'AWS::QLDB::Ledger',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-warning' : 'AWS::QLDB::Ledger-status-warning',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg' : 'AWS::QLDB::Ledger-status-available'
 
 };
 

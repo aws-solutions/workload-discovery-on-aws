@@ -1,0 +1,37 @@
+[
+
+  {
+    "key": "AutoScaling",
+    "label": "AutoScaling (2)",
+    "nodes": [
+      {
+        "key": "AutoScalingGroup",
+        "label": "AutoScalingGroup (2)",
+        "count": 2,
+        "nodes": [
+          {
+            "key": "40440fd8608ed34596f94b032f5dc9b5",
+            "label": "an-asg",
+            "fullLabel": "an-asg",
+            "filter": {
+              "resourceId": "40440fd8608ed34596f94b032f5dc9b5",
+              "resourceType": "AWS::AutoScaling::AutoScalingGroup"
+            },
+            "nodeId": "40440fd8608ed34596f94b032f5dc9b5"
+          },
+          {
+            "key": "d9bd2a470e8acc641b5e260fd27b06fc",
+            "label": "an-autoscaling-group",
+            "fullLabel": "an-autoscaling-group",
+            "filter": {
+              "resourceId": "d9bd2a470e8acc641b5e260fd27b06fc",
+              "resourceType": "AWS::AutoScaling::AutoScalingGroup"
+            },
+            "nodeId": "d9bd2a470e8acc641b5e260fd27b06fc"
+          }
+        ],
+        "filter": { "resourceType": "AWS::AutoScaling::AutoScalingGroup" }
+      }
+    ]
+  }
+]

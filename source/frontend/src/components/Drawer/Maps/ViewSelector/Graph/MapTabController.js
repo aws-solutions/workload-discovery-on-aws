@@ -122,12 +122,12 @@ export default ({ toggleDialog }) => {
           aria-label='simple tabs example'>
           <Tab
             classes={{ root: classes.tab, wrapper: classes.tabWrapper }}
-            label='Private'
+            label='You'
             {...a11yProps(0)}
           />
           <Tab
             classes={{ root: classes.tab, wrapper: classes.tabWrapper }}
-            label='Public'
+            label='All users'
             {...a11yProps(0)}
           />
         </Tabs>

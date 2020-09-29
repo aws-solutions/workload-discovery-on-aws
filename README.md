@@ -157,11 +157,11 @@ fi
 cd deployment
 ./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION $IMAGE_TAG
 aws cloudformation package --template-file "global-s3-assets/perspective-setup.template" --s3-bucket "$DIST_OUTPUT_BUCKET" --s3-prefix "${SOLUTION_NAME}/${VERSION}" --output-template-file packaged.template
-aws s3 cp packaged.template "s3://${DIST_OUTPUT_BUCKET}-${AWS_REGION}/${SOLUTION_NAME}/${VERSION}/aws-perspective.template"
+aws s3 cp packaged.template "s3://${DIST_OUTPUT_BUCKET}/${SOLUTION_NAME}/${VERSION}/aws-perspective.template"
 aws s3 cp global-s3-assets  s3://${DIST_OUTPUT_BUCKET}-${AWS_REGION}/${SOLUTION_NAME}/${VERSION}/ --recursive --acl bucket-owner-full-control
 aws s3 cp regional-s3-assets  s3://${DIST_OUTPUT_BUCKET}-${AWS_REGION}/${SOLUTION_NAME}/${VERSION}/ --recursive --acl bucket-owner-full-control
 
-echo "You can now deploy using this template URL https://${DIST_OUTPUT_BUCKET}-${AWS_REGION}.s3.${AWS_REGION}.amazonaws.com/${SOLUTION_NAME}/${VERSION}/aws-perspective.template"
+echo "You can now deploy using this template URL https://${DIST_OUTPUT_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${SOLUTION_NAME}/${VERSION}/aws-perspective.template"
 
 
 ```

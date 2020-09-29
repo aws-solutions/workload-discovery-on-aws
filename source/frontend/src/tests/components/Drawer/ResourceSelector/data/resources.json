@@ -1,0 +1,38 @@
+[
+  {
+    "nodes": [
+      {
+        "id": "40440fd8608ed34596f94b032f5dc9b5",
+        "label": "AWS::AutoScaling::AutoScalingGroup",
+        "title": "an-asg",
+        "accountId": "XXXXXXXXXXXX",
+        "region": "eu-west-1",
+        "mainType": "AutoScaling",
+        "subType": "AutoScalingGroup",
+        "configuration": "CONFIG"
+      },
+      {
+        "id": "d9bd2a470e8acc641b5e260fd27b06fc",
+        "label": "AWS::AutoScaling::AutoScalingGroup",
+        "title": "an-autoscaling-group",
+        "accountId": "XXXXXXXXXXXX",
+        "region": "eu-west-1",
+        "mainType": "AutoScaling",
+        "subType": "AutoScalingGroup",
+        "configuration": "CONFIG"
+      }
+    ],
+    "metaData": {
+      "resourceCount": 2,
+      "resourceTypes": [
+        {
+          "AWS::AutoScaling::AutoScalingGroup": 2
+        }
+      ]
+    },
+    "query": {
+      "command": "getAllResources",
+      "data": {}
+    }
+  }
+]

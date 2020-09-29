@@ -1,0 +1,29 @@
+{
+  "label": "ACCOUNT_ID",
+  "type": "ACCOUNT",
+  "children": [
+    {
+      "label": "REGION",
+      "type": "REGION",
+      "children": [
+        {
+          "id": "ID",
+          "perspectiveBirthDate": "2020-02-25T14:52:27.509Z",
+          "label": "AWS::Lambda::EnvironmentVariable",
+          "properties": {
+            "accountId": "ACCOUNT_ID",
+            "resourceId": "RESOURCE_ID",
+            "awsRegion": "REGION",
+            "perspectiveBirthDate": "DATE",
+            "linkedLambda": "LINKED_LAMBDA",
+            "title": "TITLE",
+            "value": "VALUE",
+            "resourceType": "TYPE"
+          },
+          "parent": false,
+          "type": "node"
+        }
+      ]
+    }
+  ]
+}
