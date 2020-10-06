@@ -6,6 +6,11 @@ labels: 'bug'
 assignees: ''
 ---
 
+If your issue relates to the _Discovery Process_, please first follow the steps described in the implementation guide [Debugging the Discovery Component](https://docs.aws.amazon.com/solutions/latest/aws-perspective/appendix-e-debugging-the-discovery-component.html)
+
+---
+
+
 **Describe the bug**
 A description of what the bug is.
 
