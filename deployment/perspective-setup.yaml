@@ -500,7 +500,7 @@ Resources:
         AllowAdminCreateUserOnly: true
         UnusedAccountValidityDays: 90
         InviteMessageTemplate:
-          EmailMessage: '<!DOCTYPE html><html><body style="font-family:sans-serif"><p>Thanks for your interest in AWS Perspective.</p><p>Here are your temporary credentials:</p><ul><li>Username: {username}</li><li>Password: {####}</li></ul><p>Any issues, please get in touch at <a href="mailto:aws-perspective-team@amazon.com">aws-perspective-team@</a></p></body></html>'
+          EmailMessage: '<!DOCTYPE html><html><body style="font-family:sans-serif"><p>Thanks for your interest in AWS Perspective.</p><p>Here are your temporary credentials, created by {admin}:</p><ul><li>Username: {username}</li><li>Password: {####}</li></ul><p>If you have any questions, please contact the Admin user of your AWS Perspective deployment {admin}, or get in touch at <a href="mailto:aws-perspective-team@amazon.com">aws-perspective-team@amazon.com</a></p></body></html>'
           EmailSubject: 'Welcome to AWS Perspective'
       UserPoolName:
         Fn::Sub: perspective.${AWS::Region}.userpool
