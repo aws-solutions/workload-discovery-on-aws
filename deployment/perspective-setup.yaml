@@ -66,6 +66,59 @@ Parameters:
       - 'Yes'
     Default: 'No'
     Description: If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of running the solution.
+  ElasticsearchInstanceType:
+    Description: The instance type for Elasticsearch data nodes
+    Type: String
+    Default: m4.large.elasticsearch
+    AllowedValues:
+      - t3.small.elasticsearch
+      - t3.medium.elasticsearch
+      - t2.micro.elasticsearch
+      - t2.small.elasticsearch
+      - t2.medium.elasticsearch
+      - m5.large.elasticsearch
+      - m5.xlarge.elasticsearch
+      - m5.2xlarge.elasticsearch
+      - m5.4xlarge.elasticsearch
+      - m5.12xlarge.elasticsearch
+      - m4.large.elasticsearch
+      - m4.xlarge.elasticsearch
+      - m4.2xlarge.elasticsearch
+      - m4.4xlarge.elasticsearch
+      - m4.10xlarge.elasticsearch
+      - c5.large.elasticsearch
+      - c5.xlarge.elasticsearch
+      - c5.2xlarge.elasticsearch
+      - c5.4xlarge.elasticsearch
+      - c5.9xlarge.elasticsearch
+      - c5.19xlarge.elasticsearch
+      - c4.large.elasticsearch
+      - c4.xlarge.elasticsearch
+      - c4.2xlarge.elasticsearch
+      - c4.4xlarge.elasticsearch
+      - c4.8xlarge.elasticsearch
+      - r5.large.elasticsearch
+      - r5.xlarge.elasticsearch
+      - r5.2xlarge.elasticsearch
+      - r5.4xlarge.elasticsearch
+      - r5.12xlarge.elasticsearch
+      - r4.large.elasticsearch
+      - r4.xlarge.elasticsearch
+      - r4.2xlarge.elasticsearch
+      - r4.4xlarge.elasticsearch
+      - r4.8xlarge.elasticsearch
+      - r4.16xlarge.elasticsearch
+      - r3.large.elasticsearch
+      - r3.xlarge.elasticsearch
+      - r3.2xlarge.elasticsearch
+      - r3.4xlarge.elasticsearch
+      - r3.8xlarge.elasticsearch
+      - i3.large.elasticsearch
+      - i3.xlarge.elasticsearch
+      - i3.2xlarge.elasticsearch
+      - i3.4xlarge.elasticsearch
+      - i3.8xlarge.elasticsearch
+      - i3.16xlarge.elasticsearch
 
 Resources:
   LambdaExecutionRole:
@@ -370,6 +423,7 @@ Resources:
           ANONYMOUS_METRIC_OPT_OUT: !Ref OptOutOfSendingAnonymousUsageMetrics
           NEPTUNE_INSTANCE_CLASS: !Ref NeptuneInstanceClass
           CREATE_READ_REPLICA: !Ref CreateNeptuneReplica
+          ELASTICSEARCH_INSTANCE_TYPE: !Ref ElasticsearchInstanceType
           ACCOUNT_ID: !Ref AWS::AccountId
           API_GATEWAY: !Sub https://${PerspectiveWebRestAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod
           SERVER_API_GATEWAY: !Sub https://${ServerGremlinAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/
