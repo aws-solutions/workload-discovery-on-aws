@@ -91,6 +91,19 @@ The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazo
   |-cfn/                         [ the CloudFormation templates that deploy aws-perspective ]
 ```
 
+### Running the Perspective Web Application locally
+
+For development and debugging, it's possible to run the Perspective UI locally.
+The Perspective solution must already be deployed to an account.
+
+The Perspective solution generates a `settings.js` file used by the web browser for configuration.
+To develop locally, this `settings.js` file must be present.
+
+- Copy the `settings.js` file from the S3 Bucket containing the Perspective UI. This has the logical name `WebUIBucket` in the CloudFormation stack.
+- Place the `settings.js` file in `source/frontend/public`.
+- From the `source/frontend` directory, run `npm install`
+- Run `npm run start` to run the local development server.
+
 ### Running unit tests
 
 ```
