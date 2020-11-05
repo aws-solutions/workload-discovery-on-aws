@@ -60,6 +60,9 @@ Parameters:
   PerspectiveAppSyncApiUrl:
     Description: Url for AppSync API
     Type: String
+  ElasticsearchInstanceType:
+    Description: The instance type for Elasticsearch data nodes
+    Type: String
 
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
@@ -172,6 +175,8 @@ Resources:
       Parameters:
         AppName:
           Ref: AppName
+        InstanceType:
+          Ref: ElasticsearchInstanceType
         PrivateSubnet0:
           Fn::GetAtt:
             - VpcStack

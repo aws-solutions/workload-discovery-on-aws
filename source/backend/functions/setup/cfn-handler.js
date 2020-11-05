@@ -12,6 +12,7 @@ const {
   CREATE_ES_SERVICE_ROLE,
   NEPTUNE_INSTANCE_CLASS,
   CREATE_READ_REPLICA,
+  ELASTICSEARCH_INSTANCE_TYPE,
   AMPLIFY_STORAGE_BUCKET,
   ACCESS_LOGS,
   APPSYNC_API_ARN,
@@ -91,6 +92,10 @@ module.exports = cloudformation => {
       {
         ParameterKey: 'PerspectiveAppSyncApiUrl',
         ParameterValue: `${APPSYNC_API_GRAPHQL_URL}`
+      },
+      {
+        ParameterKey: 'ElasticsearchInstanceType',
+        ParameterValue: `${ELASTICSEARCH_INSTANCE_TYPE}`
       }
     ],
     Tags: [
