@@ -4,9 +4,11 @@
  * 
  */
 
-// sets the title to the resourceId - default
+// sets the title to the resourceName if exists, falls back to resourceId - default
 const buildGeneric = (data) => {
-    data.properties.title = data.properties.resourceId;
+    data.properties.title = ('resourceName' in data.properties)
+        ? data.properties.resourceName
+        : data.properties.resourceId;
 }
 
 // Sets the title to the resourceName
