@@ -3,12 +3,11 @@
  * Generates the text that should be displayed on the graph next to each resource
  * 
  */
+const R = require('ramda');
 
 // sets the title to the resourceName if exists, falls back to resourceId - default
-const buildGeneric = (data) => {
-    data.properties.title = ('resourceName' in data.properties)
-        ? data.properties.resourceName
-        : data.properties.resourceId;
+const buildGeneric = ({properties}) => {
+    properties.title = R.defaultTo(properties.resourceId, properties.resourceName);
 }
 
 // Sets the title to the resourceName
