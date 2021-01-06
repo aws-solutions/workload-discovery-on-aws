@@ -21,7 +21,7 @@
   "dependencies": {
     "ajv": "6.12.3",
     "aws4": "1.10.0",
-    "axios": "0.19.2",
+    "axios": "0.21.1",
     "better-ajv-errors": "0.6.7",
     "gremlin": "3.4.7",
     "moment-timezone": "0.5.21",
