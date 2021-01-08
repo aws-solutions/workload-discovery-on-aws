@@ -19,7 +19,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/styles": "^4.9.0",
-    "aws-amplify": "^3.0.15",
+    "aws-amplify": "3.3.14",
     "aws-sdk": "^2.686.0",
     "browserslist": "^4.9.1",
     "cytoscape": "3.14.2",
