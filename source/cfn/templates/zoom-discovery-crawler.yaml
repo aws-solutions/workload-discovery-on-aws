@@ -401,27 +401,9 @@ Resources:
             reason: 'Happy with the default behaviour of using AWS-managed CMK'
     Properties:
       Artifacts:
-        Type: NO_ARTIFACTS
+        Type: CODEPIPELINE
       Source:
-        Type: NO_SOURCE
-        BuildSpec: |
-          version: 0.2
-          phases:
-            pre_build:
-              commands:
-                - echo ${IMAGE_VERSION}
-                - $(aws ecr get-login --no-include-email)
-                - IMAGE_URI="${REPOSITORY_URI}"                
-            build:
-              commands:
-                - echo Build started on `date`
-                - echo Building the Docker image...
-                - docker build --tag $IMAGE_URI:${IMAGE_VERSION} .
-            post_build:
-              commands:
-                - echo Build completed on `date`
-                - echo Pushing the Docker image...
-                - docker push $IMAGE_URI:${IMAGE_VERSION}
+        Type: CODEPIPELINE
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/docker:18.09.0
