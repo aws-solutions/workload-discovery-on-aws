@@ -339,8 +339,7 @@ Resources:
                             "ecr:PutImage",
                             "ecr:InitiateLayerUpload",
                             "ecr:UploadLayerPart",
-                            "ecr:CompleteLayerUpload",
-                            "ecr:GetAuthorizationToken"
+                            "ecr:CompleteLayerUpload"
                         ]
                     },
                     {
@@ -349,7 +348,10 @@ Resources:
                             "*"
                         ],
                         "Action": [
-                            "ecr:GetAuthorizationToken"
+                            "ecr:GetAuthorizationToken",
+                            "ecr:GetDownloadUrlForLayer",
+                            "ecr:BatchGetImage",
+                            "ecr:BatchCheckLayerAvailability"
                         ]
                     }
                 ]
