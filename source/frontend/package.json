@@ -21,7 +21,7 @@
     "@material-ui/styles": "^4.9.0",
     "aws-amplify": "^3.3.21",
     "aws-sdk": "^2.686.0",
-    "browserslist": "^4.9.1",
+    "browserslist": "^4.16.5",
     "cytoscape": "3.14.2",
     "cytoscape-cola": "2.3.1",
     "cytoscape-context-menus": "3.1.0",
