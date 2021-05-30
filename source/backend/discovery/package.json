@@ -23,7 +23,7 @@
     "gremlin": "3.4.7",
     "ramda": "0.27.0",
     "winston": "3.3.3",
-    "ws": "7.3.0"
+    "ws": "7.4.6"
   },
   "bin": {
     "run-disco": "src/discovery/describe.js"
