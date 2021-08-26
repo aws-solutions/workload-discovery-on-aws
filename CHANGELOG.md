@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.x] - 2021-06-21
+## [1.1.0] - 2021-08-26
 ### Added
 
 - Support for newer ECS task ARNs
