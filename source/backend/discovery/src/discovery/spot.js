@@ -13,6 +13,7 @@ class Spot {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of spot instances.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processSpotInstanceRequests(accountId, awsRegion),
@@ -20,6 +21,7 @@ class Spot {
         );
 
         await this.dataClient.storeData("AWS::EC2::Spot", dataToUpload, 0);
+        logger.info('Discovery of spot instances complete.');
     }
 
     async processSpotFleet(accountId, awsRegion, spotFleetRequestId) {
@@ -115,7 +117,7 @@ class Spot {
                 state: spotInstanceRequest.State,
                 awsRegion: awsRegion,
                 tags: zoomUtils.convertToObject(spotInstanceRequest.Tags)
-            }
+            };
 
             if (spotInstanceRequest.Tags) {
                 let spotFleetObject = spotInstanceRequest.Tags.filter(tag => {
@@ -183,6 +185,7 @@ class Spot {
             }
 
             let properties = {
+                resourceType: "AWS::EC2::Instance",
                 resourceId: instance.InstanceId,
                 arn: `arn:aws:ec2:${awsRegion}:${accountId}:instance/${instance.instanceId}`,
                 title: instance.InstanceId,
@@ -201,9 +204,8 @@ class Spot {
                 ebsOptimised: instance.EbsOptimised,
                 enaSupport: instance.EnaSupport,
                 hypervisor: instance.Hypervisor,
-                instanceLifecycle: instance.InstanceLifecycle,
-                resourceType: "AWS::EC2::Instance"
-            }
+                instanceLifecycle: instance.InstanceLifecycle
+            };
 
             data.properties = properties;
 

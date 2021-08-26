@@ -225,7 +225,7 @@ test('when node is a load balancer of scheme internal and type classic that is i
   expect(result.icon).toEqual(expectedResult.icon);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
-test('when node is a load balancer of scheme internet-facing and type classic that is in good health', () => {
+test('when node is a load balancer of scheme internet-facing and type classic that is in warning health', () => {
   process.env.PUBLIC_URL = '';
 
   const node = {
@@ -245,7 +245,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
       message: 'provisioning',
       colour: '#FF9900'
     },
-    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer-network', {
+    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer', {
       status: 'status-warning'
     }),
     detailsComponent: (
@@ -488,7 +488,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
       message: 'running',
       colour: '#1D8102'
     },
-    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer-network', {
+    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer', {
       status: 'status-available'
     }),
     detailsComponent: (
@@ -590,7 +590,7 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
-test('when node is a load balancer of scheme internal and type network that is in good health', () => {
+test('when node is a load balancer of scheme internal and type network that is in bad health', () => {
   process.env.PUBLIC_URL = '';
 
   const node = {
@@ -630,7 +630,7 @@ test('when node is a load balancer of scheme internal and type network that is i
   expect(result.icon).toEqual(expectedResult.icon);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
-test('when node is a load balancer of scheme internet-facing and type network that is in good health', () => {
+test('when node is a load balancer of scheme internet-facing and type network that is in bad health', () => {
   process.env.PUBLIC_URL = '';
 
   const node = {
@@ -710,7 +710,7 @@ test('when node is a load balancer of scheme internal and type classic that is i
   expect(result.icon).toEqual(expectedResult.icon);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
-test('when node is a load balancer of scheme internet-facing and type classic that is in good health with state in name as json', () => {
+test('when node is a load balancer of scheme internet-facing and type classic that is in bad health with state in name as json', () => {
   process.env.PUBLIC_URL = '';
 
   const node = {
@@ -730,7 +730,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
       message: 'failed',
       colour: '#D13212'
     },
-    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer-network', {
+    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer', {
       status: 'status-negative'
     }),
     detailsComponent: (
@@ -750,7 +750,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
-test('when node is a load balancer of scheme internet-facing and type classic that is in good health', () => {
+test('when node is a load balancer of scheme internet-facing and type classic that is in bad health', () => {
   process.env.PUBLIC_URL = '';
 
   const node = {
@@ -770,7 +770,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
       message: 'failed',
       colour: '#D13212'
     },
-    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer-network', {
+    icon: fetchImage('AWS::ElasticLoadBalancing::LoadBalancer', {
       status: 'status-negative'
     }),
     detailsComponent: (

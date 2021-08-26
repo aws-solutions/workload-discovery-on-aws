@@ -1,9 +1,9 @@
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 
 const methods = ['POST', 'PUT', 'DELETE', 'PATCH', 'GET'];
-
-export const parseAPIGatewayMethod = node => {
-  try {
+const R = require('ramda');
+export const parseAPIGatewayMethod = (node) => {
+    try {
     return {
       styling: {
         borderStyle: 'solid',
@@ -11,18 +11,22 @@ export const parseAPIGatewayMethod = node => {
         borderOpacity: 0.25,
         borderSize: 1,
         message: '',
-        colour: '#fff'
+        colour: '#fff',
       },
-      icon: fetchImage(getMethodType(node))
+      icon: fetchImage(getMethodType(node)),
     };
   } catch (e) {
     return {};
   }
 };
 
-const getMethodType = node => {
+const getMethodType = (node) => {
+  
   try {
-    const type = node.properties.resourceId.split('_')[2];
+    const properties = R.hasPath(['properties'], node)
+    ? node.properties
+    : node.data('properties');
+    const type = properties.resourceId.split('_')[2];
     return methods.includes(type) ? type : 'AWS::ApiGateway::Method';
   } catch (e) {
     return 'AWS::ApiGateway::Method';

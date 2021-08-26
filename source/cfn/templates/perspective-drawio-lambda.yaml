@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Transform: AWS::Serverless-2016-10-31
 
-Description: AWS Perspective DrawIo lambda stack
+Description: AWS Perspective DrawIo Lambda Stack
 
 Parameters:
 
@@ -17,6 +17,13 @@ Parameters:
 Resources:
 
   DrawIOExportFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
     Type: AWS::Serverless::Function
     Properties:
       Description: Converts cytoscape JSON to a Draw IO URL
@@ -42,7 +49,7 @@ Resources:
       Threshold: 10
       EvaluationPeriods: 3
       Period: 60
-      TreatMissingData: breaching
+      TreatMissingData: notBreaching
 
 Outputs:
 

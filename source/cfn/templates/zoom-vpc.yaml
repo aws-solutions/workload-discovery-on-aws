@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: 'Creates a VPC with Managed NAT'
+Description: AWS Perspective VPC Stack
 
 Parameters:
   RetentionInDays:
@@ -45,9 +45,13 @@ Mappings:
       AZs: ['a', 'b']
     eu-central-1:
       AZs: ['a', 'b']
+    eu-north-1:
+      AZs: ['a', 'b']
     eu-west-1:
       AZs: ['a', 'b']
     eu-west-2:
+      AZs: ['a', 'b']
+    eu-west-3:
       AZs: ['a', 'b']
     sa-east-1:
       AZs: ['a', 'b']
@@ -102,6 +106,11 @@ Resources:
             Resource: !GetAtt 'FlowLogGroup.Arn'
 
   FlowLogGroup:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: 'Not required'
     Type: 'AWS::Logs::LogGroup'
     Properties:
       RetentionInDays: !Ref RetentionInDays

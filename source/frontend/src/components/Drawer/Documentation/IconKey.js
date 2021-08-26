@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   description: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     padding: '2vh',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     background: '#fafafa',
@@ -74,7 +74,7 @@ export default ({ expanded, handleChange }) => {
             <span
               style={{
                 color: '#535B63',
-                fontSize: '0.75rem',
+                fontSize: '1.2rem',
                 lineHeight: '2rem',
                 margin: 'auto 0 auto 5%',
               }}>
@@ -96,7 +96,7 @@ export default ({ expanded, handleChange }) => {
             <span
               style={{
                 color: '#535B63',
-                fontSize: '0.75rem',
+                fontSize: '1.2rem',
                 lineHeight: '2rem',
                 margin: 'auto 0 auto 5%',
               }}>
@@ -118,7 +118,7 @@ export default ({ expanded, handleChange }) => {
             <span
               style={{
                 color: '#535B63',
-                fontSize: '0.75rem',
+                fontSize: '1.2rem',
                 lineHeight: '2rem',
                 margin: 'auto 0 auto 5%',
               }}>
@@ -147,7 +147,7 @@ export default ({ expanded, handleChange }) => {
           <span
             style={{
               color: '#535B63',
-              fontSize: '0.75rem',
+              fontSize: '1.2rem',
               lineHeight: '2rem',
               margin: 'auto 0 auto 5%',
             }}>
@@ -175,7 +175,7 @@ export default ({ expanded, handleChange }) => {
           <span
             style={{
               color: '#535B63',
-              fontSize: '0.75rem',
+              fontSize: '1.2rem',
               lineHeight: '2rem',
               margin: 'auto 0 auto 5%',
             }}>

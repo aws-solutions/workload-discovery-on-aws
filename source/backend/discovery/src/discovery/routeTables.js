@@ -8,9 +8,11 @@ class RouteTables {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of route tables.');
         let routeTables = await this.processRouteTablesFromNeptune(accountId, awsRegion);
         let binding = this;
         await zoomUtils.asyncForEach(routeTables, this.processRouteTables, binding);
+        logger.info('Discovery of route tables complete.');
     }
 
     async processRouteTablesFromNeptune(accountId, awsRegion) {
@@ -32,7 +34,7 @@ class RouteTables {
             return await this.dataClient.queryGremlin(query);
         }
         catch (err) {
-            logger.error(`getAutoscalingGroups: ${err}`);
+            logger.error(`getRouteTablesFromNeptune: ${err}`);
             return {
                 success: false,
             }

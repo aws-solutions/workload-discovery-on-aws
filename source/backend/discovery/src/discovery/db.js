@@ -55,9 +55,14 @@ const loadPreviouslyPersisted = (dc, g) => async () => {
     // the Gremlin API.
     logger.info('Connecting to Neptune');
     await dc.connect();
-    const data = await (getAllNodesAndEdges(g).finally(() => dc.close()));
 
-    if (data == null && data.nodes == null) {
+    const data = await getAllNodesAndEdges(g)
+        .finally(async () => {
+            dc._client._connection._ws.terminate();
+            await dc.close().catch(err => logger.error('Error closing Neptune DB connection ' + err))
+        });
+
+    if (data == null || data.nodes == null) {
         throw new Error('Previous data did not load correctly!');
     }
 

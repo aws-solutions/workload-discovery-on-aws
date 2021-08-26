@@ -1,26 +1,32 @@
 {
-  "name": "perspective-api",
-  "version": "1.1.1",
+  "name": "perspective-cost",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pretest": "npm run clean && npm i",
+    "test": "mocha test/*.js",
     "clean": "rm -rf dist && rm -rf node_modules",
-    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json cost-parser.zip node_modules/ && zip -urj cost-parser.zip costParser.js",
-    "build:dist": "mkdir dist && mv cost-parser.zip dist/",
-    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist"
+    "build:zip": "zip -rq --exclude=package-lock.json cost.zip node_modules/ && zip -urj cost.zip src/",
+    "build:dist": "mkdir dist && mv cost.zip dist/",
+    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test"
   },
-  "author": "damackli",
+  "author": "svozza",
   "license": "ISC",
   "dependencies": {
-    "mime-types": "2.1.27",
-    "unzipper": "0.10.11"
+    "@most/core": "^1.6.1",
+    "@tuplo/dynoexpr": "^1.9.0",
+    "athena-express": "^6.0.4",
+    "dayjs": "^1.10.5",
+    "most": "^1.9.0",
+    "ramda": "0.27.0"
   },
   "devDependencies": {
-    "aws-sdk": "2.747.0",
-    "chai": "^4.2.0",
-    "mocha": "^8.1.1",
+    "aws-sdk": "^2.726.0",
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2",
     "nyc": "^15.1.0",
-    "rewire": "^5.0.0"
+    "rewire": "^5.0.0",
+    "sinon": "^9.0.2"
   }
 }

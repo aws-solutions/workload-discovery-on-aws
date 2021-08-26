@@ -1,44 +1,42 @@
 import React, { useState } from 'react';
 import { useGraphState } from '../../Contexts/GraphContext';
 import { getHierachicalLinkedNodes } from '../../Actions/GraphActions';
-import Tooltip from '@material-ui/core/Tooltip';
 import CustomSnackbar from '../../../Utils/SnackBar/CustomSnackbar';
+import { useCostsState } from '../../Contexts/CostsContext';
 
 export default ({ node }) => {
   const [{ graphResources }, dispatch] = useGraphState();
+  const [{ costPreferences }, costDispatch] = useCostsState();
   const [showError, setShowError] = useState(false);
 
   const handleClick = () => {
     const params = {
       focusing: false,
-      nodeId: node.nodeId
+      nodeId: node.nodeId,
     };
-    getHierachicalLinkedNodes(
-      params,
-      graphResources
-    ).then(response => {
-      if (response.error) {
-        setShowError(response.error);
-      } else {
-        dispatch({
-          type: 'updateGraphResources',
-          graphResources: response
-        });
+    getHierachicalLinkedNodes(params, graphResources, costPreferences).then(
+      (response) => {
+        if (response.error) {
+          setShowError(response.error);
+        } else {
+          dispatch({
+            type: 'updateGraphResources',
+            graphResources: response,
+          });
+        }
       }
-    });
+    );
   };
   return (
-    <div className="resourceLinkDiv">
-      {/* <Tooltip placement='top-start' title={node.fullLabel}> */}
-        <button
-          onClick={event => {
-            handleClick();
-            event.preventDefault();
-          }}
-          className='resourceLink'>
-          {node.label}
-        </button>
-      {/* </Tooltip> */}
+    <div className='resourceLinkDiv'>
+      <button
+        onClick={(event) => {
+          handleClick();
+          event.preventDefault();
+        }}
+        className='resourceLink'>
+        {node.label}
+      </button>
       {showError && (
         <CustomSnackbar
           vertical='bottom'

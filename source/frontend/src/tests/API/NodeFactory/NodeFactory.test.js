@@ -1,11 +1,12 @@
-import nodeToBuild from './data/node-to-build.json';
-import nodeThatWasBuilt from './data/node-that-was-built.json';
-import nodeThatWasBuiltClicked from './data/node-that-was-built-clicked.json';
-import boundingBoxNodeToBuild from './data/node-bounding-box-to-build.json';
-import boundingBoxNodeThatWasBuilt from './data/node-bounding-box-that-was-built.json';
-import boundingBoxNodeThatWasBuiltParent from './data/node-bounding-box-that-was-built-parent.json';
-import boundingBoxNodeToBuildParent from './data/node-bounding-box-to-build-parent.json';
-import { buildNode, buildBoundingBox } from '../../../API/NodeFactory/NodeFactory';
+const nodeToBuild = require('./data/node-to-build.json')
+const nodeThatWasBuilt = require('./data/node-that-was-built.json');
+const nodeThatWasBuiltClicked = require('./data/node-that-was-built-clicked.json');
+const boundingBoxNodeToBuild = require('./data/node-bounding-box-to-build.json');
+const boundingBoxNodeThatWasBuilt = require('./data/node-bounding-box-that-was-built.json');
+const boundingBoxNodeThatWasBuiltParent = require('./data/node-bounding-box-that-was-built-parent.json');
+const boundingBoxNodeToBuildParent = require('./data/node-bounding-box-to-build-parent.json');
+import {buildNode, buildBoundingBox} from '../../../API/NodeFactory/NodeFactory'; 
+
 
 const PUBLIC_URL = process.env;
 
@@ -35,6 +36,7 @@ test('when passing a node that was clicked from the API to our node factory it w
 test('when passing a node that represents an account to our factory it returns a bounding box node', () => {
   process.env.PUBLIC_URL = '';
   const builtBox = buildBoundingBox(boundingBoxNodeToBuild, undefined, 0);
+
   expect(JSON.stringify(builtBox)).toMatch(
     JSON.stringify(boundingBoxNodeThatWasBuilt)
   );
@@ -43,6 +45,7 @@ test('when passing a node that represents an account to our factory it returns a
 test('when passing a node that represents a child to our factory it returns a bounding box node', () => {
     process.env.PUBLIC_URL = '';
     const builtBox = buildBoundingBox(boundingBoxNodeToBuildParent, 'woah-this-is-my-parent', 1);
+
     expect(JSON.stringify(builtBox)).toMatch(
       JSON.stringify(boundingBoxNodeThatWasBuiltParent)
     );

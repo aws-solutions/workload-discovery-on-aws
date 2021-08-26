@@ -33,6 +33,7 @@ test('when node that is customer managed policy statement with at risk actions a
   const node = {
     name: 'aPolicyStatement',
     properties: {
+      configuration: atRiskActionsResources,
       resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
       statement: atRiskActionsResources
     }
@@ -78,6 +79,7 @@ test('when node that is customer managed policy statement with at risk actions a
   const node = {
     name: 'aPolicyStatement',
     properties: {
+      configuration: atRiskActionsNeedsAttentionResources,
       resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
       statement: atRiskActionsNeedsAttentionResources
     }
@@ -123,6 +125,7 @@ test('when node that is customer managed policy statement with needs attention a
   const node = {
     name: 'aPolicyStatement',
     properties: {
+      configuration: needsAttentionActionsNeedsAttentionResources,
       resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
       statement: needsAttentionActionsNeedsAttentionResources
     }
@@ -168,6 +171,7 @@ test('when node that is customer managed policy statement with ok actions and at
   const node = {
     name: 'aPolicyStatement',
     properties: {
+      configuration: okActionsAtRiskResources,
       resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
       statement: okActionsAtRiskResources
     }
@@ -213,6 +217,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: atRiskActionsOKResources,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: atRiskActionsOKResources
       }
@@ -258,6 +263,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: needsAttentionActionsOKResources,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: needsAttentionActionsOKResources
       }
@@ -303,6 +309,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: okActionsNeedsAttentionResources,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: okActionsNeedsAttentionResources
       }
@@ -348,6 +355,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: okActionsOKResources,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: okActionsOKResources
       }
@@ -393,6 +401,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: okActionsNotArrayOKResources,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: okActionsNotArrayOKResources
       }
@@ -438,6 +447,7 @@ test('when node that is customer managed policy statement with at risk actions a
     const node = {
       name: 'aPolicyStatement',
       properties: {
+        configuration: okActionsOKResourcesArray,
         resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
         statement: okActionsOKResourcesArray
       }

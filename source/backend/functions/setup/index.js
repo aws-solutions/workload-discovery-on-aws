@@ -1,52 +1,68 @@
 const AWS = require('aws-sdk');
+const config = require('./config');
 const ResponseHandler = require('./response-handler');
 const S3Handler = require('./s3-handler');
 const cfnHandler = require('./cfn-handler');
-const customerS3 = new AWS.S3();
-const cloudformation = new AWS.CloudFormation();
+const cloudfrontHandler = require('./cloudfront-handler');
 
-// const { EXECUTION_ROLE } = process.env;
+const customerS3 = new AWS.S3();
+const cfn = new AWS.CloudFormation();
+const cloudfront = new AWS.CloudFront();
 
 exports.handler = async (event, context, callback) => {
-  
+    console.log('Event: ', JSON.stringify(event));
+
     const {
-      setupUIFiles,
-      setupDiscoveryFiles,
-      writeAccountImportTemplate,
-      writeRegionImportTemplate,
-      removeFiles,
-      writeSettings
-    } = S3Handler(customerS3);
-    const { executeStack } = cfnHandler(cloudformation);
-    const { sendResponse } = ResponseHandler(event, context, callback);
+        setupUIFiles,
+        setupDiscoveryFiles,
+        removeFiles,
+        writeSettings
+    } = S3Handler(customerS3, config);
+
+    const {createStack, updateStack, updateStackTermination, deleteStack, getResourceTypes} = cfnHandler(cfn, config);
+    const {sendResponse} = ResponseHandler(event, context, callback);
+    const {invalidateCache} = cloudfrontHandler(cloudfront, {getResourceTypes});
+
     const eventType = event.RequestType;
+
     let actions;
     if (eventType === 'Delete') {
-      console.log('Deleting resources');
-      actions = [removeFiles()];
+        console.log('Deleting resources');
+        actions = [removeFiles()];
     } else {
-      console.log('Creating resources');
-      actions = [
-        await setupUIFiles(),
-        await setupDiscoveryFiles(),
-        await writeAccountImportTemplate(),
-        await writeRegionImportTemplate(),
-        await writeSettings()
-      ];
+        console.log(`${eventType.slice(0, -1)}ing resources`);
+        actions = [
+            setupUIFiles(),
+            setupDiscoveryFiles(),
+            writeSettings()
+        ];
     }
+
     await Promise.all(actions)
-      .then(() => {
-        console.log('All actions successfully performed');
-        return sendResponse('SUCCESS', {
-          Message: `Resources successfully ${eventType.toLowerCase()}d`
-        });
-      })
-      .catch(err => console.log(err) || sendResponse('FAILED'));
-    if (eventType === 'Delete') {
-      console.log("Deleting resources so don't execute stack");
-    } else {
-      await executeStack();
-    }
+        .then(async () => {
+            if (eventType === 'Delete') {
+                console.log('disabling stack termination block')
+                await updateStackTermination();
+                console.log('disabled stack termination block')
+                console.log('deleting stack')
+                await deleteStack();
+                console.log('deleted stack')
+            } else if (eventType === 'Update') {
+                await Promise.all([invalidateCache(), updateStack()]);
+                console.log('Stack update and Cloudfront cache invalidation initiated.');
+            } else {
+                await createStack();
+                console.log('Creating stack...');
+            }
+
+            console.log('All actions successfully performed');
+
+            return sendResponse('SUCCESS', {
+                Message: `Resources successfully ${eventType.toLowerCase()}d`
+            });
+        })
+        .catch(err => console.log(err) || sendResponse('FAILED'));
+
     console.log('Finished');
-  // };
+
 };

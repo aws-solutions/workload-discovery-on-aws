@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: ElasticsearchDomain service linked role
+
+Description: AWS Perspective Elasticsearch Roles Stack
 
 Parameters:
   CreateElasticSearchServiceRole:

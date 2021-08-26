@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS Perspective Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:v1.0.0)
+
+Description: AWS Perspective Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:v1.1.0)
 
 Parameters:
   AppName:
@@ -63,6 +64,15 @@ Parameters:
   ElasticsearchInstanceType:
     Description: The instance type for Elasticsearch data nodes
     Type: String
+  CostAndUsageReportBucket:
+    Description: The name of the bucket used to store Cost and Usage Reports for Perspective to query
+    Type: String
+  CostAndUsageResultsBucket:
+    Description: The name of the bucket used to store Cost and Usage Athena query results
+    Type: String
+  AthenaWorkgroup:
+    Description: The name of the workgroup to use for Athena queries. It will default to primary.
+    Type: String
 
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
@@ -111,13 +121,12 @@ Resources:
       Parameters:
         S3CleanupBucket: !Ref DeploymentBucketName
         DeploymentBucketKey: !Ref DeploymentBucketKey
-        PerspectiveCostBucket: !GetAtt CostAndUsage.Outputs.PerspectiveCostBucket
         CodeBuildArtifactBucket: !GetAtt TaskStack.Outputs.CodeBuildArtifactBucket
         ConfigBucket:
           !If
-            - SetUpConfig
-            - !GetAtt DiscoveryImport.Outputs.ConfigBucket
-            - !Ref AWS::NoValue
+          - SetUpConfig
+          - !GetAtt DiscoveryImport.Outputs.ConfigBucket
+          - !Ref AWS::NoValue
       TemplateURL:
         Fn::Sub: ${DeploymentBucket}/perspective-bucket-cleanup.template
       TimeoutInMinutes: 60
@@ -198,18 +207,6 @@ Resources:
             - ElasticsearcRoleStack
             - Outputs.ElasticsearchLambdaRoleArn
 
-  DiscoveryServerRole:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL:
-        Fn::Sub: ${DeploymentBucket}/zoom-discovery-server-role.template
-      TimeoutInMinutes: 60
-      Parameters:
-        AppName: !Ref AppName
-        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
-        DiscoveryBucketARN: '{{resolve:ssm:DiscoveryCodeBucket:1}}'
-        AppSyncArn: !Ref PerspectiveAppSyncApiArn
-
   TaskStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -217,6 +214,7 @@ Resources:
         Fn::Sub: ${DeploymentBucket}/zoom-discovery-crawler.template
       TimeoutInMinutes: 60
       Parameters:
+        AppName: !Ref AppName
         AccessLogsBucket: !Ref AccessLogsBucket
         PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
         PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
@@ -228,18 +226,19 @@ Resources:
         ImageVersion: !Ref ImageVersion
         ConfigurationAggregator: !GetAtt DiscoveryImport.Outputs.PerspectiveConfigurationAggregator
         RestApiUrl: !GetAtt ServerAPIStack.Outputs.RootUrl
+        AppSyncArn: !Ref PerspectiveAppSyncApiArn
         AppSyncApiUrl: !Ref PerspectiveAppSyncApiUrl
+        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
         DiscoveryBucket: !Ref DiscoveryBucket
-        AppName: !Ref AppName
         Cpu: 1024
         Memory: 2048
-        DiscoveryServerRoleArn: !GetAtt DiscoveryServerRole.Outputs.DiscoveryServerTaskRoleArn
         AWSSDK: !GetAtt LayerStack.Outputs.AWSSDK
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
         EcrCleanupBucket: !Ref DeploymentBucketName
         DeploymentBucketKey: !Ref DeploymentBucketKey
+        DiscoveryBucketARN: '{{resolve:ssm:DiscoveryCodeBucket:1}}'
 
   CognitoStack:
     Type: AWS::CloudFormation::Stack
@@ -249,6 +248,27 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         AmplifyStorageBucket: !Ref AmplifyStorageBucket
+
+  GremlinResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub: ${DeploymentBucket}/perspective-gremlin-resolvers.template
+      TimeoutInMinutes: 60
+      Parameters:
+        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
+        NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
+        NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
+        NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
+        PerspectiveAppSyncApiId: !Ref PerspectiveAppSyncApiId
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        DeploymentBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+    DependsOn:
+      - AppSyncApiStack
 
   GremlinStack:
     Type: AWS::CloudFormation::Stack
@@ -269,8 +289,6 @@ Resources:
         DeploymentBucketKey: !Ref DeploymentBucketKey
         ConfigurationAggregator: !GetAtt DiscoveryImport.Outputs.PerspectiveConfigurationAggregator
         DiscoveryStoreBucket: '{{resolve:ssm:DiscoveryCodeBucketName:1}}'
-        PerspectiveCostTableName: !GetAtt CostAndUsage.Outputs.PerspectiveCostDBTable
-        PerspectiveCostTableArn: !GetAtt CostAndUsage.Outputs.PerspectiveCostDBTableARN
 
   SearchStack:
     Type: AWS::CloudFormation::Stack
@@ -340,6 +358,9 @@ Resources:
       TemplateURL: !Sub ${DeploymentBucket}/perspective-appsync-api.template
       TimeoutInMinutes: 60
       Parameters:
+        CostAndUsageResultsBucket: !Ref CostAndUsageResultsBucket
+        CostAndUsageReportBucket: !Ref CostAndUsageReportBucket
+        AthenaWorkgroup: !Ref AthenaWorkgroup
         DeploymentBucket: !Ref DeploymentBucketName
         DeploymentBucketKey: !Ref DeploymentBucketKey
         PerspectiveAppSyncApiId: !Ref PerspectiveAppSyncApiId
@@ -366,14 +387,18 @@ Resources:
             - TaskStack
             - Outputs.Endpoint
 
-  CostAndUsage:
+  AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        Fn::Sub: ${DeploymentBucket}/perspective-cost-usage.template
+      TemplateURL: !Sub ${DeploymentBucket}/perspective-athena-glue-crawler.template
       TimeoutInMinutes: 60
       Parameters:
-        AccessLogsBucket: !Ref AccessLogsBucket
-        PerspectiveCostUsageReportBucketName: !Sub ${AWS::StackName}-cost-bucket
-        CostReportCodeBucket: !Ref DeploymentBucketName
-        CostReportCodeBucketKey: !Ref DeploymentBucketKey
+        CostAndUsageBucket: !Ref CostAndUsageReportBucket
+        DeploymentBucket: !Ref DeploymentBucketName
+        DeploymentBucketKey: !Ref DeploymentBucketKey
+
+Outputs:
+
+  WebUiUrl:
+    Value: !GetAtt CloudFrontDistribution.Outputs.WebUiUrl
+    Description: WebUI URL

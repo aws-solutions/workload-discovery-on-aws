@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: AWS Perspective ElasticsearchDomain stack
+Description: AWS Perspective ElasticsearchDomain Stack
 
 Parameters:
 
@@ -34,7 +34,6 @@ Parameters:
   InstanceType:
     Description: The instance type for data nodes
     Type: String
-    Default: m4.large.elasticsearch
     AllowedValues:
       - t3.small.elasticsearch
       - t3.medium.elasticsearch
@@ -51,6 +50,12 @@ Parameters:
       - m4.2xlarge.elasticsearch
       - m4.4xlarge.elasticsearch
       - m4.10xlarge.elasticsearch
+      - m6g.large.elasticsearch
+      - m6g.xlarge.elasticsearch
+      - m6g.2xlarge.elasticsearch
+      - m6g.4xlarge.elasticsearch
+      - m6g.8xlarge.elasticsearch
+      - m6g.12xlarge.elasticsearch
       - c5.large.elasticsearch
       - c5.xlarge.elasticsearch
       - c5.2xlarge.elasticsearch
@@ -62,6 +67,12 @@ Parameters:
       - c4.2xlarge.elasticsearch
       - c4.4xlarge.elasticsearch
       - c4.8xlarge.elasticsearch
+      - c6g.large.elasticsearch
+      - c6g.xlarge.elasticsearch
+      - c6g.2xlarge.elasticsearch
+      - c6g.4xlarge.elasticsearch
+      - c6g.8xlarge.elasticsearch
+      - c6g.12xlarge.elasticsearch
       - r5.large.elasticsearch
       - r5.xlarge.elasticsearch
       - r5.2xlarge.elasticsearch
@@ -108,7 +119,7 @@ Resources:
   ElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     Properties:
-      ElasticsearchVersion: '6.8'
+      ElasticsearchVersion: '7.10'
       ElasticsearchClusterConfig:
         InstanceCount: 2
         InstanceType: !Ref InstanceType
@@ -147,7 +158,7 @@ Resources:
         - Key: App
           Value: !Ref AppName
         - Key: Version
-          Value: '6.8'
+          Value: '7.10'
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet0
@@ -164,10 +175,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "CPUUtilization"
       Namespace: "AWS/ES"
@@ -182,10 +193,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "ClusterStatus.red"
       Namespace: "AWS/ES"
@@ -200,10 +211,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "ClusterStatus.yellow"
       Namespace: "AWS/ES"
@@ -218,10 +229,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "JVMMemoryPressure"
       Namespace: "AWS/ES"
@@ -236,10 +247,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "ClusterIndexWritesBlocked"
       Namespace: "AWS/ES"
@@ -254,10 +265,10 @@ Resources:
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       TreatMissingData: "missing"
       Dimensions:
-      - Name: ClientId
-        Value: !Ref "AWS::AccountId"
-      - Name: DomainName
-        Value: !Ref ElasticsearchDomain
+        - Name: ClientId
+          Value: !Ref "AWS::AccountId"
+        - Name: DomainName
+          Value: !Ref ElasticsearchDomain
       EvaluationPeriods: 5
       MetricName: "ClusterIndexWritesBlocked"
       Namespace: "AWS/ES"

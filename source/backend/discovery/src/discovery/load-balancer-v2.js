@@ -22,6 +22,7 @@ class LoadBalancerV2 {
      */
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of ALBs.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
                                                   await this.processLoadBalancers(accountId, awsRegion),
@@ -33,6 +34,7 @@ class LoadBalancerV2 {
         for (let l of dataToUpload) {
              await this.dataClient.storeData("AWS::ElasticLoadBalancingV2::LoadBalancer", l.children, 1, l.id);
         }
+        logger.info('Discovery of ALBs complete.');
     }
 
     async getLoadBalancers(accountId, region) {
@@ -221,7 +223,7 @@ class LoadBalancerV2 {
             targetReason: targetHealth.TargetHealth.Reason,
             awsRegion: region,
             arn: arn
-        }
+        };
 
         data.properties = properties;
         this.appendConsoleURL(data);
@@ -291,7 +293,7 @@ class LoadBalancerV2 {
             temporary: {
                 defaultActions: listener.DefaultActions
             }
-        }
+        };
 
         data.properties = properties;
 

@@ -13,12 +13,14 @@ class RDSCluster {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of RDS clusters.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processRDSClusters(accountId, awsRegion),
             this.processClusterMembers);
 
         await this.dataClient.storeData("AWS::RDS::DBCluster", dataToUpload, 0);
+        logger.info('Discovery of RDS clusters complete.');
     }
 
     async processRDSClusters(accountId, awsRegion) {

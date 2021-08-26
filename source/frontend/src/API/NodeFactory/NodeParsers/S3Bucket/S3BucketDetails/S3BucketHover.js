@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     padding: '1vh',
     color: theme.palette.text.secondary,
     wordWrap: 'break-word',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     marginLeft: '1vw'
   },
   div: {
@@ -33,18 +33,18 @@ const useStyles = makeStyles(theme => ({
     padding: '1vh',
     // color: getColor(item),
     wordWrap: 'break-word',
-    fontSize: '0.75rem'
+    fontSize: '1.2rem'
   },
   image: { width: 16, marginLeft: '1vw' },
   title: {
     color: '#535B63',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     lineHeight: '2rem',
     margin: '0 0 2% 0'
   },
   effect: {
     color: '#535B63',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     lineHeight: '2rem',
     margin: 'auto 0 auto 5%'
   },

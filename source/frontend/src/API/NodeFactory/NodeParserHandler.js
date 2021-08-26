@@ -1,14 +1,14 @@
-import { parseCustomerManagedPolicyStatement } from './NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser';
-import { parseEC2Instance } from './NodeParsers/EC2Instance/EC2InstanceParser';
-import { parseDatabaseInstance } from './NodeParsers/DatabaseInstance/DatabaseInstanceParser';
-import { parseAPIGatewayMethod } from './NodeParsers/APIGateway/Method/APIGatewayMethodParser';
-import { parseAPIGatewayResource } from './NodeParsers/APIGateway/Resource/APIGatewayResourceParser';
-import { parseLoadBalancer} from './NodeParsers/LoadBalancers/LoadBalancerParser';
-import { parseCloudFrontDistribution} from './NodeParsers/CloudFrontDistribution/CloudFrontDistributionParser'
-import { getStateInformation } from '../../Utils/Resources/ResourceStateParser';
-import { fetchImage } from '../../Utils/ImageSelector';
-import { parseAPIGatewayEndpoint } from './NodeParsers/APIGateway/Endpoint/APIGatewayEndpointParser';
-import { parseS3Bucket } from './NodeParsers/S3Bucket/S3BucketParser';
+import { parseCustomerManagedPolicyStatement } from './NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser.js';
+import { parseEC2Instance } from './NodeParsers/EC2Instance/EC2InstanceParser.js';
+import { parseDatabaseInstance } from './NodeParsers/DatabaseInstance/DatabaseInstanceParser.js';
+import { parseAPIGatewayMethod } from './NodeParsers/APIGateway/Method/APIGatewayMethodParser.js';
+import { parseAPIGatewayResource } from './NodeParsers/APIGateway/Resource/APIGatewayResourceParser.js';
+import { parseLoadBalancer} from './NodeParsers/LoadBalancers/LoadBalancerParser.js';
+import { parseCloudFrontDistribution} from './NodeParsers/CloudFrontDistribution/CloudFrontDistributionParser.js'
+import { getStateInformation } from '../../Utils/Resources/ResourceStateParser.js';
+import { fetchImage } from '../../Utils/ImageSelector.js';
+import { parseAPIGatewayEndpoint } from './NodeParsers/APIGateway/Endpoint/APIGatewayEndpointParser.js';
+import { parseS3Bucket } from './NodeParsers/S3Bucket/S3BucketParser.js';
 
 const nodeParsers = new Map();
 

@@ -10,6 +10,8 @@
 #  - solution-name: name of the solution for consistency
 
 # Check to see if input has been provided:
+set -euo pipefail
+
 if [ -z "$1" ]; then
     echo "Please provide the trademark approved solution name for the open source package."
     echo "For example: ./build-s3-dist.sh trademarked-solution-name"

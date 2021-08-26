@@ -5,7 +5,7 @@
 const consoleM = require('./consoleURL');
 const generateHeader = require('./generateHeader');
 const zoomUtils = require('./zoomUtils');
-const util = require('util');
+const logger = require('./logger');
 const authDetailsUtils = require('./authDetailsUtils');
 
 class PolicyAccountAuthorizationDetails {
@@ -15,6 +15,7 @@ class PolicyAccountAuthorizationDetails {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of CustomerManagedPolicyStatements.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processPolicies(accountId, awsRegion),
@@ -22,6 +23,7 @@ class PolicyAccountAuthorizationDetails {
             await this.processAuthorizationResources);
 
         await this.dataClient.storeData("AWS::IAM::Policy", dataToUpload, 0);
+        logger.info('Discovery of CustomerManagedPolicyStatements completed.');
         return dataToUpload;
     }
 
@@ -111,9 +113,10 @@ class PolicyAccountAuthorizationDetails {
             // A statement can be a signular or an array.  Convert all to arrays.
             let statements = Array.isArray(policyDocument.Statement) ? policyDocument.Statement : [policyDocument.Statement];
 
-            children = statements.map(statement => {
+            children = Promise.all(statements.map(async statement => {
+                const hash = await authDetailsUtils.md5Async(statement);
 
-                let resourceId = policy.policyId + "|" + policy.arn + "|" + authDetailsUtils.hash(statement);
+                let resourceId = policy.policyId + "|" + policy.arn + "|" + hash;
                 let resourceType =  "AWS::IAM::CustomerManagedPolicyStatement";
 
                 let data = {
@@ -137,7 +140,7 @@ class PolicyAccountAuthorizationDetails {
                 data.properties = properties;
 
                 return data;
-            });
+            }));
         }
         return children;
     }

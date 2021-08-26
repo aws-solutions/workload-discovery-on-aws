@@ -9,11 +9,11 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: '#535B63',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     lineHeight: '2rem'
   },
   item: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     color: '#535B63',
     lineHeight: '2rem'
   },
@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default ({ configuration }) => {
-  const parsedConfig = JSON.parse(configuration);
+  const parsedConfig = JSON.parse(JSON.parse(configuration));
   const classes = useStyles();
 
   return (

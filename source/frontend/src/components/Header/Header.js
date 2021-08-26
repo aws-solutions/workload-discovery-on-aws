@@ -1,34 +1,31 @@
-import React, { useState, useEffect, useContext } from 'react';
-import SearchBar from './Search/SearchBar';
-import { getAllResources } from '../Actions/ResourceActions';
+import React, { useState, useEffect } from 'react';
 import { useResourceState } from '../Contexts/ResourceContext';
-import CustomSnackbar from '../../Utils/SnackBar/CustomSnackbar';
+import Flashbar from '../../Utils/Flashbar/Flashbar';
 import PersistentDrawer from '../Drawer/PersistentDrawer/PersistentDrawer';
 import { filterOnAccountAndRegion } from '../Actions/ResourceActions';
+import { useGraphState } from '../Contexts/GraphContext';
+const R = require('ramda');
+import PropTypes from 'prop-types';
 
-export default () => {
+const Header = ({ importComplete }) => {
   const [{ filters }, resourceDispatch] = useResourceState();
+  const [{ graphFilters }, updateFilters] = useGraphState();
   const [showError, setShowError] = useState(false);
 
-  // const fetchResources = async () => {
-  //   const response = await getAllResources();
-  //   response && setShowError(response.error);
-  //   // console.dir(response);
-  //   // console.dir(
-  //   //   response.body[0].nodes
-  //   //     .filter((resource) => resource.configuration)
-  //   //     .map(
-  //   //       (resource) =>
-  //   //         resource.configuration && {id: resource.id, configuration: JSON.parse(resource.configuration)}
-  //   //     )
-  //   //     .filter(resource => resource.configuration.tags && resource.configuration.tags.length > 0)
-  //   // );
 
-  //   resourceDispatch({
-  //     type: 'updateResources',
-  //     resources: response && !response.error ? response.body : [],
-  //   });
-  // };
+  const isMatch = (node) =>
+    !R.includes(node.resourceType, graphFilters.typeFilters);
+
+  const removeFilteredNodes = (resources) =>
+    Promise.resolve(R.pathOr([], ['body'], resources)).then((e) => {
+      resourceDispatch({
+        type: 'updateResources',
+        resources: {
+          nodes: R.filter((e) => isMatch(e), e.nodes),
+          metaData: e.metaData,
+        },
+      });
+    });
 
   const applyFilters = async () => {
     await filterOnAccountAndRegion(filters).then((response) => {
@@ -36,37 +33,34 @@ export default () => {
         setShowError(true);
       } else {
         setShowError(false);
-        resourceDispatch({
-          type: 'updateResources',
-          resources: response.body,
-        });
+        removeFilteredNodes(response);
       }
     });
   };
 
   useEffect(() => {
     applyFilters();
-  }, []);
+  }, [graphFilters, filters]);
 
   return (
-    <div id='header' className='header'>
-      {/* <link
-        rel='stylesheet'
-        href='https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css'
-        integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS'
-        crossOrigin='anonymous'
-      />
-      {/* <NavBar /> */}
-      <PersistentDrawer />
-      {/* <SearchBar /> */}
+    <>
       {showError && (
-        <CustomSnackbar
-          vertical='bottom'
-          horizontal='center'
+        <Flashbar
           type='error'
-          message='We could not load resource configuration. Refresh page to try again'
+          message='We could not load resource configuration. It could be a temporary issue. Try reloading the page'
         />
       )}
-    </div>
+      {!showError && (
+        <div id='header' className='header'>
+          <PersistentDrawer importComplete={importComplete} />
+        </div>
+      )}
+    </>
   );
 };
+
+Header.propTypes = {
+  importComplete: PropTypes.bool.isRequired,
+};
+
+export default Header;

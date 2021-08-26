@@ -1,5 +1,4 @@
-{
-  "body": [
+[
       {
         "edge": false,
         "data": {
@@ -241,7 +240,7 @@
             "version": "1.3",
             "configurationItemCaptureTime": "2019-11-26T19:33:01.723Z",
             "tags": "{}",
-            "configurationStateId": "1574796781723",
+            "configurationStateId": "XXXXXXXXXXXXX",
             "accountId": "XXXXXXXXXXXX",
             "resourceType": "AWS::IAM::User"
           }
@@ -270,6 +269,5 @@
         },
         "classes": ["highlight"]
       }
-  ],
-  "error": false
-}
+  ]
+

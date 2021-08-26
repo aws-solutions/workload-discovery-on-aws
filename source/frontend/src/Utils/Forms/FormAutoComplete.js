@@ -35,13 +35,13 @@ export default ({
     label: {
       marginLeft: '0',
       fontWeight: 600,
-      fontSize: '0.85rem',
+      fontSize: '1.4rem',
     },
     description: {
       marginLeft: '0',
       color: '#687078',
       fontWeight: 400,
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
     },
     textfield: {
       width: width,
@@ -79,7 +79,7 @@ export default ({
       fontWeight: 700,
       display: 'inline-block',
       cursor: 'pointer',
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
       textTransform: 'capitalize',
       fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
       '&:hover': {

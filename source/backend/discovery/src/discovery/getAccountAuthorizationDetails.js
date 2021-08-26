@@ -1,8 +1,4 @@
-
-const consoleM = require('./consoleURL');
-const generateHeader = require('./generateHeader');
 const zoomUtils = require('./zoomUtils');
-const util = require('util');
 
 const extractFunctions = {
     "AWSManagedPolicy": (data) => { return data.Policies },
@@ -26,7 +22,7 @@ class GetAccountAuthorizationDetails {
 
     async getAuthDetails(type) {
         const params = type !== undefined ? { Filter: [type] } : {};
-        let authorisations = await zoomUtils.callAwsApiWithMarkPagination(this.API.getAccountAuthorizationDetails, params, this.API, undefined, "AccountDetails getAccountAuthorizationDetails");
+        const authorisations = await zoomUtils.callAwsApiWithMarkPagination(this.API, this.API.getAccountAuthorizationDetails, params, 'getAccountAuthorizationDetails');
         return this.packageAuthorisations(authorisations, type);
     }
 

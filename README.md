@@ -1,6 +1,12 @@
-# AWS Perspective
+# AWS Perspective (v1.1.0)
 
 AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, mapping relationships between them, and displaying them in a web user interface (web UI).
+
+v1.1.0 brings a new feature that uses AWS Cost & Usage Reports (AWS CUR) to help you identify AWS resources that have incurred a cost. You can build architecture diagrams displaying this cost information and generate Cost Reports which graph the overall cost of your workload over a configurable time period. These reports can be exported in CSV format.
+
+The new release includes many UX improvements among them a Grouped Resources ** view which displays an inventory of your workloads. Resource type coverage has also been improved with Perspective now supporting your Amazon Redshift Clusters. 
+
+An update-in-place option has been added to further simplify the update process. Perspective will default to using Graviton instances where possible, resulting in up to a 20% reduction in running costs over the previous version.
 
 To find out more about AWS Perspective visit the [AWS Perspective Solution Page](https://aws.amazon.com/solutions/implementations/aws-perspective).
 
@@ -10,19 +16,23 @@ To find out more about AWS Perspective visit the [AWS Perspective Solution Page]
 
 AWS Perspective lets you build, customize, and share detailed architecture diagrams. Perspective maintains an inventory of the AWS resources across your accounts and Regions, mapping relationships between them and displaying them in a web user interface (UI).
 
-![Generating an architecture diagram.](/docs/screenshots/full-arch.png "An example of the architecture diagrams you can create")
+![Generating an architecture diagram.](/docs/screenshots/example-arch.png "An example of the architecture diagrams you can create")
 
-### Search across Accounts and Regions
+### Query AWS Cost & Usage Reports (CURs)
 
-The search feature lets you use basic information e.g. resource name, Tag name, or IP address to locate the resources you are interested in.
+The cost query builder lets you locate AWS resources and services that may have incurred a cost. The estimated cost data is automatically calculated for the time period specified and displays on your architecture diagrams.
 
-![Searching for an IP will bring back resources you might be interested in.](/docs/screenshots/ip-search.png "Searching for IP address")
+You can generate a cost report for your architecture diagrams that contains an overview of the  estimated cost and export them as CSV.
+
+![View Cost & Usage Report data.](/docs/screenshots/cost-dialog.png "An example of the Cost & Usage dialog")
 
 ### Explore your AWS Resources
 
 Explore resources provisioned across your accounts and Regions using the resource directory. It contains all the resources Perspective has discovered. You can start building your architecture diagrams with a single click of a resource.
 
-![See the resource directory, detailing each resource that we have discovered.](/docs/screenshots/resource-directory.png "Using the resource directory")
+The search feature lets you use basic information e.g. resource name, Tag name, or IP address to locate the resources you are interested in.
+
+![Searching by resource type e.g. ::RDS will bring back RDS resources.](/docs/screenshots/search.png "Searching for RDS resources")
 
 ### Save & export architecture diagrams
 
@@ -46,6 +56,9 @@ To find out more about AWS Perspective visit our [AWS Solutions](https://aws.ama
 | Europe (Ireland) (eu-west-1) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
 | Europe (London) (eu-west-2) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-west-2#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
 | Europe (Frankfurt) (eu-central-1)| [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
+| Europe (Paris) (eu-west-3)| [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-west-3#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
+| Europe (Stockholm) (eu-north-1)| [Launch](https://console.aws.amazon.com/cloudformation/home?region=eu-north-1#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
+| South America (Sao Paulo) (sa-east-1) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=sa-east-1#/stacks/create/template?stackName=aws-perspective&templateURL=https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) | [Link](https://solutions-reference.s3.amazonaws.com/aws-perspective/latest/aws-perspective.template) |
 
 ## Installation
 
@@ -63,7 +76,7 @@ To submit an idea for a feature you would like to see implemented, please [creat
 
 ## Architecture
 
-![Architecture diagram showing full set of deployment resources](/docs/architecture-diagrams/full-arch-diagram.png "Full architecture diagram")
+![Architecture diagram showing full set of deployment resources](/docs/architecture-diagrams/arch-diagram.png "Full architecture diagram")
 
 AWS Perspective is deployed to your account using an AWS CloudFormation template consisting of six components. Following is a high level overview of the components. For additional details about each component, refer to the [Solution components guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/solution-components.html).
 
@@ -73,7 +86,8 @@ The storage management component stores user preferences and saved architecture 
 
 The discovery component uses [AWS Config](http://aws.amazon.com/config) and AWS API calls to maintain an inventory of resource data from imported accounts and Regions, then stores its findings in the data componenet. This runs every 15 minutes as a container task on [AWS Fargate](http://aws.amazon.com/fargate/). The discovery component container image is built in the image deployment component using [AWS CodePipeline](http://aws.amazon.com/codepipeline/) and [AWS CodeBuild](http://aws.amazon.com/codebuild/).
 
-The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html) (AWS CUR) to make cost data available in AWS Perspective. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html) to deliver the reports to the PerspectiveCostBucket Amazon S3 bucket. When an AWS CUR is delivered, it triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to process the cost data and store it in an [Amazon DynamoDB](http://aws.amazon.com/dynamodb/) table. The data component queries this DynamoDB table to provide the costs associated with the individual resources for display in the web UI. If you do not create an AWS CUR, cost data will not be included in AWS Perspective architecture diagrams. 
+The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html) (AWS CUR) to make cost data available in AWS Perspective. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html) to deliver the reports to the ```CostAndUsageReportBucket``` Amazon S3 bucket. When an AWS CUR is delivered, it triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to trigger a AWS Glue Crawler that will update a table ready for Amazon Athena to query. You can query these AWS CURs via the Perspectie UI. You can bring in cost data from other accounts discoverable to Perspective by setting up a AWS CUR and setting up replication between the S3 bucket in the discoverable account and the ```CostAndUsageReportBucket```
+
 
 ## Development
 ### Directory structure
@@ -106,14 +120,14 @@ To develop locally, this `settings.js` file must be present.
 
 ### Running unit tests
 
-```
+```sh
 cd ./deployment
 ./run-unit-tests.sh
 ```
 
 ### Running a local build
 
-```
+```sh
 cd ./deployment
 ./build-s3-dist.sh
 ```
@@ -135,10 +149,10 @@ When you have made changes to the code, you can build it locally and upload the 
    ```touch local-deploy-script.sh```
 2. Copy the contents below and paste in local-deploy-script.sh. Substitute the value placeholders (marked with angle brackets) with your own values, then save the script.
 
-```
+```sh
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 # The Region you wish to deploy to.
 AWS_REGION=<aws-region>
@@ -203,8 +217,11 @@ Parameters required by the template:
 * **OptOutOfSendingAnonymousUsageMetrics** - Yes/No depending on whether you are happy to send anonymous usage metrics back to AWS.
 * **CreateNeptuneReplica** - Yes/No depending on whether you want a read-replica created for Amazon Neptune. Note, that this will increase the cost of running the solution.
 * **NeptuneInstanceClass** - Select from a range of instance types that will be provisioned for the Amazon Neptune database. Note, the selection could increase the cost associated with running the solution.
-
-**Note** - You will need to deploy in the same account and region as the S3 bucket.
+* **ElasticsearchInstanceType** - Select the instance type that will be provisioned for the Amazon ElasticSearch Domain.
+* **CreateAPIGatewayCloudWatchLogsRole** - If set to Yes, the solution creates a role and overwrites the existing APIGatewayCloudWatchLogsLogsRole property. Set to No if you already have an existing role set.
+* **AthenaWorkgroup** - The Workgroup that will be used to issue the Athena query when the Cost feature is enabled.
+  
+**Note** - You will need to deploy in the same account and region as the S3 bucket that the deployment artefacts are uploaded to.
 
 
 ## Web API Examples
@@ -229,13 +246,18 @@ You can find your Bearer Token by:
 
 #### getAllResources
 
+The Server API URL is specified in the `PerspectiveWebUiApiUrl` CloudFormation template output
+
 ##### Request
 
-```
-curl --location --request POST 'https://<your-api-gateway-id>.execute-api.<deployment-region>.amazonaws.com/Prod/resources' \
---header 'Authorization: Bearer <your-token>' \
---header 'Content-Type: application/json' \
---data-raw '{"command":"getAllResources","data":{}}'
+```sh
+SERVER_API_URL=''
+AUTH=''
+
+curl -X POST "${SERVER_API_URL}" \
+  --header "Authorization: Bearer ${AUTH}" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{"command":"getAllResources","data":{}}'
 ```
 
 ##### Response
@@ -244,11 +266,17 @@ You will receive all the resources that have been discovered with just a subset 
 
 #### linkedNodesHierarchy
 
+The Server API URL is specified in the `PerspectiveWebUiApiUrl` CloudFormation template output
+
 ##### Request
 
-```
-curl --location --request GET 'https://<your-api-gateway-id>.execute-api.<deployment-region>.amazonaws.com/Prod/resources?command=linkedNodesHierarchy&id=<node-id>' \
---header 'Authorization: Bearer <your-token>'
+```sh
+SERVER_API_URL=''
+AUTH=''
+NODE_ID=''
+
+curl -X GET "${SERVER_API_URL}/resources?command=linkedNodesHierarchy&id=${NODE_ID}" \
+  --header "Authorization: Bearer ${AUTH}"
 ```
 
 ##### Response
@@ -258,14 +286,17 @@ You will receive an array of nodes that have a relationship with the node id use
 #### DrawIO Export
 
 This takes a JSON representation of the architecture diagram and converts it to **mxGraph** and opens in a DrawIO tab.
+The DrawIO API URL is specified in the `DrawIOApiUrl` CloudFormation template output
 
 ##### Request
 
-```
-curl --location --request POST 'https://<your-api-gateway-id>.execute-api.<deployment-region>.amazonaws.com/Prod/resources' \
---header 'Authorization: Bearer <your-token> \
---header 'Content-Type: text/plain' \
---data-raw '{"elements":{"nodes":[], "edges": []'}}
+```sh
+DRAWIO_API_URL=''
+AUTH=''
+
+curl -X POST "${DRAWIO_API_URL}/resources" \
+    --header "Authorization: Bearer ${AUTH}"  \
+    --data-raw '{"elements":{"nodes":[], "edges": []}}'
 ```
 
 ##### Response
@@ -273,6 +304,10 @@ curl --location --request POST 'https://<your-api-gateway-id>.execute-api.<deplo
 You will receive a URL that when clicked will open up DrawIO in the browser and show your graph.
 
 ***
+
+## Collecting Anonymous Operational Metrics
+
+This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution. For more information, including how to disable this capability, please see the Implementation Guide.
 
 Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 

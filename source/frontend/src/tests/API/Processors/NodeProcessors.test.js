@@ -1,6 +1,6 @@
 import {
   handleSelectedResource,
-  processChildNodes
+  processChildNodes,
 } from '../../../API/Processors/NodeProcessors';
 import handleSelectedResourceResponse from './data/handle-selected-node-response.json';
 import currentGraphResources from './data/handle-selected-node-initial.json';
@@ -24,58 +24,58 @@ test('when we pass node to handleSelectedResource it will build the correct data
   const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
   const params = {
     focusing: false,
-    nodeId: nodeId
+    nodeId: nodeId,
   };
   const newGraph = handleSelectedResource(
-    handleSelectedResourceResponse,
+    Promise.resolve(handleSelectedResourceResponse),
     params,
     currentGraphResources
   );
-  expect(newGraph).toContainEqual(selectedNode);
+  newGraph.then( e => expect(e).toContainEqual(selectedNode));
 });
 
 test('when we pass node to handleSelectedResource it will build the correct data structure to add the nodes to graph with focussing as undefined', () => {
   const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
   const params = {
     focusing: undefined,
-    nodeId: nodeId
+    nodeId: nodeId,
   };
   const newGraph = handleSelectedResource(
-    handleSelectedResourceResponse,
+    Promise.resolve(handleSelectedResourceResponse),
     params,
     currentGraphResources
   );
-  expect(newGraph).toContainEqual(selectedNode);
+  newGraph.then((e) => expect(e).toContainEqual(selectedNode));
 });
 
 test('when we pass undefined to handleSelectedResource a undefined it will return empty []', () => {
   const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
   const params = {
     focusing: false,
-    nodeId: nodeId
+    nodeId: nodeId,
   };
   const newGraph = handleSelectedResource(
-    undefined,
+    Promise.resolve(undefined),
     params,
     currentGraphResources
   );
-  expect(newGraph).toEqual([]);
+  newGraph.then((e) => expect(e).toEqual([]));
 });
 
-test('when we pass undefined params to handleSelectedResource a undefined it will return empty []', () => {
-  const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';  
+test('when we pass undefined params to handleSelectedResource it will return empty []', () => {
+  const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
   const newGraph = handleSelectedResource(
-    handleSelectedResourceResponse,
+    Promise.resolve(handleSelectedResourceResponse),
     undefined,
     currentGraphResources
   );
-  expect(newGraph).toEqual([]);
+  newGraph.then(e => expect(e).toEqual([]));
 });
 
 test('when we pass processChildNodes a node it will return an array of the boundingboxes and nodes that are its children', () => {
   process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
-    rootNode,
+    Promise.resolve(rootNode),
     [],
     0,
     undefined,
@@ -91,7 +91,7 @@ test('when we pass processChildNodes a node it will return an array of the bound
 test('when we pass processChildNodes undefined node it will return empty []', () => {
   process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
-    undefined,
+    Promise.resolve(undefined),
     [],
     0,
     undefined,
@@ -103,7 +103,7 @@ test('when we pass processChildNodes undefined node it will return empty []', ()
 test('when we pass processChildNodes undefined nodes it will return empty []', () => {
   process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
-    undefined,
+    Promise.resolve(undefined),
     undefined,
     0,
     undefined,

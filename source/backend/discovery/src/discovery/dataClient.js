@@ -2,12 +2,13 @@
  * Interface between the discovery system and back end.
  */
 
-const crypto = require('crypto');
+const R = require('ramda');
+const PromisePool = require('@supercharge/promise-pool')
 const consoleM = require('./consoleURL');
 const generateHeader = require('./generateHeader');
 const zoomUtils = require('./zoomUtils');
 const rest = require('./rest');
-const R = require('ramda');
+const {md5Async} = require('./authDetailsUtils');
 const arnParser = require('./arnParser');
 const logger = require('./logger');
 
@@ -34,10 +35,8 @@ class DataClient {
         return typeof data === "string" ? JSON.parse(data) : data;
     }
 
-    hashNode(node) {
-        const algo = 'md5';
-        let shasum = crypto.createHash(algo).update(JSON.stringify(node.properties));
-        return "" + shasum.digest('hex');
+    async hashNode(node) {
+        return md5Async(node.properties)
     }
 
     processTags(resource) {
@@ -93,21 +92,16 @@ class DataClient {
     }
 
     async storeData(hierarchyResourceType, allResources, level, parentNodeId) {
-        try {
-            if (allResources === undefined) return;
+        if (allResources == null) return;
 
-            // Naff way of limiting concurrency so that we don't overload neptune!
-            while (allResources.length) {
-                let concurrency = allResources.splice(0, 5);
+        const {errors} = await PromisePool
+            .withConcurrency(10)
+            .for(allResources)
+            .process(async resource => {
+                await this.storeResource(resource, parentNodeId, level, hierarchyResourceType);
+            });
 
-                await Promise.all(concurrency.map(resource => {
-                    return this.storeResource(resource, parentNodeId, level, hierarchyResourceType);
-                }));
-            }
-        }
-        catch (err) {
-            logger.error(err);
-        }
+        errors.forEach(zoomUtils.dumpError);
     }
 
     async storeResource(resource, parentNodeId, level, hierarchyResourceType) {
@@ -146,7 +140,7 @@ class DataClient {
         }
         else {
             // Take the md5 to set the id of the node.
-            let id = this.hashNode(resource);
+            let id = await this.hashNode(resource);
 
             let addLinkOrNodeResult = this.addLinkOrNode(id);
             this.nodesProcessed.set(id, resource);
@@ -253,7 +247,8 @@ class DataClient {
             return await rest.postGremlin(payload, this.importConfig, this.accessKeys);
         }
         catch (err ) {
-            logger.error("deleteModifiedNodes error:", err);
+            logger.error(`Error deleting nodes from Neptune.`);
+            zoomUtils.dumpError(err);
         }
     }
 
@@ -270,7 +265,8 @@ class DataClient {
                 return await rest.postElastic(payload, this.importConfig, this.accessKeys);
             }
             catch (err) {
-                logger.error("deleteNodesFromElastic error: ", err)
+                logger.error(`Error deleting nodes from Elasticsearch.`);
+                zoomUtils.dumpError(err);
             }
         }
     }
@@ -412,8 +408,8 @@ class DataClient {
             return await rest.postGremlin(payload, this.importConfig, this.accessKeys);
         }
         catch (err) {
-            logger.error("error: ", err)
-
+            logger.error(`Error adding ${data.resourceType} with arn ${data.arn}`);
+            zoomUtils.dumpError(err);
         }
     }
 
@@ -442,7 +438,8 @@ class DataClient {
             return response;
         }
         catch (err) {
-            logger.error("error: " + err);
+            logger.error(`Error writing ${id} to search API`);
+            zoomUtils.dumpError(err);
         }
     }
 
@@ -460,7 +457,8 @@ class DataClient {
             return await rest.postGremlin(payload, this.importConfig, this.accessKeys);
         }
         catch (err) {
-            logger.error("error: ", err)
+            logger.error(`Error linking ${source} to ${target} with label ${label}`);
+            zoomUtils.dumpError(err)
         }
     }
 
@@ -477,7 +475,9 @@ class DataClient {
             return await rest.postElastic(payload, this.importConfig, this.accessKeys);
         }
         catch (err) {
-            logger.error("error: " + err)
+            logger.error(`Error executing search query.`);
+            logger.debug(query)
+            zoomUtils.dumpError(err);
         }
     }
 
@@ -491,7 +491,9 @@ class DataClient {
             return await rest.postElastic(payload, this.importConfig, this.accessKeys);
         }
         catch (err) {
-            logger.error("error: " + err)
+            logger.error('Error executing advanced search query');
+            logger.debug(query)
+            zoomUtils.dumpError(err);
         }
     }
 
@@ -565,7 +567,8 @@ class DataClient {
             return await rest.postElastic(payload, this.importConfig, this.accessKeys);
         }
         catch (err) {
-            logger.error ("error: " + err);
+            logger.error (`Error deleting index.`);
+            zoomUtils.dumpError(err);
         }
     }
 

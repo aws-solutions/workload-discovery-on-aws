@@ -1,5 +1,4 @@
 "use strict";
-
 const logger = require('./logger');
 const zoomUtils = require('./zoomUtils');
 const R = require('ramda');
@@ -7,6 +6,9 @@ const R = require('ramda');
 // Volumes seem flaky in config advanced query so added them to list
 const advancedQueryUnsupported = ["AWS::KMS::Key", "AWS::Elasticsearch::Domain", "AWS::ApiGateway::RestApi", "AWS::ApiGatewayV2::Api",
   "AWS::EC2::Volume"];
+
+const EcsConstructs = new Set(['AWS::ECS::Cluster', 'AWS::ECS::TaskDefinition',
+  'AWS::ECS::Service', 'AWS::ECS::TaskSet']);
 
 /**
  * Service responsible for discovering Architectural components for a specific resource.
@@ -27,11 +29,14 @@ class DiscoveryService {
    * @param {*} region 
    */
   async findRelationships(accountId, region) {
+
     const resourcesToScan = [
       "AWS::IAM::Policy",
       "AWS::IAM::User",
       "AWS::IAM::Role",
       "AWS::EC2::VPC",
+      "AWS::EC2::RouteTable",
+      "AWS::EC2::Subnet",
       "AWS::EC2::Instance",
       "AWS::EC2::Volume",
       "AWS::RDS::DBInstance",
@@ -39,7 +44,6 @@ class DiscoveryService {
       "AWS::Lambda::Function",
       "AWS::S3::Bucket",
       "AWS::DynamoDB::Table",
-      "AWS::CloudFormation::Stack",
       "AWS::CloudWatch::Alarm",
       "AWS::EC2::SecurityGroup",
       "AWS::EC2::EIP",
@@ -52,13 +56,20 @@ class DiscoveryService {
       "AWS::CodeBuild::Project",
       "AWS::CodePipeline::Pipeline",
       "AWS::SQS::Queue",
-      "AWS::QLDB::Ledger"
+      "AWS::QLDB::Ledger",
+      "AWS::CloudFormation::Stack",
+      "AWS::Redshift::Cluster"
     ];
 
-    // Scan in all resources in parallel
-    await Promise.all(resourcesToScan.map(key => {
-      return this.runScan(key, accountId, region);
+    const ps = await Promise.allSettled(resourcesToScan.map(resource => {
+      return this.runScan(resource, accountId, region);
     }));
+
+    ps.forEach(res => {
+      if(res.status === 'rejected') {
+        zoomUtils.dumpError(res.reason);
+      }
+    });
   }
 
   async runScan(key, accountId, region) {
@@ -150,8 +161,11 @@ class DiscoveryService {
 
   async processConfigurationChildren(data, accountId, region, depth, extrasToStore, children){
     for (let resource of data.relationships) {
+      // we don't want to use Config for ECS resources yet
       if (resource.resourceId) {
-        await this.handleChildResources(resource, accountId, region, depth, extrasToStore, children);
+          if(!EcsConstructs.has(resource.resourceType)) {
+              await this.handleChildResources(resource, accountId, region, depth, extrasToStore, children);
+          }
       }
       // roles don't have a resourceId
       else {
@@ -171,7 +185,7 @@ class DiscoveryService {
       this.dataClient.nodesProcessed.set(icl.id, icl);
     }
 
-    this.preventTagsFromBeingDeleted(icl);
+    await this.preventTagsFromBeingDeleted(icl);
     await this.processICLChildren(icl, accountId, region, depth, extrasToStore, children);
 
     icl.children = children;
@@ -198,13 +212,13 @@ class DiscoveryService {
   // Tag nodes are auto generated from the data.  Therefore when loading from an ICL 
   // we need to reprocess them and add them to the nodesProcessed map so that they are 
   // not deleted.
-  preventTagsFromBeingDeleted(icl) {
+  async preventTagsFromBeingDeleted(icl) {
     let tags = this.dataClient.processTags(icl);
 
     if (tags) {
-      tags.forEach(tag => {
-        let hash = this.dataClient.hashNode(tag);
-        this.dataClient.nodesProcessed.set(hash, "");
+      return tags.map(async tag => {
+        let hash = await this.dataClient.hashNode(tag);
+        this.dataClient.nodesProcessed.set(hash, '');
       });
     }
   }

@@ -5,31 +5,48 @@ import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Close from '@material-ui/icons/Close';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import SearchBar from '../../Header/Search/SearchBar';
 import { useResourceState } from '../../Contexts/ResourceContext';
-import { useGraphState } from '../../Contexts/GraphContext';
 import Graph from '../../../components/Graph/Graph';
 import NavBarButtons from '../../Header/NavBarButtons';
 import TreeMenuActionMenu from '../Actions/TreeMenuActionMenu';
 import TreeMenuResources from '../ResourceSelector/TreeMenuResources';
-import TreeMenuManagementMenu from '../Management/TreeMenuManagementMenu';
-import TreeMenuIconMenu from '../Documentation/TreeMenuIconMenu';
-import TreeMenuMaps from '../Maps/TreeMenuMaps';
+import TreeMenuSettingsMenu from '../Settings/TreeMenuSettingsMenu';
+import TreeMenuMaps from '../Diagrams/TreeMenuDiagrams';
 import TreeMenuPreferences from '../Preferences/TreeMenuPreferences';
 import TreeMenuFeedbackLinksMenu from '../Feedback/TreeMenuFeedbackLinksMenu';
+import ApplicationAndVersion from './ApplicationAndVersion';
+import CostContainer from './Costs/CostContainer';
+import TreeMenuCosts from '../Costs/TreeMenuCosts';
+import {
+  Box,
+  Button,
+  ColumnLayout,
+  Container,
+  Grid,
+  Spinner,
+} from '@awsui/components-react';
+import { useCostsState } from '../../Contexts/CostsContext';
 
-const drawerWidth = 280;
+const R = require('ramda');
+var dayjs = require('dayjs');
+var localizedFormat = require('dayjs/plugin/localizedFormat');
+const relativeTime = require('dayjs/plugin/relativeTime');
+dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
+
+const drawerWidth = 320;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     overflow: 'hidden',
     borderRight: '1px solid #ddd',
+    boxShadow: 'none'
   },
   appBar: {
     transition: theme.transitions.create(['margin', 'width'], {
@@ -55,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#545b64',
     fontWeight: 600,
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    fontSize: '0.85rem',
+    fontSize: '1.4rem',
   },
   hide: {
     display: 'none',
@@ -72,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     left: 0,
     marginLeft: '5%',
-    fontSize: '1.1rem',
+    fontSize: '1.8rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     fontWeight: 600,
   },
@@ -128,11 +145,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PersistentDrawerLeft() {
   const classes = useStyles();
-  const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-  // const [expanded, setExpanded] = useState(false);
   const [{ resources }, resourceDispatch] = useResourceState();
-  const [{ cy }, dispatch] = useGraphState();
+  const [{ costPreferences }, costDispatch] = useCostsState();
+  const [loading, setLoading] = React.useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -141,10 +157,6 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  // const handleChange = (panel) => (event, isExpanded) => {
-  //   setExpanded(isExpanded ? panel : false);
-  // };
 
   return (
     <div id={`sidepanel-${open}`} className={classes.root}>
@@ -175,36 +187,51 @@ export default function PersistentDrawerLeft() {
           }}
           anchor='left'
           open={open}>
-          {/* <div tabIndex={0} role='button' className='sideDrawer'> */}
-          <div className={classes.drawerHeader}>
-            <Typography className={classes.name}>AWS Perspective</Typography>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'ltr' ? <Close /> : <ChevronRightIcon />}
-            </IconButton>
-          </div>
+          <Box padding="xl">
+            <Grid
+              disableGutters
+              gridDefinition={[
+                { colspan: { default: 9, xxs: 3 } },
+                { colspan: { default: 3, xxs: 9 } },
+              ]}>
+              <ApplicationAndVersion />
+              <Box float='right'>
+                {loading ? (
+                  <Spinner size='normal' />
+                ) : (
+                  <Button
+                    iconName='close'
+                    variant='icon'
+                    onClick={handleDrawerClose}></Button>
+                )}
+              </Box>
+            </Grid>
+          </Box>
           <div
             style={{
               height: '100%',
               overflow: 'scroll',
-              borderBottom: '1px solid #aab7b8',
             }}>
-            <TreeMenuResources resources={resources} />
-            <TreeMenuMaps />
-            <TreeMenuActionMenu />
-            <TreeMenuPreferences />
-            <TreeMenuManagementMenu />
-            <TreeMenuFeedbackLinksMenu />
-            <TreeMenuIconMenu />
-            
+            <ColumnLayout columns={1}>
+              <TreeMenuResources resources={resources} />
+              <TreeMenuCosts />
+              <TreeMenuMaps />
+              <TreeMenuActionMenu />
+              <TreeMenuPreferences />
+              <TreeMenuSettingsMenu />
+              <TreeMenuFeedbackLinksMenu />
+            </ColumnLayout>
           </div>
+          {costPreferences.processCosts && <CostContainer />}
         </Drawer>
       </div>
+
       <div
         className={clsx(classes.content, {
           [classes.contentShift]: open,
         })}>
         <div className={classes.main} />
-        <SearchBar />
+        <SearchBar setLoading={setLoading} />
 
         <Graph />
       </div>

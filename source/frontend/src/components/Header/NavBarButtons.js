@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Auth } from 'aws-amplify';
-import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,21 +18,20 @@ const useStyles = makeStyles((theme) => ({
   },
   logout: {
     display: 'inline-flex',
-    margin: 'auto'
+    margin: 'auto',
   },
   welcome: {
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    fontSize: '0.75rem',
-    margin: 'auto'
+    fontSize: '1.2rem',
+    margin: 'auto',
   },
   username: {
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     margin: 'auto 5px',
     fontWeight: 700,
     fontStyle: 'italic',
-
-  }
+  },
 }));
 
 export default () => {
@@ -43,7 +41,9 @@ export default () => {
   const reload = () => window.location.reload();
 
   const signOut = () => {
-    Auth.signOut().then(reload).catch(reload);
+    Auth.signOut()
+      .then(reload)
+      .catch(reload);
   };
 
   useEffect(() => {
@@ -55,8 +55,9 @@ export default () => {
   return (
     <div className='search-grp'>
       <div className={classes.logout}>
-        <Typography classes={{root: classes.welcome}}>Welcome, </Typography><Typography classes={{root: classes.username}}>{username}</Typography>
-        <Tooltip title='Log out'>
+        <Typography classes={{ root: classes.welcome }}>Welcome, </Typography>
+        <Typography classes={{ root: classes.username }}>{username}</Typography>
+        
           <IconButton
             edge='start'
             className={classes.menuButton}
@@ -65,7 +66,6 @@ export default () => {
             aria-label='menu'>
             <ExitToAppIcon />
           </IconButton>
-        </Tooltip>
       </div>
     </div>
   );

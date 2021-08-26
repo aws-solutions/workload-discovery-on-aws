@@ -12,11 +12,8 @@ export const graphStyle = [
       'background-image': 'data(image)',
       'background-fit': 'cover cover',
       'background-opacity': '1',
-      // 'width': '30px',
-      // 'height': '30px',
       shape: 'square',
       color: '#000',
-      // 'bounds-expansion': '100px 100px',
       'background-width-relative-to': 'inner',
       'background-height-relative-to': 'inner',
       'background-width': '50%',
@@ -24,10 +21,8 @@ export const graphStyle = [
       padding: '5px',
       'border-style': 'data(borderStyle)',
       'border-width': 'data(borderSize)',
-      'border-color': 'data(borderColour)'
-      // 'overlay-color': 'data(borderColour)',
-      // 'overlay-opacity': 'data(borderOpacity)',
-    }
+      'border-color': 'data(borderColour)',
+    },
   },
   {
     selector: '.vpc',
@@ -51,8 +46,8 @@ export const graphStyle = [
       'text-background-padding': '5px',
       // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.vpc:active',
@@ -62,8 +57,8 @@ export const graphStyle = [
       'overlay-opacity': '0.45',
       // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.subnet',
@@ -75,7 +70,7 @@ export const graphStyle = [
       'text-halign': 'center',
       'background-color': 'data(subnetColour)',
       'background-opacity': '0.05',
-      'border-style': 'solid',
+      'border-style': 'dashed',
       'border-width': 1,
       'border-color': 'data(subnetColour)',
       'text-background-opacity': '1',
@@ -86,19 +81,8 @@ export const graphStyle = [
       'text-margin-y': '-4.5%',
       'text-border-width': '2px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
-  },
-  {
-    selector: '.subnet:active',
-    style: {
-      label: 'data(label)',
-      'overlay-color': 'data(subnetColour)',
-      'overlay-opacity': '0.45',
-      // 'padding': '200px',
-      shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.type',
@@ -121,19 +105,8 @@ export const graphStyle = [
       'text-background-shape': 'rectangle',
       'text-background-padding': '3px',
       shape: 'roundrectangle',
-      color: '#FAFAFA'
-    }
-  },
-  {
-    selector: '.region:active',
-    style: {
-      label: 'data(label)',
-      'overlay-color': 'data(regionColour)',
-      'overlay-opacity': '0.45',
-      // 'padding': '200px',
-      shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#FAFAFA',
+    },
   },
   {
     selector: '.region',
@@ -155,21 +128,9 @@ export const graphStyle = [
       'text-background-color': 'data(regionColour)',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#fafafa'
-    }
-  },
-  {
-    selector: '.availabilityZone:active',
-    style: {
-      label: 'data(label)',
-      'overlay-color': '#f7991f',
-      'overlay-opacity': '0.45',
-      // 'padding': '200px',
-      shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.availabilityZone',
@@ -191,21 +152,9 @@ export const graphStyle = [
       'text-background-color': '#f7991f',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#000'
-    }
-  },
-  {
-    selector: '.account:active',
-    style: {
-      label: 'data(label)',
-      'overlay-color': 'data(accountColour)',
-      'overlay-opacity': '0.45',
-      // 'padding': '200px',
-      shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#000',
+    },
   },
   {
     selector: '.account',
@@ -218,7 +167,6 @@ export const graphStyle = [
       'background-color': 'data(color)',
       'background-opacity': 'data(opacity)',
       'text-margin-y': '-5%',
-      // 'text-margin-x': '93.5%',
       'border-style': 'dashed',
       'border-width': 1,
       'border-color': 'data(accountColour)',
@@ -228,10 +176,9 @@ export const graphStyle = [
       'text-background-color': 'data(accountColour)',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: 'node.highlight',
@@ -246,13 +193,9 @@ export const graphStyle = [
       'background-color': '#fff',
       'overlay-color': '#545B64',
       'overlay-opacity': '0.45',
-      // 'overlay-padding': '-10',
-      // 'background-image-opacity': 0.5,
-      // 'background-fit': 'contain contain',
       'background-opacity': '1',
       shape: 'square',
       color: '#545B64',
-      // 'bounds-expansion': '100px 100px',
       'border-style': 'data(borderStyle)',
       'border-width': 1,
       'border-color': 'data(borderColour)',
@@ -260,8 +203,8 @@ export const graphStyle = [
       'background-height-relative-to': 'inner',
       'background-width': '50%',
       'background-height': '50%',
-      padding: '5px'
-    }
+      padding: '5px',
+    },
   },
   {
     selector: 'node.clicked',
@@ -274,15 +217,9 @@ export const graphStyle = [
       'font-size': '5rem',
       'text-margin-y': '3px',
       'background-color': '#fff',
-      // 'overlay-color': '#232f3e',
-      // 'overlay-opacity': '0.25',
-      // 'overlay-padding': '25',
-      // 'background-image-opacity': 0.5,
-      // 'background-fit': 'contain contain',
       'background-opacity': '1',
       shape: 'square',
       color: '#232f3e',
-      // 'bounds-expansion': '100px 100px',
       'border-style': 'solid',
       'border-width': 3,
       'border-color': '#232f3e',
@@ -290,8 +227,8 @@ export const graphStyle = [
       'background-height-relative-to': 'inner',
       'background-width': '50%',
       'background-height': '50%',
-      padding: '5px'
-    }
+      padding: '5px',
+    },
   },
   {
     selector: 'node.selected',
@@ -304,15 +241,9 @@ export const graphStyle = [
       'font-size': '5rem',
       'text-margin-y': '3px',
       'background-color': '#232f3e',
-      // 'overlay-color': '#232f3e',
-      // 'overlay-opacity': '0.25',
-      // 'overlay-padding': '25',
-      // 'background-image-opacity': 0.5,
-      // 'background-fit': 'contain contain',
       'background-opacity': '0.5',
       shape: 'square',
       color: '#232f3e',
-      // 'bounds-expansion': '100px 100px',
       'border-style': 'solid',
       'border-width': 3,
       'border-color': '#232f3e',
@@ -320,8 +251,8 @@ export const graphStyle = [
       'background-height-relative-to': 'inner',
       'background-width': '50%',
       'background-height': '50%',
-      padding: '5px'
-    }
+      padding: '5px',
+    },
   },
   {
     selector: 'node.softDelete',
@@ -338,7 +269,6 @@ export const graphStyle = [
       'background-opacity': '0.5',
       shape: 'square',
       color: '#000',
-      // 'bounds-expansion': '100px 100px',
       'background-width-relative-to': 'inner',
       'background-height-relative-to': 'inner',
       'background-width': '50%',
@@ -347,8 +277,8 @@ export const graphStyle = [
       'border-style': 'solid',
       'border-width': 1,
       'border-color': '#232f3e',
-      opacity: '0.25'
-    }
+      opacity: '0.25',
+    },
   },
 
   {
@@ -358,8 +288,15 @@ export const graphStyle = [
       'target-arrow-shape': 'none',
       width: '1px',
       'line-style': 'solid',
-      'line-color': '#545B64'
-    }
+      'line-color': '#545B64',
+    },
+  },
+  {
+    selector: 'edge.hidden',
+    style: {
+      width: '1px',
+      'line-opacity' : 0
+    },
   },
   {
     selector: 'edge.highlight',
@@ -368,19 +305,17 @@ export const graphStyle = [
       'target-arrow-shape': 'none',
       width: '2px',
       'line-style': 'dashed',
-      'line-color': '#545B64'
-    }
+      'line-color': '#545B64',
+    },
   },
   {
     selector: 'edge.cy-expand-collapse-meta-edge',
     style: {
-      // label: 'data(label)',
       'curve-style': 'unbundled-bezier',
       'control-point-distances': '0 0 0',
       'line-style': 'dashed',
       'line-color': '#ec7211',
-      // 'line-dash-pattern': [6,3],
-      'width': '2px'
+      width: '2px',
     },
   },
   {
@@ -396,7 +331,6 @@ export const graphStyle = [
       'border-style': 'solid',
       'border-width': 1,
       'border-color': '#545B64',
-      // 'text-margin-y': '5%',
       'text-border-width': '1px',
       'text-background-opacity': '1',
       'text-border-color': '#545B64',
@@ -404,18 +338,15 @@ export const graphStyle = [
       'text-background-shape': 'rectangle',
       'background-image': 'data(image)',
       'background-fit': 'none',
-      'width': '43px',
-      'height': '43px',
+      width: '43px',
+      height: '43px',
       shape: 'ellipse',
       color: '#fff',
-      // 'bounds-expansion': '100px 100px',
       'background-width': '50%',
       'background-height': '50%',
-      // padding: '100px'
-    }
+    },
   },
 ];
-
 
 export const previewStyle = [
   {
@@ -431,11 +362,8 @@ export const previewStyle = [
       'background-image': 'data(image)',
       'background-fit': 'cover cover',
       'background-opacity': '1',
-      // 'width': '30px',
-      // 'height': '30px',
       shape: 'square',
       color: '#000',
-      // 'bounds-expansion': '100px 100px',
       'background-width-relative-to': 'inner',
       'background-height-relative-to': 'inner',
       'background-width': '50%',
@@ -443,10 +371,8 @@ export const previewStyle = [
       padding: '5px',
       'border-style': 'data(borderStyle)',
       'border-width': 'data(borderSize)',
-      'border-color': 'data(borderColour)'
-      // 'overlay-color': 'data(borderColour)',
-      // 'overlay-opacity': 'data(borderOpacity)',
-    }
+      'border-color': 'data(borderColour)',
+    },
   },
   {
     selector: '.vpc',
@@ -468,21 +394,9 @@ export const previewStyle = [
       'text-background-color': '#683dc2',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
-  },
-  {
-    selector: '.vpc:active',
-    style: {
-      label: 'data(label)',
-      'overlay-color': '#683dc2',
-      'overlay-opacity': '0.45',
-      // 'padding': '200px',
-      shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.subnet',
@@ -505,8 +419,8 @@ export const previewStyle = [
       'text-margin-y': '-4.5%',
       'text-border-width': '2px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.subnet:active',
@@ -514,10 +428,9 @@ export const previewStyle = [
       label: 'data(label)',
       'overlay-color': 'data(subnetColour)',
       'overlay-opacity': '0.45',
-      // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.type',
@@ -540,8 +453,8 @@ export const previewStyle = [
       'text-background-shape': 'rectangle',
       'text-background-padding': '3px',
       shape: 'roundrectangle',
-      color: '#FAFAFA'
-    }
+      color: '#FAFAFA',
+    },
   },
   {
     selector: '.region:active',
@@ -549,10 +462,9 @@ export const previewStyle = [
       label: 'data(label)',
       'overlay-color': 'data(regionColour)',
       'overlay-opacity': '0.45',
-      // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.region',
@@ -574,10 +486,9 @@ export const previewStyle = [
       'text-background-color': 'data(regionColour)',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.availabilityZone:active',
@@ -585,10 +496,9 @@ export const previewStyle = [
       label: 'data(label)',
       'overlay-color': '#f7991f',
       'overlay-opacity': '0.45',
-      // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.availabilityZone',
@@ -610,10 +520,9 @@ export const previewStyle = [
       'text-background-color': '#f7991f',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#000'
-    }
+      color: '#000',
+    },
   },
   {
     selector: '.account:active',
@@ -621,10 +530,9 @@ export const previewStyle = [
       label: 'data(label)',
       'overlay-color': 'data(accountColour)',
       'overlay-opacity': '0.45',
-      // 'padding': '200px',
       shape: 'roundrectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
   {
     selector: '.account',
@@ -637,7 +545,6 @@ export const previewStyle = [
       'background-color': 'data(color)',
       'background-opacity': 'data(opacity)',
       'text-margin-y': '-5%',
-      // 'text-margin-x': '93.5%',
       'border-style': 'dashed',
       'border-width': 1,
       'border-color': 'data(accountColour)',
@@ -647,12 +554,11 @@ export const previewStyle = [
       'text-background-color': 'data(accountColour)',
       'text-background-shape': 'rectangle',
       'text-background-padding': '5px',
-      // 'padding': '200px',
       shape: 'rectangle',
-      color: '#fafafa'
-    }
+      color: '#fafafa',
+    },
   },
-  
+
   {
     selector: 'node.softDelete',
     style: {
@@ -668,7 +574,6 @@ export const previewStyle = [
       'background-opacity': '0.5',
       shape: 'square',
       color: '#000',
-      // 'bounds-expansion': '100px 100px',
       'background-width-relative-to': 'inner',
       'background-height-relative-to': 'inner',
       'background-width': '50%',
@@ -677,8 +582,8 @@ export const previewStyle = [
       'border-style': 'solid',
       'border-width': 1,
       'border-color': '#232f3e',
-      opacity: '0.25'
-    }
+      opacity: '0.25',
+    },
   },
 
   {
@@ -688,19 +593,17 @@ export const previewStyle = [
       'target-arrow-shape': 'none',
       width: '1px',
       'line-style': 'solid',
-      'line-color': '#545B64'
-    }
+      'line-color': '#545B64',
+    },
   },
   {
     selector: 'edge.cy-expand-collapse-meta-edge',
     style: {
-      // label: 'data(label)',
       'curve-style': 'unbundled-bezier',
       'control-point-distances': '0 0 0',
       'line-style': 'dashed',
       'line-color': '#ec7211',
-      // 'line-dash-pattern': [6,3],
-      'width': '2px'
+      width: '2px',
     },
   },
   {
@@ -723,15 +626,10 @@ export const previewStyle = [
       'text-background-color': '#000',
       'text-background-shape': 'rectangle',
       'background-image': 'data(image)',
-      // 'background-fit': 'none',
       'max-width': '43px',
       'max-height': '43px',
       shape: 'roundrectangle',
       color: '#fff',
-      // 'bounds-expansion': '100px 100px',
-      // 'background-width': '50%',
-      // 'background-height': '50%',
-      // padding: '100px'
-    }
+    },
   },
 ];

@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Transform: AWS::Serverless-2016-10-31
 
-Description: AWS Perspective Gemlin Lambda Stack
+Description: AWS Perspective Gremlin Lambda Stack
 
 Parameters:
   DeploymentBucket:
@@ -41,11 +41,9 @@ Parameters:
   ConfigurationAggregator:
     Type: String
 
-  PerspectiveCostTableName:
+  CustomUserAgent: 
     Type: String
-
-  PerspectiveCostTableArn:
-    Type: String
+    Default: 'AwsSolution/SO0075/1.1.0'
 
 Resources:
   GremlinLambdaSg:
@@ -70,14 +68,22 @@ Resources:
       SourceSecurityGroupId: !Ref GremlinLambdaSg
 
   GremlinFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'We have specified this property, but cfn_nag is not picking it up.'
     Type: AWS::Serverless::Function
     Properties:
+      ReservedConcurrentExecutions: 200
       Role: !GetAtt LambdaFunctionRole.Arn
       Handler: index.handler
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/api.zip
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Description: Lambda for querying and writing to Neptune
       Timeout: 10
       VpcConfig:
@@ -92,11 +98,10 @@ Resources:
         Variables:
           neptuneConnectURL: !Ref NeptuneClusterURL
           neptunePort: !Ref NeptuneClusterPort
-          costDataEnabled: 'true'
-          DynamoCostTable: !Ref PerspectiveCostTableName
           configurationAggregator: !Ref ConfigurationAggregator
           region: !Ref AWS::Region
           accountId: !Ref AWS::AccountId
+          CustomUserAgent: !Ref CustomUserAgent
 
   LambdaFunctionRole:
     Type: AWS::IAM::Role
@@ -122,11 +127,6 @@ Resources:
                 Action:
                   - neptune-db:connect
                 Resource: !Sub arn:aws:neptune-db:${AWS::Region}:${AWS::AccountId}:${NeptuneClusterResourceId}/*
-              - Effect: Allow
-                Action:
-                  - dynamodb:BatchGetItem
-                  - dynamodb:GetItem
-                Resource: !Ref PerspectiveCostTableArn
 
   GremlinLambdaErrorAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -142,7 +142,7 @@ Resources:
       Threshold: 10
       EvaluationPeriods: 3
       Period: 60
-      TreatMissingData: breaching
+      TreatMissingData: notBreaching
 
 Outputs:
   GremlinARN:

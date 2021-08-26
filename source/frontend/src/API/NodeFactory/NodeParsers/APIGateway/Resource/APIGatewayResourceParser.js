@@ -1,9 +1,13 @@
 import React from 'react';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 import APIResourceHover from './APIResourceHover';
-
-export const parseAPIGatewayResource = node => {
+const R = require('ramda');
+export const parseAPIGatewayResource = (node) => {
+  
   try {
+    const properties = R.hasPath(['properties'], node)
+    ? node.properties
+    : node.data('properties');
     return {
       styling: {
         borderStyle: 'solid',
@@ -11,10 +15,14 @@ export const parseAPIGatewayResource = node => {
         borderOpacity: 0.25,
         borderSize: 1,
         message: '',
-        colour: '#fff'
+        colour: '#fff',
       },
-      icon: fetchImage(node.properties.resourceType),
-      hoverComponent: <APIResourceHover path={node.properties.path} />
+      icon: fetchImage(properties.resourceType),
+      hoverComponent: (
+        <APIResourceHover
+          path={properties.path}
+        />
+      ),
     };
   } catch (e) {
     return {};

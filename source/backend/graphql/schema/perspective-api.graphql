@@ -1,0 +1,365 @@
+# An AWS region that AWS Perspective is scanning
+type Region @aws_cognito_user_pools @aws_iam {
+  # The name of the region
+  name: String!
+  # The the timestamp of the last successful crawl by the discovery process
+  lastCrawled: String
+}
+
+# An AWS account that AWS Perspective is scanning
+type Account @aws_cognito_user_pools @aws_iam {
+  # The AWS account number
+  accountId: String!
+  name: String
+  # The regions AWS Perspective is enabled on
+  regions: [Region]!
+  lastCrawled: AWSDateTime
+}
+
+# Top level properties of AWS account that AWS Perspective is scanning
+type AccountMetadata @aws_cognito_user_pools @aws_iam {
+  # The AWS account number
+  accountId: String!
+  name: String
+  lastCrawled: AWSDateTime
+}
+
+input RegionInput {
+  # The name of the region
+  name: String!
+  # The timestamp of the last successful crawl by the discovery process
+  lastCrawled: AWSDateTime
+}
+
+input AccountInput {
+  # The AWS account number
+  accountId: String!
+  # A friendly name the user can provide for an account.
+  name: String
+  # The regions AWS Perspective is enabled on
+  regions: [RegionInput]
+}
+
+type UnprocessedAccounts @aws_cognito_user_pools @aws_iam {
+  # Accounts that encountered an issue when being mutated
+  unprocessedAccounts: [String]
+}
+
+type Mutation {
+  # Adds accounts to be scanned
+  addAccounts(accounts: [AccountInput]): UnprocessedAccounts
+  # Updates an account, returns account id in response
+  updateAccount(accountId: String!, lastCrawled: AWSDateTime, name: String): AccountMetadata
+  @aws_cognito_user_pools
+  @aws_iam
+  # Updates one or more regions to be scanned
+  updateRegions(accountId: String!, regions: [RegionInput]!): Account
+    @aws_cognito_user_pools
+    @aws_iam
+  # Adds one or more regions to be scanned
+  addRegions(accountId: String!, regions: [RegionInput]!): Account
+  # Deletes one or more regions to be scanned
+  deleteRegions(accountId: String!, regions: [RegionInput]!): Account
+  # Deletes one or more accounts to be scanned
+  deleteAccounts(accountIds: [String]!): UnprocessedAccounts
+}
+
+type Query {
+  # Gets the children of the node with the supplied id or arn, if an id is provided the
+  # arn parameter will be ignored
+  getLinkedNodesHierarchy(id: String, arn: String): Hierarchy
+  # Gets a single account and the regions that are being scanned
+  getAccount(accountId: String!): Account
+  # Gets each account and its associated regions that are being scanned
+  getAccounts: [Account] @aws_cognito_user_pools @aws_iam
+  # Read another set of results from the S3 Athena results
+  readResultsFromS3(s3Query: S3Query): Cost @aws_cognito_user_pools @aws_iam
+  # Gets the cost for an AWS Service
+  getCostForService(costForServiceQuery: CostForServiceQuery): Cost
+    @aws_cognito_user_pools
+    @aws_iam
+  # Gets the cost for a resource given its resourceId/ARN
+  getCostForResource(costForResourceQuery: CostForResourceQuery): Cost
+    @aws_cognito_user_pools
+    @aws_iam
+  # Gets the resource costs with most expensive first.
+  getResourcesByCost(resourcesByCostQuery: ResourcesByCostQuery): Cost
+    @aws_cognito_user_pools
+    @aws_iam
+  # Gets cost for the provided resource ARNs broken down by day.
+  getResourcesByCostByDay(
+    costForResourceQueryByDay: CostForResourceQueryByDay
+  ): Cost @aws_cognito_user_pools @aws_iam
+}
+
+type Cost @aws_cognito_user_pools @aws_iam {
+  # The total cost of all resources found
+  totalCost: Float
+  # An array of cost data retrieved.
+  costItems: [CostItem]
+  # The nextToken to retrieve the next batch of results
+  queryDetails: QueryDetails
+}
+
+input CostForResourceQueryByDay {
+  # The ID of the resource you want to locate the cost of.
+  resourceIds: [String!]!
+  # The time period to query for cost data.
+  period: Period!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+input CostForResourceQuery {
+  # The ID of the resource you want to locate the cost of.
+  resourceIds: [String!]!
+  # The time period to query for cost data.
+  period: Period!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+input CostForServiceQuery {
+  # A list of account Ids that you wish to locate costs in.
+  accountIds: [String!]
+  # A list of regions that you wish to locate costs in.
+  regions: [String!]
+  # The service name that you wish to locate the cost for.
+  serviceName: String
+  # The time period to query for cost data.
+  period: Period!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+type CostItem @aws_cognito_user_pools @aws_iam {
+  line_item_resource_id: String
+  product_servicename: String
+  line_item_usage_start_date: String
+  line_item_usage_account_id: String!
+  product_region: String!
+  pricing_term: String!
+  cost: Float!
+  line_item_currency_code: String!
+}
+
+input CostQuery {
+  # A list of account Ids that you wish to locate costs in.
+  accountIds: [String!]
+  # The service name that you wish to locate the cost for.
+  serviceName: String
+  # The ID of the resource you want to locate the cost of.
+  resourceId: String
+  # The time period to query for cost data.
+  period: Period!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+input Pagination {
+  # The item number to start from in the Athena query results CSV
+  start: Int!
+  # The item number to end on in the Athena query results CSV
+  end: Int!
+}
+
+type PaginationType {
+  # The item number to start from in the Athena query results CSV
+  start: Int!
+  # The item number to end on in the Athena query results CSV
+  end: Int!
+}
+
+input Period {
+  # Period of time to look back for costing data.
+  from: AWSDate!
+  to: AWSDate!
+}
+
+type QueryDetails @aws_cognito_user_pools @aws_iam {
+  # The cost of the Athena query in dollars
+  cost: Float
+  # The S3 Bucket where the Athena results are stored
+  s3Bucket: String!
+  # The S3 Key where the Athena results are stored
+  s3Key: String!
+  # The amount of data queried by Athena in Megabytes
+  dataScannedInMB: Int
+  # The pagination details including where to start and end in the stream of results
+  pagination: PaginationType!
+  # The number of results in total that was returned by Athena
+  resultCount: Int
+}
+
+input ResourcesByCostQuery {
+  # A list of account Ids that you wish to locate costs in.
+  accountIds: [String!]
+    # A list of regions that you wish to locate costs in.
+  regions: [String!]
+  # The time period to query for cost data.
+  period: Period!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+input S3Query {
+  # The S3 Bucket that contains the Athena query results CSV
+  bucket: String!
+  # The S3 Key that contains the Athena query results CSV
+  key: String!
+  # The pagination details including where to start and end in the stream of results
+  pagination: Pagination!
+}
+
+type Hierarchy {
+  id: String
+  label: String!
+  type: String!
+  data: HierarchyData
+  perspectiveBirthDate: AWSDateTime
+  properties: Properties
+  children: [Hierarchy]
+  parent: Boolean
+}
+
+type HierarchyData {
+  id: String
+  label: String
+  perspectiveBirthDate: AWSDateTime
+  properties: Properties
+}
+
+interface Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+}
+
+type ResourceProperties implements Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+}
+
+type RDSDBInstance implements Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+  dBInstanceStatus: String
+}
+
+type ApiGatewayMethod implements Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+  path: String
+}
+
+type IAMCustomerManagedPolicyStatement implements Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+  statement: String
+}
+
+type EC2Instance implements Properties {
+  resourceName: String
+  resourceValue: String
+  resourceType: String
+  resourceId: String
+  tags: String
+  arn: String
+  awsRegion: String
+  availabilityZone: String
+  vpcId: String
+  subnetId: String
+  state: String
+  loggedInURL: String
+  loginURL: String
+  accountId: String
+  title: String
+  softDelete: String
+  private: Boolean
+  configuration: AWSJSON
+  instanceType: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

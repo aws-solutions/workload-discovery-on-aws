@@ -15,14 +15,15 @@ afterEach(() => {
   delete process.env.PUBLIC_URL;
 });
 
-test('when node is an postgres rds instance with status as warning', () => {
+test('when node is an postgres rds instance with status as provisioning', () => {
   process.env.PUBLIC_URL = '';
-
+  let postgresProv = JSON.parse(postgres);
+  postgresProv.dBInstanceStatus = 'provisioning'
   const node = {
     name: 'aDatabaseInstance',
     properties: {
       resourceType: 'AWS::RDS::DBInstance',
-      configuration: postgres,
+      configuration: JSON.stringify(postgresProv),
       dBInstanceStatus: 'provisioning'
     }
   };
@@ -41,7 +42,7 @@ test('when node is an postgres rds instance with status as warning', () => {
     detailsComponent: (
       <DatabaseInstanceItem
         title='Instance Details'
-        configuration={postgres}
+        configuration={JSON.stringify(postgresProv)}
       />
     )
   };
@@ -52,14 +53,15 @@ test('when node is an postgres rds instance with status as warning', () => {
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
-test('when node is an postgres rds instance with status as warning', () => {
+test('when node is an postgres rds instance with status as pending', () => {
     process.env.PUBLIC_URL = '';
-  
+    let postgresPending = JSON.parse(postgres);
+    postgresPending.dBInstanceStatus = 'pending'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: postgres,
+        configuration: JSON.stringify(postgresPending),
         dBInstanceStatus: 'pending'
       }
     };
@@ -78,7 +80,7 @@ test('when node is an postgres rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={postgres}
+          configuration={JSON.stringify(postgresPending)}
         />
       )
     };
@@ -89,14 +91,15 @@ test('when node is an postgres rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an postgres rds instance with status as warning', () => {
+  test('when node is an postgres rds instance with status as available', () => {
     process.env.PUBLIC_URL = '';
-  
+    let postgresAvailable = JSON.parse(postgres);
+    postgresAvailable.dBInstanceStatus = 'available'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: postgres,
+        configuration: JSON.stringify(postgresAvailable),
         dBInstanceStatus: 'available'
       }
     };
@@ -115,7 +118,7 @@ test('when node is an postgres rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={postgres}
+          configuration={JSON.stringify(postgresAvailable)}
         />
       )
     };
@@ -126,14 +129,15 @@ test('when node is an postgres rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an postgres rds instance with status as warning', () => {
+  test('when node is an postgres rds instance with status as active', () => {
     process.env.PUBLIC_URL = '';
-  
+    let postgresActive = JSON.parse(postgres);
+    postgresActive.dBInstanceStatus = 'active'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: postgres,
+        configuration: JSON.stringify(postgresActive),
         dBInstanceStatus: 'active'
       }
     };
@@ -152,7 +156,7 @@ test('when node is an postgres rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={postgres}
+          configuration={JSON.stringify(postgresActive)}
         />
       )
     };
@@ -163,14 +167,15 @@ test('when node is an postgres rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an postgres rds instance with status as warning', () => {
+  test('when node is an postgres rds instance with status as stopped', () => {
     process.env.PUBLIC_URL = '';
-  
+    let postgresStopped = JSON.parse(postgres);
+    postgresStopped.dBInstanceStatus = 'stopped'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: postgres,
+        configuration: JSON.stringify(postgresStopped),
         dBInstanceStatus: 'stopped'
       }
     };
@@ -189,7 +194,7 @@ test('when node is an postgres rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={postgres}
+          configuration={JSON.stringify(postgresStopped)}
         />
       )
     };
@@ -200,14 +205,15 @@ test('when node is an postgres rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an postgres rds instance with status as warning', () => {
+  test('when node is an postgres rds instance with status as failed', () => {
     process.env.PUBLIC_URL = '';
-  
+    let postgresFailed = JSON.parse(postgres);
+    postgresFailed.dBInstanceStatus = 'failed'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: postgres,
+        configuration: JSON.stringify(postgresFailed),
         dBInstanceStatus: 'failed'
       }
     };
@@ -226,7 +232,7 @@ test('when node is an postgres rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={postgres}
+          configuration={JSON.stringify(postgresFailed)}
         />
       )
     };

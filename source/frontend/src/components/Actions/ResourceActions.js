@@ -1,33 +1,24 @@
 import { requestWrapper, sendPostRequest } from '../../API/APIHandler';
-
+const R = require('ramda');
 export const filterOnAccountAndRegion = async (filters) => {
-    const filtersToApply = Array.from(filters.values()).reduce((h, obj) =>
-        Object.assign(h, { [obj.accountId]: obj.region ? (h[obj.accountId] || []).concat(obj.region) : [] }), {}
-    )
-    const query = {
-        body: {
-            command: 'getAllResources',
-            data: {
-                accountFilter:
-                    filtersToApply ? filtersToApply : undefined
-            }
-        },
-        processor: (data) => data.results
-    }
-    return await requestWrapper(sendPostRequest, query);    
-}
+  const groupNames = (acc, { region }) =>
+    R.isNil(region) ? acc : acc.concat(region);
 
-export const getAllResources = async () => {
-
-    const query = {
-        body: {
-            command: 'getAllResources',
-            data: {}
-        },
-        processor: (data) => data.results
-    }
-
-    return await requestWrapper(sendPostRequest, query);    
-
-}
-
+  const filtersToApply = R.reduceBy(
+    groupNames,
+    [],
+    (e) => e.accountId,
+    filters
+  );
+  const query = {
+    body: {
+      command: 'getAllResources',
+      data: {
+        accountFilter: filtersToApply,
+      },
+    },
+    processor: (data) => data.results,
+  };
+  
+  return R.isEmpty(filtersToApply) ? {body: {nodes: [], metaData: {}}} : await requestWrapper(sendPostRequest, query);
+};

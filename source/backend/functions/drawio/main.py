@@ -10,14 +10,16 @@ drawing_margin = 30
 # Get a dictionary of icon styles based on cytoscape 'types'
 types = get_type_definitions()
 
-'''
-Classes:
-- Node = stores hierarchical and label information for drawing nodes and edge 
-in draw.io. Height and width values are dynamically created based on children
-- Edge = Connection info for nodes, produce arrows
-'''
+
 class Node:
-    def __init__(self, node_id, node_type, label, title, level, center_x, center_y, isEndNode):
+    """
+    Classes:
+    - Node = stores hierarchical and label information for drawing nodes and edge
+    in draw.io. Height and width values are dynamically created based on children
+    - Edge = Connection info for nodes, produce arrows
+    """
+
+    def __init__(self, node_id, node_type, label, title, level, center_x, center_y, is_end_node):
         self.node_id = node_id
         self.node_type = node_type
         self.label = label
@@ -26,21 +28,22 @@ class Node:
         self.center_x = center_x
         self.center_y = center_y
         self.style = types[self.node_type]['style']
-        self.isEndNode = isEndNode
+        self.is_end_node = is_end_node
         self.children = []
-    
+
     @property
     def height(self):
-        if self.isEndNode and 'height' in types[self.node_type]:
+        if self.is_end_node and 'height' in types[self.node_type]:
             return types[self.node_type]['height']
         elif len(self.children) == 0:
             return None
         else:
-            children_points = list(filter(None, map(lambda c: (c.height*0.5 + c.center_y), self.children)))
+            children_points = list(
+                filter(None, map(lambda c: (c.height*0.5 + c.center_y), self.children)))
             furthest_point = max(children_points)
-            result =  furthest_point + drawing_margin - self.y
+            result = furthest_point + drawing_margin - self.y
             return result
-    
+
     @property
     def width(self):
         if 'width' in types[self.node_type]:
@@ -48,44 +51,47 @@ class Node:
         elif len(self.children) == 0:
             return None
         else:
-            children_points = list(filter(None, map(lambda c: (c.width*0.5 + c.center_x), self.children)))
+            children_points = list(
+                filter(None, map(lambda c: (c.width*0.5 + c.center_x), self.children)))
             furthest_point = max(children_points)
             result = 2*(furthest_point + drawing_margin - self.center_x)
             return result
-    
-    @property        
+
+    @property
     def x(self):
-        if self.isEndNode:
+        if self.is_end_node:
             return self.center_x - 0.5*self.width
         elif len(self.children) == 0:
             return None
         else:
-            children_points = list(filter(None, map(lambda c: (c.center_x - 0.5*c.width), self.children)))
+            children_points = list(
+                filter(None, map(lambda c: (c.center_x - 0.5*c.width), self.children)))
             min_point = min(children_points)
             result = (min_point - drawing_margin)
             return result
-    
+
     @property
     def y(self):
-        if self.isEndNode:
+        if self.is_end_node:
             return self.center_y - 0.5*self.height
         elif len(self.children) == 0:
             return None
         else:
-            children_points = list(filter(None, map(lambda c: (c.center_y - 0.5*c.height), self.children)))
+            children_points = list(
+                filter(None, map(lambda c: (c.center_y - 0.5*c.height), self.children)))
             min_point = min(children_points)
             result = (min_point - drawing_margin)
             return result
-    
+
     def add_child(self, child):
         self.children.append(child)
         return
-    
+
     def get_xml_object(self):
         # Draw IO Context
-        icon = { 'style': self.style, 'vertex': '1','parent': '1' }
+        icon = {'style': self.style, 'vertex': '1', 'parent': '1'}
         content = {
-            'id': self.node_id, 
+            'id': self.node_id,
             'label': self.label,
             self.node_type: self.title
         }
@@ -96,20 +102,21 @@ class Node:
             'width': str(self.width),
             'as': 'geometry'
         }
-        #Build object
+        # Build object
         obj = Element('object', content)
         styled_obj = SubElement(obj, 'mxCell', icon)
         placed_obj = SubElement(styled_obj, 'mxGeometry', coords)
-        
+
         return obj
-        
+
+
 class Edge:
     def __init__(self, edge_id, source, target):
         self.edge_id = edge_id
         self.source = source
         self.target = target
         self.style = types['edge']['style']
-    
+
     def get_xml_object(self):
         content = {
             'id': self.edge_id,
@@ -120,99 +127,101 @@ class Edge:
             'edge': '1'
         }
         coords = {
-            'relative':'1',
+            'relative': '1',
             'as': 'geometry'
         }
         obj = Element('mxCell', content)
         placed_obj = SubElement(obj, 'mxGeometry', coords)
-        
+
         return obj
 
-'''
-Main Lambda Handler
-'''
+
 def handler(event, context):
-    
+    """
+    Main Lambda Handler
+    """
     node_dict = dict()
-    
-    elements = json.loads(event.get('body'))
-    nodes = elements['elements']['nodes']
-    edges = elements['elements']['edges']
-    
+
+    data = json.loads(event['body'])['data']
+    nodes = data.get('nodes', [])
+    edges = data.get('edges', [])
+
     for node in nodes:
         node_id = node['data']['id']
         node_type = node['data']['type']
-        if node_type == 'resource': node_type = node['data']['image'].split('/')[-1].split('.')[0]
+        if node_type == 'resource':
+            node_type = node['data']['image'].split('/')[-1].split('.')[0]
         label = node['data']['label'].replace(' - $0', '')
         title = node['data']['title']
         level = node['data']['level']
         x = node['position']['x']
         y = node['position']['y']
-        isEndNode = ('children' not in node['data'])
+        is_end_node = ('children' not in node['data'])
         parent = node['data'].get('parent')
-        node = Node(node_id, node_type, label, title, level, x, y, isEndNode)
-        
+        node = Node(node_id, node_type, label, title, level, x, y, is_end_node)
+
         node_dict[node_id] = node
-        
+
         if parent and parent in node_dict:
             node_dict[parent].add_child(node)
-    
+
     elements = list(node_dict.values())
-    elements.sort(key = lambda x: x.level)
-    
+    elements.sort(key=lambda x: x.level)
+
     for edge in edges:
         edge_id = edge['data']['id']
         source = edge['data']['source']
         target = edge['data']['target']
         edge = Edge(edge_id, source, target)
-        
-        elements.append(edge)    
-    
+
+        elements.append(edge)
+
     xml_output = produce_xml_output(elements)
-    
+
     # Compress and encode XML tree
     xml_output_compressed_encoded = deflate_and_base64_encode(xml_output)
     # Convert XML encoded string to URL encoded string
-    xml_output_url = urllib.parse.quote(xml_output_compressed_encoded, safe = '')
+    xml_output_url = urllib.parse.quote(xml_output_compressed_encoded, safe='')
     # Attach XML string to Draw IO URL (Note: Draw IO is not app.diagram.net due to .io vulnerabilities)
     drawio_url = 'https://app.diagrams.net?title=AWS%20Architecture%20Diagram.xml#R' + xml_output_url
-    
 
     return {
-        'statusCode': 200,
-        'body': json.dumps(drawio_url),
-        "headers": {
+        'headers': {
             'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin":"*"
-        }
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        },
+        'statusCode': 200,
+        'body': json.dumps(drawio_url)
     }
 
-'''
-Helper Functions:
-- produce_xml_output = creates XML tree of all diagram nodes and edges
-- deflate_and_base64_encode = returns a compressed, encoded version of XML tree string to pass to Draw IO URL
-'''
+
 def produce_xml_output(elements):
-    
+    """
+    Helper Functions:
+    - produce_xml_output = creates XML tree of all diagram nodes and edges
+    - deflate_and_base64_encode = returns a compressed, encoded version of XML tree string to pass to Draw IO URL
+    """
     # Initialize Parent Nodes in Draw.IO XML Tree
     xml_model = Element('mxGraphModel')
     root = SubElement(xml_model, 'root')
-    
+
     # Draw IO needs two default cells to start drawing
-    default_cell_contents = { 'id' : '0' }
+    default_cell_contents = {'id': '0'}
     default_cell = SubElement(root, 'mxCell', default_cell_contents)
-    default_cell_contents = { 'id' : '1', 'parent' : '0' }
+    default_cell_contents = {'id': '1', 'parent': '0'}
     default_cell = SubElement(root, 'mxCell', default_cell_contents)
-    
+
     for elem in elements:
         xml_object = elem.get_xml_object()
         root.append(xml_object)
-    
+
     xml_output = tostring(xml_model)
     return xml_output
 
 
-def deflate_and_base64_encode( string_val ):
-    zlibbed_str = compress( string_val )
+def deflate_and_base64_encode(string_val):
+    zlibbed_str = compress(string_val)
     compressed_string = zlibbed_str[2:-4]
-    return b64encode( compressed_string )
+    return b64encode(compressed_string)

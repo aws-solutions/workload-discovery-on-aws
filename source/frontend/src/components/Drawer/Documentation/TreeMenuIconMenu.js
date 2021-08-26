@@ -45,11 +45,11 @@ const useStyles = makeStyles({
     color: '#545b64',
     fontWeight: 600,
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    fontSize: '0.85rem',
+    fontSize: '1.4rem',
     width: '100%',
   },
   subLabel: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     background: '#fff',
     color: '#545b64',
@@ -70,7 +70,7 @@ const useStyles = makeStyles({
   },
   type: {
     margin: 'auto 0 auto 0',
-    fontSize: '.75rem',
+    fontSize: '1.2rem',
   },
   textfield: {
     width: '100%',
@@ -89,17 +89,17 @@ const useStyles = makeStyles({
     '& .MuiInput-root': {
       border: '1px solid #fafafa',
       padding: '0 0 0 2%',
-      fontSize: '.75rem',
+      fontSize: '1.2rem',
     },
     '& .MuiInputBase-input': {
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
       color: '#000',
       fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     },
   },
 });
 
-export default ({ }) => {
+export default () => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState([]);
   const [{ }, dispatch] = useGraphState();

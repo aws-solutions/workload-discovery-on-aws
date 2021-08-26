@@ -1,14 +1,15 @@
-import { fetchImage } from '../../Utils/ImageSelector';
-import { getAccountColour, getRegionColour } from '../../Utils/ColorCreator';
-import { getCostData } from '../../Utils/Resources/CostCalculator';
-import { parseNode } from './NodeParserHandler';
+import { fetchImage } from '../../Utils/ImageSelector.js';
+import { getAccountColour, getRegionColour } from '../../Utils/ColorCreator.js';
+import { getCostData } from '../../Utils/Resources/CostCalculator.js';
+import { parseNode } from './NodeParserHandler.js';
 
+const R = require('ramda');
 export const buildBoundingBox = (node, parent, level) => {
   try {
     const boundingBox = {
       edge: false,
       data: {
-        id: node.id ? node.id : parent ? `${node.label}-${parent}` : `${node.label}`,
+        id: parent ? `${node.label}-${parent}` : `${node.label}`,
         parent: parent,
         level: level,
         title: node.label,
@@ -24,7 +25,8 @@ export const buildBoundingBox = (node, parent, level) => {
           : fetchImage(node.type),
         clickedId: node.id,
         cost: Number(0),
-        children: node.children ? true : false,
+        hasChildren: node.children ? true : false,
+        children: node.children,
         accountColour: getAccountColour(
           node.type === 'account' ? node.label : 'global'
         ),
@@ -36,9 +38,9 @@ export const buildBoundingBox = (node, parent, level) => {
           ? node.data.properties.private
             ? '#147eba'
             : '#248814'
-          : undefined
+          : '#545B64',
       },
-      classes: [`${node.type}`, 'removeAll']
+      classes: [`${node.type}`, 'removeAll'],
     };
 
     if (node.data) {
@@ -59,13 +61,26 @@ export const buildBoundingBox = (node, parent, level) => {
         loginURL: node.data.properties.loginURL,
         accountId: node.data.properties.accountId
           ? node.data.properties.accountId
-          : 'global'
+          : 'global',
       };
     }
     return boundingBox;
   } catch (e) {
     return {};
   }
+};
+
+const findARN = (properties) => {
+  return R.head(
+    R.reduce(
+      (acc, val) => {
+        if (R.startsWith('arn:', val)) acc.push(val);
+        return acc;
+      },
+      [],
+      R.filter((e) => !R.isNil(e), R.values(properties))
+    )
+  );
 };
 
 export const buildNode = (node, parent, level, clickedNode) => {
@@ -75,6 +90,7 @@ export const buildNode = (node, parent, level, clickedNode) => {
     const builtNode = {
       edge: false,
       data: {
+        arn: !R.isNil(properties.arn) ? properties.arn : findARN(properties),
         parent: parent,
         level: level,
         id: node.id,
@@ -114,20 +130,18 @@ export const buildNode = (node, parent, level, clickedNode) => {
           value: properties.resourceValue,
           type: properties.resourceType,
           tags: properties.tags,
-          arn: properties.arn,
+          arn: !R.isNil(properties.arn) ? properties.arn : findARN(properties),
           region: properties.awsRegion ? properties.awsRegion : 'Multi-Region',
           state: properties.state,
           loggedInURL: properties.loggedInURL,
           loginURL: properties.loginURL,
-          accountId: properties.accountId
-            ? properties.accountId
-            : 'global'
+          accountId: properties.accountId ? properties.accountId : 'global',
         },
         highlight: true,
         existing: false,
-        properties: properties
+        properties: properties,
       },
-      classes: [`resource`]
+      classes: [`resource`],
     };
     if (builtNode.data.type === 'resource') {
       builtNode.classes.push(
@@ -145,6 +159,7 @@ export const buildNode = (node, parent, level, clickedNode) => {
     }
     return builtNode;
   } catch (e) {
+    console.error(e);
     return {};
   }
 };

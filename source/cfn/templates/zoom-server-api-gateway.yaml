@@ -1,4 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
+Description: AWS Perspective API Gateway For Discovery Crawler Stack
+
 Parameters:
   GremlinARN:
     Type: String
@@ -6,6 +9,7 @@ Parameters:
   ElasticARN:
     Type: String
     Description: The ARN for the elastic lambda.
+
 Resources:
 
   ServerGatewayGremlinPermission:
@@ -40,45 +44,6 @@ Resources:
         Fn::Sub:
           - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${API}/*
           - API: '{{resolve:ssm:ServerGremlinAPIId:1}}'
-  ServerAPIGatewayCloudWatchLogsRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: W11
-            reason: 'we are following best practices documented in aws examples'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - apigateway.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: ApiGatewayLogsPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:DescribeLogGroups
-                  - logs:DescribeLogStreams
-                  - logs:PutLogEvents
-                  - logs:GetLogEvents
-                  - logs:FilterLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-  ServerAPIGatewayAccount:
-    Type: AWS::ApiGateway::Account
-    Properties:
-      CloudWatchRoleArn:
-        Fn::GetAtt:
-          - ServerAPIGatewayCloudWatchLogsRole
-          - Arn
 
   ServerGremlinResourceOptionMethod:
     Type: AWS::ApiGateway::Method

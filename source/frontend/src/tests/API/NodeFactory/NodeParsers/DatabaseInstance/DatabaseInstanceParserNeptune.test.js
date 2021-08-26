@@ -15,14 +15,15 @@ afterEach(() => {
   delete process.env.PUBLIC_URL;
 });
 
-test('when node is an neptune rds instance with status as warning', () => {
+test('when node is an neptune rds instance with status as provisioning', () => {
   process.env.PUBLIC_URL = '';
-
+  let neptuneProv = JSON.parse(neptune);
+  neptuneProv.dBInstanceStatus = 'provisioning'
   const node = {
     name: 'aDatabaseInstance',
     properties: {
       resourceType: 'AWS::RDS::DBInstance',
-      configuration: neptune,
+      configuration: JSON.stringify(neptuneProv),
       dBInstanceStatus: 'provisioning'
     }
   };
@@ -41,7 +42,7 @@ test('when node is an neptune rds instance with status as warning', () => {
     detailsComponent: (
       <DatabaseInstanceItem
         title='Instance Details'
-        configuration={neptune}
+        configuration={JSON.stringify(neptuneProv)}
       />
     )
   };
@@ -54,12 +55,13 @@ test('when node is an neptune rds instance with status as warning', () => {
 
 test('when node is an neptune rds instance with status as warning', () => {
     process.env.PUBLIC_URL = '';
-  
+    let neptunePending = JSON.parse(neptune);
+    neptunePending.dBInstanceStatus = 'pending'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: neptune,
+        configuration: JSON.stringify(neptunePending),
         dBInstanceStatus: 'pending'
       }
     };
@@ -78,7 +80,7 @@ test('when node is an neptune rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={neptune}
+          configuration={JSON.stringify(neptunePending)}
         />
       )
     };
@@ -89,14 +91,15 @@ test('when node is an neptune rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an neptune rds instance with status as warning', () => {
+  test('when node is an neptune rds instance with status as available', () => {
     process.env.PUBLIC_URL = '';
-  
+    let neptuneAvailable = JSON.parse(neptune);
+    neptuneAvailable.dBInstanceStatus = 'available'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: neptune,
+        configuration: JSON.stringify(neptuneAvailable),
         dBInstanceStatus: 'available'
       }
     };
@@ -115,7 +118,7 @@ test('when node is an neptune rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={neptune}
+          configuration={JSON.stringify(neptuneAvailable)}
         />
       )
     };
@@ -126,14 +129,15 @@ test('when node is an neptune rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an neptune rds instance with status as warning', () => {
+  test('when node is an neptune rds instance with status as active', () => {
     process.env.PUBLIC_URL = '';
-  
+    let neptuneActive = JSON.parse(neptune);
+    neptuneActive.dBInstanceStatus = 'active'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: neptune,
+        configuration: JSON.stringify(neptuneActive),
         dBInstanceStatus: 'active'
       }
     };
@@ -152,7 +156,7 @@ test('when node is an neptune rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={neptune}
+          configuration={JSON.stringify(neptuneActive)}
         />
       )
     };
@@ -163,14 +167,15 @@ test('when node is an neptune rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an neptune rds instance with status as warning', () => {
+  test('when node is an neptune rds instance with status as stopped', () => {
     process.env.PUBLIC_URL = '';
-  
+    let neptuneStopped = JSON.parse(neptune);
+    neptuneStopped.dBInstanceStatus = 'stopped'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: neptune,
+        configuration: JSON.stringify(neptuneStopped),
         dBInstanceStatus: 'stopped'
       }
     };
@@ -189,7 +194,7 @@ test('when node is an neptune rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={neptune}
+          configuration={JSON.stringify(neptuneStopped)}
         />
       )
     };
@@ -200,14 +205,15 @@ test('when node is an neptune rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an neptune rds instance with status as warning', () => {
+  test('when node is an neptune rds instance with status as failed', () => {
     process.env.PUBLIC_URL = '';
-  
+    let neptuneFailed = JSON.parse(neptune);
+    neptuneFailed.dBInstanceStatus = 'failed'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: neptune,
+        configuration: JSON.stringify(neptuneFailed),
         dBInstanceStatus: 'failed'
       }
     };
@@ -226,7 +232,7 @@ test('when node is an neptune rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={neptune}
+          configuration={JSON.stringify(neptuneFailed)}
         />
       )
     };

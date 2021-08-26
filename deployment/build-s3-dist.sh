@@ -15,7 +15,7 @@
 #  - solution-name: name of the solution for consistency
 #
 #  - version-code: version of the package
-
+set -euo pipefail
 # Check to see if input has been provided:
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
     echo "Please provide the base source bucket name, trademark approved solution name and version where the lambda code will eventually reside."
@@ -31,17 +31,16 @@ source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
 auditDeps () {
-    npm config set audit-level high
-    npm audit
-    OUTPUT=$?
-    if [[ $OUTPUT -eq 0 ]];
-    then 
-        echo dependencies are fine
-        return 0
-    else
-        echo You have vulnerabilies in your package
-        exit -1
-    fi
+   npx better-npm-audit audit --production
+   OUTPUT=$?
+   if [[ $OUTPUT -eq 0 ]];
+   then
+       echo dependencies are fine
+       return 0
+   else
+       echo You have vulnerabilies in your package
+       exit -1
+   fi
 }
 
 echo "------------------------------------------------------------------------------"
@@ -60,7 +59,7 @@ echo "copy yaml templates and rename"
 cp $template_dir/*.yaml $template_dist_dir/
 cd $template_dist_dir
 # Rename all *.yaml to *.template
-for f in *.yaml; do 
+for f in *.yaml; do
     mv -- "$f" "${f%.yaml}.template"
 done
 
@@ -116,7 +115,7 @@ cp $nested_stack_template_dir/*.yaml $build_dist_dir
 cd $build_dist_dir
 
 # Rename all *.yaml to *.template
-for f in *.yaml; do 
+for f in *.yaml; do
     mv -- "$f" "${f%.yaml}.template"
 done
 
@@ -176,6 +175,15 @@ npm run build
 cp ./dist/api.zip $build_dist_dir/api.zip
 
 echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Gremlin Resolver"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/graph-api
+
+auditDeps
+npm run build
+cp ./dist/graph-api.zip $build_dist_dir/graph-api.zip
+
+echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Search"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/search
@@ -187,8 +195,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Settings"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/settings
-echo "cp schema/*.graphql $build_dist_dir/"
-cp schema/*.graphql $build_dist_dir
 auditDeps
 npm run build
 cp ./dist/settings.zip $build_dist_dir/settings.zip
@@ -207,7 +213,20 @@ echo "--------------------------------------------------------------------------
 cd $source_dir/backend/functions/cost-parser
 auditDeps
 npm run build
-cp ./dist/cost-parser.zip $build_dist_dir/cost-parser.zip
+cp ./dist/cost.zip $build_dist_dir/cost.zip
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] CUR-Setup"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/cur-setup
+auditDeps
+npm run build
+cp ./dist/cur-setup.zip $build_dist_dir/cur-setup.zip
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Upload GraphQL Schema"
+echo "------------------------------------------------------------------------------"
+cp $source_dir/backend/graphql/schema/perspective-api.graphql $build_dist_dir/perspective-api.graphql
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Discovery"
@@ -222,6 +241,6 @@ echo "[Rebuild] UI"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/frontend
 auditDeps
-npm run test
+#npm run test
 npm run build
 cp ./build/ui.zip $build_dist_dir/ui.zip

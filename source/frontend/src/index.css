@@ -19,7 +19,7 @@ div#root {
   font-family: Amazon Ember, Helvetica, Arial, sans-serif !important;
   height: 100vh;
   max-height: 100vh;
-  font-size: 1rem;
+  font-size: 1.7rem;
   margin: 0;
 }
 
@@ -55,7 +55,7 @@ div#root {
   /* background-position: 10px 12px;  */
   /* background-repeat: no-repeat;  */
   width: 100%; /* Full-width */
-  font-size: 0.75rem; /* Increase font-size */
+  font-size: 1.2rem; /* Increase font-size */
   padding: 12px 20px 12px 40px;
   border: 1px solid #ddd;
   margin-bottom: 1%; /* Add some space below the input */
@@ -66,7 +66,7 @@ div#root {
   /* border-collapse: collapse;  */
   width: 100%; /* Full-width */
   /* border: 1px solid #ddd;  */
-  font-size: 0.75rem; /* Increase font-size */
+  font-size: 1.2rem; /* Increase font-size */
   outline: 'none';
   margin: 2% 0 0 0;
   padding: 0;
@@ -103,7 +103,7 @@ div#root {
 }
 
 .showAllResourceLink {
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   margin-left: 5vw;
   margin-bottom: 2vh;
   border: 0;
@@ -116,7 +116,7 @@ div#root {
 
 .resourceLink {
   color: #0073bb;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   margin: 5% 5% 5% 10%;  
   border: 0;
   background: none;
@@ -237,8 +237,8 @@ li.active.list-group-item:hover {
 .hoverOverPanel {
   color: #545b64;
   padding: 1.5rem;
-  font-size: 0.75rem;
-  line-height: 1rem;
+  font-size: 1.2rem;
+  line-height: 1.7rem;
   font-weight: 400;
   font-family: Amazon Ember, Helvetica Neue, Roboto, Arial, sans-serif;
   max-height: 100vh;
@@ -386,12 +386,12 @@ li.active.list-group-item:hover {
 .nav-tabs .nav-link.active {
   color: #eb5f07 !important;
   font-weight: 700 !important;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .nav-tabs .nav-link {
   color: #343a40 !important;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .nav.nav-tabs {
@@ -428,7 +428,7 @@ svg {
 } */
 
 /* .vis-configuration.vis-config-header {
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   font-weight: bold;
   padding: 0 5vw 0 0;
   text-transform: capitalize;
@@ -571,7 +571,7 @@ div.container-fluid {
   background: rgba(255, 255, 255, 0.75) !important;
   color: #343a40 !important;
   width: 500px !important;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
   max-width: 500px !important;
 }
 
@@ -609,7 +609,7 @@ text {
   vertical-align: middle;
   text-align: left;
   color: #000;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .resourceSearch-path:hover {
@@ -627,7 +627,7 @@ text {
   vertical-align: middle;
   text-align: left;
   color: #000;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .resourceSearch-search:hover {
@@ -664,7 +664,7 @@ text {
   font-weight: 700 !important;
   display: inline-block;
   cursor: pointer;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
 }
 
 .btn:hover {
@@ -687,7 +687,7 @@ text {
   font-weight: 700 !important;
   display: inline-block;
   cursor: pointer;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
 }
 
 .closeButton.btn:hover {
@@ -706,7 +706,7 @@ text {
   border: 1px solid;
   font-weight: 700 !important;
   cursor: pointer;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
   float: right;
   margin-top: 1vh;
 }
@@ -737,14 +737,14 @@ text {
 }
 
 .statusCloseIcon {
-  font-size: 1rem !important;
+  font-size: 1.7rem !important;
 }
 
 button.dropdown-toggle.btn.btn-primary {
   background-color: #fff !important;
   border-color: #fff !important;
   color: #545b64 !important;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
   /* font-family: arial, sans-serif; */
   border-radius: 2px !important;
   border: 1px solid;
@@ -758,7 +758,7 @@ button.dropdown-toggle.btn.btn-primary:hover {
   background: #fff !important;
   border-color: #fff !important;
   text-decoration: none;
-  font-size: 0.75rem !important;
+  font-size: 1.2rem !important;
 }
 
 .button-bar.btn-toolbar {
@@ -826,7 +826,7 @@ button.dropdown-toggle.btn.btn-primary:hover {
 }
 
 .modal-content h6 {
-  font-size: 1rem !important;
+  font-size: 1.7rem !important;
 }
 
 .modal-header {
@@ -866,7 +866,7 @@ button.dropdown-toggle.btn.btn-primary:hover {
 .statusSpan {
   display: inline-flex;
   vertical-align: middle;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   margin: 0;
 }
 
@@ -883,7 +883,7 @@ button.dropdown-toggle.btn.btn-primary:hover {
 .filterMessage {
   margin-top: auto;
   margin-bottom: auto;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .filterMessageContainer {
@@ -916,7 +916,7 @@ button.dropdown-toggle.btn.btn-primary:hover {
   animation-name: floating-menu-fadein;
   animation-duration: 0.3s;
   z-index: 2;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 .floating-menu-list {
   padding: 0px;
@@ -972,13 +972,13 @@ button.dropdown-toggle.btn.btn-primary:hover {
   font-family: Amazon Ember, Helvetica, Arial, sans-serif !important;
   margin: auto auto auto 5%;
   color: #000;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .sideDrawerFilter input {
   border: 1px #f2f3f3 solid !important;
   width: -webkit-fill-available !important;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   color: hsl(0, 0%, 50%);
   box-sizing: border-box;
   box-shadow: 0 6px 6px -6px #232f3e;
@@ -1004,7 +1004,7 @@ input.form-control:focus {
 .sideDrawerFilter {
   /* position: relative; */
   /* margin-bottom: 5vh; */
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .filterActions {
@@ -1073,7 +1073,7 @@ input.form-control:focus {
   border-radius: 2px;
   border: 1px solid #aab7b8;
   height: 2rem;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .accountDetails {
@@ -1146,7 +1146,7 @@ input.form-control:focus {
 }
 
 .stateText {
-  font-size: 1rem;
+  font-size: 1.7rem;
   text-transform: capitalize;
   margin-left: 0.5vw;
 }

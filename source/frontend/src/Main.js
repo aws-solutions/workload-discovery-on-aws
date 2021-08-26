@@ -1,50 +1,59 @@
 import React, { useRef, useState, useEffect } from 'react';
-
 import { MetadataProvider } from './components/Contexts/MetadataContext';
-
 import { accountConfigReducer } from './components/Contexts/Reducers/AccountConfigReducer';
 import Header from './components/Header/Header';
 import Graph from './components/Graph/Graph';
-import CustomSnackbar from './Utils/SnackBar/CustomSnackbar';
-
 import { GraphProvider } from './components/Contexts/GraphContext';
 import { ResourceProvider } from './components/Contexts/ResourceContext';
 import { graphReducer } from './components/Contexts/Reducers/GraphReducer';
-import {
-  fetchMetadata,
-  fetchImportConfiguration,
-} from './components/Actions/ImportActions';
 import { resourceReducer } from './components/Contexts/Reducers/ResourceReducer';
 import './css/App.css';
-import LandingPageDrawer from './components/LandingPage/LandingPageDrawer';
-import ImportProgress from './components/Header/ImportProgress';
-import { getObject } from './API/Storage/S3Store';
-import { getAccounts, wrapRequest, handleResponse } from './API/GraphQLHandler';
+import { getObject, uploadObject } from './API/Storage/S3Store';
+import {
+  getAccounts,
+  wrapRequest,
+  handleResponse,
+} from './API/Handlers/SettingsGraphQLHandler';
 import { AccountsProvider } from './components/Contexts/AccountsContext';
-import { requestWrapper } from './API/APIHandler';
 
-let importInterval;
+import { CostsProvider } from './components/Contexts/CostsContext';
+import { costsReducer } from './components/Contexts/Reducers/CostsReducer';
+import Flashbar from './Utils/Flashbar/Flashbar';
+import AccountImportDialog from './components/Drawer/Settings/AccountManagement/Account/AccountImportDialog';
+
+const R = require('ramda');
+
+const dayjs = require('dayjs');
+var localizedFormat = require('dayjs/plugin/localizedFormat');
+dayjs.extend(localizedFormat);
+const fromDate = dayjs()
+  .startOf('month')
+  .format('YYYY-MM-DD');
+
+const toDate = dayjs()
+  .endOf('month')
+  .format('YYYY-MM-DD');
 
 export default (...props) => {
   const [showImportingSnackbar, setShowImportingSnackbar] = useState(false);
   const [showImportLandingPage, setShowImportLandingPage] = useState(false);
   const metadata = useRef(new Map());
-  const importConfiguration = useRef();
   const accounts = useRef();
   const [showError, setShowError] = useState(false);
+  const [warning, setWarning] = React.useState(false);
   const [importComplete, setImportComplete] = useState(false);
   const resourceFilters = useRef();
   const accountFilters = useRef();
+  const costPreferences = useRef();
   const [render, setRender] = useState(false);
 
-  const importStatus = useRef({
-    importRun: false,
-    importConfigured: false,
-  });
 
   const checkRender = () => {
     setRender(
-      accounts.current && resourceFilters.current && accountFilters.current
+      accounts.current &&
+        resourceFilters.current &&
+        accountFilters.current &&
+        costPreferences.current
     );
   };
 
@@ -58,47 +67,119 @@ export default (...props) => {
     );
   }
 
-  useEffect(() => {
-    wrapRequest(getAccounts).then((response) => {
-      if (response.error) setShowError(true);
-      else {
-        accounts.current = response.body.data.getAccounts;
-        setShowImportLandingPage(accounts.current.length === 0);
-        setShowImportingSnackbar(discoveryProcessingRunning());
-        checkRender();
-        importInterval = setInterval(monitorProgress, 30000);
-      }
-    });
+  const buildDefaultAccountsFilter = () => {
+    const filters = [];
+    R.forEach((e) => {
+      filters.push({
+        accountId: e.accountId,
+        id: `${e.accountId} :: global`,
+        region: 'global',
+      });
+      R.map(
+        (region) =>
+          filters.push({
+            accountId: e.accountId,
+            id: `${e.accountId} :: ${region.name}`,
+            region: region.name,
+          }),
+        e.regions
+      );
+    }, accounts.current);
 
-    getObject('filters/accounts/filters', 'private').then((response) => {
-      accountFilters.current = response instanceof Error ? [] : response;
-      checkRender();
-    });
-
-    getObject('filters/resources/filters', 'private').then((response) => {
-      resourceFilters.current =
-        response instanceof Error ? { typeFilters: [] } : response;
-      checkRender();
-    });
-  }, []);
-
-  const monitorProgress = async () => {
-    wrapRequest(getAccounts).then((response) => {
-      accounts.current = handleResponse(response).body.data.getAccounts;
-
-      const discoveryComplete = !discoveryProcessingRunning();
-      setShowImportingSnackbar(!discoveryComplete);
-      setImportComplete(discoveryComplete);
-    });
+    return filters;
   };
 
-  if (importComplete) {
-    clearInterval(importInterval);
-  }
+  useEffect(() => {
+    wrapRequest(getAccounts)
+      .then((response) => {
+        if (response.error) setShowError(true);
+        else {
+          accounts.current = response.body.data.getAccounts;
+          setShowImportLandingPage(accounts.current.length === 0);
+          setShowImportingSnackbar(discoveryProcessingRunning());
+          getObject('filters/accounts/filters', 'private')
+            .then((response) => {
+              setWarning(false);
+              accountFilters.current =
+                response instanceof Error
+                  ? buildDefaultAccountsFilter()
+                  : response;
+              checkRender();
+            })
+            .catch((err) => {
+              accountFilters.current = buildDefaultAccountsFilter();
+              R.equals(err.status, 404) &&
+                uploadObject(
+                  'filters/accounts/filters',
+                  JSON.stringify(accountFilters.current),
+                  'private',
+                  'application/json'
+                );
+              checkRender();
+            });
+          checkRender();
+        }
+      })
+      .catch((err) => {
+        setShowError(true);
+      });
+
+    getObject('costs/preferences', 'private')
+      .then((response) => {
+        setWarning(false);
+        costPreferences.current =
+          response instanceof Error
+            ? {
+                period: { fromDate: fromDate, toDate: toDate },
+                processCosts: false,
+              }
+            : response;
+        checkRender();
+      })
+      .catch((err) => {
+        costPreferences.current = {
+          period: { fromDate: fromDate, toDate: toDate },
+          processCosts: false,
+        };
+        R.equals(err.status, 404) &&
+          uploadObject(
+            'costs/preferences',
+            JSON.stringify(costPreferences.current),
+            'private',
+            'application/json'
+          );
+
+        checkRender();
+      });
+
+    getObject('filters/resources/filters', 'private')
+      .then((response) => {
+        setWarning(false);
+        resourceFilters.current =
+          response instanceof Error ? { typeFilters: [] } : response;
+        checkRender();
+      })
+      .catch((err) => {
+        resourceFilters.current = { typeFilters: [] };
+        R.equals(err.status, 404) &&
+          uploadObject(
+            'filters/resources/filters',
+            JSON.stringify(resourceFilters.current),
+            'private',
+            'application/json'
+          );
+
+        checkRender();
+      });
+  }, []);
 
   const initialResourceState = {
-    resources: [],
+    resources: { nodes: [], metaData: {} },
     filters: accountFilters.current,
+  };
+
+  const initialCostsState = {
+    costPreferences: costPreferences.current,
   };
 
   const initialGraphState = {
@@ -110,66 +191,59 @@ export default (...props) => {
 
   return (
     <div>
-      {render && (
+      {render && !warning && (
         <AccountsProvider
           initialState={{ accounts: accounts.current }}
           reducer={accountConfigReducer}>
           <MetadataProvider value={{ metadata: metadata.current }}>
-            <GraphProvider
-              initialState={initialGraphState}
-              reducer={graphReducer}>
-              <ResourceProvider
-                initialState={initialResourceState}
-                reducer={resourceReducer}>
-                <Header />
-                {!showError &&
-                  showImportLandingPage &&
-                  !showImportingSnackbar && (
-                    <LandingPageDrawer
-                      importStatus={importStatus.current}
-                      toggleImportModal={() =>
-                        setShowImportLandingPage(!showImportLandingPage)
-                      }
-                    />
-                  )}
-              </ResourceProvider>
-              {!showImportLandingPage && <Graph />}
-              {!showError &&
-                showImportLandingPage &&
-                !showImportingSnackbar && (
-                  <LandingPageDrawer
-                    importStatus={importStatus.current}
-                    toggleImportModal={() =>
-                      setShowImportLandingPage(!showImportLandingPage)
-                    }
-                  />
-                )}
-              {!showError &&
-                showImportingSnackbar &&
-                !showImportLandingPage &&
-                !importComplete && (
-                  <CustomSnackbar
-                    type='info'
-                    message={`Discovery process is scanning resources in ${
-                      accounts.current.filter((account) =>
-                        account.regions.filter(
-                          (region) => region.lastCrawled == null
-                        )
-                      ).length
-                    } region(s)`}
-                    progress={<ImportProgress />}
-                  />
-                )}
-            </GraphProvider>
+            <CostsProvider
+              initialState={initialCostsState}
+              reducer={costsReducer}>
+              <GraphProvider
+                initialState={initialGraphState}
+                reducer={graphReducer}>
+                <ResourceProvider
+                  initialState={initialResourceState}
+                  reducer={resourceReducer}>
+                  <Header importComplete={importComplete} />
+                  {!showError &&
+                    showImportLandingPage &&
+                    !showImportingSnackbar && (
+                      <AccountImportDialog
+                        startWithImportTab={true}
+                        toggleImportModal={() =>
+                          setShowImportLandingPage(!showImportLandingPage)
+                        }
+                      />
+                    )}
+                  {!showImportLandingPage && <Graph />}
+                  {!showError &&
+                    showImportLandingPage &&
+                    !showImportingSnackbar && (
+                      <AccountImportDialog
+                        startWithImportTab={true}
+                        toggleImportModal={() =>
+                          setShowImportLandingPage(!showImportLandingPage)
+                        }
+                      />
+                    )}
+                </ResourceProvider>
+              </GraphProvider>
+            </CostsProvider>
           </MetadataProvider>
         </AccountsProvider>
       )}
       {showError && (
-        <CustomSnackbar
-          vertical='bottom'
-          horizontal='center'
+        <Flashbar
           type='error'
-          message='We could not retrieve your import configuration or it has been corrupted.'
+          message='AWS Perspective could not phone home. It could be a temporary issue. Try reloading the page'
+        />
+      )}
+      {warning && (
+        <Flashbar
+          dismiss={() => setWarning(false)}
+          type='warning'
+          message='AWS Perspective could load your preferences. It could be a temporary issue. Dismiss this warning to continue using Perspective. Your preferences may not be available.'
         />
       )}
     </div>

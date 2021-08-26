@@ -1,3 +1,5 @@
+const R = require('ramda');
+
 const sortTypes = (a, b) => {
   if (a.label.toLowerCase() > b.label.toLowerCase()) {
     return 1;
@@ -11,19 +13,17 @@ const sortTypes = (a, b) => {
 export const buildResourceTypes = (resources) => {
   try {
     const resourceFilter = new Map();
-    resources.map((filter) =>
-      filter.nodes.map((node, index) => {
-        if (resourceFilter.has(node.mainType)) {
-          const subTypes = resourceFilter.get(node.mainType);
-          subTypes.set(node.subType, buildSubType(node, false, resources));
-        } else {
-          const subTypeMap = new Map();
-          subTypeMap.set(node.subType, buildSubType(node, false, resources));
-          // subTypeMap.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
-          resourceFilter.set(node.mainType, subTypeMap);
-        }
-      })
-    );
+    resources.nodes.map((node) => {
+      if (resourceFilter.has(node.mainType)) {
+        const subTypes = resourceFilter.get(node.mainType);
+        subTypes.set(node.subType, buildSubType(node, false, resources));
+      } else {
+        const subTypeMap = new Map();
+        subTypeMap.set(node.subType, buildSubType(node, false, resources));
+        // subTypeMap.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
+        resourceFilter.set(node.mainType, subTypeMap);
+      }
+    });
     const resourceArray = [...resourceFilter.keys()]
       .map((mainType) => buildMainType(false, mainType, resourceFilter))
       .sort((a, b) => sortTypes(a, b));
@@ -36,27 +36,27 @@ export const buildResourceTypes = (resources) => {
 export const buildResources = (resources) => {
   try {
     const resourceFilter = new Map();
-    resources.map((filter) =>
-      filter.nodes.map((node, index) => {
-        if (resourceFilter.has(node.mainType)) {
-          const subTypes = resourceFilter.get(node.mainType);
-          if (subTypes.has(node.subType)) {
-            subTypes.get(node.subType).nodes.push(buildResourceNode(node));
-          } else {
-            subTypes.set(node.subType, buildSubType(node, false, resources));
-          }
-          subTypes.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
+    resources.nodes.map((node) => {
+      if (resourceFilter.has(node.mainType)) {
+        const subTypes = resourceFilter.get(node.mainType);
+        if (subTypes.has(node.subType)) {
+          subTypes.get(node.subType).nodes.push(buildResourceNode(node));
         } else {
-          const subTypeMap = new Map();
-          subTypeMap.set(node.subType, buildSubType(node, false, resources));
-          subTypeMap.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
-          resourceFilter.set(node.mainType, subTypeMap);
+          subTypes.set(node.subType, buildSubType(node, false, resources));
         }
-      })
-    );
+        subTypes.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
+      } else {
+        const subTypeMap = new Map();
+        subTypeMap.set(node.subType, buildSubType(node, false, resources));
+        subTypeMap.get(node.subType).nodes.sort((a, b) => sortTypes(a, b));
+        resourceFilter.set(node.mainType, subTypeMap);
+      }
+    });
+
     const resourceArray = [...resourceFilter.keys()]
       .map((mainType) => buildMainType(false, mainType, resourceFilter))
       .sort((a, b) => sortTypes(a, b));
+
     return resourceArray;
   } catch (e) {
     return [];
@@ -82,10 +82,11 @@ const buildMainType = (type, mainType, resourceFilter) => {
 const buildResourceNode = (node) => {
   return {
     key: node.id,
-    label:
-      node.title.length > 30
+    label: R.hasPath(['title'], node)
+      ? node.title.length > 30
         ? `${node.title.substring(0, 30)}...`
-        : `${node.title}`,
+        : `${node.title}`
+      : node.label,
     fullLabel: node.title,
     filter: {
       resourceId: node.id,
@@ -109,10 +110,11 @@ const buildSubType = (node, resourceType, resources) => {
       : [
           {
             key: node.id,
-            label:
-              node.title.length > 30
+            label: R.hasPath(['title'], node)
+              ? node.title.length > 30
                 ? `${node.title.substring(0, 30)}...`
-                : `${node.title}`,
+                : `${node.title}`
+              : node.label,
             fullLabel: node.title,
             filter: {
               resourceId: node.id,
@@ -125,25 +127,10 @@ const buildSubType = (node, resourceType, resources) => {
   };
 };
 
-const getSubTypeCount = (resourceType, resources) => {
-  let currentCount = 0;
-  resources.map((filter) => {
-    filter.metaData.resourceTypes.map((type) => {
-      if (Object.keys(type)[0] === resourceType)
-        currentCount += type[`${resourceType}`];
-    });
-  });
-  return currentCount;
-};
+const getSubTypeCount = (resourceType, resources) =>
+  R.prop(resourceType, resources.metaData.resourceTypes);
 
-export const getResourceCount = (resources) =>
-  resources.reduce((acc, filter) => {
-    return (
-      acc +
-      filter.nodes.filter((node) => node.accountId)
-        .length
-    );
-  }, 0);
+export const getResourceCount = (resources) => R.length(resources.nodes);
 
 export const getResourceTypeCount = (resources) =>
   resources.reduce((acc, filter) => {

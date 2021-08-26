@@ -1,8 +1,8 @@
-FROM node:12.6.0-slim
+FROM public.ecr.aws/bitnami/node-snapshot:14
 
 RUN groupadd -r discovery && useradd -r -g discovery discovery
 
-RUN apt-get update -y && apt-get -y install python-pip && pip install awscli
+RUN npm config set unsafe-perm true
 
 RUN mkdir /code
 

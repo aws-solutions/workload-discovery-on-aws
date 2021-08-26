@@ -15,14 +15,15 @@ afterEach(() => {
   delete process.env.PUBLIC_URL;
 });
 
-test('when node is an mysql rds instance with status as warning', () => {
+test('when node is an mysql rds instance with status as provisioning', () => {
   process.env.PUBLIC_URL = '';
-
+  let mysqlProv = JSON.parse(mysql);
+  mysqlProv.dBInstanceStatus = 'provisioning'
   const node = {
     name: 'aDatabaseInstance',
     properties: {
       resourceType: 'AWS::RDS::DBInstance',
-      configuration: mysql,
+      configuration: JSON.stringify(mysqlProv),
       dBInstanceStatus: 'provisioning'
     }
   };
@@ -41,7 +42,7 @@ test('when node is an mysql rds instance with status as warning', () => {
     detailsComponent: (
       <DatabaseInstanceItem
         title='Instance Details'
-        configuration={mysql}
+        configuration={JSON.stringify(mysqlProv)}
       />
     )
   };
@@ -52,14 +53,15 @@ test('when node is an mysql rds instance with status as warning', () => {
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
-test('when node is an mysql rds instance with status as warning', () => {
+test('when node is an mysql rds instance with status as pending', () => {
     process.env.PUBLIC_URL = '';
-  
+    let mysqlPending = JSON.parse(mysql);
+    mysqlPending.dBInstanceStatus = 'pending'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: mysql,
+        configuration: JSON.stringify(mysqlPending),
         dBInstanceStatus: 'pending'
       }
     };
@@ -78,7 +80,7 @@ test('when node is an mysql rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={mysql}
+          configuration={JSON.stringify(mysqlPending)}
         />
       )
     };
@@ -89,14 +91,15 @@ test('when node is an mysql rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an mysql rds instance with status as warning', () => {
+  test('when node is an mysql rds instance with status as available', () => {
     process.env.PUBLIC_URL = '';
-  
+    let mysqlAvailable = JSON.parse(mysql);
+    mysqlAvailable.dBInstanceStatus = 'available'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: mysql,
+        configuration: JSON.stringify(mysqlAvailable),
         dBInstanceStatus: 'available'
       }
     };
@@ -115,7 +118,7 @@ test('when node is an mysql rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={mysql}
+          configuration={JSON.stringify(mysqlAvailable)}
         />
       )
     };
@@ -126,14 +129,15 @@ test('when node is an mysql rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an mysql rds instance with status as warning', () => {
+  test('when node is an mysql rds instance with status as active', () => {
     process.env.PUBLIC_URL = '';
-  
+    let mysqlActive = JSON.parse(mysql);
+    mysqlActive.dBInstanceStatus = 'active'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: mysql,
+        configuration: JSON.stringify(mysqlActive),
         dBInstanceStatus: 'active'
       }
     };
@@ -152,7 +156,7 @@ test('when node is an mysql rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={mysql}
+          configuration={JSON.stringify(mysqlActive)}
         />
       )
     };
@@ -163,14 +167,15 @@ test('when node is an mysql rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an mysql rds instance with status as warning', () => {
+  test('when node is an mysql rds instance with status as stopped', () => {
     process.env.PUBLIC_URL = '';
-  
+    let mysqlStopped = JSON.parse(mysql);
+    mysqlStopped.dBInstanceStatus = 'stopped'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: mysql,
+        configuration: JSON.stringify(mysqlStopped),
         dBInstanceStatus: 'stopped'
       }
     };
@@ -189,7 +194,7 @@ test('when node is an mysql rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={mysql}
+          configuration={JSON.stringify(mysqlStopped)}
         />
       )
     };
@@ -200,14 +205,15 @@ test('when node is an mysql rds instance with status as warning', () => {
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
-  test('when node is an mysql rds instance with status as warning', () => {
+  test('when node is an mysql rds instance with status as failed', () => {
     process.env.PUBLIC_URL = '';
-  
+    let mysqlFailed = JSON.parse(mysql);
+    mysqlFailed.dBInstanceStatus = 'failed'
     const node = {
       name: 'aDatabaseInstance',
       properties: {
         resourceType: 'AWS::RDS::DBInstance',
-        configuration: mysql,
+        configuration: JSON.stringify(mysqlFailed),
         dBInstanceStatus: 'failed'
       }
     };
@@ -226,7 +232,7 @@ test('when node is an mysql rds instance with status as warning', () => {
       detailsComponent: (
         <DatabaseInstanceItem
           title='Instance Details'
-          configuration={mysql}
+          configuration={JSON.stringify(mysqlFailed)}
         />
       )
     };

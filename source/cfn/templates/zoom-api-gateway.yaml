@@ -1,4 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
+Description: AWS Perspective API Gateway Stack
+
 Parameters:
   GremlinARN:
     Type: String
@@ -73,46 +76,6 @@ Resources:
               Ref: AWS::Region
             accountId:
               Ref: AWS::AccountId
-
-  APIGatewayCloudWatchLogsRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: W11
-            reason: 'we are following best practices documented in aws examples'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - apigateway.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Policies:
-        - PolicyName: ApiGatewayLogsPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:DescribeLogGroups
-                  - logs:DescribeLogStreams
-                  - logs:PutLogEvents
-                  - logs:GetLogEvents
-                  - logs:FilterLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-  APIGatewayAccount:
-    Type: AWS::ApiGateway::Account
-    Properties:
-      CloudWatchRoleArn:
-        Fn::GetAtt:
-          - APIGatewayCloudWatchLogsRole
-          - Arn
 
   ElasticResource:
     Type: AWS::ApiGateway::Resource
