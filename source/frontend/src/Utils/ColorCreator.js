@@ -28,3 +28,12 @@ export const getAZColour = (az) => {
     seed: hash(az)
   });
 }
+
+export const getResourceTypeColor = (type) => {
+  return randomColor({
+    luminosity: 'dark',
+    format: 'rgba',
+    alpha: 0.5,
+    seed: hash(type)
+  });
+}

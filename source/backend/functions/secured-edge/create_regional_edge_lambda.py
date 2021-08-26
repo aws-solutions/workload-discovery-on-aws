@@ -13,7 +13,7 @@ def handler(event, context):
     response = event['Records'][0]['cf']['response']
     h = response['headers']
     h['strict-transport-security'] = [{ 'key': 'Strict-Transport-Security', 'value': 'max-age=63072000; includeSubdomains; preload'}]
-    h['content-security-policy'] = [{ 'key': 'Content-Security-Policy', 'value': "default-src 'none'; font-src 'self'; img-src 'self' data:; script-src 'self';manifest-src 'self'; style-src 'unsafe-inline' 'self'; style-src-elem 'unsafe-inline' 'self'; object-src 'none'; connect-src https://*.amazonaws.com"}]
+    h['content-security-policy'] = [{ 'key': 'Content-Security-Policy', 'value': "default-src 'none'; font-src https://*.cloudfront.net data:; img-src 'self' data:; script-src 'self';manifest-src 'self'; style-src 'unsafe-inline' 'self'; style-src-elem 'unsafe-inline' 'self'; object-src 'none'; connect-src https://*.amazonaws.com"}]
     h['x-content-type-options'] = [{ 'key': 'X-Content-Type-Options', 'value': 'nosniff'}]
     h['x-frame-options'] = [{ 'key': 'X-Frame-Options', 'value': 'DENY'}]
     h['x-xss-protection'] = [{ 'key': 'X-XSS-Protection', 'value': '1; mode=block'}]

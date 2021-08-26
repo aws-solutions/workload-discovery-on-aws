@@ -1,26 +1,28 @@
 import {
   sendGetRequest,
   sendPostRequest,
-  requestWrapper
+  requestWrapper,
 } from '../../API/APIHandler';
 import {
   processDeletedNodes,
-  processHierarchicalNodeData
+  processHierarchicalNodeData,
 } from '../../API/APIProcessors';
 import { handleSelectedResource } from '../../API/Processors/NodeProcessors';
 
 export const getHierachicalLinkedNodes = async (
   params,
-  currentGraphResources
+  currentGraphResources,
+  costPreferences
 ) => {
   const query = {
     command: params.deleteDate
       ? `?command=linkedNodesHierarchy&id=${params.nodeId}&deleteDate=${params.deleteDate}`
       : `?command=linkedNodesHierarchy&id=${params.nodeId}`,
     params: { nodeId: params.nodeId },
+    preferences: costPreferences,
     processor: params.deletedQuery
       ? processDeletedNodes
-      : processHierarchicalNodeData
+      : processHierarchicalNodeData,
   };
   const response = await requestWrapper(sendGetRequest, query);
   if (!response.error) {
@@ -34,30 +36,26 @@ export const getHierachicalLinkedNodes = async (
   }
 };
 
-export const getConnectedNodes = async (
-  params
-) => {
+export const getConnectedNodes = async (params) => {
   const query = {
     command: `?command=linkedNodesHierarchy&id=${params.nodeId}`,
     params: { nodeId: params.nodeId },
-    processor: (data) => data
+    processor: (data) => data,
   };
-  const response = await requestWrapper(sendGetRequest, query);
-  if (response.error) {
-    console.error('Error fetching linked nodes')
-    return response
-  } else {
-    return response;
-  }
+  return await requestWrapper(sendGetRequest, query);
 };
 
-export const filterResources = async (resourceFilter, accountRegionFilters) => {
+export const filterResources = async (
+  resourceFilter,
+  accountRegionFilters,
+  costPreferences
+) => {
   const filtersToApply = Array.from(accountRegionFilters.values()).reduce(
     (h, obj) =>
       Object.assign(h, {
         [obj.accountId]: obj.region
           ? (h[obj.accountId] || []).concat(obj.region)
-          : []
+          : [],
       }),
     {}
   );
@@ -69,11 +67,14 @@ export const filterResources = async (resourceFilter, accountRegionFilters) => {
         resourceId: resourceFilter.resourceId,
         resourceType: resourceFilter.resourceType,
         resourceValue: resourceFilter.resourceValue,
-        accountFilter: filtersToApply ? filtersToApply : undefined
-      }
+        accountFilter: filtersToApply ? filtersToApply : undefined,
+      },
     },
-    processor: processHierarchicalNodeData
+    preferences: costPreferences,
+    processor: processHierarchicalNodeData,
   };
 
-  return await requestWrapper(sendPostRequest, queryResponse);
+
+  const response = await requestWrapper(sendPostRequest, queryResponse);
+  return response;
 };

@@ -227,6 +227,11 @@
               "required": [
                 "resourceType"
               ]
+            },
+            {
+              "required": [
+                "arn"
+              ]
             }
           ]
         }

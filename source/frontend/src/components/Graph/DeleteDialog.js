@@ -54,7 +54,7 @@ export default ({ resources, toggleImportModal }) => {
       display: 'inline-block',
       cursor: 'pointer',
       textTransform: 'capitalize',
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
       fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
       '&:hover': {
         backgroundColor: '#eb5f07',

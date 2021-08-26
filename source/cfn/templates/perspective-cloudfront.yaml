@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: AWS Perspective Cloudfront Distribution
+Description: AWS Perspective Cloudfront Distribution Stack
 
 Parameters:
   AccessLogsBucket:
@@ -44,6 +44,13 @@ Parameters:
 
 Resources:
   SecuredEdgeLambdaFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
     Type: AWS::Lambda::Function
     Properties:
       Description: Custom Lambda resource for the AWS Perspective Stack
@@ -180,7 +187,7 @@ Resources:
           MinimumProtocolVersion: TLSv1.1_2016
 
 Outputs:
-  url:
-    Value:
-      Fn::Sub: https://${CloudFrontDistribution.DomainName}
+
+  WebUiUrl:
+    Value: !Sub https://${CloudFrontDistribution.DomainName}
     Description: WebUI URL

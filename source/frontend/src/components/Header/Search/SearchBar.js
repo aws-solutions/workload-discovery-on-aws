@@ -1,70 +1,134 @@
+/* eslint-disable react/display-name */
 import React, { useState } from 'react';
 import { useGraphState } from '../../Contexts/GraphContext';
 import { useResourceState } from '../../Contexts/ResourceContext';
 import { getHierachicalLinkedNodes } from '../../Actions/GraphActions';
-import CustomSnackbar from '../../../Utils/SnackBar/CustomSnackbar';
-import SearchField from './SearchField';
+import Flashbar from '../../../Utils/Flashbar/Flashbar';
 import { makeStyles } from '@material-ui/core/styles';
+import { useCostsState } from '../../Contexts/CostsContext';
+import { Select, Autosuggest } from '@awsui/components-react';
+import { fetchImage } from '../../../Utils/ImageSelector';
+import {
+  handleResponse,
+  getLinkedNodesHierarchy,
+  wrapGetLinkedNodesHierachyRequest,
+  sendGetRequests,
+} from '../../../API/Handlers/ResourceGraphQLHandler';
+import { handleSelectedResource } from '../../../API/Processors/NodeProcessors';
+import { processHierarchicalNodeData } from '../../../API/APIProcessors';
 
-const useStyles = makeStyles(theme => ({
-  div: { maxWidth: '100%', width: '100%' }
+const R = require('ramda');
+const useStyles = makeStyles((theme) => ({
+  div: { maxWidth: '100%', width: '100%' },
 }));
 
-export default () => {
-  const [{ graphResources }, dispatch] = useGraphState();
-  const [{ resources }, resourceDispatch] = useResourceState();
-  const [showError, setShowError] = useState(false);
+const getResourceIcon = (type) => {
+  return (
+    <img
+      alt={`${type} icon`}
+      src={fetchImage(type)}
+      style={{
+        background: 'white',
+        width: '20px',
+        height: '20px',
+      }}
+    />
+  );
+};
 
+export default ({ setLoading }) => {
+  const [{ graphResources }, dispatch] = useGraphState();
+  const [{ costPreferences }, costDispatch] = useCostsState();
+  const [{ resources }, resourceDispatch] = useResourceState();
+  const [error, setError] = useState(false);
+  const [selectedOption, setSelectedOption] = React.useState('');
   const classes = useStyles();
+  const byType = R.groupBy((e) => e.label);
 
   const getNodes = () => {
-    return resources.length > 0
-      ? resources[0].nodes.map(node => {
+    const groups = byType(R.pathOr([], ['nodes'], resources));
+    return R.map((e) => {
+      return {
+        label: e,
+        id: e,
+        options: R.map((v) => {
           return {
-            id: node.id,
-            label: node.title,
-            group: node.label,
-            search: JSON.stringify(node)
+            label: v.title,
+            id: v.id,
+            labelTag: v.label,
+            tags: [v.accountId, v.region],
+            value: R.toString(v),
           };
-        })
-      : [];
+        }, groups[`${e}`]),
+      };
+    }, Object.keys(groups));
   };
 
-  const nodeSelected = item => {
-    if (item) {
-      const params = {
-        focusing: false,
-        nodeId: item.id
-      };
-      getHierachicalLinkedNodes(params, graphResources).then(response => {
-        if (response.error) {
-          setShowError(response.error);
-        } else {
-          dispatch({
-            type: 'updateGraphResources',
-            graphResources: response
-          });
-        }
-      });
-    }
+  const nodeSelected = (nodeId) => {
+    setLoading(true);
+
+    sendGetRequests(
+      R.map(
+        (e) =>
+          wrapGetLinkedNodesHierachyRequest(
+            getLinkedNodesHierarchy,
+            {
+              id: e,
+            },
+            e,
+            costPreferences,
+            graphResources
+          )
+            .then((node) =>
+              handleSelectedResource(
+                processHierarchicalNodeData(
+                  R.pathOr(
+                    [],
+                    ['body', 'data', 'getLinkedNodesHierarchy'],
+                    node
+                  ),
+                  e,
+                  costPreferences
+                ),
+                e,
+                graphResources
+              )
+            )
+            .catch((err) => {
+              console.error(err);
+              setLoading(false);
+              setError(err);
+            }),
+        [nodeId.id]
+      )
+    )
+      .then((e) => Promise.all(e))
+      .then(R.flatten)
+      .then((nodes) => {
+        dispatch({
+          type: 'updateGraphResources',
+          graphResources: nodes,
+        });
+        setLoading(false)
+      })
   };
 
   return (
     <div id='searchBar' className={classes.div}>
-      <SearchField
-        onSelected={(event, input) => nodeSelected(input)}
-        width='100%'
-        margin='0'
+      <Select
+        virtualScroll
+        placeholder='Find a resource'
+        selectedOption={selectedOption}
+        onChange={({ detail }) => nodeSelected(detail.selectedOption)}
         options={getNodes()}
-        multiSelect={false}
-        group={true}
+        filteringType='auto'
+        selectedAriaLabel='Selected'
       />
-      {showError && (
-        <CustomSnackbar
-          vertical='bottom'
-          horizontal='center'
+
+      {error && (
+        <Flashbar
           type='error'
-          message='We could not load resource search configuration. Refresh page to try again'
+          message='We could not load the search configuration. It could be a temporary issue. Try reloading the page'
         />
       )}
     </div>

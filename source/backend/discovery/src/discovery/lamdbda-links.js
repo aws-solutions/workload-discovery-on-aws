@@ -15,6 +15,7 @@ class LambdaLinks {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of Lambda environment variables.');
         let bind = this;
 
         let dataToUpload = await zoomUtils.expand(bind,
@@ -23,6 +24,7 @@ class LambdaLinks {
             this.processEnvironmentLinks);
 
         await this.dataClient.storeData("AWS::Lambda::Function", dataToUpload, 0)
+        logger.info('Discovery of Lambda environment variables complete.');
     }
 
     async processEnvironmentLinks(accountId, awsRegion, value) {

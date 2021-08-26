@@ -1,80 +1,33 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import ResourceItem from '../../../../../components/Graph/DetailsDialog/ResourceItem';
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
+import {
+  Box,
+  Container,
+  ColumnLayout,
+  SpaceBetween,
+  ExpandableSection,
+} from '@awsui/components-react';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-    display: 'grid',
-    width: '100%'
-  },
-  resources: {
-    // flexGrow: 1,
-    display: 'inline-flex',
-    marginLeft: '1vw'
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'left',
-    color: theme.palette.text.secondary,
-    fontSize: '0.5rem'
-  },
-  divider: {
-    marginTop: '2vh',
-    marginBottom: '2vh'
-  },
-  gridParent: {
-    paddingLeft: '1vw',
-    paddingRight: '1vw'
-  },
-  title: {
-    olor: '#535B63',
-    fontSize: '1.25rem',
-    lineHeight: '2rem'
-  },
-  resourceItemTitleStyle: {
-    color: '#535B63',
-    fontSize: '1rem',
-    lineHeight: '2rem',
-    marginBottom: '.5rem'
-  },
-  resourceItemValueStyle: { fontSize: '0.75rem', marginLeft: '.5vw' }
-}));
+export default ({ configuration }) => {
+  const parsedConfig = JSON.parse(JSON.parse(configuration));
 
-export default ({ title, configuration }) => {
-  const classes = useStyles();
-  const parsedConfig = JSON.parse(configuration);
+  const ValueWithLabel = ({ label, children }) => (
+    <div>
+      <Box margin={{ bottom: 'xxxs' }} color='text-label'>
+        {label}
+      </Box>
+      <div>{children}</div>
+    </div>
+  );
 
   return (
-    <div className={classes.root}>
-      <span className={classes.title}>
-        {title}
-      </span>
-      <Divider className={classes.divider} />
-
-      <div className={classes.root}>
-        <Grid container className={classes.gridParent}>
-          <Grid item xs>
-            <ResourceItem
-              title='Scheme'
-              resource={parsedConfig.scheme}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='Type'
-              resource={parsedConfig.type}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-      </div>
-    </div>
+    <ColumnLayout columns={2} variant='text-grid'>
+      <SpaceBetween size='l'>
+        <ValueWithLabel label='Scheme'>{parsedConfig.scheme}</ValueWithLabel>
+      </SpaceBetween>
+      <SpaceBetween size='l'>
+        <ValueWithLabel label='Type'>{parsedConfig.type ? parsedConfig.type : 'Classic'}</ValueWithLabel>
+      </SpaceBetween>
+    </ColumnLayout>
   );
 };

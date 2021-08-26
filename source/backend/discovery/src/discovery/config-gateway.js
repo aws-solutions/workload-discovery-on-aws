@@ -27,18 +27,16 @@ class ConfigGateway {
    */
   async listDiscoveredResources(resourceType, accountId, region) {
     return await zoomUtils.callAwsApiWithPagination(
-      this.configService.listAggregateDiscoveredResources, {
-        Limit: 50,
-        ConfigurationAggregatorName: this.configAggregator,
-        "Filters": {
-          "AccountId": "" + accountId,
-          "Region": region
-        },
-        ResourceType: resourceType
-      }, 
-      this.configService,
-      undefined,
-      "Config-Gatway listAggregateDiscoveredResources");
+        this.configService,
+        this.configService.listAggregateDiscoveredResources, {
+          Limit: 100,
+          ConfigurationAggregatorName: this.configAggregator,
+          "Filters": {
+            "AccountId": "" + accountId,
+            "Region": region
+          },
+          ResourceType: resourceType
+        }, 'listAggregateDiscoveredResources');
   }
 
   /**r
@@ -61,7 +59,7 @@ class ConfigGateway {
       }
     };
 
-    return await zoomUtils.callAwsApi(this.configService.getAggregateResourceConfig, params, this.configService, "Config-Gateway getAggregateResourceConfig");
+    return await zoomUtils.callAwsApi(this.configService.getAggregateResourceConfig, params, this.configService, "getAggregateResourceConfig");
   };
 }
 

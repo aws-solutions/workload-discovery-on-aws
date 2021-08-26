@@ -1,4 +1,4 @@
-
+const R = require('ramda');
 const consoleM = require('./consoleURL');
 const logger = require('./logger')
 const zoomUtils = require('./zoomUtils');
@@ -12,6 +12,7 @@ class ECS {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning ECS discovery process.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processECSClusters(accountId, awsRegion),
@@ -22,6 +23,7 @@ class ECS {
         );
 
         await this.dataClient.storeData("AWS::ECS::Cluster", dataToUpload, 0);
+        logger.info('ECS discovery process complete.');
     }
 
     async processECSClusters(accountId, awsRegion) {
@@ -58,7 +60,7 @@ class ECS {
                 arn: ecsCluster.clusterArn,
                 statistics: JSON.stringify(ecsCluster.statistics),
                 tags: ecsCluster.tags
-            }
+            };
 
             data.properties = properties;
             this.appendConsoleURL(data);
@@ -255,7 +257,7 @@ class ECS {
                 enableECSManagedTags: ecsService.enableECSManagedTags,
                 propagateTags: ecsService.propagateTags,
                 arn: ecsService.serviceArn
-            }
+            };
 
             data.properties = properties;
             this.appendConsoleURL(data);
@@ -299,17 +301,16 @@ class ECS {
     async processECSTasks(taskDefinition, serviceName, clusterARN, accountId, awsRegion) {
         const ecsTasks = await zoomUtils.callAwsApi(this.API.listTasks, { cluster: clusterARN, serviceName: serviceName }, this.API, "ECS listTasks");
 
-        const filteredTasks = ecsTasks.taskArns.map(task => {
-            return task.split("/")[1];
-        });
+        const taskIds = ecsTasks.taskArns.map(R.compose(R.last, R.split("/")));
 
-        if (filteredTasks && filteredTasks.length > 0) {
-            let populatedTaskDescriptions = await zoomUtils.callAwsApi(this.API.describeTasks, {
-                tasks: filteredTasks,
+        if (!R.isEmpty(taskIds)) {
+
+            const populatedTaskDescriptions = await zoomUtils.callAwsApi(this.API.describeTasks, {
+                tasks: taskIds,
                 cluster: clusterARN
-            }, this.API, "ECS describeTasks");
+            }, this.API, 'describeTasks');
 
-            return await this.packageTaskDescriptions(populatedTaskDescriptions, accountId, awsRegion);
+            return this.packageTaskDescriptions(R.defaultTo([], populatedTaskDescriptions), accountId, awsRegion);
         }
 
         return [];
@@ -351,7 +352,7 @@ class ECS {
                 attachments: JSON.stringify(task.attachments),
                 healthStatus: task.healthStatus,
                 arn: task.taskArn
-            }
+            };
 
             data.properties = properties;
             this.appendConsoleURL(data);
@@ -394,7 +395,7 @@ class ECS {
             requiresCompatibilities: JSON.stringify(task.requiresCompatibilities),
             cpu: task.cpu,
             memory: task.memory
-        }
+        };
 
         data.properties = properties;
         this.appendConsoleURL(data);

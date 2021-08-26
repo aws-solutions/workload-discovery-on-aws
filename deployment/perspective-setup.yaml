@@ -1,7 +1,11 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: AWS Perspective Set Up (SO0075) - Solution - Master Template (uksb-1qbkclgj9) (version:v1.0.0)
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: AWS Perspective Set Up (SO0075) - Solution - Master Template (uksb-1qbkclgj9) (version:<VERSION>)
+
 Transform: AWS::Serverless-2016-10-31
+
 Globals:
+
   Api:
     Cors:
       AllowMethods: "'GET,POST,OPTIONS,DELETE,PUT'"
@@ -11,7 +15,8 @@ Globals:
     Runtime: nodejs12.x
     Environment:
       Variables:
-        VERSION: '1.0'
+        VERSION: <VERSION>
+
 Parameters:
   OptOutOfSendingAnonymousUsageMetrics:
     Type: String
@@ -31,7 +36,7 @@ Parameters:
   CreateElasticsearchServiceRole:
     Type: String
     Default: 'Yes'
-    Description: 'Do you need an ElasticSearch Service Role to be created? 
+    Description: 'Do you need an ElasticSearch Service Role to be created?
     You can check for a Role called AWSServiceRoleForAmazonElasticsearchService in your account. If it exists then you do NOT need one creating'
     AllowedValues:
       - 'No'
@@ -69,7 +74,7 @@ Parameters:
   ElasticsearchInstanceType:
     Description: The instance type for Elasticsearch data nodes
     Type: String
-    Default: m4.large.elasticsearch
+    Default: m6g.large.elasticsearch
     AllowedValues:
       - t3.small.elasticsearch
       - t3.medium.elasticsearch
@@ -86,6 +91,12 @@ Parameters:
       - m4.2xlarge.elasticsearch
       - m4.4xlarge.elasticsearch
       - m4.10xlarge.elasticsearch
+      - m6g.large.elasticsearch
+      - m6g.xlarge.elasticsearch
+      - m6g.2xlarge.elasticsearch
+      - m6g.4xlarge.elasticsearch
+      - m6g.8xlarge.elasticsearch
+      - m6g.12xlarge.elasticsearch
       - c5.large.elasticsearch
       - c5.xlarge.elasticsearch
       - c5.2xlarge.elasticsearch
@@ -97,6 +108,12 @@ Parameters:
       - c4.2xlarge.elasticsearch
       - c4.4xlarge.elasticsearch
       - c4.8xlarge.elasticsearch
+      - c6g.large.elasticsearch
+      - c6g.xlarge.elasticsearch
+      - c6g.2xlarge.elasticsearch
+      - c6g.4xlarge.elasticsearch
+      - c6g.8xlarge.elasticsearch
+      - c6g.12xlarge.elasticsearch
       - r5.large.elasticsearch
       - r5.xlarge.elasticsearch
       - r5.2xlarge.elasticsearch
@@ -119,6 +136,28 @@ Parameters:
       - i3.4xlarge.elasticsearch
       - i3.8xlarge.elasticsearch
       - i3.16xlarge.elasticsearch
+  
+  CreateAPIGatewayCloudWatchLogsRole:
+    Type: String
+    Default: "Yes"
+    Description: |
+      'Do you need an API Gateway CloudwatchLogs Role to be created? 
+      If set to Yes, Perspective will create a role and overwrite the existing ApiGateway Accout CloudWatchLogsRoleArn property.
+      Set this to No if you already have an existing role set. You can check if a value is set using the `aws apigateway get-account` command.
+      The role created by Perspective will be retained upon deletion of the Perspective stack. 
+      This is to prevent the interruption of logging for other API Gateways in a region.
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+  
+  AthenaWorkgroup:
+    Type: String
+    Default: "primary"
+    Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
+
+Conditions:
+  CreateAPIGatewayCloudWatchLogsRoleCondition:
+    !Equals [!Ref CreateAPIGatewayCloudWatchLogsRole, "Yes"]
 
 Resources:
   LambdaExecutionRole:
@@ -150,261 +189,307 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-             - Effect: Allow
-               Action: 
-                - events:PutRule
-                - events:DescribeRule
-                - events:PutTargets
-               Resource: '*'
-             - Effect: Allow
-               Action: iam:PassRole
-               Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
-             - Effect: Allow
-               Action:
-                - iam:GetRole
-                - iam:CreateRole
-                - iam:PutRolePolicy
-                - iam:getRolePolicy
-                - iam:AttachRolePolicy
-                - iam:CreateServiceLinkedRole
-                - iam:ListRoles
-                - iam:GetPolicy
-                - iam:CreatePolicy
-                - iam:CreateInstanceProfile
-                - iam:AddRoleToInstanceProfile
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - cognito-idp:CreateUserPoolClient
-                - cognito-identity:SetIdentityPoolRoles
-                - cognito-idp:AdminCreateUser
-               Resource:
-                - Fn::Sub: arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${PerspectiveCognitoIdentityPool}
-                - Fn::GetAtt: PerspectiveCognitoUserPool.Arn
-             - Effect: Allow
-               Action:
-                 - dynamodb:CreateTable
-                 - dynamodb:DescribeTable
-                 - dynamodb:DescribeContinuousBackups
-                 - dynamodb:UpdateContinuousBackups
-               Resource:  !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                 - s3:Get*
-                 - s3:List*
-                 - s3:Put*
-                 - s3:Create*
-               Resource: 'arn:aws:s3:::*'
-             - Effect: Allow
-               Action: sts:AssumeRole
-               Resource:
-                 - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/*LambdaExecutionRole-*
-             - Effect: Allow
-               Action: 
+              - Effect: Allow
+                Action:
+                  - events:PutRule
+                  - events:DescribeRule
+                  - events:PutTargets
+                Resource: '*'
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:CreateRole
+                  - iam:PutRolePolicy
+                  - iam:getRolePolicy
+                  - iam:AttachRolePolicy
+                  - iam:CreateServiceLinkedRole
+                  - iam:ListRoles
+                  - iam:GetPolicy
+                  - iam:CreatePolicy
+                  - iam:CreateInstanceProfile
+                  - iam:AddRoleToInstanceProfile
+                  - iam:DeleteRolePolicy
+                  - iam:DeleteRole
+                  - iam:DetachRolePolicy
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cognito-idp:CreateUserPoolClient
+                  - cognito-identity:SetIdentityPoolRoles
+                  - cognito-idp:AdminCreateUser
+                Resource:
+                  - Fn::Sub: arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/${PerspectiveCognitoIdentityPool}
+                  - !GetAtt PerspectiveCognitoUserPool.Arn
+              - Effect: Allow
+                Action:
+                  - dynamodb:CreateTable
+                  - dynamodb:DeleteTable
+                  - dynamodb:DescribeTable
+                  - dynamodb:DescribeContinuousBackups
+                  - dynamodb:UpdateContinuousBackups
+                Resource:  !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                  - s3:Put*
+                  - s3:Create*
+                  - s3:DeleteBucket
+                  - s3:DeleteBucketPolicy
+                Resource: 'arn:aws:s3:::*'
+              - Effect: Allow
+                Action: sts:AssumeRole
+                Resource:
+                  - Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/*LambdaExecutionRole-*
+              - Effect: Allow
+                Action:
                   - cloudformation:CreateStack
                   - cloudformation:CreateChangeSet
-               Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:*'
-             - Effect: Allow
-               Action:
-                - ssm:GetParameters
-                - ssm:PutParameter
-                - ssm:AddTagsToResource
-               Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                 - config:PutConfigurationAggregator
-                 - config:PutConfigRule
-               Resource: !Sub 'arn:aws:config:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - config:PutDeliveryChannel
-                - config:DescribeConfigurationRecorders
-                - config:PutConfigurationRecorder
-                - config:StartConfigurationRecorder
-                - config:DescribeConfigurationAggregators
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - ec2:AllocateAddress
-                - ec2:DescribeAddresses
-                - ec2:CreateVpc
-                - ec2:DescribeVpcEndpoints
-                - ec2:DescribeVpcs
-                - ec2:ModifyVpcAttribute
-                - ec2:CreateRouteTable
-                - ec2:CreateSubnet
-                - ec2:CreateNetworkAcl
-                - ec2:CreateInternetGateway
-                - ec2:DescribeRouteTables
-                - ec2:DescribeNetworkAcls
-                - ec2:CreateNetworkAclEntry
-                - ec2:DescribeSubnets
-                - ec2:DescribeInternetGateways
-                - ec2:ModifySubnetAttribute
-                - ec2:AttachInternetGateway
-                - ec2:ReplaceNetworkAclAssociation
-                - ec2:AssociateRouteTable
-                - ec2:CreateNatGateway
-                - ec2:DescribeNatGateways
-                - ec2:DescribeSecurityGroups
-                - ec2:CreateSecurityGroup
-                - ec2:CreateFlowLogs
-                - ec2:DescribeFlowLogs
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - ec2:CreateVpcEndpoint
-                - ec2:CreateTags
-                - ec2:CreateRoute
-                - ec2:AuthorizeSecurityGroupIngress
-                - ec2:RevokeSecurityGroupEgress
-                - ec2:AuthorizeSecurityGroupEgress
-               Resource: !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - lambda:CreateFunction
-                - lambda:GetFunctionConfiguration
-                - lambda:GetFunction
-                - lambda:InvokeFunction
-                - lambda:AddPermission
-                - lambda:PublishLayerVersion
-                - lambda:GetLayerVersion
-                - lambda:EnableReplication
-               Resource: !Sub 'arn:aws:lambda:*:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - kms:List*
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - kms:Describe*
-                - kms:Enable*
-                - kms:Get*
-               Resource: !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - SNS:CreateTopic
-                - SNS:GetTopicAttributes
-                - SNS:Subscribe
-               Resource: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - rds:CreateDBClusterParameterGroup
-                - rds:CreateDBInstance
-                - rds:CreateDBSubnetGroup
-                - rds:CreateDBParameterGroup
-                - rds:ModifyDBClusterParameterGroup
-                - rds:ModifyDBParameterGroup
-                - rds:DescribeDBClusterParameterGroups
-                - rds:DescribeDBParameterGroups
-                - rds:RemoveTagsFromResource
-                - rds:AddTagsToResource
-                - rds:CreateDBCluster
-               Resource: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - rds:DescribeEngineDefaultClusterParameters
-                - rds:DescribeEngineDefaultParameters
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - cloudwatch:PutMetricAlarm
-                - cloudwatch:DescribeAlarms
-               Resource: !Sub 'arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:*'
-             - Effect: Allow
-               Action:
-                - es:CreateElasticsearchDomain
-                - es:DescribeElasticsearchDomain
-                - es:AddTags
-               Resource: !Sub 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*'
-             - Effect: Allow
-               Action:
-                - cloudfront:CreateCloudFrontOriginAccessIdentity
-                - cloudfront:CreateDistribution
-                - cloudfront:GetCloudFrontOriginAccessIdentity
-                - cloudfront:TagResource
-                - cloudfront:GetDistribution
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - apigateway:GET
-                - apigateway:POST
-                - apigateway:PUT
-                - apigateway:PATCH
-               Resource:
-                - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveWebRestAPI}/*
-                - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerGremlinAPI}/*
-                - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveDrawioWebRestAPI}/*
-                - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${PerspectiveWebRestAPI}/*
-                - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${ServerGremlinAPI}/*
-                - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${PerspectiveDrawioWebRestAPI}/*
-                - !Sub arn:aws:apigateway:${AWS::Region}::/account
-             - Effect: Allow
-               Action:
-                - codepipeline:CreatePipeline
-                - codepipeline:GetPipeline
-                - codepipeline:GetPipelineState
-               Resource: !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - codebuild:BatchGetProjects
-                - codebuild:CreateProject
-               Resource: !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - ecr:ListImages
-                - ecr:PutImage
-                - ecr:DescribeImages
-                - ecr:CreateRepository
-                - ecr:DescribeRepositories
-                - ecr:PutLifecyclePolicy
-                - ecr:SetRepositoryPolicy
-               Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*'
-             - Effect: Allow
-               Action:
-                - ecs:CreateCluster
-                - ecs:CreateTaskSet
-                - ecs:ListClusters
-                - ecs:ListServices
-                - ecs:RegisterTaskDefinition
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - ecs:CreateService
-                - ecs:DeleteTaskSet
-                - ecs:DescribeClusters
-                - ecs:DescribeTasks
-                - ecs:DescribeTaskSets
-                - ecs:ListTasks
-                - ecs:TagResource
-                - ecs:UpdateTaskSet
-               Resource: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}*'
-             - Effect: Allow
-               Action:
-                - logs:CreateLogStream
-                - logs:DeleteLogGroup
-                - logs:GetLogEvents
-                - logs:DescribeLogStreams
-                - logs:DescribeLogGroups
-                - logs:PutRetentionPolicy
-                - logs:PutLogEvents
-               Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*'
-             - Effect: Allow
-               Action:
-                - logs:CreateLogGroup
-               Resource: '*'
-             - Effect: Allow
-               Action:
-                - appsync:TagResource
-                - appsync:CreateGraphqlApi
-                - appsync:GetGraphqlApi
-                - appsync:StartSchemaCreation
-                - appsync:GetSchemaCreationStatus 
-                - appsync:CreateDataSource
-                - appsync:GetDataSource
-                - appsync:CreateResolver
-               Resource: '*' 
+                  - cloudformation:DescribeStackResources
+                  - cloudformation:UpdateStack
+                  - cloudformation:UpdateTerminationProtection
+                Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:*'
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                  - ssm:PutParameter
+                  - ssm:AddTagsToResource
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - config:PutConfigurationAggregator
+                  - config:PutConfigRule
+                Resource: !Sub 'arn:aws:config:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - config:PutDeliveryChannel
+                  - config:DescribeConfigurationRecorders
+                  - config:PutConfigurationRecorder
+                  - config:StartConfigurationRecorder
+                  - config:DescribeConfigurationAggregators
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:AllocateAddress
+                  - ec2:DescribeAddresses
+                  - ec2:CreateVpc
+                  - ec2:DescribeVpcEndpoints
+                  - ec2:DescribeVpcs
+                  - ec2:ModifyVpcAttribute
+                  - ec2:CreateRouteTable
+                  - ec2:CreateSubnet
+                  - ec2:CreateNetworkAcl
+                  - ec2:CreateInternetGateway
+                  - ec2:DescribeRouteTables
+                  - ec2:DescribeNetworkAcls
+                  - ec2:CreateNetworkAclEntry
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeInternetGateways
+                  - ec2:ModifySubnetAttribute
+                  - ec2:AttachInternetGateway
+                  - ec2:ReplaceNetworkAclAssociation
+                  - ec2:AssociateRouteTable
+                  - ec2:CreateNatGateway
+                  - ec2:DescribeNatGateways
+                  - ec2:DescribeSecurityGroups
+                  - ec2:CreateSecurityGroup
+                  - ec2:CreateFlowLogs
+                  - ec2:DescribeFlowLogs
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:CreateVpcEndpoint
+                  - ec2:CreateTags
+                  - ec2:CreateRoute
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:RevokeSecurityGroupEgress
+                  - ec2:AuthorizeSecurityGroupEgress
+                Resource: !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:DeleteFunctionConcurrency
+                  - lambda:RemovePermission
+                  - lambda:GetFunctionConfiguration
+                  - lambda:GetFunction
+                  - lambda:InvokeFunction
+                  - lambda:UpdateFunctionCode
+                  - lambda:AddPermission
+                  - lambda:PublishLayerVersion
+                  - lambda:GetLayerVersion
+                  - lambda:EnableReplication
+                  - lambda:ListTags
+                  - lambda:TagResource
+                  - lambda:UntagResource
+                  - lambda:DeleteLayerVersion
+                  - lambda:UpdateFunctionConfiguration
+                  - lambda:PutFunctionConcurrency
+                  - lambda:DeleteFunctionConcurrency
+                Resource: !Sub 'arn:aws:lambda:*:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - kms:List*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - kms:Describe*
+                  - kms:Enable*
+                  - kms:Get*
+                Resource: !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - SNS:CreateTopic
+                  - SNS:GetTopicAttributes
+                  - SNS:Subscribe
+                Resource: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - rds:CreateDBClusterParameterGroup
+                  - rds:CreateDBInstance
+                  - rds:CreateDBSubnetGroup
+                  - rds:CreateDBParameterGroup
+                  - rds:ModifyDBClusterParameterGroup
+                  - rds:ModifyDBParameterGroup
+                  - rds:DescribeDBClusterParameterGroups
+                  - rds:DescribeDBParameterGroups
+                  - rds:RemoveTagsFromResource
+                  - rds:AddTagsToResource
+                  - rds:CreateDBCluster
+                Resource: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - rds:DescribeEngineDefaultClusterParameters
+                  - rds:DescribeEngineDefaultParameters
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricAlarm
+                  - cloudwatch:DescribeAlarms
+                Resource: !Sub 'arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:*'
+              - Effect: Allow
+                Action:
+                  - es:CreateElasticsearchDomain
+                  - es:DescribeElasticsearchDomain
+                  - es:UpdateElasticsearchDomainConfig
+                  - es:AddTags
+                  - es:UpgradeElasticsearchDomain
+                Resource: !Sub arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*
+              - Effect: Allow
+                Action:
+                  - neptune:ModifyDBInstance
+                Resource: !Sub arn:${AWS::Partition}:neptune-db:${AWS::Region}:${AWS::AccountId}:db:*
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateCloudFrontOriginAccessIdentity
+                  - cloudfront:CreateDistribution
+                  - cloudfront:GetCloudFrontOriginAccessIdentity
+                  - cloudfront:TagResource
+                  - cloudfront:GetDistribution
+                  - cloudfront:CreateInvalidation
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - apigateway:GET
+                  - apigateway:POST
+                  - apigateway:PUT
+                  - apigateway:PATCH
+                Resource:
+                  - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveWebRestAPI}/*
+                  - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerGremlinAPI}/*
+                  - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveDrawioWebRestAPI}/*
+                  - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${PerspectiveWebRestAPI}/*
+                  - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${ServerGremlinAPI}/*
+                  - !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${PerspectiveDrawioWebRestAPI}/*
+                  - !Sub arn:aws:apigateway:${AWS::Region}::/account
+              - Effect: Allow
+                Action:
+                  - codepipeline:CreatePipeline
+                  - codepipeline:GetPipeline
+                  - codepipeline:GetPipelineState
+                  - codepipeline:TagResource
+                Resource: !Sub 'arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetProjects
+                  - codebuild:CreateProject
+                  - codebuild:UpdateProject
+                Resource: !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - ecr:ListImages
+                  - ecr:PutImage
+                  - ecr:DescribeImages
+                  - ecr:CreateRepository
+                  - ecr:DescribeRepositories
+                  - ecr:ListTagsForResource
+                  - ecr:PutImageScanningConfiguration
+                  - ecr:PutLifecyclePolicy
+                  - ecr:SetRepositoryPolicy
+                  - ecr:PutImageScanningConfiguration
+                Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*'
+              - Effect: Allow
+                Action:
+                  - ecs:CreateCluster
+                  - ecs:CreateTaskSet
+                  - ecs:ListClusters
+                  - ecs:ListServices
+                  - ecs:RegisterTaskDefinition
+                  - ecs:DeregisterTaskDefinition
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecs:CreateService
+                  - ecs:DeleteTaskSet
+                  - ecs:DescribeClusters
+                  - ecs:DescribeTasks
+                  - ecs:DescribeTaskSets
+                  - ecs:ListTasks
+                  - ecs:TagResource
+                  - ecs:UpdateTaskSet
+                Resource: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:DeleteLogGroup
+                  - logs:GetLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroups
+                  - logs:PutRetentionPolicy
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - appsync:TagResource
+                  - appsync:CreateGraphqlApi
+                  - appsync:GetGraphqlApi
+                  - appsync:StartSchemaCreation
+                  - appsync:GetSchemaCreationStatus
+                  - appsync:CreateDataSource
+                  - appsync:GetDataSource
+                  - appsync:CreateResolver
+                Resource: '*'
+              - Effect: Allow
+                Action: 
+                  - glue:CreateDatabase
+                  - glue:CreateTable
+                  - glue:CreateCrawler
+                Resource: !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*'
   LambdaSetup:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
@@ -412,7 +497,7 @@ Resources:
         Bucket: !Sub <BUCKET_NAME>-${AWS::Region}
         Key: <SOLUTION_NAME>/<VERSION>/setup.zip
       Description: Custom Lambda resource for the Perspective Cloudformation Stack
-      MemorySize: 256
+      MemorySize: 1024
       Runtime: nodejs12.x
       Role:
         Fn::GetAtt:
@@ -420,6 +505,7 @@ Resources:
           - Arn
       Environment:
         Variables:
+          STACK_NAME: !Sub ${AWS::StackName}
           ANONYMOUS_METRIC_OPT_OUT: !Ref OptOutOfSendingAnonymousUsageMetrics
           NEPTUNE_INSTANCE_CLASS: !Ref NeptuneInstanceClass
           CREATE_READ_REPLICA: !Ref CreateNeptuneReplica
@@ -433,6 +519,8 @@ Resources:
           COGNITO_USER_POOL_WEB_CLIENT_ID: !Ref UserPoolClient
           DEPLOYMENT_BUCKET: !Sub <BUCKET_NAME>-${AWS::Region}
           DEPLOYMENT_BUCKET_KEY: <SOLUTION_NAME>/<VERSION>
+          COST_AND_USAGE_REPORT_BUCKET: !Ref CostAndUsageReportBucket
+          COST_AND_USAGE_RESULTS_BUCKET: !Ref CostAndUsageAthenaResultsBucket
           IMAGE_VERSION: <IMAGE_VERSION>
           REGION: !Ref AWS::Region
           WEBUI_BUCKET: !Ref WebUIBucket
@@ -443,9 +531,11 @@ Resources:
           CONFIG_AGGREGATOR: !Sub aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
           EXISTING_CONFIG: !Ref AlreadyHaveConfigSetup
           CREATE_ES_SERVICE_ROLE: !Ref CreateElasticsearchServiceRole
+          ATHENA_WORKGROUP: !Ref AthenaWorkgroup
           APPSYNC_API_ARN: !GetAtt PerspectiveAppSyncApi.Arn
           APPSYNC_API_ID: !GetAtt PerspectiveAppSyncApi.ApiId
           APPSYNC_API_GRAPHQL_URL: !GetAtt PerspectiveAppSyncApi.GraphQLUrl
+          VERSION: <VERSION>
       Timeout: 900
 
   DeployPerspectiveCustomResource:
@@ -472,9 +562,17 @@ Resources:
           - Arn
       Region:
         Ref: AWS::Region
+      Version: <VERSION>
 
 
   CleanupBucketFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
     Type: AWS::Serverless::Function
     Properties:
       Handler: cleanup_bucket.handler
@@ -491,6 +589,7 @@ Resources:
                 - s3:DeleteObject*
                 - s3:ListBucket*
                 - s3:ListObject*
+                - s3:PutBucketLogging
               Resource:
                 - !Sub arn:aws:s3:::${WebUIBucket}
                 - !Sub arn:aws:s3:::${WebUIBucket}/*
@@ -498,8 +597,43 @@ Resources:
                 - !Sub arn:aws:s3:::${DiscoveryBucket}/*
                 - !Sub arn:aws:s3:::${AmplifyStorageBucket}
                 - !Sub arn:aws:s3:::${AmplifyStorageBucket}/*
+                - !Sub arn:aws:s3:::${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-cost-bucket
+                - !Sub arn:aws:s3:::${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-cost-bucket/*
+                - !Sub arn:aws:s3:::${CostAndUsageReportBucket}
+                - !Sub arn:aws:s3:::${CostAndUsageReportBucket}/*
+                - !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}
+                - !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*
                 - !Sub arn:aws:s3:::${AccessLogsBucket}
                 - !Sub arn:aws:s3:::${AccessLogsBucket}/*
+
+  CleanupAccessLoggingBucket:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: INFO
+      Bucket: !Ref AccessLogsBucket
+
+  # The custom resource disables access logging because otherwise logs will be
+  # written to the access logging bucket during the cleanup. We set a DependsOn
+  # for the resources below so their processing completes before the access
+  # logs' processing begins.
+  CleanupCostAndUsageResultsBucket:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: INFO
+      Bucket: !Ref CostAndUsageAthenaResultsBucket
+    DependsOn:
+      - CleanupAccessLoggingBucket
+
+  CleanupCostAndUsageReportBucket:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+      LogLevel: INFO
+      Bucket: !Ref CostAndUsageReportBucket
+    DependsOn:
+      - CleanupAccessLoggingBucket
 
   CleanupWebUIBucket:
     Type: Custom::Setup
@@ -507,24 +641,17 @@ Resources:
       ServiceToken: !GetAtt CleanupBucketFunction.Arn
       LogLevel: INFO
       Bucket: !Ref WebUIBucket
-  
-  CleanupAccessLoggingBucket:
-    Type: Custom::Setup
-    Properties:
-      ServiceToken: !GetAtt CleanupBucketFunction.Arn
-      LogLevel: INFO
-      Bucket: !Ref AccessLogsBucket
     DependsOn:
-      - CleanupWebUIBucket
-      - CleanupAmplifyStorageBucket
-      - CleanupDiscoveryBucket
-  
+      - CleanupAccessLoggingBucket
+
   CleanupAmplifyStorageBucket:
     Type: Custom::Setup
     Properties:
       ServiceToken: !GetAtt CleanupBucketFunction.Arn
       LogLevel: INFO
       Bucket: !Ref AmplifyStorageBucket
+    DependsOn:
+      - CleanupAccessLoggingBucket
 
   CleanupDiscoveryBucket:
     Type: Custom::Setup
@@ -532,6 +659,8 @@ Resources:
       ServiceToken: !GetAtt CleanupBucketFunction.Arn
       LogLevel: INFO
       Bucket: !Ref DiscoveryBucket
+    DependsOn:
+      - CleanupAccessLoggingBucket
 
   PerspectiveCognitoIdentityPool:
     Type: AWS::Cognito::IdentityPool
@@ -554,7 +683,7 @@ Resources:
         AllowAdminCreateUserOnly: true
         UnusedAccountValidityDays: 90
         InviteMessageTemplate:
-          EmailMessage: '<!DOCTYPE html><html><body style="font-family:sans-serif"><p>Thanks for your interest in AWS Perspective.</p><p>Here are your temporary credentials, created by {admin}:</p><ul><li>Username: {username}</li><li>Password: {####}</li></ul><p>If you have any questions, please contact the Admin user of your AWS Perspective deployment {admin}, or get in touch at <a href="mailto:aws-perspective-team@amazon.com">aws-perspective-team@amazon.com</a></p></body></html>'
+          EmailMessage: '<!DOCTYPE html><html><body style="font-family:sans-serif"><p>Thanks for your interest in AWS Perspective.</p><p>Here are your temporary credentials:</p><ul><li>Username: {username}</li><li>Password: {####}</li></ul><p>Any issues, please get in touch at <a href="mailto:aws-perspective-team@amazon.com">aws-perspective-team@</a></p></body></html>'
           EmailSubject: 'Welcome to AWS Perspective'
       UserPoolName:
         Fn::Sub: perspective.${AWS::Region}.userpool
@@ -578,7 +707,7 @@ Resources:
       UserAttributes:
         - Name: email
           Value: !Ref AdminUserEmailAddress
-  
+
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -588,8 +717,13 @@ Resources:
         Ref: PerspectiveCognitoUserPool
       PreventUserExistenceErrors: ENABLED
 
-  ApiGatewayCloudWatchRole:
+  ApiGatewayCloudWatchLogsRole:
     Type: AWS::IAM::Role
+    Condition: CreateAPIGatewayCloudWatchLogsRoleCondition
+    # This role is used by all API Gateways in the account to put logs
+    # to Cloudwatch. If a user removes Perspective, this role must be retained
+    # so other API Gateways can continue logging
+    DeletionPolicy: Retain 
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -601,12 +735,17 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  
+
+  # This resource overwrites any existing value. It should only
+  # be set if a customer explicitly opts in.
   Account:
     Type: AWS::ApiGateway::Account
+    Condition: CreateAPIGatewayCloudWatchLogsRoleCondition
     Properties:
       CloudWatchRoleArn:
         Fn::GetAtt:
-          - ApiGatewayCloudWatchRole
+          - ApiGatewayCloudWatchLogsRole
           - Arn
   PerspectiveWebRestAPI:
     Type: AWS::ApiGateway::RestApi
@@ -652,7 +791,7 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Origin: true
           StatusCode: '200'
-  
+
   PerspectiveDrawioWebOptionMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -683,7 +822,7 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Origin: true
           StatusCode: '200'
-  
+
   PerspectiveDrawioWebResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -708,10 +847,10 @@ Resources:
 
   PerspectiveAppSyncLoggingRole:
     Metadata:
-        cfn_nag:
-          rules_to_suppress:
-            - id: W11
-              reason: 'CreateLogGroup requires wildcard, but we have locked down actions that we can to resources in region and account'
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'CreateLogGroup requires wildcard, but we have locked down actions that we can to resources in region and account'
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -761,7 +900,7 @@ Resources:
           - id: W28
             reason: 'Role is for ECS task execution. It defines the actions read-only actions required for the Perspective Discovery process to function'
           - id: W11
-            reason: 'We have locked down resources as far as we can. It is read only access. The actions we define require wildcard resources'  
+            reason: 'We have locked down resources as far as we can. It is read only access. The actions we define require wildcard resources'
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -886,16 +1025,16 @@ Resources:
                 Resource: '*'
         - PolicyName: perspectiveCloudtrail
           PolicyDocument:
-             Version: '2012-10-17'
-             Statement:
+            Version: '2012-10-17'
+            Statement:
               - Effect: Allow
                 Action:
                   - cloudtrail:GetTrailStatus
                 Resource: !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail*'
         - PolicyName: perspectiveCloudtrailWildcards
           PolicyDocument:
-             Version: '2012-10-17'
-             Statement:
+            Version: '2012-10-17'
+            Statement:
               - Effect: Allow
                 Action:
                   - cloudtrail:DescribeTrails
@@ -920,8 +1059,7 @@ Resources:
                 Resource:
                   Fn::Sub:
                     - '${DiscoveryBucketARN}/*'
-                    - DiscoveryBucketARN:
-                        Fn::GetAtt: DiscoveryBucket.Arn
+                    - DiscoveryBucketARN: !GetAtt DiscoveryBucket.Arn
         - PolicyName: perspectiveExecuteApi
           PolicyDocument:
             Version: '2012-10-17'
@@ -965,7 +1103,7 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-  
+
   WebUIBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -1006,7 +1144,7 @@ Resources:
               - '*'
             Id: PerspectiveCorsRule
             MaxAge: 3600
-  
+
   AmplifyStorageBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -1022,7 +1160,7 @@ Resources:
               Bool:
                 'aws:SecureTransport': 'false'
 
-    # Single Access Log Bucket
+  # Single Access Log Bucket
   AccessLogsBucket:
     Metadata:
       cfn_nag:
@@ -1045,11 +1183,11 @@ Resources:
               SSEAlgorithm: AES256
       LifecycleConfiguration:
         Rules:
-          - Id: DeleteAfter90Days
+          - Id: DeleteAfter45Days
             Prefix: ''
             Status: Enabled
-            ExpirationInDays: 90
-  
+            ExpirationInDays: 45
+
   AccessLogsBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -1064,8 +1202,84 @@ Resources:
             Condition:
               Bool:
                 'aws:SecureTransport': 'false'
-  # Discovery bucket set-up
 
+  # Cost and Usage Results Bucket
+  CostAndUsageAthenaResultsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: 'cost-and-usage-report-bucket/'
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteAfter7Days
+            Prefix: ''
+            Status: Enabled
+            ExpirationInDays: 7
+
+  CostAndUsageAthenaResultsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CostAndUsageAthenaResultsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Action: '*'
+            Effect: Deny
+            Resource: !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*
+            Principal: '*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+  
+  # Cost and Usage Report Bucket
+  CostAndUsageReportBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: 'cost-and-usage-report-bucket/'
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  CostAndUsageReportBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CostAndUsageReportBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Action: '*'
+            Effect: Deny
+            Resource: !Sub arn:aws:s3:::${CostAndUsageReportBucket}/*
+            Principal: '*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+  # Discovery bucket set-up
   DiscoveryBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -1084,7 +1298,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-  
+
   DiscoveryBucketBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -1145,7 +1359,7 @@ Resources:
       Value:
         Ref: PerspectiveWebRestAPI
       Description: API Gateway Web UI REST API ID
-  
+
   PerspectiveDrawioWebRestAPIId:
     Type: AWS::SSM::Parameter
     Properties:
@@ -1209,8 +1423,7 @@ Resources:
     Properties:
       Name: WebUIBucketRegionalDomainName
       Type: String
-      Value:
-        Fn::GetAtt: WebUIBucket.RegionalDomainName
+      Value: !GetAtt WebUIBucket.RegionalDomainName
       Description: The name of the bucket where the web ui is deployed.
 
 
@@ -1289,3 +1502,11 @@ Resources:
       Value:
         Ref: ServerElasticResource
       Description: The ARN of elastic resource
+
+Outputs:
+  DrawIOApiUrl:
+    Description: API URL for exporting to DrawIO. Use this to make direct API calls for export to DrawIO functionality
+    Value: !Sub "https://${PerspectiveDrawioWebRestAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  PerspectiveWebUiApiUrl:
+    Description: API URL for Perpective. Use this to make direct API calls
+    Value: !Sub "https://${PerspectiveWebRestAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"

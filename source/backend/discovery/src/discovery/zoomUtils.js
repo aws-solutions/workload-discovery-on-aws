@@ -1,16 +1,16 @@
 const R = require('ramda');
+const Bottleneck = require('bottleneck');
+const asyncRetry = require('async-retry');
 
 const logger = require('./logger');
 
+const limiter = new Bottleneck({
+    minTime: 10,
+    maxConcurrent: 1
+});
+
 let identity = v => v;
 
-/**
- * Run a function with exponential backoff
- * @param {*} caller 
- * @param {*} callerParameters 
- * @param {*} retries 
- * @param {*} sleepTime 
- */
 
 const asyncForEach = async (array, callback, binding = false) => {
     for (let element of array) {
@@ -339,66 +339,38 @@ const jsonConvert = (text) => {
     }
 }
 
-const retry = async (environment, caller, callerParameters, retries, sleepTime, functionName) => {
-    if (!functionName){
-        functionName = caller.name;
-    }
+const retry = R.curry((opts, errPred, context, func, parameters, name) => {
+    return asyncRetry(async (bail, count) => {
+        return limiter
+            .schedule(() => func.bind(context)(parameters).promise())
+            .catch(err => {
+                if(count > 1) logger.debug(`Retry no ${count} for ${name} with params ${JSON.stringify(parameters)}`);
+                if(errPred(err)) return bail(err);
+                logger.debug(`Error code for ${name}: ${err.code}`);
+                if(count === opts.retries) logger.debug(`Retry limit for ${name} exceeded.`);
+                throw err;
+            });
+    }, opts);
+});
 
+const defaultRetry = retry({
+    retries: 5
+}, err => err.code === 'ResourceNotDiscoveredException');
+
+const callAwsApi = async (func, parameters, context, name) => {
     try {
-        if (environment) {
-            caller = caller.bind(environment);
-        }
-        return await caller(...callerParameters);
-    }
-    catch (error) {
-        const metaData = {caller: caller.name, parameters: callerParameters};
-        if (error.code === "ResourceNotDiscoveredException") {
-            throw error;
-        }
-
-        // This error is generated if you look for a get or post method on an API Gateway Integration
-        // Which is not found.
-        if (error.code === "NotFoundException"){
-            return;
-        }
-
-        if (retries === 0) {
-            logger.error("Retry count exceeded for :");
-            logger.error(metaData);
-            dumpError(error, metaData);
-            throw error;
-        }
-        else {
-            await asleep(sleepTime);
-            return await retry(environment, caller, callerParameters, --retries, sleepTime * 2, functionName);
-        }
-    }
-};
-
-const callFunc = async (func, parameters, binding) => { 
-    const localParameters = Array.isArray(parameters) ? parameters : [parameters]; 
- 
-    if (binding){ 
-        func = func.bind(binding); 
-    } 
-    return await func(...localParameters).promise(); 
-};
-
-const callAwsApi = async (func, parameters, binding, functionName) => {
-    try {
-        // setting the timout higher makes things about 45 seconds faster!!!
-        return await retry(binding, callFunc, [func, parameters, binding], 6, 5000, functionName);
-    }
-    catch (error) {
-        logger.error("callAwsApi error:");
+        return defaultRetry(context, func, parameters, name);
+    } catch (error) {
+        logger.error("callAwsApi error: " + name);
         dumpError(error);
     }
 };
 
 // The getAccountAuthorizationDetails API uses IsTruncated / Marker rather than nextToken?????
-const callAwsApiWithMarkPagination = async (func, parameters, binding, apiResults, prevMarker, functionName) => {
+const callAwsApiWithMarkPagination = async (context, func, parameters, name, prevMarker, apiResults) => {
     try {
-        let results = await retry(binding, callFunc, [func, parameters, binding], 6, 1000, functionName);
+        let results = await defaultRetry(context, func, parameters, name);
+
         let truncated = results.IsTruncated;
 
         if (apiResults && results) {
@@ -414,22 +386,21 @@ const callAwsApiWithMarkPagination = async (func, parameters, binding, apiResult
 
         if (truncated && (results.Marker !== prevMarker)) {
             parameters.Marker = results.Marker;
-            return await callAwsApiWithMarkPagination(func, parameters, binding, results, results.Marker, functionName);
+            return await callAwsApiWithMarkPagination(context, func, parameters, name, results.Marker, results);
         }
         else {
             return results;
         }
-    }
-    catch (error) {
-        logger.erro("callAwsApiWithMarkPagination error:");
+    } catch (error) {
+        logger.error("callAwsApiWithMarkPagination error:");
         dumpError(error);
         return false;
     }
 };
 
-const callAwsApiWithPagination = async (func, parameters, binding, apiResults, functionName) => {
+const callAwsApiWithPagination = async (context, func, parameters, name, apiResults) => {
     try {
-        let results = await retry(binding, callFunc, [func, parameters, binding], 5, 1000, functionName);
+        let results = await defaultRetry(context, func, parameters, name);
 
         // When called from config advanced query it returns QueryInfo which has to be deleted.
         if (results.QueryInfo){
@@ -437,7 +408,6 @@ const callAwsApiWithPagination = async (func, parameters, binding, apiResults, f
         }
 
         if (apiResults && results) {
-
             results = merge(results, apiResults);
         }
 
@@ -447,14 +417,13 @@ const callAwsApiWithPagination = async (func, parameters, binding, apiResults, f
 
         if (results.NextToken) {
             parameters.NextToken = results.NextToken;
-            return await callAwsApiWithPagination(func, parameters, binding, results, functionName);
+            return await callAwsApiWithPagination(context, func, parameters, name, results);
         }
         else {
             return results;
         }
-    }
-    catch (error) {
-        logger.error("callAwsApiWithPagination error:");
+    } catch (error) {
+        logger.error(`callAwsApiWithPagination with ${name} error:`);
         dumpError(error);
         return false;
     }
@@ -525,7 +494,7 @@ const createMultiMethod = (dispatch, noMatch) => {
 
 const outputFullError = (err, metaData) => {
     if (err.message) {
-        logger.debug('Error Message: ' + err.message)
+        logger.error('Error Message: ' + err.message)
     }
     if (err.stack) {
         logger.debug(err.stack);
@@ -577,19 +546,20 @@ const convertToObject = (data) => {
     },{});
 }
 
-exports.exactMatch = exactMatch;
-exports.retry = retry;
-exports.asyncForEach = asyncForEach;
-exports.asyncMap = asyncMap;
-exports.expand = expand;
-exports.parallelForEach = parallelForEach;
-exports.callAwsApi = callAwsApi;
-exports.callAwsApiWithPagination = callAwsApiWithPagination;
-exports.callAwsApiWithMarkPagination = callAwsApiWithMarkPagination;
-exports.merge = merge;
-exports.identity = identity;
-exports.createMultiMethod = createMultiMethod;
-exports.dumpError = dumpError;
-exports.wrapOutput = wrapOutput;
-exports.asleep = asleep;
-exports.convertToObject = convertToObject;
+module.exports = {
+    exactMatch,
+    asyncForEach,
+    asyncMap,
+    expand,
+    parallelForEach,
+    callAwsApi,
+    callAwsApiWithPagination,
+    callAwsApiWithMarkPagination,
+    merge,
+    identity,
+    createMultiMethod,
+    dumpError,
+    wrapOutput,
+    asleep,
+    convertToObject
+}

@@ -97,7 +97,7 @@ class UserPolicies {
         for (let policy of policyList) {
             let linkedPolicy = await this.getPolicy(policy.policyArn);
 
-            if (linkedPolicy) {
+            if (linkedPolicy.success) {
                 for (let lp of linkedPolicy.results) {
                     linkedPolicies.push(this.formatLinkedResource(lp.id, lp.properties.resourceType));
                 }
@@ -112,6 +112,7 @@ class UserPolicies {
             let query = {
                 "command": "filterNodes",
                 "data": {
+                    "resourceType": "AWS::IAM::Policy",
                     "arn": "" + policyArn,
                 }
             };

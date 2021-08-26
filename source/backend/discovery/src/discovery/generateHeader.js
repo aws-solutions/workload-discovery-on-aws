@@ -1,24 +1,22 @@
-/**
- * 
- * Generates the text that should be displayed on the graph next to each resource
- * 
- */
 const R = require('ramda');
 
-// sets the title to the resourceName if exists, falls back to resourceId - default
+/**
+ *
+ * Generates the text that should be displayed on the graph next to each resource
+ *
+ */
+
 const buildGeneric = ({properties}) => {
     properties.title = R.defaultTo(properties.resourceId, properties.resourceName);
 }
 
-// Sets the title to the resourceName
 const buildResourceName = (data) => {
     data.properties.title = data.properties.resourceName;
 }
 
-const buildAutoscalingGroup = (data) => {
-    const parsed = data.properties.arn.split(":");
-    let almost = parsed[7].split("/");
-    data.properties.title = almost[1];
+const buildAutoscalingGroup = ({properties}) => {
+    const parsed = R.last(properties.arn.split(":"));
+    properties.title = R.last(parsed.split("/"));
 }
 
 const buildRDSCluster = (data) => {
@@ -29,13 +27,8 @@ const buildEnvironmentVariableTitle = (data) => {
     data.properties.title = data.properties.key;
 }
 
-const buildTargetGroup = (data) => {
-    const parsed = data.properties.arn.split(":");
-    data.properties.title = parsed[5];
-}
-
-const buildCloudFormation = (data) => {
-    data.properties.title = data.properties.resourceName;
+const buildTargetGroup = ({properties}) => {
+    properties.title = R.last(properties.arn.split(":"));
 }
 
 const buildTag = (data) => {
@@ -46,7 +39,7 @@ const generateHeader = (data) => {
 
     switch (data.properties.resourceType) {
         case "AWS::CloudFormation::Stack":
-            buildCloudFormation(data);
+            buildResourceName(data);
             break;
         case "AWS::VPC::EC2":
             buildGeneric(data);
@@ -138,4 +131,6 @@ const generateHeader = (data) => {
 
 }
 
-exports.generateHeader = generateHeader;
+module.exports = {
+    generateHeader
+};

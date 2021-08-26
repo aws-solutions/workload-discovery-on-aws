@@ -4,10 +4,11 @@
 
 const axios = require('axios');
 const AWS4 = require('aws4');
-const zoomUtils = require('./zoomUtils');
+const logger = require('./logger');
 
-const instance = axios.create();
-instance.defaults.timeout = 10000;
+const retry = require('async-retry');
+const RETRIES = 5;
+const MIN_TIMEOUT = 500;
 
 const postGremlin = async (body, importConfig, accessKeys) => {
     return await post(body, importConfig.dataPath, importConfig, accessKeys);
@@ -54,10 +55,19 @@ const post = async (body, path, importConfig, accessKeys) => {
     delete signedRequest.headers['Host'];
     delete signedRequest.headers['Content-Length'];
 
-    let res = await zoomUtils.retry(this, instance, [signedRequest], 3, 1000, "rest.post");
-    let response = await res.data;
+    const {data} = await retry(async (bail, count) => {
+        return axios(signedRequest).catch(err => {
+            if(count > 1) {
+                logger.debug(`Retry no ${count} because: ${body.command} with id ${body.data.id || body.data.source}`);
+                logger.debug(err);
+            }
+            if(err.response.status === 400 || err.response.status === 500 ) return bail(err);
+            if(count === RETRIES) logger.debug(`Retry limit for ${body.command} exceeded.`);
+            else throw err;
+        });
+    }, {retries: RETRIES, minTimeout: MIN_TIMEOUT})
 
-    return response;
+    return data;
 }
 
 const get = async (command, importConfig, accessKeys) => {
@@ -82,17 +92,20 @@ const get = async (command, importConfig, accessKeys) => {
     delete signedRequest.headers['Host'];
     delete signedRequest.headers['Content-Length'];
 
-    let res = await zoomUtils.retry(this, instance, [signedRequest], 3, 1000, "rest.get");
-    let response = await res.data;
-    return response;
-}
+    const {data} = await retry(async (bail, count) => {
+        return axios(signedRequest).catch(err => {
+            if(count > 1) logger.debug(`Retry no ${count} for ${request.url}`);
+            if(err.response.status === 500) return bail(err);
+            if(count === RETRIES) logger.debug(`Retry limit for ${request.url} exceeded.`);
+            else throw err;
+        });
+    }, {retries: RETRIES, minTimeout: MIN_TIMEOUT});
 
-const simpleGet = async (url) => {
-    return await instance.get(url);
+    return data;
 }
 
 const arrayGet = async (url) => {
-    return await instance ({
+    return axios({
         url: url,
         method: 'GET',
         responseType: 'arraybuffer',
@@ -100,8 +113,9 @@ const arrayGet = async (url) => {
     });
 }
 
-exports.postGremlin = postGremlin;
-exports.postElastic = postElastic;
-exports.get = get;
-exports.simpleGet = simpleGet;
-exports.arrayGet = arrayGet;
+module.exports = {
+    postGremlin,
+    postElastic,
+    get,
+    arrayGet
+};

@@ -19,6 +19,7 @@ class ENILinks {
 
     async discover(accountId, awsRegion) {
         try {
+            logger.info('Beginning discovery of Lambda ENIs.');
             let bind = this;
 
             let dataToUpload = await zoomUtils.expand(bind,
@@ -32,6 +33,7 @@ class ENILinks {
             for (let upload of dataToUpload) {
                 await this.dataClient.storeData("AWS::EC2::NetworkInterface", upload.children, 1, upload.id);
             }
+            logger.info('Discovery of Lambda ENIs complete.');
         }
         catch (Error) {
             console.dir(Error);

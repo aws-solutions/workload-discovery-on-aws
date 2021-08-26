@@ -23,18 +23,18 @@ const useStyles = makeStyles(theme => ({
     padding: '1vh',
     color: theme.palette.text.secondary,
     wordWrap: 'break-word',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     marginLeft: '1vw'
   },
   span: {
     padding: '1vh',
     wordWrap: 'break-word',
-    fontSize: '0.75rem'
+    fontSize: '1.2rem'
   },
   image: { width: 16, marginLeft: '1vw' },
   title: {
     color: 'rgba(0, 0, 0, 0.54)',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     lineHeight: '2rem',
     marginLeft: '.5rem'
   }
@@ -51,7 +51,6 @@ export default ({ title, actions }) => {
       <React.Fragment>
         {actions.map((item, index) => {
           return (
-            <Tooltip key={index} placement='top-start' title={getTitle()}>
               <div key={index}>
                 <span className='resourceState'>
                   <img
@@ -62,7 +61,6 @@ export default ({ title, actions }) => {
                 </span>
                 <Divider key={index} className={classes.divider} />
               </div>
-            </Tooltip>
           );
         })}
       </React.Fragment>

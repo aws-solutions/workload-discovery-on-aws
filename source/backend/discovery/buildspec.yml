@@ -3,8 +3,8 @@ phases:
   pre_build:
     commands:
       - echo ${IMAGE_VERSION}
-      - $(aws ecr get-login --no-include-email)
-      - IMAGE_URI="${REPOSITORY_URI}"
+      - aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}
+      - IMAGE_URI="${REGISTRY}/${REPOSITORY}"
   build:
     commands:
       - echo Build started on `date`

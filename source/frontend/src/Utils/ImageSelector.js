@@ -1,4 +1,3 @@
-
 const serviceIconMap = {
   'AWS-Cloud-alt_light-bg': 'account',
   'Region_light-bg': 'region',
@@ -80,8 +79,10 @@ const serviceIconMap = {
   'Amazon-VPC_Endpoints_light-bg-warning': 'AWS::VPC::Endpoint-status-warning',
   'Amazon-VPC_Endpoints_light-bg-error': 'AWS::VPC::Endpoint-status-negative',
   'Amazon-EC2_VPC_Endpoints_light-bg': 'AWS::EC2::VPCEndpoint-status-available',
-  'Amazon-EC2_VPC_Endpoints_light-bg-warning': 'AWS::EC2::VPCEndpoint-status-warning',
-  'Amazon-EC2_VPC_Endpoints_light-bg-error': 'AWS::EC2::VPCEndpoint-status-negative',
+  'Amazon-EC2_VPC_Endpoints_light-bg-warning':
+    'AWS::EC2::VPCEndpoint-status-warning',
+  'Amazon-EC2_VPC_Endpoints_light-bg-error':
+    'AWS::EC2::VPCEndpoint-status-negative',
   'Amazon-EC2_VPC_Endpoints_light-bg-menu': 'AWS::EC2::VPCEndpoint',
   'VPC-subnet-private_light-bg-collapsed': 'subnet',
   'VPC-subnet-private_light-bg-menu': 'AWS::EC2::Subnet',
@@ -182,11 +183,11 @@ const serviceIconMap = {
   'Amazon-CloudWatch_Alarm_light-bg': 'AWS::CloudWatch::Alarm',
   'Amazon-EC2_Elastic-IP-Address_light-bg': 'AWS::EC2::EIP',
   'Elastic-Load-Balancing_Classic-load-balancer_light-bg-error':
-    'AWS::ElasticLoadBalancing::LoadBalancer-state-negative',
+    'AWS::ElasticLoadBalancing::LoadBalancer-status-negative',
   'Elastic-Load-Balancing_Classic-load-balancer_light-bg':
-    'AWS::ElasticLoadBalancing::LoadBalancer-state-available',
+    'AWS::ElasticLoadBalancing::LoadBalancer-status-available',
   'Elastic-Load-Balancing_Classic-load-balancer_light-bg-warning':
-    'AWS::ElasticLoadBalancing::LoadBalancer-state-warning',
+    'AWS::ElasticLoadBalancing::LoadBalancer-status-warning',
   'Elastic-Load-Balancing_Classic-load-balancer_light-bg-menu':
     'AWS::ElasticLoadBalancing::LoadBalancer',
   'Elastic-Load-Balancing-ELB_Application-load-balancer_light-bg':
@@ -211,24 +212,33 @@ const serviceIconMap = {
   'Amazon-EC2-Auto-Scaling': 'AWS::AutoScaling::AutoScalingGroup',
   'Amazon-VPC_NAT-Gateway_light-bg': 'AWS::EC2::NatGateway-status-available',
   'Amazon-VPC_NAT-Gateway_light-bg-menu': 'AWS::EC2::NatGateway',
-  'Amazon-VPC_NAT-Gateway_light-bg-error': 'AWS::EC2::NatGateway-status-negative',
-  'Amazon-VPC_NAT-Gateway_light-bg-warning': 'AWS::EC2::NatGateway-status-warning',
+  'Amazon-VPC_NAT-Gateway_light-bg-error':
+    'AWS::EC2::NatGateway-status-negative',
+  'Amazon-VPC_NAT-Gateway_light-bg-warning':
+    'AWS::EC2::NatGateway-status-warning',
   'Env-variable-light-bg': 'AWS::Lambda::EnvironmentVariable',
   'Amazon-Elastic-Container-Service': 'AWS::ECS::Cluster-status-available',
   'Amazon-Elastic-Container-Service-menu': 'AWS::ECS::Cluster',
   'Amazon-Elastic-Container-Service-warning':
     'AWS::ECS::Cluster-status-warning',
   'Amazon-Elastic-Container-Service-error': 'AWS::ECS::Cluster-status-negative',
-  'Amazon-Elastic-Container-Service_Service_light-bg': 'AWS::ECS::Service-status-available',
-  'Amazon-Elastic-Container-Service_Service_light-bg-warning': 'AWS::ECS::Service-status-warning',
-  'Amazon-Elastic-Container-Service_Service_light-bg-error': 'AWS::ECS::Service-status-error',
+  'Amazon-Elastic-Container-Service_Service_light-bg':
+    'AWS::ECS::Service-status-available',
+  'Amazon-Elastic-Container-Service_Service_light-bg-warning':
+    'AWS::ECS::Service-status-warning',
+  'Amazon-Elastic-Container-Service_Service_light-bg-error':
+    'AWS::ECS::Service-status-error',
   'Amazon-Elastic-Container-Service_Service_light-bg-menu': 'AWS::ECS::Service',
-  'Amazon-Elastic-Container-Service_Task_light-bg': 'AWS::ECS::Task-status-available',
-  'Amazon-Elastic-Container-Service_Task_light-bg-warning': 'AWS::ECS::Task-status-warning',
-  'Amazon-Elastic-Container-Service_Task_light-bg-error': 'AWS::ECS::Task-status-error',
+  'Amazon-Elastic-Container-Service_Task_light-bg':
+    'AWS::ECS::Task-status-available',
+  'Amazon-Elastic-Container-Service_Task_light-bg-warning':
+    'AWS::ECS::Task-status-warning',
+  'Amazon-Elastic-Container-Service_Task_light-bg-error':
+    'AWS::ECS::Task-status-error',
   'Amazon-Elastic-Container-Service_Task_light-bg-menu': 'AWS::ECS::Task',
   'ECS-Task-Definition-light-bg': 'AWS::ECS::TaskDefinition-status-available',
-  'ECS-Task-Definition-light-bg-warning': 'AWS::ECS::TaskDefinition-status-warning',
+  'ECS-Task-Definition-light-bg-warning':
+    'AWS::ECS::TaskDefinition-status-warning',
   'ECS-Task-Definition-light-bg-error': 'AWS::ECS::TaskDefinition-status-error',
   'ECS-Task-Definition-light-bg-menu': 'AWS::ECS::TaskDefinition',
   'Env-variable-ECS-light-bg': 'AWS::ECS::EnvironmentVariable',
@@ -247,56 +257,71 @@ const serviceIconMap = {
   'status-warning': 'status-warning',
   'status-negative': 'status-negative',
   'status-positive': 'status-available',
-  'add_circle': 'expand_icon',
-  'remove_circle': 'collapse_icon',
-  'availabilityZone': 'availabilityZone',
+  add_circle: 'expand_icon',
+  remove_circle: 'collapse_icon',
+  availabilityZone: 'availabilityZone',
   'Amazon-VPC_Flow-Logs_light-bg': 'AWS::EC2::FlowLog',
   'Amazon-Simple-Notification-Service-SNS_Topic_light-bg': 'AWS::SNS::Topic',
-  'search': 'search',
+  search: 'search',
   'Amazon-CloudFront_light-bg': 'AWS::CloudFront::Distribution',
-  'Amazon-CloudFront_Streaming-Distribution_light-bg': 'AWS::CloudFront::StreamingDistribution',
-  'AWS-WAF_rate-based-rule-bg':'AWS::WAF::RateBasedRule',
-  'AWS-WAF_rule-bg':'AWS::WAF::Rule',
-  'AWS-WAF_webacl-bg':'AWS::WAF::WebACL',
-  'AWS-WAF_rule-group-bg':'AWS::WAF::RuleGroup',
-  'AWS-WAF_regional-rate-based-rule-bg':'AWS::WAFRegional::RateBasedRule',
-  'AWS-WAF_regional-rule-bg':'AWS::WAFRegional::Rule',
-  'AWS-WAF_regional-webacl-bg':'AWS::WAFRegional::WebACL',
-  'AWS-Shield-bg':'AWS::Shield::Protection',
-  'AWS-Shield_regional-bg':'AWS::ShieldRegional::Protection',
+  'Amazon-CloudFront_Streaming-Distribution_light-bg':
+    'AWS::CloudFront::StreamingDistribution',
+  'AWS-WAF_rate-based-rule-bg': 'AWS::WAF::RateBasedRule',
+  'AWS-WAF_rule-bg': 'AWS::WAF::Rule',
+  'AWS-WAF_webacl-bg': 'AWS::WAF::WebACL',
+  'AWS-WAF_rule-group-bg': 'AWS::WAF::RuleGroup',
+  'AWS-WAF_regional-rate-based-rule-bg': 'AWS::WAFRegional::RateBasedRule',
+  'AWS-WAF_regional-rule-bg': 'AWS::WAFRegional::Rule',
+  'AWS-WAF_regional-webacl-bg': 'AWS::WAFRegional::WebACL',
+  'AWS-Shield-bg': 'AWS::Shield::Protection',
+  'AWS-Shield_regional-bg': 'AWS::ShieldRegional::Protection',
   'Amazon-Simple-Queue-Service-SQS_Queue_light-bg': 'AWS::SQS::Queue',
-  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-error': 'AWS::QLDB::Ledger-status-negative',
-  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-menu' : 'AWS::QLDB::Ledger',
-  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-warning' : 'AWS::QLDB::Ledger-status-warning',
-  'Amazon-Quantum-Ledger-Database_QLDB_light-bg' : 'AWS::QLDB::Ledger-status-available'
-
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-error':
+    'AWS::QLDB::Ledger-status-negative',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-menu': 'AWS::QLDB::Ledger',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg-warning':
+    'AWS::QLDB::Ledger-status-warning',
+  'Amazon-Quantum-Ledger-Database_QLDB_light-bg':
+    'AWS::QLDB::Ledger-status-available',
+  'Amazon-Redshift_light-bg-error': 'AWS::Redshift::Cluster-status-negative',
+  'Amazon-Redshift_light-bg-warning': 'AWS::Redshift::Cluster-status-warning',
+  'Amazon-Redshift_light-bg': 'AWS::Redshift::Cluster-status-available',
+  'Amazon-Redshift_light-bg-menu': 'AWS::Redshift::Cluster',
+  'Amazon-EC2-Container-Registry': 'AWS::ECR::Repository',
+  'Amazon-Elastic-Kubernetes-Service-menu': 'AWS::EKS::Cluster',
+  'Amazon-Elastic-Kubernetes-Service-error':
+    'AWS::EKS::Cluster-status-negative',
+  'Amazon-Elastic-Kubernetes-Service-warning':
+    'AWS::EKS::Cluster-status-warning',
+  'Amazon-Elastic-Kubernetes-Service': 'AWS::EKS::Cluster-status-available',
 };
 
 const icons = new Map();
 
 for (let [key, value] of Object.entries(serviceIconMap)) {
-  icons.set(value, key)
+  icons.set(value, key);
 }
 
-export const fetchImage = (type, state) => { 
+export const fetchImage = (type, state) => {
   let image;
-
   if (state && type) {
-    image = icons.get(`${type}-${state.status}`)
+    image = icons.get(`${type}-${state.status}`);
   } else if (state && !type) {
-    image = icons.get(state.status)
-  } else if( !state && type) {    
-    image = icons.get(type)
+    image = icons.get(state.status);
+  } else if (!state && type) {
+    image = icons.get(type);
   } else {
-    return undefined
+    return undefined;
   }
-  return image ? buildURL(image) : undefined
+  return image ? buildURL(image) : undefined;
 };
 
 const buildURL = (image) => {
   return `${process.env.PUBLIC_URL}/icons/${image}.svg`;
-}
+};
 
-export const fetchLogo = transparent => {
-  return transparent ? `${process.env.PUBLIC_URL}/icons/${icons.get('logo-transparent')}.svg` : `${process.env.PUBLIC_URL}/icons/${icons.get('logo')}.svg`;
+export const fetchLogo = (transparent) => {
+  return transparent
+    ? `${process.env.PUBLIC_URL}/icons/${icons.get('logo-transparent')}.svg`
+    : `${process.env.PUBLIC_URL}/icons/${icons.get('logo')}.svg`;
 };

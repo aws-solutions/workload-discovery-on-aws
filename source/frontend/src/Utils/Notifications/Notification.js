@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
-import Chip from '@material-ui/core/Chip';
+import Badge from '@awsui/components-react/badge';
 import FaceIcon from '@material-ui/icons/Face';
 import DoneIcon from '@material-ui/icons/Done';
 import { Typography } from '@material-ui/core';
@@ -14,24 +14,15 @@ const useStyles = makeStyles((theme) => ({
     '& > *': {
       margin: theme.spacing(0.5),
     },
-    height: '18px'
   },
   label: {
     color: '#545b64',
     margin: 'auto',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     background: '#fff',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     fontWeight: 400,
   },
-  chip: {
-      fontSize: '0.6rem',
-      background: '#d13212',
-      color: '#fff',
-      marginLeft: '1rem',
-      height: '18px',
-      margin: 0
-  }
 }));
 
 export default ({ label, count }) => {
@@ -40,7 +31,7 @@ export default ({ label, count }) => {
   return (
     <div className={classes.root}>
       <Typography classes={{ root: classes.label }}>{label}</Typography>
-      <Chip classes={{root: classes.chip}} size='small' label={count} />
+      <Badge color='blue'>{count}</Badge>
     </div>
   );
 };

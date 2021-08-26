@@ -16,6 +16,7 @@ class TaskDefinitionLinks {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of task definition links.');
         let bind = this;
 
         let dataToUpload = await zoomUtils.expand(bind,
@@ -26,6 +27,7 @@ class TaskDefinitionLinks {
         for (let upload of dataToUpload) {
             await this.dataClient.storeData("AWS::ECS::EnvironmentVariable", upload.children, 0, upload.id);
         }
+        logger.info('Discovery of task definition links complete.');
     }
 
     async processEnvironmentLinks(accountId, awsRegion, value) {

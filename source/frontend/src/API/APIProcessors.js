@@ -1,25 +1,25 @@
 import { buildNode } from './NodeFactory/NodeFactory';
 import { processEdges } from './Processors/EdgeProcessors';
-import { processChildNodes } from './Processors/NodeProcessors';
-
-export const processImportConfiguration = data => {
+import { fetchCosts, processChildNodes } from './Processors/NodeProcessors';
+const R = require('ramda');
+export const processImportConfiguration = (data) => {
   return (
     data && {
       importConfigured: data.importConfigured,
-      importData: data.results
+      importData: data.results,
     }
   );
 };
 
-export const processTemplate = data => {
+export const processTemplate = (data) => {
   return data ? data.template : {};
 };
 
-export const processMetadata = data => {
+export const processMetadata = (data) => {
   if (data && data.importRun) {
     const metadata = new Map();
     data.results &&
-      data.results.accountData.map(account =>
+      data.results.accountData.map((account) =>
         metadata.set(account.accountId, account.regions)
       );
     // metadata.set('global', [{ region: 'global', count: 0 }]);
@@ -29,32 +29,60 @@ export const processMetadata = data => {
   }
 };
 
-export const processFilterResults = data => {
-  const nodes = data && data.results.map(async (node) => await buildNode(node));
+export const processFilterResults = (data) => {
+  const nodes = data && data.results.map(async (node) => buildNode(node));
   return nodes;
 };
 
-export const processDeletedNodes = data => {
+
+
+export const processDeletedNodes = (data) => {
   let nodes = [];
   data.map(
-    node =>
+    (node) =>
       (nodes = processChildNodes(node, [], 0, node.id).filter(
-        item => item.data.type === 'resource'
+        (item) => item.data.type === 'resource'
       ))
   );
   return nodes;
 };
 
-export const processHierarchicalNodeData = (data, params) => {
-  let edges = [];
-  let nodes = [];
-  data.map(
-    child => {
-      return (nodes = nodes.concat(
-        processChildNodes(child, [], 0, child.id, params && params.nodeId)
-      ))
+const processNode = (node, selectedNodeId) =>
+  Promise.resolve(processChildNodes(node, [], 0, node.id, selectedNodeId));
+
+export const processHierarchicalNodeData = async (
+  nodes,
+  selectedNodeId,
+  costPreferences
+) => {
+  let processedNodes = [];
+  let processedEdges = [];
+
+  try {
+    if (Array.isArray(nodes)) {
+       await R.forEach(
+        (node) =>
+          processNode(node, selectedNodeId).then((e) => {
+            processedNodes = R.concat(e, processedNodes);
+            processedEdges = selectedNodeId
+              ? R.concat(
+                  processedEdges,
+                  processEdges(processedNodes, selectedNodeId)
+                )
+              : [];
+          }),
+        nodes
+      );
+    } else {
+      processedNodes = await processNode(nodes, selectedNodeId);
+      processedEdges = selectedNodeId
+        ? processEdges(processedNodes, selectedNodeId)
+        : [];
     }
-  );
-  if (params) edges = edges.concat(processEdges(nodes, params.nodeId));
-  return nodes.concat(edges);
+    return costPreferences.processCosts
+      ? await fetchCosts(processedNodes.concat(processedEdges), costPreferences)
+      : processedNodes.concat(processedEdges);
+  } catch (err) {
+    throw new Error('Could not parse linkedHierachy');
+  }
 };

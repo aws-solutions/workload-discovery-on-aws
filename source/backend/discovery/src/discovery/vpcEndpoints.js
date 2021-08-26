@@ -12,12 +12,14 @@ class VPCEndpoints {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of VPC endpoints.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processVPCEndpoints(accountId, awsRegion),
             this.processNetworkInterfaces);
 
         await this.dataClient.storeData("AWS::VPC::Endpoint", dataToUpload, 0);
+        logger.info('Discovery of VPC endpoints complete.');
     }
 
     async processNetworkInterfaces(temporary, accountId, awsRegion) {

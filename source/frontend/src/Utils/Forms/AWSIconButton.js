@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     display: 'flex',
     cursor: 'pointer',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     textTransform: 'capitalize',
     fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
     '&:hover': {

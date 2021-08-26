@@ -32,6 +32,10 @@ Parameters:
   ElasticsearchDomainEndpoint:
     Type: String
 
+  CustomUserAgent:
+    Type: String
+    Default: 'AwsSolution/SO0075/1.1.0'
+
 Resources:
   SearchLambdaSg:
     Type: AWS::EC2::SecurityGroup
@@ -58,6 +62,8 @@ Resources:
     Metadata:
       cfn_nag:
         rules_to_suppress:
+          - id: W92
+            reason: 'Not applicable'
           - id: W58
             reason: cfn_nag is not scanning the Role that it is actually using. You will see in then ElasticSearchLambdaRole template that it does have access
     Type: AWS::Lambda::Function
@@ -67,7 +73,7 @@ Resources:
       Code:
         S3Bucket: !Ref DeploymentBucket
         S3Key: !Sub ${DeploymentBucketKey}/search.zip
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       Description: Lambda for querying and writing to Elasticsearch
       Timeout: 10
       TracingConfig:
@@ -83,6 +89,7 @@ Resources:
         Variables:
           ES_REGION: !Sub ${AWS::Region}
           ES_DOMAIN: !Ref ElasticsearchDomainEndpoint
+          CustomUserAgent: !Ref CustomUserAgent
 
   ElasticsearchLambdaErrorAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -98,7 +105,7 @@ Resources:
       Threshold: 10
       EvaluationPeriods: 3
       Period: 60
-      TreatMissingData: breaching
+      TreatMissingData: notBreaching
 
 Outputs:
   ElasticARN:

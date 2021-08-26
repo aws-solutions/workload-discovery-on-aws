@@ -1,144 +1,21 @@
-import React, { useRef, useState, useContext } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import TreeView from '@material-ui/lab/TreeView';
-import ExpandMoreIcon from '@material-ui/icons/ArrowDropDown';
-import ChevronRightIcon from '@material-ui/icons/ArrowRight';
-import OpenInNew from '@material-ui/icons/OpenInNew';
-import IconButton from '@material-ui/core/IconButton';
-import TreeItem from '@material-ui/lab/TreeItem';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import RootRef from '@material-ui/core/RootRef';
-import SaveDialog from '../../Graph/Save/SaveDialog';
-import ExportTable from '../../Graph/ExportTable/ExportTable';
-import { sendDrawioPostRequest } from '../../../API/APIHandler';
+import React, { useState } from 'react';
 
-const useStyles = makeStyles({
-  root: {
-    // flexGrow: 1,
-    maxWidth: 400,
-    height: 'fit-content',
-    // maxHeight: '30px',
-    background: ['#fff'].join(','),
-    '& .MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label': {
-      background: '#fff',
-      color: '#dd6b10',
-      width: 'fit-content',
-    },
-    '& .MuiTreeItem-root:focus > .MuiTreeItem-content .MuiTreeItem-label': {
-      backgroundColor: '#fff'
-    },
-    '& .MuiTreeItem-root.Mui-selected > .MuiTreeItem-content .MuiTreeItem-label:hover': {
-      background: '#fff',
-    },
-    '& .MuiTreeItem-label:hover': {
-      color: '#dd6b10',
-      background: '#fff',
-    },
-    '& .MuiTreeItem-root.Mui-selected': {
-      // background: 'red'
-    },
-  },
-  group: {
-    marginLeft: '3%',
-  },
-  content: {
-    background: '#fff',
-  },
-  selected: {
-    background: '#fff',
-  },
-  label: {
-    fontSize: '0.75rem',
-    fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    background: '#fff',
-    width: '100%',
-    color: '#545b64',
-    fontWeight: 400,
-  },
-  subLabel: {
-    fontSize: '0.75rem',
-    fontWeight: 400,
-    fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    background: '#fff',
-    color: '#545b64',
-    width: '100%',
-  },
-  iconContainer: {
-    color: '#879596',
-  },
-  selection: {
-    paddingTop: '2%',
-    paddingBottom: '2%',
-    width: '100%',
-  },
-  popper: {
-    display: 'inline-flex',
-    maxWidth: '100vw',
-    width: '100%',
-  },
-  type: {
-    margin: 'auto 0 auto 0',
-    fontSize: '.75rem',
-  },
-  textfield: {
-    width: '100%',
-    margin: '0',
-    borderBottom: '1px solid #687078',
-    borderTop: ['1px solid #687078'].join(','),
-    '& .MuiInput-underline:hover:before': {
-      border: 0,
-    },
-    '& .MuiInput-underline:before': {
-      border: 0,
-    },
-    '& .MuiInput-underline:after': {
-      border: 0,
-    },
-    '& .MuiInput-root': {
-      border: '1px solid #fafafa',
-      padding: '0 0 0 2%',
-      fontSize: '.75rem',
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '0.75rem',
-      color: '#000',
-      fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    },
-  },
-  menuButton: {
-    // height: '18px',
-    padding: 'unset',
-    margin: ['0 0 0 2%'].join(','),
-    '&:hover': {
-      outline: 'none',
-    },
-    '&:focus': {
-      outline: 'none',
-    },
-  },
-  drawio: {
-    display: 'inline-flex',
-    width: '100%',
-    height: 'fit-content',
-  },
-  drawioLabel: {
-    fontSize: '0.75rem',
-    margin: 'auto 0',
-  },
-  externalIcon: {
-    width: '18px',
-  },
-});
+import SaveDialog from '../../Graph/Export/Other/SaveDialog';
+import ExportTable from '../../Graph/Export/CSV/ExportDialog';
+import { sendDrawioPostRequest } from '../../../API/APIHandler';
+import { handleResponse } from '../../../API/Handlers/SettingsGraphQLHandler';
+import {
+  ExpandableSection,
+  Button,
+  ColumnLayout,
+} from '@awsui/components-react';
 
 export default ({ compound }) => {
-  const classes = useStyles();
   const [expanded, setExpanded] = React.useState([]);
   const [saveJson, setSaveJson] = useState(false);
   const [saveCSV, setSaveCSV] = useState(false);
   const [savePNG, setSavePNG] = useState(false);
-
-  const treeViewRef = useRef();
+  const [error, setError] = useState();
 
   const handleToggle = (event, nodeIds) => {
     setExpanded(nodeIds);
@@ -205,123 +82,49 @@ export default ({ compound }) => {
 
   const generateDrawio = async () => {
     const query = {
-      body: compound.json(),
+      body: {data: compound.json().elements},
       processor: (data) => data,
     };
-    const drawiourl = await sendDrawioPostRequest(query, query.processor);
-    window.open(drawiourl.body, '_blank');
+    await sendDrawioPostRequest(query, query.processor)
+      .then(handleResponse)
+      .then((response) => window.open(response.body, '_blank', 'rel=noreferrer'))
+      .catch((err) => setError(err));
   };
 
   return (
     <>
-      <RootRef rootRef={treeViewRef}>
-        <TreeView
-          classes={{ root: classes.root }}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          expanded={expanded}
-          // selected={selected}
-          onNodeToggle={handleToggle}
-          onNodeSelect={handleSelect}>
-          <TreeItem
-            key='0'
-            nodeId='0'
-            label={`Export`}
-            classes={{
-              root: classes.selection,
-              label: classes.label,
-              // selected: classes.selected,
-              content: classes.content,
-              iconContainer: classes.iconContainer,
-              group: classes.group,
-            }}>
-              <Tooltip
-            placement='right-end'
-            title='Export this architecture diagram as CSV'>
-            <TreeItem
-              key='1'
-              nodeId='1'
-              label={`CSV`}
-              classes={{
-                root: classes.selection,
-                label: classes.subLabel,
-                // selected: classes.selected,
-                content: classes.content,
-                iconContainer: classes.iconContainer,
-                group: classes.group,
-              }}
-            />
-            </Tooltip>
-            <Tooltip
-            placement='right-end'
-            title='Export this architecture diagram as JSON'>
-            <TreeItem
-              key='2'
-              nodeId='2'
-              label={`JSON`}
-              classes={{
-                root: classes.selection,
-                label: classes.subLabel,
-                // selected: classes.selected,
-                content: classes.content,
-                iconContainer: classes.iconContainer,
-                group: classes.group,
-              }}
-            />
-            </Tooltip>
-            <Tooltip
-            placement='right-end'
-            title='Export this architecture diagram as a PNG'>
-            <TreeItem
-              key='3'
-              nodeId='3'
-              label={`PNG`}
-              classes={{
-                root: classes.selection,
-                label: classes.subLabel,
-                // selected: classes.selected,
-                content: classes.content,
-                iconContainer: classes.iconContainer,
-                group: classes.group,
-              }}
-            />
-            </Tooltip>
-            <Tooltip
-            placement='right-end'
-            title='Open this architecture diagram in Draw.io'>
-            <TreeItem
-              key='4'
-              nodeId='4'
-              label={
-                <div className={classes.drawio}>
-                  <Typography className={classes.drawioLabel}>
-                    Drawio
-                  </Typography>
-                    <IconButton
-                      disableTouchRipple
-                      disableFocusRipple
-                      edge='start'
-                      className={classes.menuButton}
-                      onClick={() => generateDrawio()}
-                      color='inherit'
-                      aria-label='menu'>
-                      <OpenInNew className={classes.externalIcon} />
-                    </IconButton>
-                </div>
-              }
-              classes={{
-                root: classes.selection,
-                label: classes.subLabel,
-                // selected: classes.selected,
-                content: classes.content,
-                iconContainer: classes.iconContainer,
-                group: classes.group,
-              }}
-            />
-            </Tooltip>
-          </TreeItem>
-        </TreeView>
-      </RootRef>
+      <ExpandableSection
+        className='second-level'
+        variant='navigation'
+        header='Export'>
+        <ColumnLayout columns={1} disableGutters>
+          <Button
+            variant='link'
+            onClick={() => setSavePNG(!savePNG)}
+            className='sidepanel-button'>
+            PNG
+          </Button>
+          <Button
+            variant='link'
+            onClick={() => setSaveCSV(!saveCSV)}
+            className='sidepanel-button'>
+            CSV
+          </Button>
+          <Button
+            variant='link'
+            onClick={() => setSaveJson(!saveJson)}
+            className='sidepanel-button'>
+            JSON
+          </Button>
+          <Button
+            iconName='external'
+            variant='link'
+            onClick={generateDrawio}
+            className='sidepanel-button'>
+            Drawio
+          </Button>
+        </ColumnLayout>
+      </ExpandableSection>
       {saveJson && (
         <SaveDialog
           title='Download as JSON'

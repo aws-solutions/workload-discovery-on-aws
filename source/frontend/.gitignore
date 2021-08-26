@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
 build
+codebuild_build.sh
 
 #amplify
 amplify/\#current-cloud-backend

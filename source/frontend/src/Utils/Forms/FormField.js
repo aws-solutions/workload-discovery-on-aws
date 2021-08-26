@@ -44,7 +44,7 @@ export default ({
       },
       '& .MuiInput-root': {
         height: '35px',
-        fontSize: '0.85rem',
+        fontSize: '1.4rem',
       },
       '& .MuiFocused': {
         borderColor: '#C52328',
@@ -61,13 +61,13 @@ export default ({
     label: {
       marginLeft: '0',
       fontWeight: 600,
-      fontSize: '0.85rem',
+      fontSize: '1.4rem',
     },
     description: {
       marginLeft: '0',
       color: '#687078',
       fontWeight: 400,
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
     },
     searchBar: {
       border: error ? '1px solid #C52328' : '1px solid #aab7b8',

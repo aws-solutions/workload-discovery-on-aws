@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 75 75">
+    <defs>
+        <style>
+            .cls-1 {
+                fill: #ffffff;
+            }
+
+            .cls-2 {
+                fill: #c8511b;
+            }
+        </style>
+    </defs>
+    <title>Amazon-Elastic-Container-Service-for-Kubernetes</title>
+    <g id="Reference">
+        <rect id="Orange_Gradient" data-name="Orange Gradient" class="cls-1" width="75" height="75" />
+        <g id="Icon_Test" data-name="Icon Test">
+            <path class="cls-2"
+                d="M37.5,64.51a1,1,0,0,1-.5-.13L14,51.1a1,1,0,0,1-.5-.87V23.67a1,1,0,0,1,.5-.87L35,10.62a1,1,0,0,1,1,0,1,1,0,0,1,.5.87V23a1,1,0,0,1-.5.87L25.5,30V43.87l12,6.93,10.47-6a1,1,0,0,1,1,0l10,5.77a1,1,0,0,1,0,1.74L38,64.38A1,1,0,0,1,37.5,64.51Zm-22-14.86,22,12.71,19-11-8-4.62L38,52.83a1,1,0,0,1-1,0L24,45.32a1,1,0,0,1-.5-.87v-15a1,1,0,0,1,.5-.87l10.5-6.11V13.22l-19,11Z" />
+            <path class="cls-2"
+                d="M60.5,48.93A1,1,0,0,1,60,48.8L50,43.05a.87.87,0,0,1-.45-.87V30L39,24a1,1,0,0,1-.5-.87V11.6a1,1,0,0,1,.5-.87,1.06,1.06,0,0,1,1,0L61,22.8a1,1,0,0,1,.5.87V47.93a1,1,0,0,1-1,1Zm-9-7.32,8,4.58V24.25l-19-10.92v9.23l10.5,6a1,1,0,0,1,.5.86Z" />
+            <path class="cls-2" d="M32.5,44.49v-15h2v6.83L41,29.49h2.64l-6.78,7.3,7.37,7.7H41.5l-7-7v7Z" />
+        </g>
+    </g>
+    <style type="text/css">
+        .st4 {
+            fill: #1d8102
+        }
+    </style>
+    <g id="grid_x5F_locked" />
+    <g id="icon">
+        <g transform="translate(55,2)">
+            <path class="st4" d="M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6
+			S11.3,14,8,14z" />
+            <polygon class="st4" points="7,8.6 5,6.6 3.6,8 7,11.4 11.9,6.5 10.5,5.1 		" />
+        </g>
+    </g>
+</svg>

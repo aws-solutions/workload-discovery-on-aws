@@ -1,9 +1,14 @@
 import React from 'react';
 import { fetchImage } from '../../../../Utils/ImageSelector';
 import CloudFrontDistributionItem from './CloudFrontDistributionDetails/CloudFrontDistributionItem';
-import CloudFrontDistributionHover from './CloudFrontDistributionDetails/CloudFrontDistributionHover';
 
+const R = require('ramda');
 export const parseCloudFrontDistribution = (node) => {
+  const properties = R.hasPath(['properties'], node)
+    ? node.properties
+    : node.data('properties');
+
+
   return {
     styling: {
       borderStyle: 'solid',
@@ -13,28 +18,12 @@ export const parseCloudFrontDistribution = (node) => {
       message: '',
       colour: '#fff',
     },
-    icon: fetchImage(node.properties.resourceType, undefined),
+    icon: fetchImage(properties.resourceType, undefined),
     detailsComponent: (
       <CloudFrontDistributionItem
         title='Distribution Details'
-        configuration={node.properties.configuration}
+        configuration={properties.configuration}
       />
     ),
-    // hoverComponent: (
-    //   <CloudFrontDistributionHover
-    //     statement={statement}
-    //     resourceStatus={getResourceStatus(statement)}
-    //     actionStatus={getActionStatus(statement)}
-    //   />
-    // ),
   };
-};
-
-const getEngineType = (properties) => {
-  const configuration = JSON.parse(properties.configuration);
-  if (configuration.engine) {
-    return `AWS::RDS::DBInstance-${configuration.engine}`;
-  } else {
-    return 'AWS::RDS::DBInstance';
-  }
 };

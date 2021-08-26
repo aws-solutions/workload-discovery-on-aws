@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
   item: {
     textTransform: 'capitalize',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     marginLeft: '0.5vw'
   },
   div: {
@@ -13,14 +13,14 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: '#535B63',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     lineHeight: '2rem',
     marginBottom: '.5rem'
   },
   image: { width: 16 },
   notState: {
     textTransform: 'capitalize',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     marginLeft: '0.5vw'
   }
 }));

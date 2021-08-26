@@ -7,7 +7,8 @@ const config = {
     graphgQlUrl: process.env.GRAPHQL_API_URL,
     dataPath: process.env.DATA_PATH,
     searchPath: process.env.SEARCH_PATH,
-    rootAccountRole: process.env.DISCOVERY_ROLE
+    rootAccountRole: process.env.DISCOVERY_ROLE,
+    customUserAgent: process.env.CUSTOM_USER_AGENT
 };
 
 module.exports = config;

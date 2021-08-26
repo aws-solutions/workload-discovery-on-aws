@@ -7,6 +7,7 @@ const generateHeader = require('./generateHeader');
 const zoomUtils = require('./zoomUtils');
 const logger = require('./logger');
 const authDetailsUtils = require('./authDetailsUtils');
+const {md5Async} = require('./authDetailsUtils');
 
 const hash = data => {
     const crypto = require('crypto');
@@ -172,14 +173,11 @@ class RoleAccountAuthorizationDetails {
 
     // The policy is stored in the temporary field....
     async processRoleAuthorizationStatements(accountId, awsRegion, policyDocument) {
-
-        let children = [];
-
         // A statement can be a signular or an array.  Convert all to arrays.
-        let statements = Array.isArray(policyDocument.Statement) ? policyDocument.Statement : [policyDocument.Statement];
+        const statements = Array.isArray(policyDocument.Statement) ? policyDocument.Statement : [policyDocument.Statement];
 
-        for (let statement of statements) {
-            let resourceId = authDetailsUtils.hash(statement);
+        return Promise.all(statements.map(async statement => {
+            let resourceId = await md5Async(statement);
             let resourceType = "AWS::IAM::CustomerManagedPolicyStatement";
 
             let data = {
@@ -201,12 +199,8 @@ class RoleAccountAuthorizationDetails {
             }
 
             data.properties = properties;
-
-            children.push(data);
-        }
-
-
-        return children;
+            return data;
+        }));
     }
 
     async processRoleAuthorizationResources(accountId, awsRegion, resources, actions) {

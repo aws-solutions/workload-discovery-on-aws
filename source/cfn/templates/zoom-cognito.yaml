@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: This CloudFormation sets up the Amazon Cognito authentication.
+
+Description: AWS Perspective Amazon Cognito Stack
+
 Parameters:
   AmplifyStorageBucket:
     Type: String

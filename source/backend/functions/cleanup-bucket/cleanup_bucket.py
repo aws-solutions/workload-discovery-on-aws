@@ -10,6 +10,7 @@ helper = CfnResource(json_logging=False, log_level='DEBUG',
                      boto_level='CRITICAL')
 
 s3 = boto3.resource("s3")
+client = boto3.client("s3")
 
 logger = logging.getLogger()
 logger.setLevel(os.getenv("LogLevel", logging.INFO))
@@ -40,15 +41,17 @@ def create(event, context):
 
 @with_logging
 @helper.delete
-def delete(event, context):
-    props = event['ResourceProperties']
-    bucket = s3.Bucket(props['Bucket'])
-    try:
-        bucket.objects.all().delete()
-        bucket.object_versions.all().delete()
-    except s3.meta.client.exceptions.NoSuchBucket:
-        logger.info(props['Bucket'] + ' was empty.')
-        pass
+def delete(event, _):
+    bucket_name = event['ResourceProperties']['Bucket']
+    logger.info('Beginning cleanup of ' + bucket_name + '...')
+    bucket = s3.Bucket(bucket_name)
+    # We need to disable access logging or the access log bucket will never empty.
+    # Attempting to resolve this with DependsOn attributes results in numerous
+    # circular dependencies.
+    client.put_bucket_logging(Bucket=bucket_name, BucketLoggingStatus={})
+    bucket.objects.all().delete()
+    bucket.object_versions.all().delete()
+    logger.info('Cleanup of ' + bucket_name + ' complete.')
     return None
 
 

@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
   item: {
     textTransform: 'capitalize',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     marginLeft: '0.5vw',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
   },
@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: '#535B63',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     lineHeight: '2rem',
     marginBottom: '.5rem'
@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
   image: { width: 16 },
   notState: {
     textTransform: 'capitalize',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     marginLeft: '0.5vw'
   }

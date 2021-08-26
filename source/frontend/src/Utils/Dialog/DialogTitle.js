@@ -20,6 +20,7 @@ const styles = (theme) => ({
       color: '#16191f',
       fontWeight: 700,
       fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
+      fontSize: '1.7rem'
     }
   });
 

@@ -9,22 +9,21 @@ const AWS = require('aws-sdk');
 const Ajv = require('ajv');
 const betterAjvErrors = require('better-ajv-errors');
 const util = require('util');
+const isIsoDate = require( 'is-iso-date' );
 
-const cost = require('./cost');
 const hierarchy = require('./hierarchy');
 const queryBuilder = require('./queryBuilder');
 const schema = require('./schema.json');
 
-//const DriverRemoteConnection = gremlinDriver.AwsSigV4DriverRemoteConnection; 
+//const DriverRemoteConnection = gremlinDriver.AwsSigV4DriverRemoteConnection;
 const Graph = gremlin.structure.Graph;
-const { t: { id } } = gremlin.process;
+const { t: { id , label: tLabel} } = gremlin.process;
 const __ = gremlin.process.statics;
 const p = gremlin.process.P;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 
 const neptuneConnectURL = process.env.neptuneConnectURL;
 const neptunePort = process.env.neptunePort;
-const costDataEnabled = process.env.costDataEnabled;
 
 const ajv = new Ajv({ jsonPointers: true });
 
@@ -146,10 +145,10 @@ exports.handler = async (inputEvent) => {
             result = await queryRunnerG(directViewAllEdges)(event);
             break;
         case "downloadAccountCloudFormation":
-            result = await downloadCloudFormation("account-import-template.template");
+            result = await downloadCloudFormation("global-resources.template");
             break;
         case "downloadRegionCloudFormation":
-            result = await downloadCloudFormation("account-region-template.template");
+            result = await downloadCloudFormation("regional-resources.template");
             break;
         case "deleteAllNodes":
             result = await queryRunner(deleteAllNodes)(event);
@@ -180,14 +179,14 @@ exports.handler = async (inputEvent) => {
             result = await queryRunner(deleteNodes)(event);
             break;
         case "getAllResources":
-            result = await queryRunner(getAllResources)(event);
+            result = await queryRunnerG(getAllResources)(event);
             break;
         case "getNodeFromId":
             result = await queryRunner(wrapGetNodeFromId)(event);
             break;
-        // case "testQuery": 
-        //     result = queryRunner(testQuery)(event); 
-        //     break; 
+        // case "testQuery":
+        //     result = queryRunner(testQuery)(event);
+        //     break;
         default:
             return wrapResponse(400, { error: "Command not found *" + event.command + "*", event: event.data });
     }
@@ -195,36 +194,36 @@ exports.handler = async (inputEvent) => {
     return result;
 };
 
-/** 
- * ScratchPad - Used to test gremlin queries. 
- *  
- * @param {*} event  
+/**
+ * ScratchPad - Used to test gremlin queries.
+ *
+ * @param {*} event
  */
-// const testQuery = async (event, dc) => { 
-//     const graph = new Graph(); 
-//     const g = graph.traversal().withRemote(dc); 
+// const testQuery = async (event, dc) => {
+//     const graph = new Graph();
+//     const g = graph.traversal().withRemote(dc);
 
-//     const data = await g.V().has("resourceType", "AWS::EC2::Volume") 
-//         .not( 
-//             __.both("linked") 
-//                 .has("resourceType", "AWS::EC2::Instance") 
-//         ) 
-//         .valueMap(true) 
-//         .toList(); 
+//     const data = await g.V().has("resourceType", "AWS::EC2::Volume")
+//         .not(
+//             __.both("linked")
+//                 .has("resourceType", "AWS::EC2::Instance")
+//         )
+//         .valueMap(true)
+//         .toList();
 
-//     console.log(util.inspect(data, { depth: 10 })); 
+//     console.log(util.inspect(data, { depth: 10 }));
 
-//     let listOfNodes = data.map((element) => createNode(processMap(element))); 
+//     let listOfNodes = data.map((element) => createNode(processMap(element)));
 
-//     return { 
-//         success: true, results: listOfNodes 
-//     }; 
-// } 
+//     return {
+//         success: true, results: listOfNodes
+//     };
+// }
 
-/** 
- * Add a node and its properties to the graph 
- * @param {*} event  
- * @param {*} dc  
+/**
+ * Add a node and its properties to the graph
+ * @param {*} event
+ * @param {*} dc
  */
 const addNode = async (event, dc) => {
     const graph = new Graph();
@@ -232,19 +231,21 @@ const addNode = async (event, dc) => {
 
     let label = "undefined";
     if (event.data && event.data.properties && event.data.properties.resourceType) {
-        // :: is a reserved keyword in neptune.  Replace it with _ 
+        // :: is a reserved keyword in neptune.  Replace it with _
         label = event.data.properties["resourceType"].replace(/::/g, "_");
     }
 
-    // Add node with custom id. 
+    // Add node with custom id.
     try {
-        const data = await g.addV(label).property(id, event.data.id).property("perspectiveBirthDate", new Date()).next();
-        await addProperties(g, data.value.id, event.data.properties);
+        const start = g.addV(label).property(id, event.data.id).property("perspectiveBirthDate", new Date());
+        const data = await addProperties(start, event.data.properties).next();
         return wrapResponse(200, { success: true, results: data });
     }
     catch (Error) {
         console.log("Could not add duplicate node, delete it and recreate:");
         console.log(util.inspect(event, { depth: 10 }));
+        console.log("Error:");
+        console.log(util.inspect(Error, { depth: 10 }));
 
         /*
             Sometimes we try to add the same node twice.....
@@ -277,9 +278,9 @@ const handleWronglyDeletedNode = async (event, dc) => {
 
         let result = {
             value:
-            {
-                id: event.data.id
-            }
+                {
+                    id: event.data.id
+                }
         };
 
         return wrapResponse(200, { success: true, results: result });
@@ -289,10 +290,10 @@ const handleWronglyDeletedNode = async (event, dc) => {
     }
 }
 
-/** 
- * Add an edge to the graph 
- * @param {*} event  
- * @param {*} dc  
+/**
+ * Add an edge to the graph
+ * @param {*} event
+ * @param {*} dc
  */
 const addEdge = async (event, dc) => {
     const graph = new Graph();
@@ -379,100 +380,61 @@ const buildFilterQueries = (event) => {
     return queries;
 };
 
-const createMetaData = (elements) => {
-    let holder = new Map();
+const getResourcesCount = R.compose(R.map(R.length), R.groupBy(R.prop('resourceType')));
 
-    let metaData = {};
+function createMetaData(nodes) {
+    const fNodes = R.reject(x => x.resourceType === 'AWS::undefined::undefined', nodes);
+    return {
+        resourceCount: fNodes.length,
+        resourceTypes: getResourcesCount(fNodes)
+    };
+}
 
-    for (let element of elements) {
+const createNode = ({id, label, title, accountId, awsRegion: region, resourceType, configuration}) => {
+    const node = R.map(v => Array.isArray(v) ? v[0] : v, {
+        id, label, title, accountId, region, resourceType, configuration
+    })
 
-        let key = "AWS::" + element.mainType + "::" + element.subType;
-        let value = holder.get(key);
-        value === undefined ? holder.set(key, 1) : holder.set(key, value + 1);
-    }
-
-    let resourceCount = 0;
-
-    let resources = [];
-
-    Array.from(holder.keys()).map(function (key, index) {
-        if (key !== 'AWS::undefined::undefined') {
-            let temp = {};
-            temp[key] = holder.get(key);
-
-            resourceCount += temp[key];
-
-            resources.push(temp);
-        }
-    });
-
-    metaData.resourceCount = resourceCount;
-    metaData.resourceTypes = resources;
-
-    return metaData;
-};
-
-const createNode = (element) => {
-    let node = {};
-    node.id = element.id;
-    node.label = element.label;
-    node.title = element.properties.title;
-    node.accountId = element.properties.accountId;
-    node.region = element.properties.awsRegion;
-
-    if (element.properties.resourceType) {
-        let types = element.properties.resourceType.split("::");
-        node.mainType = types[1];
-        node.subType = types[2];
-    }
-
-    if (element.properties.configuration){
-        node.configuration = element.properties.configuration;
+    if (node.resourceType != null) {
+        const [, mainType, subType] = node.resourceType.split("::");
+        node.mainType = mainType;
+        node.subType = subType;
     }
 
     return node;
 };
 
-const getAllResources = async (event, dc) => {
-    const graph = new Graph();
-    const g = graph.traversal().withRemote(dc);
+const getAllResources = async (g, event) => {
+    let start = g.V().hasNot('softDelete')
 
-    let queries = buildFilterQueries(event);
+    let queries = event.data?.accountFilter ?? {};
 
-    let nodeResults = [];
+    if (!R.isEmpty(queries)) {
+        const predicates = Object.entries(queries).map(([accountId, regions]) =>
+            __.has('accountId', accountId).has('awsRegion', p.within(regions))
+        );
 
-    if (queries.length > 0) {
-        for (let query of queries) {
-            let response = await queryBuilder.runQuery(query, g);
-            let listOfNodes = response.map((element) => 
-                createNode(processMap(element))).filter(element => {
-                                                            return element.mainType;
-                                                        });
-            nodeResults.push({
-                nodes: listOfNodes,
-                metaData: createMetaData(listOfNodes),
-                query: query
-            });
+        start = start.or(...predicates)//.group().by('accountId')
+    }
+
+    const nodes = await start
+        // have to use valueMap because elementMap is not optimised in Neptune
+        .valueMap(true, 'title', 'accountId', 'awsRegion', 'configuration', 'resourceType')
+        .toList()
+        .then(R.map(createNode));
+
+    return wrapResponse(200, {
+        success: true,
+        results: {
+            nodes,
+            metaData: createMetaData(nodes)
         }
-    }
-    else {
-        // Get all of the nodes 
-        const data = await g.V().hasNot("softDelete").valueMap(true).toList();
-        let listOfNodes = data.map((element) => createNode(processMap(element)));
-
-        nodeResults.push({
-            nodes: listOfNodes,
-            metaData: createMetaData(listOfNodes),
-            query: undefined
-        });
-    }
-
-    return wrapResponse(200, { success: true, results: nodeResults });
+    });
 };
 
-/** 
- * Download CF template from S3 and substitute config values 
- * @param {*} file - Filename for template 
+/**
+ * Download CF template from S3 and substitute config values
+ * @param {*} file - Filename for template
  */
 const downloadCloudFormation = async (file) => {
     const {configurationAggregator, region, accountId} = process.env;
@@ -518,10 +480,10 @@ const dumpError = (err) => {
     }
 }
 
-/** 
- * Runs a gremlin query submitted as a JSON event. 
- * @param {*} event  
- * @param {*} dc  
+/**
+ * Runs a gremlin query submitted as a JSON event.
+ * @param {*} event
+ * @param {*} dc
  */
 const runGremlin = async (event, dc) => {
     const graph = new Graph();
@@ -542,24 +504,24 @@ const filterNodesLogic = async (g, event) => {
     return filterAllNodes(response.map((element) => processMap(element)), accountFilter);
 }
 
-/** 
- * Returns a filtered list of nodes. 
- *  
- * The incomming event object must be in the format: 
- *  
-    { 
-        "command": "filterNodes", 
-        "data": { 
-            "resourceId": "app-name", 
-            "resourceType": "AWS::TAG", 
-            "resourceValue": "twobytwo" 
-        } 
-    } 
- *  
- * Where the data elements are the key values for the filter. 
- *  
- * @param {*} event  
- * @param {*} dc  
+/**
+ * Returns a filtered list of nodes.
+ *
+ * The incomming event object must be in the format:
+ *
+ {
+        "command": "filterNodes",
+        "data": {
+            "resourceId": "app-name",
+            "resourceType": "AWS::TAG",
+            "resourceValue": "twobytwo"
+        }
+    }
+ *
+ * Where the data elements are the key values for the filter.
+ *
+ * @param {*} event
+ * @param {*} dc
  */
 const filterNodes = async (g, event) => {
     let listOfNodes = await filterNodesLogic(g, event);
@@ -568,23 +530,22 @@ const filterNodes = async (g, event) => {
 
 /**
  * As above but returns in hierarchy format
- * @param {*} event 
- * @param {*} dc 
+ * @param {*} event
+ * @param {*} dc
  */
 const filterNodesHierarchy = async (g, event) => {
     let listOfNodes = await filterNodesLogic(g, event);
-    let costNodes = await addCostData(listOfNodes, g);
 
     let allVPC = await filterNodesLogic(g, { "command": "filterNodes", "data": { "resourceType": "AWS::EC2::VPC", "accountFilter": {} } });
     let allSubnets = await publicOrPrivateSubnet(g, await filterNodesLogic(g, { "command": "filterNodes", "data": { "resourceType": "AWS::EC2::Subnet", "accountFilter": {} } }));
 
-    return wrapResponse(200, hierarchy.createHierarchy(costNodes, [...allVPC, ...allSubnets], false, event.data.resourceType));
+    return wrapResponse(200, hierarchy.createHierarchy(listOfNodes, [...allVPC, ...allSubnets], false, event.data.resourceType));
 };
 
-/** 
- * Loads all of the nodes linked to a node. 
- * @param {*} event  
- * @param {*} dc  
+/**
+ * Loads all of the nodes linked to a node.
+ * @param {*} event
+ * @param {*} dc
  */
 
 const linkedNodes = async (g, event) => {
@@ -600,43 +561,37 @@ const linkedNodesHierarchy = async (g, event) => {
         ]
     );
 
-    const costedVpcSubnets = await addCostData([...allVPC, ...allSubnets]);
-    return wrapResponse(200, hierarchy.createHierarchy(linkedNodes, costedVpcSubnets, true));
+    return wrapResponse(200, hierarchy.createHierarchy(linkedNodes, [...allVPC, ...allSubnets], true));
 };
 
-const isIsoDate = (str) => {
-    if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
-    var d = new Date(str);
-    return d.toISOString() === str;
-}
-
 const getLinkedNodes = async (g, id, deleteDate) => {
-    let vs = await g.V(id).repeat(__.both().hasNot("softDelete")).times(1).dedup().valueMap(true).toList();
+    const vs = await g.V(id).repeat(__.both().hasNot("softDelete")).times(1).dedup().elementMap().toList();
 
     if (deleteDate && isIsoDate(deleteDate)) {
-        let deletedNodes = await g.V(id).repeat(__.both()).times(1).dedup().has('softDeleteDate', p.gte(new Date(deleteDate))).valueMap(true).toList();
+        const deletedNodes = await g.V(id).repeat(__.both()).times(1).dedup().has('softDeleteDate', p.gte(new Date(deleteDate))).elementMap().toList();
 
         if (deletedNodes && deleteNodes.length > 0) {
-            vs = [...vs, ...deletedNodes];
+            vs.push(...deletedNodes);
         }
     }
 
-    const parent = (deleteDate && isIsoDate(deleteDate)) ? await g.V(id).has('softDeleteDate', p.gte(new Date(deleteDate))).valueMap(true).next()
-        : await g.V(id).valueMap(true).next();
+    const parent = (deleteDate && isIsoDate(deleteDate))
+        ? await g.V(id).has('softDeleteDate', p.gte(new Date(deleteDate))).elementMap().next()
+        : await g.V(id).elementMap().next();
 
     if (parent && parent.value) {
         vs.push(parent.value);
     }
 
-    let linked = vs.map(v => ({
-        id: v.id,
-        perspectiveBirthDate: v.perspectiveBirthDate ? v.perspectiveBirthDate[0] : undefined,
-        label: v.label.replace(/_/g, "::"),
-        properties: mapToObj(R.omit(['id', 'label'], v)),
-        parent: v.id === id
-    }));
-
-    return await addCostData(linked, g);
+    return vs.map(({id: vId, label, perspectiveBirthDate, ...properties}) => {
+        return {
+            id: vId,
+            perspectiveBirthDate,
+            label: label.replace(/_/g, "::"),
+            properties,
+            parent: vId === id
+        }
+    });
 }
 
 const getDeletedLinkedNodes = async (g, event) => {
@@ -651,44 +606,24 @@ const getDeletedLinkedNodes = async (g, event) => {
             parent: v.id === id
         }));
 
-        return wrapResponse(200, await addCostData(linked, g));
+        return wrapResponse(200, linked);
     }
 
     return wrapResponse(200, []);
 }
 
-const addCostData = async (nodes, g) => {
-    return costDataEnabled === "true" ? await calculateCosts(nodes, g) : nodes;
-}
-
-const calculateCosts = async (nodes, g) => {
-    console.log("========================");
-    console.log("getting cost data");
-    console.log("========================")
-    return await Promise.all(nodes.reduce((acc, element) => {
-
-        let f = async (element) => {
-            element.costData = await cost.getCostData(element, g);
-            return element;
-        };
-
-        acc.push(f(element));
-        return acc;
-    }, []));
-}
-
-/** 
- * The properties from neptune sometimes come back as an array of one. 
- * If they do then strip out the array. 
- * @param {*} inputMap  
+/**
+ * The properties from neptune sometimes come back as an array of one.
+ * If they do then strip out the array.
+ * @param {*} inputMap
  */
 const mapToObj = R.map(v => Array.isArray(v) ? v[0] : v);
 
-/** 
- * Load a node from it's id. 
- *  
- * @param {*} id  
- * @param {*} dc  
+/**
+ * Load a node from it's id.
+ *
+ * @param {*} id
+ * @param {*} dc
  */
 const getNodeFromId = async (id, dc) => {
     const graph = new Graph();
@@ -734,13 +669,13 @@ const softDeleteNodes = async (event, dc) => {
 
     /*
          Most perspective deletes are soft deletes, but there are two types
-         of softDelete (stored in the node as softDeleteType).  
+         of softDelete (stored in the node as softDeleteType).
          The first type of softDelete are when event.data.softDeleteType = delete.
          This is set when the node has been removed from config / the api. For example
          when an ec2 instance is terminated it will be removed from config.  The second
          type of delete happens when there is a change to a node, i.e. its ip address
          changes.  Here a new node is created, and the old one soft deleted, but the
-         softDeleteType parameter is set to update.  
+         softDeleteType parameter is set to update.
     */
 
     for (let node of event.data.nodes) {
@@ -764,42 +699,44 @@ const softDeleteNode = async (nodeId, softDeleteType = "unknown", dc) => {
     console.log("softDeleteType=", softDeleteType);
     const graph = new Graph();
     const g = graph.traversal().withRemote(dc);
-    const results = await addProperties(g, nodeId,
-        { softDelete: true, softDeleteDate: new Date(), softDeleteType: softDeleteType });
+    const results = await addProperties(g.V(nodeId), {
+        softDelete: true,
+        softDeleteDate: new Date(),
+        softDeleteType: softDeleteType }).next();
     return { success: true, results: results }
 };
 
-/** 
- * Filters the nodes according to account and region. 
- *  
- * TODO:  This should be done in neptune! 
- *  
- * THIS IS WHAT the filter looks like 
- *  
- * { 
-  "command": "viewAllNodesAndLinks", 
-  "data": { 
-      "accountFilter": { 
-        "XXXXXXXXXXX1": [ 
-            "eu-west-1", 
-            "us-east-2" 
-        ], 
-        "XXXXXXXXXXX2": [ 
-            "us-east-2" 
-        ] 
-    } 
-  } 
-} 
- *  
- * @param {*} nodes  
- * @param {*} filterParameters  
+/**
+ * Filters the nodes according to account and region.
+ *
+ * TODO:  This should be done in neptune!
+ *
+ * THIS IS WHAT the filter looks like
+ *
+ * {
+  "command": "viewAllNodesAndLinks",
+  "data": {
+      "accountFilter": {
+        "XXXXXXXXXXX1": [
+            "eu-west-1",
+            "us-east-2"
+        ],
+        "XXXXXXXXXXX2": [
+            "us-east-2"
+        ]
+    }
+  }
+}
+ *
+ * @param {*} nodes
+ * @param {*} filterParameters
  */
 const filterAllNodes = (nodes, filterParameters) => {
     if (filterParameters === undefined) {
         return nodes;
     }
 
-    // If there are no parmeters then return the nodes unfiltered 
+    // If there are no parmeters then return the nodes unfiltered
     if (Object.keys(filterParameters).length === 0) {
         return nodes;
     }
@@ -859,10 +796,10 @@ const processMap = data => {
     }, { properties: {} });
 };
 
-const addProperties = async (g, nodeId, properties) => {
+const addProperties = (gV, properties) => {
     return Object.entries(properties).reduce((query, [k, v]) => {
         return query.property(k, R.is(String, v) ? v : R.is(Date, v) ? v : JSON.stringify(v));
-    }, g.V(nodeId)).next();
+    }, gV);
 };
 
 const isPrivateSubnet = async (g, id) => {

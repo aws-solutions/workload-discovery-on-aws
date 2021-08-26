@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: AWS Perspective Gremlin AppSync Stack
+
+Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  VPCCidrBlock:
+    Type: String
+
+  PrivateSubnet0:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+  NeptuneDbSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  NeptuneClusterURL:
+    Type: String
+
+  NeptuneClusterPort:
+    Type: String
+
+  NeptuneClusterResourceId:
+    Type: String
+
+  CustomUserAgent: 
+    Type: String
+    Default: 'AwsSolution/SO0075/1.1.0'
+
+
+Resources:
+
+  GremlinResolverLambdaSg:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: Needs open egress for API as it is on the internet.
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Gremlin AppSync lambda
+      VpcId: !Ref VpcId
+#      SecurityGroupEgress:
+#        - Description: Explicit egress group locking down outbound access for HTTPS
+#          CidrIp: !Ref VPCCidrBlock
+#          IpProtocol: tcp
+#          ToPort: !Ref NeptuneClusterPort
+#          FromPort: !Ref NeptuneClusterPort
+
+  NeptuneDbSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress for Neptune from Gremlin AppSync lambda
+      FromPort: !Ref NeptuneClusterPort
+      ToPort: !Ref NeptuneClusterPort
+      GroupId: !Ref NeptuneDbSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref GremlinResolverLambdaSg
+
+  PerspectiveGremlinAppSyncLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: GremlinAppSyncLambdaFunctionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - neptune-db:connect
+                Resource: !Sub arn:aws:neptune-db:${AWS::Region}:${AWS::AccountId}:${NeptuneClusterResourceId}/*
+
+  GremlinAppSyncFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt PerspectiveGremlinAppSyncLambdaFunctionRole.Arn
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/graph-api.zip
+      Runtime: nodejs14.x
+      Description: Lambda for appsync resolver that queries Neptune
+      Timeout: 15
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref GremlinResolverLambdaSg
+        SubnetIds:
+          - !Ref PrivateSubnet0
+          - !Ref PrivateSubnet1
+      MemorySize: 1024
+      Tracing: Active
+      Environment:
+        Variables:
+          neptuneConnectURL: !Ref NeptuneClusterURL
+          neptunePort: !Ref NeptuneClusterPort
+          region: !Ref AWS::Region
+          accountId: !Ref AWS::AccountId
+          CustomUserAgent: !Ref CustomUserAgent
+
+  PerspectiveGremlinLambdaAppSyncInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncGremlinRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt GremlinAppSyncFunction.Arn
+
+  PerspectiveAppSyncGremlinLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: Perspective_Gremlin_Lambda_DS9
+      Description: Perspective Gremlin Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt PerspectiveGremlinLambdaAppSyncInvokeRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt GremlinAppSyncFunction.Arn
+
+  PerspectiveAppSyncGetLinkedNodesHierarchyResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getLinkedNodesHierarchy
+      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name

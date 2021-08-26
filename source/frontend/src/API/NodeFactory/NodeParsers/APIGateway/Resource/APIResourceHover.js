@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   item: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     color: '#535B63',
     lineHeight: '2rem'
   },
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: '#535B63',
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     lineHeight: '2rem'
   }
 }));

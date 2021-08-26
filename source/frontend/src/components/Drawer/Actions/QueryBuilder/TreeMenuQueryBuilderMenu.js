@@ -44,7 +44,7 @@ const useStyles = makeStyles({
     background: '#fff',
   },
   label: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     background: '#fff',
     width: '100%',
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
     fontWeight: 400,
   },
   subLabel: {
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     background: '#fff',
     color: '#545b64',
@@ -73,7 +73,7 @@ const useStyles = makeStyles({
   },
   type: {
     margin: 'auto 0 auto 0',
-    fontSize: '.75rem',
+    fontSize: '1.2rem',
   },
   textfield: {
     width: '100%',
@@ -92,17 +92,17 @@ const useStyles = makeStyles({
     '& .MuiInput-root': {
       border: '1px solid #fafafa',
       padding: '0 0 0 2%',
-      fontSize: '.75rem',
+      fontSize: '1.2rem',
     },
     '& .MuiInputBase-input': {
-      fontSize: '0.75rem',
+      fontSize: '1.2rem',
       color: '#000',
       fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     },
   },
 });
 
-export default ({}) => {
+export default () => {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
@@ -133,9 +133,7 @@ export default ({}) => {
           selected={selected}
           onNodeToggle={handleToggle}
           onNodeSelect={handleSelect}>
-            <Tooltip
-            placement='right-end'
-            title='Create simple graph queries to execute against your resource graph'>
+            
           <TreeItem
             key='0'
             nodeId='0'
@@ -148,7 +146,6 @@ export default ({}) => {
               iconContainer: classes.iconContainer,
               group: classes.group,
             }}></TreeItem>
-            </Tooltip>
         </TreeView>
       </RootRef>
       {queryDialog && <QueryBuilderDialog toggleQueryBuilderModal={toggleDialog}/>}

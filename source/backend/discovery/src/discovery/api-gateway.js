@@ -2,7 +2,7 @@
 const consoleM = require('./consoleURL');
 const generateHeader = require('./generateHeader');
 const zoomUtils = require('./zoomUtils');
-const util = require('util');
+const logger = require('./logger');
 class ApiGateway {
 
     constructor(AWSSetupFun, dataClient) {
@@ -11,6 +11,7 @@ class ApiGateway {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of API Gateways.');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
             await this.processRestApis(accountId, awsRegion),
@@ -18,6 +19,7 @@ class ApiGateway {
             this.processIntegrations);
 
         await this.dataClient.storeData("AWS::ApiGateway::RestApi", dataToUpload, 0);
+        logger.info('Discovery of API Gateways complete.');
     }
 
     async processRestApis(accountId, awsRegion) {
@@ -120,47 +122,24 @@ class ApiGateway {
         generateHeader.generateHeader(data);
 
         //Look-up the lambda function if there is one
-        let lambda = this.extractLambda(properties.uri);
+        let arn = this.extractLambda(properties.uri);
 
-        if (lambda) {
+        if(arn) {
             const query = {
-                "query": {
-                    "bool": {
-                        "must": [
-                            {
-                                "term": {
-                                    "properties.resourceType.keyword": "AWS::Lambda::Function"
-                                }
-                            },
-                            {
-                                "term": {
-                                    "properties.arn.keyword": lambda
-                                }
-                            },
-                            {
-                                "term": {
-                                    "properties.awsRegion.keyword": properties.awsRegion
-                                }
-                            },
-                            {
-                                "term": {
-                                    "properties.accountId.keyword": properties.accountId
-                                }
-                            }
-                        ]
-                    }
+                command: 'filterNodes',
+                data: {
+                    resourceType: 'AWS::Lambda::Function',
+                    arn
                 }
             };
 
-            let result = await this.dataClient.advancedSearch(query);
-            
-            if (result.hits.total > 0) {
-                let lambdaData = {
-                    link: result.hits.hits[0]._source.id,
-                    resourceType: "AWS::Lambda::Function"
-                };
+            const {success, results} = await this.dataClient.queryGremlin(query);
 
-                data.children = [lambdaData];
+            if(success) {
+                data.children = results.map(l => ({
+                    link: l.id,
+                    resourceType: 'AWS::Lambda::Function'
+                }));
             }
         }
 
@@ -170,16 +149,34 @@ class ApiGateway {
     async processIntegrations(accountId, awsRegion, restApiId, resourceId) {
         let integrations = [];
 
-        let post = await zoomUtils.callAwsApi(this.API.getIntegration, {httpMethod: "POST", resourceId: resourceId, restApiId: restApiId}, this.API, "API-Gateway getIntegration"); 
-        let get = await zoomUtils.callAwsApi(this.API.getIntegration, {httpMethod: "GET", resourceId: resourceId, restApiId: restApiId}, this.API, "API-Gateway getIntegration");
+        const results = await Promise.allSettled([
+            this.API.getIntegration({
+                httpMethod: "POST",
+                resourceId: resourceId,
+                restApiId: restApiId
+            }).promise(),
+            this.API.getIntegration({
+                httpMethod: "GET",
+                resourceId: resourceId,
+                restApiId: restApiId
+            }).promise()
+        ]);
 
-        if (post) {
-            integrations.push(await this.packageIntegration(post, accountId, awsRegion, restApiId, "POST", resourceId));
+        const [post, get] = results;
+
+        if (post.status === 'fulfilled') {
+            integrations.push(await this.packageIntegration(post.value, accountId, awsRegion, restApiId, "POST", resourceId));
         }
 
-        if (get) {
-            integrations.push(await this.packageIntegration(get, accountId, awsRegion, restApiId, "GET", resourceId));
+        if (get.status === 'fulfilled') {
+            integrations.push(await this.packageIntegration(get.value, accountId, awsRegion, restApiId, "GET", resourceId));
         }
+
+        results.forEach(res => {
+            if(res.status === 'rejected' && res.reason.code !== 'NotFoundException') {
+                zoomUtils.dumpError(res.reason);
+            }
+        });
 
         return integrations;
     }

@@ -18,7 +18,7 @@ import Typography from '@material-ui/core/Typography';
 const body2Classes = makeStyles((theme) => ({
   body2: {
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
   },
 }));
 
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 1%',
   },
   header: {
-    fontSize: '1rem',
+    fontSize: '1.7rem',
     fontWeight: 700,
     fontFamily: 'Amazon Ember, Helvetica, Arial, sans-serif',
     background: '#fafafa',
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     display: 'inline-block',
     cursor: 'pointer',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     textTransform: 'capitalize',
     fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
     '&:hover': {
@@ -106,7 +106,7 @@ const useStyles = makeStyles((theme) => ({
     // display: 'inline-block',
     cursor: 'pointer',
     textTransform: 'capitalize',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
     '&:hover': {
       backgroundColor: '#eb5f07',
@@ -129,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     display: 'inline-block',
     cursor: 'pointer',
-    fontSize: '0.75rem',
+    fontSize: '1.2rem',
     textTransform: 'capitalize',
     fontFamily: ['Amazon Ember, Helvetica, Arial, sans-serif'].join(','),
     '&:hover': {

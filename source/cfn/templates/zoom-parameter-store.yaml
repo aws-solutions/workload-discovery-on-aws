@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS Perspective - Stores api and bucket details into the parameter store.
+Description: AWS Perspective Paramter Store Stack
 Parameters:
   DiscoveryBucketName:
     Type: String

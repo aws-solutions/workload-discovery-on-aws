@@ -12,6 +12,7 @@ class LoadBalancer {
     }
 
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of ELBs');
         let bind = this;
         let dataToUpload = await zoomUtils.expand(bind,
                                                   await this.processLoadBalancers(accountId, awsRegion),
@@ -20,6 +21,7 @@ class LoadBalancer {
         for (let l of dataToUpload) {
              await this.dataClient.storeData("AWS::ElasticLoadBalancing::LoadBalancer", l.children, 1, l.id);
         }
+        logger.info('Discovery of ELBs complete.');
     }
 
     async processLoadBalancers(accountId, awsRegion, resourceId) {

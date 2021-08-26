@@ -12,11 +12,13 @@ class AutoScalingGroup {
     // of data to add to Neptune,  we are looking up the target group of the
     // autoscaling group in order to link it to our existing target group.
     async discover(accountId, awsRegion) {
+        logger.info('Beginning discovery of ASGs.');
         let groups = await this.processAutoScalingGroupsFromNeptune(accountId, awsRegion);
 
         await Promise.all(groups.map(group => {
             return this.processAutoScalingGroups(group);
         }));
+        logger.info('Discovery of ASGs complete.');
     }
 
     async processAutoScalingGroupsFromNeptune(accountId, awsRegion) {

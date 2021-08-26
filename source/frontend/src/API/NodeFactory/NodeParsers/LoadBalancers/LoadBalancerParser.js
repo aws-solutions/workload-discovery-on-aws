@@ -4,8 +4,25 @@ import { getStateInformation } from '../../../../Utils/Resources/ResourceStatePa
 import LoadBalancerHover from './LoadBalancerDetails/LoadBalancerHover';
 import LoadBalancerItem from './LoadBalancerDetails/LoadBalancerItem';
 
-export const parseLoadBalancer = node => {
-  const state = getState(node.properties);
+const R = require('ramda');
+export const parseLoadBalancer = (node) => {
+  const properties = R.hasPath(['properties'], node)
+    ? node.properties
+    : node.data('properties');
+  let configuration = JSON.parse(properties.configuration);
+
+  configuration = R.is(Object, configuration)
+    ? configuration
+    : JSON.parse(configuration);
+
+  const getLoadBalancerType = (properties) => {
+    return configuration.type
+      ? `${properties.resourceType}-${configuration.type}`
+      : `${properties.resourceType}`;
+  };
+
+  const state = getStateInformation(properties.state);
+
   return {
     styling: {
       borderStyle: 'dotted',
@@ -13,27 +30,18 @@ export const parseLoadBalancer = node => {
       borderOpacity: 0.25,
       borderSize: 1,
       message: state.text,
-      colour: state.color
+      colour: state.color,
     },
     state: state,
-    icon: fetchImage(getLoadBalancerType(node.properties), state),
+    icon: fetchImage(getLoadBalancerType(properties), state),
     detailsComponent: (
       <LoadBalancerItem
         title='Load Balancer Details'
-        configuration={node.properties.configuration}
+        configuration={properties.configuration}
       />
     ),
     hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+      <LoadBalancerHover configuration={properties.configuration} />
+    ),
   };
-};
-
-const getLoadBalancerType = properties => {
-  return `${properties.resourceType}-${properties.type}`;
-};
-
-const getState = properties => {
-  
-    return getStateInformation(properties.state);
 };

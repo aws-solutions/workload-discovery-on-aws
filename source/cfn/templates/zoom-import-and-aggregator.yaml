@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Perspective AWS Config aggregtor stack
+
+Description: Perspective AWS Config Aggregtor Stack
 
 Parameters:
   ExistingConfigInstallation:

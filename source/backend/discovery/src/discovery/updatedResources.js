@@ -1,12 +1,11 @@
 const login = require('./awsLogin');
 const logger = require('./logger');
 const zoomUtils = require('./zoomUtils');
-const util = require('util');
 const AWS = require('aws-sdk');
 
 class UpdatedResources {
  
-    async buildRecentlyChanged({rootAccountId, accounts, rootAccountRole}) {
+    async buildRecentlyChanged({rootAccountId, accounts, customUserAgent, rootAccountRole}) {
         logger.info("buildRecentlyChanged");
 
         let changed = new Map();
@@ -20,7 +19,7 @@ class UpdatedResources {
                 const creds = await login.login(role);
 
                 for (let region of account.regions) {
-                    let allNodes = await this.getAll(creds, region.name);
+                    let allNodes = await this.getAll(customUserAgent, creds, region.name);
 
                     if (allNodes.Results) {
                         allNodes.Results.reduce((acc, element) => {
@@ -29,7 +28,7 @@ class UpdatedResources {
                         }, all);
                     }
 
-                    let recentlyChanged = await this.getRecentlyChanged(creds, region.name);
+                    let recentlyChanged = await this.getRecentlyChanged(customUserAgent, creds, region.name);
 
                     if (recentlyChanged.Results) {
                         recentlyChanged.Results.reduce((acc, element) => {
@@ -48,28 +47,29 @@ class UpdatedResources {
         return { all: all, updated: changed };
     }
 
-    async getRecentlyChanged(creds, region) {
+    async getRecentlyChanged(customUserAgent, creds, region) {
         const msMin = 60000;
         const noMins = 35;
         const endDate = new Date();
         const myStartDate = new Date(endDate - (noMins * msMin));
 
         const query =  "select configurationItemCaptureTime, resourceId, Relationships where configurationItemCaptureTime > '" + myStartDate.toISOString() + "'";
-        return await this.runAdvancedQuery(query, creds, region);
+        return await this.runAdvancedQuery(customUserAgent, query, creds, region);
     }
 
-    async getAll(creds, region) {
-        return await this.runAdvancedQuery("select configurationItemCaptureTime, resourceId, accountId, awsRegion", creds, region);
+    async getAll(customUserAgent, creds, region) {
+        const query = "select configurationItemCaptureTime, resourceId, accountId, awsRegion";
+        return await this.runAdvancedQuery(customUserAgent, query, creds, region);
     }
 
-    async runAdvancedQuery(query, creds, region) {
-        let config = new AWS.ConfigService({ apiVersion: '2014-11-12', credentials: creds, region: region});
+    async runAdvancedQuery(customUserAgent, query, credentials, region) {
+        let config = new AWS.ConfigService({ credentials, customUserAgent, region});
 
         const params = {
             Expression: query
         };
 
-        return await zoomUtils.callAwsApiWithPagination(config.selectResourceConfig, params, config, undefined, "updateResources - runAdvancedQuery");
+        return await zoomUtils.callAwsApiWithPagination(config, config.selectResourceConfig, params, 'selectResourceConfig');
     }
 }
 

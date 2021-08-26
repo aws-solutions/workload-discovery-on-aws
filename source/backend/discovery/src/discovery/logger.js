@@ -1,9 +1,15 @@
-const winston = require('winston');
+const R = require('ramda');
+const {transports, createLogger, format} = require('winston');
 
-const logger = winston.createLogger({
+const level = R.defaultTo('info', process.env.LOG_LEVEL).toLowerCase();
+
+const logger = createLogger({
+    format: format.combine(
+        format.timestamp(),
+        format.json()
+    ),
     transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: 'combined.log' })
+        new transports.Console({level})
     ]
 });
 

@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description:
+  This Cloudformation template sets up the roles needed to import data into AWS Perspective.
+  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v1.1.0)
+Parameters:
+
+  AccountId:
+    Type: String
+    Default: '<<substitute_zoom_account_id>>'
+    Description: The Perspective account Id
+
+Resources:
+
+  ZoomDiscoveryRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      wildcard_resources:
+        - 'We have locked down resources as much as we can. 
+          The nature of the role requires read-only access 
+          to many services in order to discover what is in the account'
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: 'Role is used in external accounts and calls back to master config account to allow access to external config aggregators'
+          - id: W11
+            reason: 'We have locked down resources as far as we can. It is read only access. Tags require wildcard "*"'  
+    Properties:
+      RoleName: 'ZoomDiscoveryRole'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: ['sts:AssumeRole']
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AccountId}:root'
+        Version: '2012-10-17'
+      Policies:
+        - PolicyName: perspectiveAutoscaling
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: autoscaling:Describe*
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: perspectiveEC2
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:Get*
+                  - ec2:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveIAM
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:Get*
+                  - iam:List*
+                Resource: '*'
+        - PolicyName: perspectiveAPIGateway
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - apigateway:Get
+                Resource: 'arn:aws:apigateway:*::/*'
+        - PolicyName: perspectiveLoadBalancers
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: elasticloadbalancing:Describe*
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: perspectiveRDS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - rds:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveLambda
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:List*
+                  - lambda:Get*
+                Resource: '*'
+        - PolicyName: perspectiveCloudFormation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:List*
+                  - logs:Describe*
+                  - logs:Get*
+                Resource: '*'
+        - PolicyName: perspectiveCloudWatch
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:List*
+                  - cloudwatch:Describe*
+                  - cloudwatch:Get*
+                Resource: '*'
+        - PolicyName: perspectiveECS
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:List*
+                  - ecs:Describe*
+                Resource: '*'
+        - PolicyName: perspectiveConfig
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - config:Get*
+                  - config:Deliver*
+                  - config:List*
+                  - config:SelectResourceConfig
+                  - config:PutDeliveryChannel
+                Resource: '*'
+        - PolicyName: perspectiveCloudtrail
+          PolicyDocument:
+             Version: '2012-10-17'
+             Statement:
+              - Effect: Allow
+                Action:
+                  - cloudtrail:GetTrailStatus
+                Resource: !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail*'
+        - PolicyName: perspectiveCloudtrailWildcards
+          PolicyDocument:
+             Version: '2012-10-17'
+             Statement:
+              - Effect: Allow
+                Action:
+                  - cloudtrail:DescribeTrails
+                  - cloudtrail:LookupEvents
+                Resource: '*'
+        - PolicyName: perspectiveTags
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - tag:GetResources
+                  - tag:GetTagKeys
+                Resource: '*'

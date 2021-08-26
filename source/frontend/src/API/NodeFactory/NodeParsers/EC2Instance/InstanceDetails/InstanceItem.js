@@ -1,174 +1,72 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import ResourceItem from '../../../../../components/Graph/DetailsDialog/ResourceItem';
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
+import {
+  Box,
+  Container,
+  ColumnLayout,
+  SpaceBetween,
+  ExpandableSection,
+} from '@awsui/components-react';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-    display: 'grid',
-    width: '100%'
-  },
-  resources: {
-    // flexGrow: 1,
-    display: 'inline-flex',
-    marginLeft: '1vw'
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'left',
-    color: theme.palette.text.secondary,
-    fontSize: '0.5rem'
-  },
-  divider: {
-    marginTop: '2vh',
-    marginBottom: '2vh'
-  },
-  gridParent: {
-    paddingLeft: '1vw',
-    paddingRight: '1vw'
-  },
-  title: {
-    color: '#535B63',
-    fontSize: '1.25rem',
-    lineHeight: '2rem',
-    marginBottom: '.5rem'
-  },
-  resourceItemTitleStyle: {
-    color: '#535B63',
-    fontSize: '1rem',
-    lineHeight: '2rem',
-    marginBottom: '.5rem'
-  },
-  resourceItemValueStyle: { fontSize: '0.75rem', marginLeft: '.5vw' }
-}));
+var dayjs = require('dayjs')
+var localizedFormat = require('dayjs/plugin/localizedFormat')
+dayjs.extend(localizedFormat)
+const relativeTime = require('dayjs/plugin/relativeTime');
+dayjs.extend(relativeTime);
 
-export default ({ title, configuration }) => {
-  const classes = useStyles();
-  const parsedConfig = JSON.parse(configuration);
+
+export default ({ configuration }) => {
+  const parsedConfig = JSON.parse(JSON.parse(configuration));
+
+  const ValueWithLabel = ({ label, children }) => (
+    <div>
+      <Box margin={{ bottom: 'xxxs' }} color='text-label'>
+        {label}
+      </Box>
+      <div>{children}</div>
+    </div>
+  );
 
   return (
-    <div className={classes.root}>
-      <span className={classes.title}>
-        {title}
-      </span>
-      <Divider className={classes.divider} />
-
-      <div className={classes.root}>
-        <Grid container className={classes.gridParent}>
-          <Grid item xs>
-            <ResourceItem
-              title='Architecture'
-              resource={parsedConfig.architecture}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='AMI'
-              resource={parsedConfig.imageId}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='Instance Type'
-              resource={parsedConfig.instanceType}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-        <Grid container className={classes.gridParent}>
-          <Grid item xs>
-            <ResourceItem
-              title='Private DNS'
-              resource={parsedConfig.privateDnsName}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-
-          <Grid item xs>
-            <ResourceItem
-              title='Private IP'
-              resource={parsedConfig.privateIpAddress}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-
-          <Grid item xs>
-            <ResourceItem
-              title='Public DNS'
-              resource={parsedConfig.publicDnsName}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-
-        <Grid container className={classes.gridParent}>
-          <Grid item xs>
-            <ResourceItem
-              title='Public IP'
-              resource={parsedConfig.publicIpAddress}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='Monitoring'
-              resource={parsedConfig.monitoring.state}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='Platform'
-              resource={parsedConfig.platform}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-
-        <Grid container className={classes.gridParent}>
-          <Grid item xs>
-            <ResourceItem
-              title='CPU Cores'
-              resource={parsedConfig.cpuOptions.coreCount}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='CPU Threads Per Core'
-              resource={parsedConfig.cpuOptions.threadsPerCore}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-          <Grid item xs>
-            <ResourceItem
-              title='Launched'
-              resource={parsedConfig.launchTime}
-              titleStyle={classes.resourceItemTitleStyle}
-              valueStyle={classes.resourceItemValueStyle}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-      </div>
-    </div>
+    <ColumnLayout columns={2} variant='text-grid'>
+      <SpaceBetween size='l'>
+        <ValueWithLabel label='Launched'>
+          {`${dayjs(parsedConfig.launchTime).format('llll')} (${dayjs(parsedConfig.launchTime).fromNow()})`}
+        </ValueWithLabel>
+        <ValueWithLabel label='Architecture'>
+          {parsedConfig.architecture}
+        </ValueWithLabel>
+        <ValueWithLabel label='AMI'>{parsedConfig.imageId}</ValueWithLabel>
+        <ValueWithLabel label='Instance type'>
+          {parsedConfig.instanceType}
+        </ValueWithLabel>
+        <ValueWithLabel label='Private DNS'>
+          {parsedConfig.privateDnsName}
+        </ValueWithLabel>
+        <ValueWithLabel label='Private IP'>
+          {`${parsedConfig.privateIpAddress}`}
+        </ValueWithLabel>
+      </SpaceBetween>
+      <SpaceBetween size='l'>
+        <ValueWithLabel label='Public DNS'>
+          {parsedConfig.publicDnsName}
+        </ValueWithLabel>
+        <ValueWithLabel label='Public IP'>
+          {`${parsedConfig.publicIpAddress}`}
+        </ValueWithLabel>
+        <ValueWithLabel label='Monitoring'>
+          {parsedConfig.monitoring.state}
+        </ValueWithLabel>
+        <ValueWithLabel label='Platform'>
+          {parsedConfig.platform}
+        </ValueWithLabel>
+        <ValueWithLabel label='CPU cores'>
+          {parsedConfig.cpuOptions.coreCount}
+        </ValueWithLabel>
+        <ValueWithLabel label='CPU threads per core'>
+          {parsedConfig.cpuOptions.threadsPerCore}
+        </ValueWithLabel>
+      </SpaceBetween>
+    </ColumnLayout>
   );
 };

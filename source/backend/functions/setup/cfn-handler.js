@@ -1,120 +1,176 @@
 const uuidv4 = require('uuid/v4');
-const _ = require('lodash');
+const R = require('ramda');
 
-const {
-  ACCOUNT_ID,
-  DEPLOYMENT_BUCKET,
-  DEPLOYMENT_BUCKET_KEY,
-  DISCOVERY_BUCKET,
-  REGION,
-  IMAGE_VERSION,
-  EXISTING_CONFIG, 
-  CREATE_ES_SERVICE_ROLE,
-  NEPTUNE_INSTANCE_CLASS,
-  CREATE_READ_REPLICA,
-  ELASTICSEARCH_INSTANCE_TYPE,
-  AMPLIFY_STORAGE_BUCKET,
-  ACCESS_LOGS,
-  APPSYNC_API_ARN,
-  APPSYNC_API_ID,
-  APPSYNC_API_GRAPHQL_URL
-} = process.env;
-const PERSPECTIVE = `aws-perspective-${ACCOUNT_ID}`;
-module.exports = cloudformation => {
+module.exports = (cfn, config) => {
 
-  var params = {
-    StackName: `${PERSPECTIVE}-${REGION}`,
+  const {
+    STACK_NAME,
+    DEPLOYMENT_BUCKET,
+    DEPLOYMENT_BUCKET_KEY,
+    DISCOVERY_BUCKET,
+    REGION,
+    IMAGE_VERSION,
+    EXISTING_CONFIG,
+    CREATE_ES_SERVICE_ROLE,
+    NEPTUNE_INSTANCE_CLASS,
+    CREATE_READ_REPLICA,
+    ELASTICSEARCH_INSTANCE_TYPE,
+    AMPLIFY_STORAGE_BUCKET,
+    ACCESS_LOGS,
+    APPSYNC_API_ARN,
+    APPSYNC_API_ID,
+    APPSYNC_API_GRAPHQL_URL,
+    ATHENA_WORKGROUP,
+    PERSPECTIVE_APP_NAME,
+    PERSPECTIVE_STACK_NAME,
+    COST_AND_USAGE_REPORT_BUCKET,
+    COST_AND_USAGE_RESULTS_BUCKET,
+  } = config;
+
+  const params = {
+    StackName: `${PERSPECTIVE_STACK_NAME}`,
     Capabilities: [
       'CAPABILITY_IAM',
       'CAPABILITY_NAMED_IAM',
-      'CAPABILITY_AUTO_EXPAND'
+      'CAPABILITY_AUTO_EXPAND',
     ],
-    ClientRequestToken: `${PERSPECTIVE}-${uuidv4()}`,
+    ClientRequestToken: `${PERSPECTIVE_APP_NAME}-${uuidv4()}`,
     DisableRollback: true,
     EnableTerminationProtection: true,
     Parameters: [
       {
         ParameterKey: 'AppName',
-        ParameterValue: PERSPECTIVE
+        ParameterValue: PERSPECTIVE_APP_NAME
       },
       {
         ParameterKey: 'ImageVersion',
-        ParameterValue: IMAGE_VERSION
+        ParameterValue: IMAGE_VERSION,
       },
       {
         ParameterKey: 'DeploymentBucket',
-        ParameterValue: `https://s3.${REGION}.amazonaws.com/${DEPLOYMENT_BUCKET}/${DEPLOYMENT_BUCKET_KEY}`
+        ParameterValue: `https://s3.${REGION}.amazonaws.com/${DEPLOYMENT_BUCKET}/${DEPLOYMENT_BUCKET_KEY}`,
       },
       {
         ParameterKey: 'DeploymentBucketName',
-        ParameterValue: `${DEPLOYMENT_BUCKET}`
+        ParameterValue: `${DEPLOYMENT_BUCKET}`,
       },
       {
         ParameterKey: 'DeploymentBucketKey',
-        ParameterValue: `${DEPLOYMENT_BUCKET_KEY}`
+        ParameterValue: `${DEPLOYMENT_BUCKET_KEY}`,
       },
       {
         ParameterKey: 'DiscoveryBucket',
-        ParameterValue: `${DISCOVERY_BUCKET}`
+        ParameterValue: `${DISCOVERY_BUCKET}`,
       },
       {
         ParameterKey: 'ExistingConfigInstallation',
-        ParameterValue: `${EXISTING_CONFIG}`
+        ParameterValue: `${EXISTING_CONFIG}`,
       },
       {
         ParameterKey: 'CreateElasticSearchServiceRole',
-        ParameterValue: `${CREATE_ES_SERVICE_ROLE}`
+        ParameterValue: `${CREATE_ES_SERVICE_ROLE}`,
       },
       {
         ParameterKey: 'NeptuneInstanceClass',
-        ParameterValue: `${NEPTUNE_INSTANCE_CLASS}`
+        ParameterValue: `${NEPTUNE_INSTANCE_CLASS}`,
       },
       {
         ParameterKey: 'CreateNeptuneReplica',
-        ParameterValue: `${CREATE_READ_REPLICA}`
+        ParameterValue: `${CREATE_READ_REPLICA}`,
       },
       {
         ParameterKey: 'AmplifyStorageBucket',
-        ParameterValue: `${AMPLIFY_STORAGE_BUCKET}`
+        ParameterValue: `${AMPLIFY_STORAGE_BUCKET}`,
       },
       {
         ParameterKey: 'AccessLogsBucket',
-        ParameterValue: `${ACCESS_LOGS}`
+        ParameterValue: `${ACCESS_LOGS}`,
       },
       {
         ParameterKey: 'PerspectiveAppSyncApiId',
-        ParameterValue: `${APPSYNC_API_ID}`
+        ParameterValue: `${APPSYNC_API_ID}`,
       },
       {
         ParameterKey: 'PerspectiveAppSyncApiArn',
-        ParameterValue: `${APPSYNC_API_ARN}`
+        ParameterValue: `${APPSYNC_API_ARN}`,
       },
       {
         ParameterKey: 'PerspectiveAppSyncApiUrl',
-        ParameterValue: `${APPSYNC_API_GRAPHQL_URL}`
+        ParameterValue: `${APPSYNC_API_GRAPHQL_URL}`,
+      },
+
+      {
+        ParameterKey: 'AthenaWorkgroup',
+        ParameterValue: `${ATHENA_WORKGROUP}`,
       },
       {
         ParameterKey: 'ElasticsearchInstanceType',
-        ParameterValue: `${ELASTICSEARCH_INSTANCE_TYPE}`
-      }
+        ParameterValue: `${ELASTICSEARCH_INSTANCE_TYPE}`,
+      },
+      {
+        ParameterKey: 'CostAndUsageReportBucket',
+        ParameterValue: `${COST_AND_USAGE_REPORT_BUCKET}`,
+      },
+      {
+        ParameterKey: 'CostAndUsageResultsBucket',
+        ParameterValue: `${COST_AND_USAGE_RESULTS_BUCKET}`,
+      },
     ],
     Tags: [
       {
         Key: 'AppName',
-        Value: PERSPECTIVE
+        Value: PERSPECTIVE_APP_NAME
       }
     ],
     TemplateURL: `https://s3.${REGION}.amazonaws.com/${DEPLOYMENT_BUCKET}/${DEPLOYMENT_BUCKET_KEY}/zoom-main.template`,
     TimeoutInMinutes: '60'
   };
 
+  function describeStackResources(StackName) {
+    function describeStackResourcesRec(promise, xs = []) {
+      return promise
+          .then(x => x.StackResources != null ? x.StackResources : x)
+          .then(result => {
+            const [stacks, resources] = R.partition(x => x.ResourceType === 'AWS::CloudFormation::Stack', result);
+            xs.push(...resources);
+            return R.isEmpty(stacks) ?
+                xs :
+                describeStackResourcesRec(Promise.all(stacks.map(({PhysicalResourceId}) => cfn.describeStackResources({StackName: PhysicalResourceId}).promise())), xs);
+          })
+          .then(R.chain(x => x.StackResources != null ? x.StackResources : x));
+    }
+
+    return describeStackResourcesRec(cfn.describeStackResources({StackName}).promise());
+  }
+
   return {
-    executeStack: () =>
-      cloudformation
-        .createStack(params, function(err, data) {
-          if (err) console.log(err, err.stack);
-          else console.log(data);
-        })
-        .promise()
+    createStack: () => cfn.createStack(params).promise(),
+    updateStack: () =>
+      cfn
+        .updateStack(
+          R.omit(
+            [
+              'DisableRollback',
+              'EnableTerminationProtection',
+              'TimeoutInMinutes',
+            ],
+            params
+          )
+        )
+        .promise(),
+    updateStackTermination: () =>
+      cfn.updateTerminationProtection({
+        EnableTerminationProtection: false,
+        StackName: `${PERSPECTIVE_STACK_NAME}`,
+      }),
+    deleteStack: () =>
+      cfn.deleteStack({ StackName: `${PERSPECTIVE_STACK_NAME}` }),
+    getResourceTypes: (resourceTypes) => {
+      return Promise.all(
+        [STACK_NAME, PERSPECTIVE_STACK_NAME].map(describeStackResources)
+      ).then(
+        R.chain(R.filter((x) => R.includes(x.ResourceType, resourceTypes)))
+      );
+    },
   };
 };

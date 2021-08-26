@@ -3,14 +3,14 @@ import Main from './Main';
 import { AmplifyAuthenticator, AmplifySignIn } from '@aws-amplify/ui-react';
 import { onAuthUIStateChange } from '@aws-amplify/ui-components';
 import Amplify from 'aws-amplify';
-// import '@aws-amplify/ui/dist/style.css';
+
+// import "@awsui/global-styles/index.css"
+import './css/awsui-styles.css';
+
 
 export default () => {
   const [authState, setAuthState] = useState();
-
-  // Amplify.Auth.configure(window.amplify.Auth);
   Amplify.configure(window.amplify);
-
   useEffect(() => {
     onAuthUIStateChange((stateChanged) => {
       setAuthState(stateChanged);

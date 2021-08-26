@@ -1,11 +1,20 @@
 const ArnParser = require('./arnParser');
 const logger = require('./logger');
+const crypto = require('crypto');
+const {promisify} = require('util');
+const cryptoAsync = require('@ronomon/crypto-async');
+const hashAsync = promisify(cryptoAsync.hash);
 
 const hash = data => {
-    const crypto = require('crypto');
     const algo = 'md5';
     let shasum = crypto.createHash(algo).update(JSON.stringify(data));
     return "" + shasum.digest('hex');
+}
+
+async function md5Async(data) {
+    const buffer = Buffer.from(JSON.stringify(data), 'utf8');
+    const hash = await hashAsync('md5', buffer);
+    return hash.toString('hex');
 }
 
 /**
@@ -28,10 +37,11 @@ const getResources = async (accountId, awsRegion, resources, actions, dataClient
         else {
             let results = await queryResources(resource, accountId, dataClient);
 
-            if (results.hits.total > 0) {
+            if (results.hits.total.value > 0) {
                 // Only take the first result
                 let result = results.hits.hits[0]._source;
-                let resultHash = hash(result);
+
+                let resultHash = await md5Async(result);
 
                 if (!linkedResources.get(resultHash)) {
                     linkedResources.set(resultHash, result);
@@ -58,38 +68,27 @@ const processS3Actions = async (actions, accountId, dataClient) => {
     });
 
     if (s3Actions.length > 0) {
-        let query = {
-            "from" : 0, "size" : 10000,
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "properties.resourceType.keyword": "AWS::S3::Bucket"
-                            }
-                        },
-                        {
-                            "term": {
-                                "properties.accountId.keyword": accountId
-                            }
-                        }
-                    ]
-                }
+        const {results, success} = await dataClient.queryGremlin({
+            "command": "filterNodes",
+            "data": {
+                "resourceType": "AWS::S3::Bucket",
+                "accountId": "" + accountId,
             }
-        };
+        });
 
-        let results = await dataClient.advancedSearch(query);
-    
-        if (results.hits.total > 0) {
-            results.hits.hits.forEach(hit => {
-                let result = hit._source;
-                let resultHash = hash(result);
+        if(success) {
+            await Promise.allSettled(results.map(async result => {
+                // hashing allows us to skip duplicates
+                let resultHash = await md5Async(result);
 
                 if (!linkedResources.get(resultHash)) {
                     linkedResources.set(resultHash, result);
                 }
-            });
+            }));
+        } else {
+            logger.info('Failed to get S3 buckets to link with CustomerManagedPolicyStatements');
         }
+
     }
 
     return linkedResources;
@@ -120,5 +119,6 @@ const formatLinkedResource = (resource) => {
 module.exports = {
     getResources: getResources,
     formatLinkedResource: formatLinkedResource,
-    hash: hash
+    hash: hash,
+    md5Async
 }

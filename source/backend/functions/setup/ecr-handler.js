@@ -1,23 +1,20 @@
-const { ECR_REPO_NAME } = process.env;
-const _ = require('lodash');
-const AWS = require('aws-sdk');
+const { ECR_REPO_NAME } = require('./config');
+const R = require('ramda');
 
 module.exports = (ecr) => {
 
   return {
     getLatestImage: () =>
     ecr
-    .listImages({
-      repositoryName: ECR_REPO_NAME,
-      filter: { tagStatus: 'TAGGED' }
-    })
-    .promise()
-    .then(data => {
-      let img = _(data.imageIds)
-        .sortBy('imageTag')
-        .last();
-      console.log(`the latest image is ${img.imageTag}`);
-      return img.imageTag
-    })
+      .listImages({
+        repositoryName: ECR_REPO_NAME,
+        filter: { tagStatus: 'TAGGED' }
+      })
+      .promise()
+      .then(({imageIds}) => {
+        const {imageTag} = R.last(R.sortBy(R.prop('imageTag'), imageIds))
+        console.log(`the latest image is ${imageTag}`);
+        return imageTag
+      })
   };
 };

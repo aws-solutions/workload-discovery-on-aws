@@ -12,8 +12,8 @@ test('calculate aggregated cost of nodes' , () => {
     aggregateCostData(nodes)
     nodes.forEach(node => {
         if(node.data.id === 'ebc5cd4c047867d5ab6154d07ff468f9') expect(node.data.cost).toEqual(62.98)
-        if(node.data.type === 'region') expect(node.data.cost).toEqual(62.98)
-        if(node.data.type === 'account') expect(node.data.cost).toEqual(62.98)
+        if(node.data.type === 'region') expect(node.data.cost).toEqual("62.98")
+        if(node.data.type === 'account') expect(node.data.cost).toEqual("62.98")
     })
 })
 

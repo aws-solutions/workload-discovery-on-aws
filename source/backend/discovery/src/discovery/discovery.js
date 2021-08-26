@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const AWS = require('aws-sdk');
 const sts = new AWS.STS();
 const getCreds = require('@aws-sdk/credential-provider-node').defaultProvider();
@@ -38,7 +37,7 @@ const discover = async () => {
 
   const containerCreds = await getCreds();
   const settingsApi = appSync({...config, creds: containerCreds});
-  //await settingsApi.updateAccount(config.rootAccountId, new Date().toISOString());
+
   const {bootStrap, canImportRun} = discoveryConfig(settingsApi, config);
 
   //Bootstrap the import
@@ -88,12 +87,12 @@ const discover = async () => {
 };
 
 /**
- * Import the data from the config aggregator.  Run each job in parrallel for speed !
+ * Import the data from the config aggregator.  Run each job in parallel for speed !
  * @param {*} configuration
  * @param {*} dataClient
  * @param {*} credentials
  */
-const importConfigAggregatorData = async ({accounts, configAggregator}, dataClient, creds) => {
+const importConfigAggregatorData = async ({accounts, configAggregator, customUserAgent}, dataClient, credentials) => {
 
   let visitedMap = new Map();
   let awsConfigJobs = [];
@@ -101,22 +100,25 @@ const importConfigAggregatorData = async ({accounts, configAggregator}, dataClie
   for (let account of accounts) {
     for (let region of account.regions) {
       awsConfigJobs.push(
-        importAwsConfig(account.accountId, region.name, configAggregator, dataClient, creds, visitedMap));
+        importAwsConfig(dataClient, visitedMap,{
+            accountId: account.accountId, region: region.name, configAggregator, customUserAgent, credentials
+        }));
     }
   }
 
   await Promise.all(awsConfigJobs);
 };
 
-const importAwsConfig = async (accountId, region, configAggregator, dataClient, creds, visitedMap) => {
+const importAwsConfig = async (dataClient, visitedMap, {
+    accountId, region, configAggregator, credentials: {AccessKeyId, SecretAccessKey, SessionToken}}, customUserAgent) => {
   logger.info(`>>>>>>>>>> importing config from region: ${region} configAggregator ${configAggregator}`);
   try {
-    const awsCreds = new AWS.Credentials(creds.AccessKeyId, creds.SecretAccessKey, creds.SessionToken);
+    const credentials = new AWS.Credentials(AccessKeyId, SecretAccessKey, SessionToken);
 
-    const configservice = new AWS.ConfigService({ credentials: awsCreds });
-    const configGateway = new ConfigGateway(configservice, configAggregator);
+    const configService = new AWS.ConfigService({ credentials, customUserAgent });
+    const configGateway = new ConfigGateway(configService, configAggregator);
     const discoveryService = new DiscoveryService(configGateway, accountId, dataClient, visitedMap);
-    await discoveryService.findRelationships(accountId, region, dataClient);
+    await discoveryService.findRelationships(accountId, region);
   }
   catch (Error) {
     logger.error(`error importing config from account: ${accountId} region: ${region}: ` + Error);
@@ -127,29 +129,34 @@ const importAwsConfig = async (accountId, region, configAggregator, dataClient, 
 };
 
 // Call GetAccountAuthorizationDetails to store AWSManaged Roles and Policies
-const importAccountAuthorisationDetails = async (awsCreds, dataClient) => {
+const importAccountAuthorisationDetails = async (customUserAgent, credentials, dataClient) => {
   logger.info("importAccountAuthorisationDetails");
-  const authorizationDetails = new GetAccountAuthorizationDetails(() => { return new AWS.IAM({ credentials: awsCreds, region: "Global" }) }, dataClient);
+  const authorizationDetails = new GetAccountAuthorizationDetails(
+      () => { return new AWS.IAM({ credentials, customUserAgent, region: "Global" }) },
+      dataClient);
   await ZoomUtils.wrapOutput(authorizationDetails.discover, ["AWSManagedPolicy"], authorizationDetails);
 };
 
-async function importAPIData(settingsApi, {accounts, rootAccountId, rootAccountRole}, dataClient) {
+async function importAPIData(settingsApi, {accounts, customUserAgent, rootAccountId, rootAccountRole}, dataClient) {
   return Promise.all(accounts.map(async account => {
     try {
       const role = account.accountId === rootAccountId ? rootAccountRole :
           `arn:aws:iam::${account.accountId}:role/ZoomDiscoveryRole`;
 
-      logger.info("Main account = ", rootAccountRole);
+      logger.info("Main account = " + rootAccountRole);
       logger.info("Account being imported");
       logger.info(account);
 
-      let creds = await login.login(role);
+      let credentials = await login.login(role);
 
-      await importAccountAuthorisationDetails(creds, dataClient);
+      await importAccountAuthorisationDetails(customUserAgent, credentials, dataClient);
       await linkRolesAndPolicies(account, dataClient);
 
       await Promise.all(account.regions.map(async region => {
-        await callAPIDiscovery(creds, account.accountId, region.name, dataClient);
+        await callAPIDiscovery({
+            credentials, customUserAgent, accountId: account.accountId, region: region.name
+        }, dataClient);
+
         return settingsApi.updateRegions(account.accountId, [
           {
             name: region.name,
@@ -174,26 +181,26 @@ const linkRolesAndPolicies = async (account, dataClient) => {
   const localRoleAccountAuthorizationDetails = new RoleAccountAuthorizationDetails(dataClient);
   await ZoomUtils.wrapOutput(localRoleAccountAuthorizationDetails.discover, [account.accountId, "global"], localRoleAccountAuthorizationDetails);
 
-  // Link users to roles and policies.
+  logger.info('Link users to roles and policies');
   const userPolicies = new UserPolicies(dataClient);
   await ZoomUtils.wrapOutput(userPolicies.discover, [account.accountId], userPolicies);
 };
 
-const callAPIDiscovery = async (awsCreds, accountId, region, dataClient) => {
+const callAPIDiscovery = async ({credentials, customUserAgent, accountId, region}, dataClient) => {
   logger.info(`importing API data from account: ${accountId} region: ${region}`);
 
   try {
-    let loadBalancerV2 = new LoadBalancerV2(() => { return new AWS.ELBv2({ apiVersion: '2015-12-01', credentials: awsCreds, region: region }) }, dataClient);
-    let loadBalancer = new LoadBalancer(() => { return new AWS.ELB({ apiVersion: '2012-06-01', credentials: awsCreds, region: region }) }, dataClient);
-    let apiGateway = new ApiGateway(() => { return new AWS.APIGateway({ apiVersion: '2015/07/09', credentials: awsCreds, region: region }) }, dataClient);
-    let autoScalingGroup = new AutoScalingGroup(() => { return new AWS.AutoScaling({ credentials: awsCreds, region: region }) }, dataClient);
-    let rdsCluster = new RDSCluster(() => { return new AWS.RDS({ credentials: awsCreds, region: region }) }, dataClient);
-    let lambdaLinks = new LambdaLinks(() => { return new AWS.Lambda({ credentials: awsCreds, region: region }) }, dataClient);
-    let vpcEndpoint = new VPCEndpoint(() => { return new AWS.EC2({ credentials: awsCreds, region: region }) }, dataClient);
-    let eniLinks = new ENILinks(() => { return new AWS.Lambda({ credentials: awsCreds, region: region }) }, dataClient);
-    let ecs = new ECS(() => { return new AWS.ECS({ credentials: awsCreds, region: region }) }, dataClient);
+    let loadBalancerV2 = new LoadBalancerV2(() => { return new AWS.ELBv2({ credentials, customUserAgent, region }) }, dataClient);
+    let loadBalancer = new LoadBalancer(() => { return new AWS.ELB({ credentials, customUserAgent,region }) }, dataClient);
+    let apiGateway = new ApiGateway(() => { return new AWS.APIGateway({ credentials, customUserAgent, region }) }, dataClient);
+    let autoScalingGroup = new AutoScalingGroup(() => { return new AWS.AutoScaling({ credentials, customUserAgent, region }) }, dataClient);
+    let rdsCluster = new RDSCluster(() => { return new AWS.RDS({ credentials, customUserAgent, region }) }, dataClient);
+    let lambdaLinks = new LambdaLinks(() => { return new AWS.Lambda({ credentials, customUserAgent,region }) }, dataClient);
+    let vpcEndpoint = new VPCEndpoint(() => { return new AWS.EC2({ credentials, customUserAgent, region }) }, dataClient);
+    let eniLinks = new ENILinks(() => { return new AWS.Lambda({ credentials, customUserAgent, region }) }, dataClient);
+    let ecs = new ECS(() => { return new AWS.ECS({ credentials, customUserAgent, region }) }, dataClient);
     let taskDefinitionLinks = new TaskDefinitionLinks(dataClient);
-    let spot = new Spot(() => { return new AWS.EC2({ credentials: awsCreds, region: region }) }, dataClient);
+    let spot = new Spot(() => { return new AWS.EC2({ credentials, customUserAgent, region }) }, dataClient);
     let routeTables = new RouteTables(dataClient);
 
     await ZoomUtils.wrapOutput(loadBalancerV2.discover, [accountId, region], loadBalancerV2);
@@ -210,9 +217,13 @@ const callAPIDiscovery = async (awsCreds, accountId, region, dataClient) => {
     await ZoomUtils.wrapOutput(routeTables.discover, [accountId, region], routeTables);
   }
   catch (err) {
-    logger.error(`error importing API data from account: ${accountId} region: ${region}: ` + err);
+    logger.error(`error importing API data from account: ${accountId} region: ${region}: ${err}`);
     ZoomUtils.dumpError(err);
   }
 };
 
-discover();
+discover().catch(err => {
+  logger.error('Error in Discovery process.');
+  logger.error(err);
+  process.exit(1);
+});

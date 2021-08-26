@@ -1,35 +1,32 @@
 const mime = require('mime-types');
+const R = require('ramda');
 const unzip = require('unzipper');
-
-const {
-  ACCOUNT_ID,
-  API_GATEWAY,
-  DRAWIO_API_GATEWAY,
-  COGNITO_IDENTITY_POOL,
-  COGNITO_USER_POOL_ID,
-  COGNITO_USER_POOL_WEB_CLIENT_ID,
-  DEPLOYMENT_BUCKET,
-  DEPLOYMENT_BUCKET_KEY,
-  REGION,
-  WEBUI_BUCKET,
-  DISCOVERY_BUCKET,
-  ANONYMOUS_METRIC_OPT_OUT,
-  AMPLIFY_STORAGE_BUCKET,
-  APPSYNC_API_GRAPHQL_URL,
-} = process.env;
 
 const ACL = 'private';
 const UI_FILE = 'ui.zip';
-const ACCOUNT_IMPORT = 'account-import-template.template';
-const REGION_IMPORT = 'account-region-template.template';
 const DISCOVERY_ZIP = 'discovery.zip';
 const CONFIG_FILENAME = 'settings.js';
 
-const discoveryConfigFile = 'importConfig.json';
+module.exports = (customerS3, config) => {
+    const {
+        ACCOUNT_ID,
+        API_GATEWAY,
+        DRAWIO_API_GATEWAY,
+        COGNITO_IDENTITY_POOL,
+        COGNITO_USER_POOL_ID,
+        COGNITO_USER_POOL_WEB_CLIENT_ID,
+        DEPLOYMENT_BUCKET,
+        DEPLOYMENT_BUCKET_KEY,
+        REGION,
+        WEBUI_BUCKET,
+        DISCOVERY_BUCKET,
+        ANONYMOUS_METRIC_OPT_OUT,
+        AMPLIFY_STORAGE_BUCKET,
+        APPSYNC_API_GRAPHQL_URL,
+        VERSION
+    } = config;
 
-module.exports = (customerS3) => {
-  const customerListFiles = (params) =>
-    customerS3.listObjects(params).promise();
+  const customerListFiles = (params) => customerS3.listObjects(params).promise();
   const customerPutObject = (params) => customerS3.putObject(params).promise();
   const customerUpload = (params) => customerS3.upload(params).promise();
 
@@ -61,18 +58,18 @@ module.exports = (customerS3) => {
           directory.files.filter((x) => x.type !== 'Directory')
         )
         .then((files) =>
-          files.map((file) =>
-            customerUpload({
-              ACL,
-              Body: file.stream(),
-              Bucket: WEBUI_BUCKET,
-              ContentType: mime.lookup(file.path) || 'application/octet-stream',
-              Key: file.path,
+            files.map(async file => {
+                return customerUpload({
+                    ACL,
+                    Body: file.stream(),
+                    Bucket: WEBUI_BUCKET,
+                    ContentType: mime.lookup(file.path) || 'application/octet-stream',
+                    Key: file.path,
+                })
             })
-          )
         )
-        .then((ps) => Promise.all(ps))
-        .catch((err) => console.error(`${err} was detected in ui file copy`)),
+        .then(ps => Promise.all(ps))
+        .catch(err => console.error(`${err} were detected in ui file copy`)),
 
     setupDiscoveryFiles: () =>
       customerS3
@@ -92,46 +89,6 @@ module.exports = (customerS3) => {
         )
         .catch((err) =>
           console.error(`${err} was detected in account import file copy`)
-        ),
-
-    writeAccountImportTemplate: () =>
-      customerS3
-        .getObject({
-          Bucket: DEPLOYMENT_BUCKET,
-          Key: `${DEPLOYMENT_BUCKET_KEY}/${ACCOUNT_IMPORT}`,
-        })
-        .promise()
-        .then((response) =>
-          customerUpload({
-            ACL,
-            Body: response.Body,
-            Bucket: DISCOVERY_BUCKET,
-            ContentType: response.ContentType,
-            Key: ACCOUNT_IMPORT,
-          })
-        )
-        .catch((err) =>
-          console.error(`${err} was detected in account import file copy`)
-        ),
-
-    writeRegionImportTemplate: () =>
-      customerS3
-        .getObject({
-          Bucket: DEPLOYMENT_BUCKET,
-          Key: `${DEPLOYMENT_BUCKET_KEY}/${REGION_IMPORT}`,
-        })
-        .promise()
-        .then((response) =>
-          customerUpload({
-            ACL,
-            Body: response.Body,
-            Bucket: DISCOVERY_BUCKET,
-            ContentType: response.ContentType,
-            Key: REGION_IMPORT,
-          })
-        )
-        .catch((err) =>
-          console.error(`${err} was detected in import file copy`)
         ),
 
     removeFiles: () =>
@@ -205,6 +162,7 @@ module.exports = (customerS3) => {
         window.perspectiveMetadata = ${JSON.stringify({
           rootAccount: ACCOUNT_ID,
           rootRegion: REGION,
+          version: VERSION
         })};
         window.collectAnonymousMetrics = ${JSON.stringify({
           optOut: ANONYMOUS_METRIC_OPT_OUT === 'Yes' ? true : false,
