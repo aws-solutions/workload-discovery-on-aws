@@ -37,10 +37,10 @@
 # build
 source/backend/functions/lambda-layers/aws_sdk/python
 source/backend/functions/lambda-layers/cr_helper/python
-source/backend/functions/lambda-layers/decorators/python
-source/backend/functions/lambda-layers/boto_utils/python
 !source/backend/functions/lambda-layers/decorators/python/decorators.py
 !source/backend/functions/lambda-layers/boto_utils/python/boto_utils.py
+# source/backend/functions/lambda-layers/decorators/python/*
+# source/backend/functions/lambda-layers/boto_utils/python/*
 source/backend/functions/cleanup-bucket/package
 
 local-deploy-perspective.sh
