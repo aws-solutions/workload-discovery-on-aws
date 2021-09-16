@@ -292,10 +292,12 @@ The DrawIO API URL is specified in the `DrawIOApiUrl` CloudFormation template ou
 
 ```sh
 DRAWIO_API_URL=''
+AWS_REGION=''
 AUTH=''
 
-curl -X POST "${DRAWIO_API_URL}/resources" \
-    --header "Authorization: Bearer ${AUTH}"  \
+curl -X POST "https://${DRAWIO_API_URL}.execute-api.${AWS_REGION}.amazonaws.com/Prod/resources" \
+    --header 'Content-Type: text/plain' \
+    -H "Authorization: Bearer ${AUTH}"  \
     --data-raw '{"elements":{"nodes":[], "edges": []}}'
 ```
 
