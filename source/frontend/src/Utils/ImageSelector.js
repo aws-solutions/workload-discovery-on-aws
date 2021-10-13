@@ -133,6 +133,21 @@ const serviceIconMap = {
     'AWS::RDS::DBInstance-postgres-status-warning',
   'Amazon-RDS_PostgreSQL_instance_light-bg-error':
     'AWS::RDS::DBInstance-postgres-status-negative',
+  'Amazon-RDS_MariaDB_instance_light-bg-menu': 'AWS::RDS::DBInstance-mariadb',
+  'Amazon-RDS_MariaDB_instance_light-bg':
+    'AWS::RDS::DBInstance-mariadb-status-available',
+  'Amazon-RDS_MariaDB_instance_light-bg-warning':
+    'AWS::RDS::DBInstance-mariadb-status-warning',
+  'Amazon-RDS_MariaDB_instance_light-bg-error':
+    'AWS::RDS::DBInstance-mariadb-status-negative',
+  'Amazon-RDS_SQL-Server_instance_light-bg-menu':
+    'AWS::RDS::DBInstance-sqlserver-ex',
+  'Amazon-RDS_SQL-Server_instance_light-bg':
+    'AWS::RDS::DBInstance-sqlserver-ex-status-available',
+  'Amazon-RDS_SQL-Server_instance_light-bg-warning':
+    'AWS::RDS::DBInstance-sqlserver-ex-status-warning',
+  'Amazon-RDS_SQL-Server_instance_light-bg-error':
+    'AWS::RDS::DBInstance-sqlserver-ex-status-negative',
   'Amazon-RDS_Amazon-Aurora_instance_light-bg-menu':
     'AWS::RDS::DBInstance-aurora',
   'Amazon-RDS_Amazon-Aurora_instance_light-bg':
@@ -141,6 +156,22 @@ const serviceIconMap = {
     'AWS::RDS::DBInstance-aurora-status-warning',
   'Amazon-RDS_Amazon-Aurora_instance_light-bg-error':
     'AWS::RDS::DBInstance-aurora-status-negative',
+  'Amazon-RDS_Amazon-Aurora_instance_postgresql_light-bg-menu':
+    'AWS::RDS::DBInstance-aurora-postgresql',
+  'Amazon-RDS_Amazon-Aurora_instance_postgresql_light-bg':
+    'AWS::RDS::DBInstance-aurora-postgresql-status-available',
+  'Amazon-RDS_Amazon-Aurora_instance_postgresql_light-bg-warning':
+    'AWS::RDS::DBInstance-aurora-postgresql-status-warning',
+  'Amazon-RDS_Amazon-Aurora_instance_postgresql_light-bg-error':
+    'AWS::RDS::DBInstance-aurora-postgresql-status-negative',
+  'Amazon-RDS_Amazon-Aurora_instance_mysql_light-bg-menu':
+    'AWS::RDS::DBInstance-aurora-mysql',
+  'Amazon-RDS_Amazon-Aurora_instance_mysql_light-bg':
+    'AWS::RDS::DBInstance-aurora-mysql-status-available',
+  'Amazon-RDS_Amazon-Aurora_instance_mysql_light-bg-warning':
+    'AWS::RDS::DBInstance-aurora-mysql-status-warning',
+  'Amazon-RDS_Amazon-Aurora_instance_mysql_light-bg-error':
+    'AWS::RDS::DBInstance-aurora-mysql-status-negative',
   'API-Gateway-method-Other_light-bg': 'AWS::ApiGateway::Method',
   'API-Gateway-method-Patch_light-bg': 'PATCH',
   'API-Gateway-method-Get_light-bg': 'GET',

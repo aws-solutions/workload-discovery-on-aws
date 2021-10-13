@@ -28,8 +28,10 @@ const buildNodeParserFactory = () => {
 buildNodeParserFactory();
 
 export const parseNode = (properties, node) => {
+
   const parser = nodeParsers.get(properties.resourceType);
   const state = getState(properties);
+
   if (parser) return parser(node);
   else
     return {

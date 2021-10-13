@@ -12,13 +12,16 @@ import {
 
 const R = require('ramda');
 
-export default ({ configuration }) => {
-  let parsedConfig;
+const parseConfiguration = (configuration) => {
   try {
-    parsedConfig = JSON.parse(JSON.parse(configuration));
-  } catch (e) {
-    parsedConfig = JSON.parse(configuration);
+    return JSON.parse(JSON.parse(configuration));
+  } catch (Error) {
+    return JSON.parse(configuration);
   }
+};
+
+export default ({ configuration }) => {
+  const parsedConfig = parseConfiguration(configuration);
 
   const ValueWithLabel = ({ label, children }) => (
     <div>

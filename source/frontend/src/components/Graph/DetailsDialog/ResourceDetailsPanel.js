@@ -54,16 +54,19 @@ const columns = [
 
 const ResourceDetailsPanel = ({ selectedNode }) => {
 
-  const properties = selectedNode.data
-    ? selectedNode.data('properties')
-    : selectedNode.properties;
+  const properties = R.hasPath(['properties'], selectedNode)
+  ? selectedNode.properties
+  : selectedNode.data('properties');
+
+  // const properties = selectedNode.data
+  //   ? selectedNode.data('properties')
+  //   : selectedNode.properties;
 
   const getTags = () => {
     if (
-      selectedNode.data('properties') &&
-      selectedNode.data('properties').tags
+      properties.tags
     ) {
-      const tags = JSON.parse(selectedNode.data('properties').tags);
+      const tags = JSON.parse(properties.tags);
       return (
         <ResourceDetailsTagTable
           trackBy='name'

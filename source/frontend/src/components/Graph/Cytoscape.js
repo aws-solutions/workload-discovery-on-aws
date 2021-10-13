@@ -13,7 +13,7 @@ import contextMenus from 'cytoscape-context-menus';
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import CytoscapeComponent from 'react-cytoscapejs';
 import CostOverview from '../Drawer/Costs/Report/CostOverview';
-import { useCostsState } from '../Contexts/CostsContext';
+import { CostsProvider, useCostsState } from '../Contexts/CostsContext';
 import fcose from 'cytoscape-fcose';
 import {
   getLinkedNodesHierarchy,
@@ -22,6 +22,8 @@ import {
 } from '../../API/Handlers/ResourceGraphQLHandler';
 import { handleSelectedResource } from '../../API/Processors/NodeProcessors';
 import { processHierarchicalNodeData } from '../../API/APIProcessors';
+import { costsReducer } from '../Contexts/Reducers/CostsReducer';
+import { useResourceState } from '../Contexts/ResourceContext';
 
 const R = require('ramda');
 let expandCollapse = require('cytoscape-expand-collapse');
@@ -137,7 +139,6 @@ export default () => {
               )
             )
             .catch((err) => {
-              console.error(err);
               setError(err);
             }),
         R.is(Array, nodes)
@@ -184,7 +185,15 @@ export default () => {
         edges.splice(index, 1);
       }
     });
-    return edges;
+
+    return R.filter(
+      (e) =>
+        !R.or(
+          R.includes(e.data.sourceMetadata.type, graphFilters.typeFilters),
+          R.includes(e.data.targetMetadata.type, graphFilters.typeFilters)
+        ),
+      edges
+    );
   };
 
   const findEdge = (edges, source, target) => {
@@ -520,6 +529,7 @@ export default () => {
                 ReactDOM.render(
                   <CostOverview
                     resources={graphResources}
+                    costDispatch={costDispatch}
                     costPreferences={costPreferences}
                   />,
                   div

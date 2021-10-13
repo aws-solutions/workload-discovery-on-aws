@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-router-dom": "^5.2.0",
+    "use-awsui-router": "^1.0.1"
+  }
+}

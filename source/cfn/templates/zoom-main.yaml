@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: AWS Perspective Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:v1.1.0)
+Description: AWS Perspective Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:v1.1.1)
 
 Parameters:
   AppName:
@@ -42,7 +42,7 @@ Parameters:
     Description: Target for Lambda function copy
     Type: String
     Default: us-east-1
-  CreateElasticSearchServiceRole:
+  CreateOpensearchServiceRole:
     Description: Flag for deploying the ES service role in elastic-service-role stack.
     Type: String
   NeptuneInstanceClass:
@@ -61,9 +61,15 @@ Parameters:
   PerspectiveAppSyncApiUrl:
     Description: Url for AppSync API
     Type: String
-  ElasticsearchInstanceType:
-    Description: The instance type for Elasticsearch data nodes
+  OpensearchInstanceType:
+    Description: The instance type for Opensearch data nodes
     Type: String
+  OpensearchMultiAz:
+    Description: High availability Opensearch deployment
+    Type: String
+    AllowedValues:
+      - 'Yes'
+      - 'No'
   CostAndUsageReportBucket:
     Description: The name of the bucket used to store Cost and Usage Reports for Perspective to query
     Type: String
@@ -94,19 +100,8 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        AccessLogsBucket: !Ref AccessLogsBucket
-        AWSSDK:
-          Fn::GetAtt: LayerStack.Outputs.AWSSDK
-        Decorators:
-          Fn::GetAtt: LayerStack.Outputs.Decorators
-        BotoUtils:
-          Fn::GetAtt: LayerStack.Outputs.BotoUtils
-        CustomResourceHelper:
-          Fn::GetAtt: LayerStack.Outputs.CustomResourceHelper
-        ResourcePrefix:
-          Ref: ResourcePrefix
-        CloneRegion:
-          Ref: CloneRegion
+        AccessLogsBucket:
+          Ref: AccessLogsBucket
         SecuredEdgeBucket:
           Ref: DeploymentBucketName
         DeploymentBucketKey:
@@ -170,42 +165,26 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:
-        Fn::Sub: ${DeploymentBucket}/perspective-elasticsearch-roles.template
+        Fn::Sub: ${DeploymentBucket}/perspective-opensearch-roles.template
       TimeoutInMinutes: 60
       Parameters:
-        CreateElasticSearchServiceRole: !Ref CreateElasticSearchServiceRole
+        CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
 
   ElasticsearchStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:
-        Fn::Sub: ${DeploymentBucket}/zoom-elasticsearch.template
+        Fn::Sub: ${DeploymentBucket}/perspective-opensearch.template
       TimeoutInMinutes: 60
       Parameters:
-        AppName:
-          Ref: AppName
-        InstanceType:
-          Ref: ElasticsearchInstanceType
-        PrivateSubnet0:
-          Fn::GetAtt:
-            - VpcStack
-            - Outputs.PrivateSubnet0
-        PrivateSubnet1:
-          Fn::GetAtt:
-            - VpcStack
-            - Outputs.PrivateSubnet1
-        PerspectiveVPCId:
-          Fn::GetAtt:
-            - VpcStack
-            - Outputs.VPCId
-        PerspectiveVpcCidr:
-          Fn::GetAtt:
-            - VpcStack
-            - Outputs.VpcCidr
-        SearchLambdaIAMRoleARN:
-          Fn::GetAtt:
-            - ElasticsearcRoleStack
-            - Outputs.ElasticsearchLambdaRoleArn
+        AppName: !Ref AppName
+        InstanceType: !Ref OpensearchInstanceType
+        ZoneAwarenessEnabled: !Ref OpensearchMultiAz
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
+        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        SearchLambdaIAMRoleARN: !GetAtt ElasticsearcRoleStack.Outputs.OpensearchLambdaRoleArn
 
   TaskStack:
     Type: AWS::CloudFormation::Stack
@@ -232,7 +211,6 @@ Resources:
         DiscoveryBucket: !Ref DiscoveryBucket
         Cpu: 1024
         Memory: 2048
-        AWSSDK: !GetAtt LayerStack.Outputs.AWSSDK
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
@@ -297,9 +275,9 @@ Resources:
         Fn::Sub: ${DeploymentBucket}/perspective-search.template
       TimeoutInMinutes: 60
       Parameters:
-        ElasticsearchDomainEndpoint: !GetAtt ElasticsearchStack.Outputs.DomainEndpoint
-        ElasticsearchSg: !GetAtt ElasticsearchStack.Outputs.ElasticsearchSg
-        ElasticsearchLambdaRoleArn: !GetAtt ElasticsearcRoleStack.Outputs.ElasticsearchLambdaRoleArn
+        OpensearchDomainEndpoint: !GetAtt ElasticsearchStack.Outputs.DomainEndpoint
+        OpensearchSg: !GetAtt ElasticsearchStack.Outputs.OpensearchSg
+        OpensearchLambdaRoleArn: !GetAtt ElasticsearcRoleStack.Outputs.OpensearchLambdaRoleArn
         VpcId: !GetAtt VpcStack.Outputs.VPCId
         VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
         PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
@@ -323,18 +301,9 @@ Resources:
         Fn::Sub: ${DeploymentBucket}/zoom-api-gateway.template
       TimeoutInMinutes: 60
       Parameters:
-        GremlinARN:
-          Fn::GetAtt:
-            - GremlinStack
-            - Outputs.GremlinARN
-        ElasticARN:
-          Fn::GetAtt:
-            - SearchStack
-            - Outputs.ElasticARN
-        DrawioLambdaARN:
-          Fn::GetAtt:
-            - DrawIoLambdaStack
-            - Outputs.DrawioLambdaARN
+        GremlinARN: !GetAtt GremlinStack.Outputs.GremlinARN
+        SearchFunctionArn: !GetAtt SearchStack.Outputs.SearchFunctionArn
+        DrawioLambdaARN: !GetAtt DrawIoLambdaStack.Outputs.DrawioLambdaARN
 
   ServerAPIStack:
     Type: AWS::CloudFormation::Stack
@@ -343,14 +312,8 @@ Resources:
         Fn::Sub: ${DeploymentBucket}/zoom-server-api-gateway.template
       TimeoutInMinutes: 60
       Parameters:
-        GremlinARN:
-          Fn::GetAtt:
-            - GremlinStack
-            - Outputs.GremlinARN
-        ElasticARN:
-          Fn::GetAtt:
-            - SearchStack
-            - Outputs.ElasticARN
+        GremlinARN: !GetAtt GremlinStack.Outputs.GremlinARN
+        SearchFunctionArn: !GetAtt SearchStack.Outputs.SearchFunctionArn
 
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack

@@ -5,7 +5,27 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2021-09-28
+
+### Added
+
+- Missing icons for MariaDB, Aurora, SQL-Server RDS types.
+- OpensearchMultiAz parameter to CloudFormation template to set Amazon OpenSearch Service up with a single instance.
+
+### Changed
+
+- Migrated from Lambda@Edge to CloudFront Functions to handle secure headers for web requests to the frontend.
+- References to Amazon Elasticsearch Service to Amazon OpenSearch Service
+
+### Fixed
+
+- Fixed a bug causing a blank screen when expanding nodes whilst filters are enabled - https://github.com/awslabs/aws-perspective/issues/201
+- Fixed a bug that meant the time period for cost report queries was not persisted - https://github.com/awslabs/aws-perspective/issues/200
+- Fixed a bug that could result in python files being incorrectly excluded - https://github.com/awslabs/aws-perspective/issues/64
+- A bug causing some resource types to throw an exception when clicking "Show more details"
+
 ## [1.1.0] - 2021-08-26
+
 ### Added
 
 - Support for newer ECS task ARNs

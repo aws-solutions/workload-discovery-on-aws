@@ -109,7 +109,7 @@ Resources:
               "Sid": "HttpsOnly",
               "Action": "*",
               "Effect": "Deny",
-              "Resource": "arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/Config/*",
+              "Resource": ["arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/Config/*", "arn:aws:s3:::${ConfigBucket}"],
               "Principal": "*",
               "Condition": {
                 "Bool": {
