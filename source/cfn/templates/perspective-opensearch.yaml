@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: AWS Perspective ElasticsearchDomain Stack
+Description: AWS Perspective Opensearch Domain Stack
 
 Parameters:
 
@@ -14,6 +14,13 @@ Parameters:
     Description: VPC CIDR
     Type: String
     AllowedPattern: '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$'
+
+  ZoneAwarenessEnabled:
+    Description: Multiple AZ deployment
+    Type: String
+    AllowedValues:
+      - 'Yes'
+      - 'No'
 
   PrivateSubnet0:
     Description: Private Subnet 0
@@ -96,6 +103,9 @@ Parameters:
       - i3.8xlarge.elasticsearch
       - i3.16xlarge.elasticsearch
 
+Conditions:
+  ZoneAwarenessEnabled: !Equals [ !Ref ZoneAwarenessEnabled, 'Yes' ]
+
 Resources:
 
   ElasticsearchSg:
@@ -121,11 +131,13 @@ Resources:
     Properties:
       ElasticsearchVersion: '7.10'
       ElasticsearchClusterConfig:
-        InstanceCount: 2
+        InstanceCount: !If [ZoneAwarenessEnabled, 2, 1]
         InstanceType: !Ref InstanceType
-        ZoneAwarenessEnabled: true
-        ZoneAwarenessConfig:
-          AvailabilityZoneCount: 2
+        ZoneAwarenessEnabled: !If [ZoneAwarenessEnabled, true, false]
+        ZoneAwarenessConfig: !If 
+          - ZoneAwarenessEnabled
+          - AvailabilityZoneCount: 2
+          - !Ref AWS::NoValue
         DedicatedMasterEnabled: false
       EBSOptions:
         EBSEnabled: true
@@ -162,7 +174,10 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet0
-          - !Ref PrivateSubnet1
+          - !If 
+            - ZoneAwarenessEnabled
+            - !Ref PrivateSubnet1
+            - !Ref AWS::NoValue
         SecurityGroupIds:
           - !Ref ElasticsearchSg
     UpdatePolicy:
@@ -281,5 +296,5 @@ Outputs:
   DomainEndpoint:
     Value: !GetAtt ElasticsearchDomain.DomainEndpoint
 
-  ElasticsearchSg:
+  OpensearchSg:
     Value: !Ref ElasticsearchSg

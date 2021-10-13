@@ -22,7 +22,7 @@
     "async-retry": "1.3.1",
     "aws-sdk": "2.611.0",
     "aws4": "1.8.0",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "bottleneck": "2.19.5",
     "gremlin": "3.4.7",
     "ramda": "0.27.0",
@@ -35,9 +35,9 @@
   "devDependencies": {
     "acorn": "^8.0.5",
     "chai": "^4.2.0",
-    "mocha": "^6.2.3",
-    "nyc": "^14.1.1",
-    "rewire": "^4.0.1",
+    "mocha": "^9.1.2",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0",
     "socks5-https-client": "^1.2.1"
   },
   "volta": {

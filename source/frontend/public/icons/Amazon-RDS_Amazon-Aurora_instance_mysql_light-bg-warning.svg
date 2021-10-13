@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 75 75">
+    <title>
+        Amazon-RDS_Amazon-Aurora_instance_light-bg
+    </title>
+    <g id="Working" transform="translate(5,15)">
+        <path d="M43.55,0H6.45A6.45,6.45,0,0,0,0,6.45v37.1A6.45,6.45,0,0,0,6.45,50H30V48H6.45A4.46,4.46,0,0,1,2,43.55V6.45A4.46,4.46,0,0,1,6.45,2h37.1A4.46,4.46,0,0,1,48,6.45V21h2V6.45A6.45,6.45,0,0,0,43.55,0Z" style="fill:#3b48cc"/>
+        <text transform="translate(-6, 4)" font-size="9" fill="#3b48cc" font-family="Amazon Ember, Helvetica, Arial, sans-serif" font-weight="bold">
+            <tspan x="1em" dy="1em">Amazon</tspan>
+            <tspan x="1em" dy="1em">Aurora</tspan>
+            <tspan x="1em" dy="1em">MySql</tspan>
+        </text>
+        <path d="M40,20.28c-5,0-10,1.56-10,4.55V45.17c0,3,5,4.55,10,4.55s10-1.56,10-4.55V24.83C50,21.84,45,20.28,40,20.28Zm.13,2c5.19,0,8,1.68,8,2.55s-2.83,2.56-8,2.56-8-1.69-8-2.56S34.93,22.28,40.13,22.28Zm0,25.44c-5.2,0-8-1.68-8-2.55V41.75a16.66,16.66,0,0,0,8,1.74,16.65,16.65,0,0,0,8-1.74v3.42C48.15,46,45.32,47.72,40.13,47.72Zm0-6.23c-5.2,0-8-1.69-8-2.56V34.77a16.78,16.78,0,0,0,8,1.73,16.77,16.77,0,0,0,8-1.73v4.16C48.15,39.8,45.32,41.49,40.13,41.49Zm0-7c-5.2,0-8-1.69-8-2.56V27.65a16.66,16.66,0,0,0,8,1.74,16.65,16.65,0,0,0,8-1.74v4.29C48.15,32.81,45.32,34.5,40.13,34.5Z" style="fill:#3b48cc"/>
+    </g>
+     <style type="text/css">
+        .st4{fill:#f90}
+    </style>
+    <g id="grid_x5F_locked"/>
+    <g id="icon">
+        <g transform="translate(55,0)">
+            <path class="st4" d="M15.9,14.6l-7-14c-0.3-0.7-1.5-0.7-1.8,0l-7,14c-0.2,0.3-0.1,0.7,0,1C0.3,15.8,0.7,16,1,16h14
+			c0.3,0,0.7-0.2,0.9-0.5C16,15.2,16,14.9,15.9,14.6z M2.6,14L8,3.2L13.4,14H2.6z"/>
+            <polygon class="st4" points="7,11 7,13 9,13 9,11 		"/>
+            <rect x="7" y="6" class="st4" width="2" height="4"/>
+        </g>
+    </g>
+</svg>

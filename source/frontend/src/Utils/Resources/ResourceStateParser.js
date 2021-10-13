@@ -18,7 +18,7 @@ const getRedState = state => {
 };
 
 const getAmberState = state => {
-  return new RegExp(['pending', 'provisioning'].join('|')).exec(state);
+  return new RegExp(['creating', 'pending', 'provisioning'].join('|')).exec(state);
 };
 
 export const getStateInformation = state => {

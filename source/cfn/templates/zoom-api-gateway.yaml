@@ -6,9 +6,9 @@ Parameters:
   GremlinARN:
     Type: String
     Description: The ARN for the Gremlin Lambda.
-  ElasticARN:
+  SearchFunctionArn:
     Type: String
-    Description: The ARN for the ElasticSearch Lambda.
+    Description: The ARN for the Opensearch Lambda.
   DrawioLambdaARN:
     Type: String
     Description: The ARN of the Drawio Lambda function.
@@ -66,7 +66,7 @@ Resources:
     Properties:
       Action: lambda:invokeFunction
       FunctionName:
-        Ref: ElasticARN
+        Ref: SearchFunctionArn
       Principal: apigateway.amazonaws.com
       SourceArn:
         Fn::Sub:
@@ -224,7 +224,7 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri:
-          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ElasticARN}/invocations
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SearchFunctionArn}/invocations
         IntegrationResponses:
           - StatusCode: '200'
             ResponseParameters:

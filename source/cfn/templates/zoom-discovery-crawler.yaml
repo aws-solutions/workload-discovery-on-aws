@@ -54,10 +54,6 @@ Parameters:
     Type: String
     Description: The key within the bucket that contains the source code zips
 
-  AWSSDK:
-    Type: String
-    Description: Required library
-
   Decorators:
     Type: String
     Description: Required library
@@ -186,7 +182,6 @@ Resources:
         Key: !Sub ${DeploymentBucketKey}/cleanup-ecr.zip
       Runtime: python3.8
       Layers:
-        - !Ref AWSSDK
         - !Ref Decorators
         - !Ref BotoUtils
         - !Ref CustomResourceHelper
@@ -237,7 +232,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${CodeBuildArtifactBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${CodeBuildArtifactBucket}/*
+              - !Sub arn:aws:s3:::${CodeBuildArtifactBucket}
             Principal: '*'
             Condition:
               Bool:

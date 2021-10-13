@@ -1,20 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: AWS Perspective Elasticsearch Roles Stack
+Description: AWS Perspective Opensearch Roles Stack
 
 Parameters:
-  CreateElasticSearchServiceRole:
+  CreateOpensearchServiceRole:
     Type: String
 
 Conditions:
-  DeployESServiceRole: !Equals [!Ref CreateElasticSearchServiceRole, 'Yes']
+  DeployOpensearchServiceRole: !Equals [!Ref CreateOpensearchServiceRole, 'Yes']
 
 Resources:
   # As this stack has no dependencies it should be created first giving sufficient time for
   # the IAM role to have propagated before the creation of the ES cluster.
   ElasticSearchServiceLinkedRole:
     Type: AWS::IAM::ServiceLinkedRole
-    Condition: DeployESServiceRole
+    Condition: DeployOpensearchServiceRole
     Properties:
       AWSServiceName: es.amazonaws.com
       Description: Role to enable Amazon ES to manage your cluster.
@@ -39,6 +39,6 @@ Resources:
               - sts:AssumeRole
 
 Outputs:
-  ElasticsearchLambdaRoleArn:
+  OpensearchLambdaRoleArn:
     Description: Search function required for ES cluster access role Arn
     Value: !GetAtt SearchLambdaRole.Arn

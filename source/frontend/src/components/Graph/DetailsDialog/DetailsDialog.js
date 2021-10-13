@@ -10,7 +10,6 @@ import ResourceDetailsPanel from './ResourceDetailsPanel';
 
 export default ({ selectedNode }) => {
   const [showMoreDetailsModal, setShowMoreDetailsModal] = useState(true);
-
   return (
     <Modal
       onDismiss={() => setShowMoreDetailsModal(false)}
