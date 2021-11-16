@@ -12,7 +12,7 @@
     "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist"
   },
   "dependencies": {
-    "aws-sdk": "2.713.0",
+    "aws-sdk": "2.814.0",
     "mime-types": "2.1.27",
     "ramda": "0.27.1",
     "unzipper": "0.10.11",
