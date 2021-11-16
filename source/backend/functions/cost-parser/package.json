@@ -22,7 +22,7 @@
     "ramda": "0.27.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.726.0",
+    "aws-sdk": "^2.814.0",
     "chai": "^4.3.4",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
