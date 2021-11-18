@@ -22,7 +22,7 @@
     "ajv": "6.12.3",
     "aws4": "1.10.0",
     "axios": "0.21.2",
-    "better-ajv-errors": "0.6.7",
+    "better-ajv-errors": "1.1.0",
     "gremlin": "3.4.7",
     "is-iso-date": "0.0.1",
     "ramda": "0.27.0",

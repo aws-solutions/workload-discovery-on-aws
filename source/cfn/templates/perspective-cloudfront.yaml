@@ -52,6 +52,20 @@ Resources:
                 Fn::GetAtt:
                   - CloudFrontOriginAccessIdentity
                   - S3CanonicalUserId
+          - Sid: HttpsOnly
+            Action: '*'
+            Effect: Deny
+            Resource: 
+              - Fn::Sub:                
+                - arn:aws:s3:::${WebUIBucketName}
+                - WebUIBucketName: '{{resolve:ssm:WebUIBucketName:1}}' 
+              - Fn::Sub:                
+                - arn:aws:s3:::${WebUIBucketName}/*
+                - WebUIBucketName: '{{resolve:ssm:WebUIBucketName:1}}'              
+            Principal: '*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:

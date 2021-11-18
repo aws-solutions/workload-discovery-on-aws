@@ -42,7 +42,7 @@ const CostOverview = ({ resources, costDispatch, costPreferences }) => {
   );
   const [toDate, setToDate] = React.useState(
     R.pathOr(
-      dayjs().endOf('month').format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD'),
       ['period', 'toDate'],
       costPreferences
     )
