@@ -1,8 +1,8 @@
-# AWS Perspective (v1.1.1)
+# AWS Perspective (v1.1.2)
 
 AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, mapping relationships between them, and displaying them in a web user interface (web UI).
 
-v1.1.1 brings a new feature that uses AWS Cost & Usage Reports (AWS CUR) to help you identify AWS resources that have incurred a cost. You can build architecture diagrams displaying this cost information and generate Cost Reports which graph the overall cost of your workload over a configurable time period. These reports can be exported in CSV format.
+v1.1.0 brings a new feature that uses AWS Cost & Usage Reports (AWS CUR) to help you identify AWS resources that have incurred a cost. You can build architecture diagrams displaying this cost information and generate Cost Reports which graph the overall cost of your workload over a configurable time period. These reports can be exported in CSV format.
 
 The new release includes many UX improvements among them a Grouped Resources ** view which displays an inventory of your workloads. Resource type coverage has also been improved with Perspective now supporting your Amazon Redshift Clusters. 
 
