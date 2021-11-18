@@ -52,6 +52,7 @@ class DiscoveryService {
       "AWS::AutoScaling::AutoScalingGroup",
       "AWS::EC2::NatGateway",
       "AWS::Elasticsearch::Domain",
+      "AWS::OpenSearch::Domain",
       "AWS::KMS::Key",
       "AWS::CodeBuild::Project",
       "AWS::CodePipeline::Pipeline",

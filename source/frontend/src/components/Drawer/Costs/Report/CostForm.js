@@ -128,6 +128,9 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
+              isDateEnabled={date =>
+                new dayjs(date).isBefore(new dayjs())
+              }
             />
           </FormField>
           <FormField
@@ -143,6 +146,9 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
+              isDateEnabled={date =>
+                new dayjs(date).isBefore(new dayjs())
+              }
             />
           </FormField>
         </SpaceBetween>

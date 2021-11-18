@@ -273,6 +273,9 @@ export const services = [
       "service": "Amazon Elasticsearch Service"
     },
     {
+      "service": "Amazon OpenSearch Service"
+    },
+    {
       "service": "EMR"
     },
     {

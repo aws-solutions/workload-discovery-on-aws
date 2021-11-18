@@ -107,7 +107,7 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
     dayjs().startOf('month').format('YYYY-MM-DD')
   );
   const [toDate, setToDate] = React.useState(
-    dayjs().endOf('month').format('YYYY-MM-DD')
+    dayjs().format('YYYY-MM-DD')
   );
   const [selectedAccounts, setSelectedAccounts] = React.useState([]);
   const [selectedRegions, setSelectedRegions] = React.useState([]);
@@ -341,6 +341,9 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
                   placeholder='YYYY/MM/DD'
                   previousMonthAriaLabel='Previous month'
                   todayAriaLabel='Today'
+                  isDateEnabled={date =>
+                    new dayjs(date).isBefore(new dayjs())
+                  }
                 />
               </FormField>
               <FormField
@@ -356,6 +359,9 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
                   placeholder='YYYY/MM/DD'
                   previousMonthAriaLabel='Previous month'
                   todayAriaLabel='Today'
+                  isDateEnabled={date =>
+                    new dayjs(date).isBefore(new dayjs())
+                  }
                 />
               </FormField>
             </ColumnLayout>

@@ -15,14 +15,13 @@
   "license": "ISC",
   "dependencies": {
     "@most/core": "^1.6.1",
-    "@tuplo/dynoexpr": "^1.9.0",
     "athena-express": "^6.0.4",
     "dayjs": "^1.10.5",
     "most": "^1.9.0",
     "ramda": "0.27.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.726.0",
+    "aws-sdk": "latest",
     "chai": "^4.3.4",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",

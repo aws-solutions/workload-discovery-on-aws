@@ -8,7 +8,6 @@ import FormField from '@awsui/components-react/form-field';
 import Container from '@awsui/components-react/container';
 import Multiselect from '@awsui/components-react/multiselect';
 import ColumnLayout from '@awsui/components-react/column-layout';
-import DatePicker from '@awsui/components-react/date-picker';
 import ExpandableSection from '@awsui/components-react/expandable-section';
 import Input from '@awsui/components-react/input';
 import getSymbolFromCurrency from 'currency-symbol-map';
@@ -40,7 +39,11 @@ const columns = [
     id: 'resource',
     header: 'Resource',
     cell: (e) =>
-      e.line_item_resource_id ? e.line_item_resource_id : (e.product_servicename ?  e.product_servicename : 'undefined'),
+      e.line_item_resource_id
+        ? e.line_item_resource_id
+        : e.product_servicename
+        ? e.product_servicename
+        : 'undefined',
     width: 320,
     minWidth: 320,
   },
@@ -121,7 +124,7 @@ const CostQueryResults = ({
               <Header
                 actions={
                   <ButtonDropdown
-                  disabled={R.isEmpty(selectedResources)}
+                    disabled={R.isEmpty(selectedResources)}
                     variant='primary'
                     onItemClick={addToGraph}
                     items={[
@@ -150,7 +153,9 @@ const CostQueryResults = ({
               pageChanged={fetchNext}
               selectedItems={selectedResources}
               onSelectionChange={setSelectedResources}
-              selectionType={R.equals('getResourcesByCost', queryType) ? 'multi' : undefined}
+              selectionType={
+                R.equals('getResourcesByCost', queryType) ? 'multi' : undefined
+              }
             />
           </Container>
         </SpaceBetween>
@@ -164,6 +169,9 @@ CostQueryResults.propTypes = {
   results: PropTypes.object.isRequired,
   selectedResources: PropTypes.array.isRequired,
   setSelectedResources: PropTypes.func.isRequired,
+  queryType: PropTypes.string,
+  fetchNext: PropTypes.func,
+  addToGraph: PropTypes.func
 };
 
 export default CostQueryResults;

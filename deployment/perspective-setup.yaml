@@ -419,6 +419,7 @@ Resources:
                   - apigateway:POST
                   - apigateway:PUT
                   - apigateway:PATCH
+                  - apigateway:DELETE
                 Resource:
                   - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveWebRestAPI}/*
                   - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerGremlinAPI}/*
@@ -503,6 +504,7 @@ Resources:
                   - glue:CreateDatabase
                   - glue:CreateTable
                   - glue:CreateCrawler
+                  - glue:UpdateCrawler
                 Resource: !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*'
   LambdaSetup:
     Metadata:
@@ -1097,6 +1099,11 @@ Resources:
 
 
   WebUIBucket:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W51
+            reason: This bucket will get a policy attached to it from another template during deployment.
     Type: AWS::S3::Bucket
     Properties:
       PublicAccessBlockConfiguration:
@@ -1126,23 +1133,6 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-
-  WebUIBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref WebUIBucket
-      PolicyDocument:
-        Statement:
-          - Sid: HttpsOnly
-            Action: '*'
-            Effect: Deny
-            Resource: 
-              - !Sub arn:aws:s3:::${WebUIBucket}/*
-              - !Sub arn:aws:s3:::${WebUIBucket}
-            Principal: '*'
-            Condition:
-              Bool:
-                'aws:SecureTransport': 'false'
 
   AmplifyStorageBucket:
     Type: AWS::S3::Bucket

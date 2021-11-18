@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  Header,
   Alert,
   Toggle,
   SpaceBetween,
   Container,
   Form,
-  Link,
-  Grid,
-  FormField,
-  ColumnLayout,
-  DatePicker,
+
   TextContent,
 } from '@awsui/components-react';
 import { useCostsState } from '../../../Contexts/CostsContext';
@@ -32,7 +27,7 @@ export default () => {
   );
   const [toDate, setToDate] = React.useState(
     R.pathOr(
-      dayjs().endOf('month').format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD'),
       ['period', 'toDate'],
       costPreferences
     )

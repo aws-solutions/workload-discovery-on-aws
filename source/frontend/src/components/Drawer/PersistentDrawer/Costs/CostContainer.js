@@ -52,7 +52,6 @@ export default function PersistentDrawerLeft() {
   const [toDate, setToDate] = React.useState(
     R.pathOr(
       dayjs()
-        .endOf('month')
         .format('YYYY-MM-DD'),
       ['period', 'toDate'],
       costPreferences
@@ -260,6 +259,9 @@ export default function PersistentDrawerLeft() {
                 placeholder='YYYY-MM-DD'
                 previousMonthAriaLabel='Previous month'
                 todayAriaLabel='Today'
+                isDateEnabled={date =>
+                  new dayjs(date).isBefore(new dayjs())
+                }
               />
             </FormField>
             <FormField
@@ -273,6 +275,9 @@ export default function PersistentDrawerLeft() {
                 placeholder='YYYY-MM-DD'
                 previousMonthAriaLabel='Previous month'
                 todayAriaLabel='Today'
+                isDateEnabled={date =>
+                  new dayjs(date).isBefore(new dayjs())
+                }
               />
             </FormField>
           </ColumnLayout>
