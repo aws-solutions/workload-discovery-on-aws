@@ -9,8 +9,11 @@ import {
   Button,
   ColumnLayout,
 } from '@awsui/components-react';
+import PropTypes from 'prop-types';
 
-export default ({ compound }) => {
+const R = require('ramda');
+
+const TreeMenuExportMenu = ({ compound }) => {
   const [expanded, setExpanded] = React.useState([]);
   const [saveJson, setSaveJson] = useState(false);
   const [saveCSV, setSaveCSV] = useState(false);
@@ -50,10 +53,7 @@ export default ({ compound }) => {
   };
 
   const exportJSON = () => {
-    // const expandableNodes = api.current.expandableNodes();
-    // api.current.expandAll();
     const json = compound.json();
-    // api.current.collapse(expandableNodes);
     return new Blob([JSON.stringify(json)], {
       type: 'application/json;charset=utf-8',
     });
@@ -80,14 +80,44 @@ export default ({ compound }) => {
     return recursiveNodes;
   };
 
+  const removeCollapsedNodes = (parents, nodes) =>
+    R.filter((e) => !R.includes(e.data.parent, parents), nodes);
+
   const generateDrawio = async () => {
+    const elements = compound.json().elements;
+    const parentCollapsed = R.map(
+      (x) => x.data.id,
+      R.filter((e) => !R.isNil(e.data.collapsedChildren), elements.nodes)
+    );
+    const nodes = removeCollapsedNodes(parentCollapsed, elements.nodes);
+    elements.nodes = R.map((e) => {
+      if (e.data.collapsedChildren) {
+        e.data.collapsedChildren = [];
+        e.data.children = undefined;
+        e.data.type = 'resource';
+
+        e.data.hasChildren = false;
+      }
+      return e;
+    }, nodes);
+
+    if (elements.edges) {
+      elements.edges = R.map((e) => {
+        if (!R.isNil(e.data.originalEnds)) {
+          e.data.originalEnds = undefined;
+        }
+        return e;
+      }, elements.edges);
+    }
     const query = {
-      body: {data: compound.json().elements},
+      body: { data: elements },
       processor: (data) => data,
     };
     await sendDrawioPostRequest(query, query.processor)
       .then(handleResponse)
-      .then((response) => window.open(response.body, '_blank', 'rel=noreferrer'))
+      .then((response) =>
+        window.open(response.body, '_blank', 'rel=noreferrer')
+      )
       .catch((err) => setError(err));
   };
 
@@ -150,3 +180,9 @@ export default ({ compound }) => {
     </>
   );
 };
+
+TreeMenuExportMenu.propTypes = {
+  compound: PropTypes.object.isRequired,
+};
+
+export default TreeMenuExportMenu;

@@ -5,7 +5,12 @@ const asyncRetry = require('async-retry');
 const logger = require('./logger');
 
 const limiter = new Bottleneck({
-    minTime: 10,
+    minTime: 50,
+    maxConcurrent: 1
+});
+
+const limiterPage = new Bottleneck({
+    minTime: 100,
     maxConcurrent: 1
 });
 
@@ -339,7 +344,7 @@ const jsonConvert = (text) => {
     }
 }
 
-const retry = R.curry((opts, errPred, context, func, parameters, name) => {
+const retry = R.curry((limiter, opts, errPred, context, func, parameters, name) => {
     return asyncRetry(async (bail, count) => {
         return limiter
             .schedule(() => func.bind(context)(parameters).promise())
@@ -353,7 +358,11 @@ const retry = R.curry((opts, errPred, context, func, parameters, name) => {
     }, opts);
 });
 
-const defaultRetry = retry({
+const defaultRetry = retry(limiter, {
+    retries: 5
+}, err => err.code === 'ResourceNotDiscoveredException');
+
+const paginatedRetry = retry(limiterPage, {
     retries: 5
 }, err => err.code === 'ResourceNotDiscoveredException');
 
@@ -400,7 +409,7 @@ const callAwsApiWithMarkPagination = async (context, func, parameters, name, pre
 
 const callAwsApiWithPagination = async (context, func, parameters, name, apiResults) => {
     try {
-        let results = await defaultRetry(context, func, parameters, name);
+        let results = await paginatedRetry(context, func, parameters, name);
 
         // When called from config advanced query it returns QueryInfo which has to be deleted.
         if (results.QueryInfo){

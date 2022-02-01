@@ -124,19 +124,22 @@ echo "[Rebuild] Layers"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/lambda-layers
 for i in `ls -d */ | sed 's#/##'` ; do
-  pip install -r $i/requirements.txt -t $i/python/
+  mkdir $i/python
+  [ -f "$i/$i.py" ] && cp $i/$i.py $i/python
+  [ -f "$i/requirements.txt" ] && pip install -r $i/requirements.txt -t $i/python/
   cd $i
   zip  -q  -r9 ../$i.zip ./python
   cd ..
+  rm -rf $i/python
 done
 cp ./*.zip $build_dist_dir/
 
 echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Secured Edge Lambda"
+echo "[Rebuild] HSTS CloudFront Function"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/secured-edge
-mkdir dist && zip -q -r9 dist/create_regional_edge_lambda.zip create_regional_edge_lambda.py
-cp ./dist/create_regional_edge_lambda.zip $build_dist_dir/create_regional_edge_lambda.zip
+rm -rf dist && mkdir dist && cp cff-hsts.js dist/cff-hsts.js
+cp ./dist/cff-hsts.js $build_dist_dir/cff-hsts.js
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Cleanup Bucket Lambda"

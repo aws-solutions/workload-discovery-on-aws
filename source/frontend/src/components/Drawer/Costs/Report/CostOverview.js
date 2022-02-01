@@ -20,6 +20,8 @@ import {
   handleResponse,
 } from '../../../../API/Handlers/CostsGraphQLHandler';
 import PropTypes from 'prop-types';
+import { useCostsState } from '../../../Contexts/CostsContext';
+import { uploadObject } from '../../../../API/Storage/S3Store';
 
 const R = require('ramda');
 const dayjs = require('dayjs');
@@ -28,22 +30,19 @@ dayjs.extend(localizedFormat);
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
-const CostOverview = ({ resources, costPreferences }) => {
+const CostOverview = ({ resources, costDispatch, costPreferences }) => {
   const [selectedItems, setSelectedItems] = React.useState([]);
+  const processCosts = R.pathOr(false, ['processCosts'], costPreferences)
   const [fromDate, setFromDate] = React.useState(
     R.pathOr(
-      dayjs()
-        .startOf('month')
-        .format('YYYY-MM-DD'),
+      dayjs().startOf('month').format('YYYY-MM-DD'),
       ['period', 'fromDate'],
       costPreferences
     )
   );
   const [toDate, setToDate] = React.useState(
     R.pathOr(
-      dayjs()
-        .endOf('month')
-        .format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD'),
       ['period', 'toDate'],
       costPreferences
     )
@@ -57,11 +56,52 @@ const CostOverview = ({ resources, costPreferences }) => {
   );
   const [error, setError] = React.useState();
 
-  const processCosts = (costs) => {
+  const updateToDate = (date) => {
+   
+    costDispatch({
+      type: 'updatePreferences',
+      preferences: {
+        period: { fromDate: fromDate, toDate: date },
+        processCosts: processCosts,
+      },
+    });
+    uploadObject(
+      'costs/preferences',
+      JSON.stringify({
+        period: { fromDate: fromDate, toDate: date },
+        processCosts: processCosts,
+      }),
+      'private',
+      'application/json'
+    );
+    setToDate(date);
+  };
+
+  const updateFromDate = (date) => {
+    costDispatch({
+      type: 'updatePreferences',
+      preferences: {
+        period: { fromDate: date, toDate: toDate },
+        processCosts: processCosts,
+      },
+    });
+    uploadObject(
+      'costs/preferences',
+      JSON.stringify({
+        period: { fromDate: date, toDate: toDate },
+        processCosts: processCosts,
+      }),
+      'private',
+      'application/json'
+    );
+    setFromDate(date);
+  };
+
+  const getCosts = (costs) => {
     R.forEach((e) => {
       R.forEach((n) => {
         if (R.hasPath(['data', 'resource', 'arn'], n)) {
-          if (R.equals(n.data.resource.arn, e.line_item_resource_id)) {
+          if (R.equals(n.data.resourceId, e.line_item_resource_id)) {
             n.data.cost = e.cost;
           }
         }
@@ -87,7 +127,7 @@ const CostOverview = ({ resources, costPreferences }) => {
     wrapCostAPIRequest(getResourcesByCostByDay, {
       costForResourceQueryByDay: {
         pagination: { start: 0, end: getPageSize(selectedItems) },
-        resourceIds: R.map((e) => e.resourceArn, selectedItems),
+        resourceIds: R.flatten(R.map((e) => e.resource, selectedItems)),
         period: { from: fromDate, to: toDate },
       },
     })
@@ -131,13 +171,13 @@ const CostOverview = ({ resources, costPreferences }) => {
       <SpaceBetween direction='vertical' size='l'>
         <Grid gridDefinition={[{ colspan: 3 }, { colspan: 9 }]}>
           <CostForm
-            onChange={processCosts}
+            onChange={getCosts}
             resources={displayedResources}
             costPreferences={costPreferences}
             toDate={toDate}
             fromDate={fromDate}
-            setToDate={setToDate}
-            setFromDate={setFromDate}
+            setToDate={updateToDate}
+            setFromDate={updateFromDate}
           />
           <CostBreakdownSummary
             resources={displayedResources}

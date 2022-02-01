@@ -11,10 +11,11 @@ module.exports = (cfn, config) => {
     REGION,
     IMAGE_VERSION,
     EXISTING_CONFIG,
-    CREATE_ES_SERVICE_ROLE,
+    CREATE_OPENSEARCH_SERVICE_ROLE,
     NEPTUNE_INSTANCE_CLASS,
     CREATE_READ_REPLICA,
-    ELASTICSEARCH_INSTANCE_TYPE,
+    OPENSEARCH_INSTANCE_TYPE,
+    OPENSEARCH_MULTI_AZ,
     AMPLIFY_STORAGE_BUCKET,
     ACCESS_LOGS,
     APPSYNC_API_ARN,
@@ -67,8 +68,8 @@ module.exports = (cfn, config) => {
         ParameterValue: `${EXISTING_CONFIG}`,
       },
       {
-        ParameterKey: 'CreateElasticSearchServiceRole',
-        ParameterValue: `${CREATE_ES_SERVICE_ROLE}`,
+        ParameterKey: 'CreateOpensearchServiceRole',
+        ParameterValue: `${CREATE_OPENSEARCH_SERVICE_ROLE}`,
       },
       {
         ParameterKey: 'NeptuneInstanceClass',
@@ -104,9 +105,15 @@ module.exports = (cfn, config) => {
         ParameterValue: `${ATHENA_WORKGROUP}`,
       },
       {
-        ParameterKey: 'ElasticsearchInstanceType',
-        ParameterValue: `${ELASTICSEARCH_INSTANCE_TYPE}`,
+        ParameterKey: 'OpensearchInstanceType',
+        ParameterValue: `${OPENSEARCH_INSTANCE_TYPE}`,
       },
+
+      {
+        ParameterKey: 'OpensearchMultiAz',
+        ParameterValue: `${OPENSEARCH_MULTI_AZ}`,
+      },
+
       {
         ParameterKey: 'CostAndUsageReportBucket',
         ParameterValue: `${COST_AND_USAGE_REPORT_BUCKET}`,

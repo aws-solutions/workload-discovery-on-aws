@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description:
   This Cloudformation template sets up the roles needed to import data into AWS Perspective.
-  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v1.1.0)
+  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v1.1.3)
 Parameters:
 
   AccountId:

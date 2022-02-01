@@ -58,11 +58,11 @@ export default ({
       costForResourceQuery: {
         pagination: {
           start: 0,
-          end: resources.filter((e) => !R.isNil(e.data.resource.arn)).length,
+          end: resources.filter((e) => !R.isEmpty(e.data.resourceId)).length,
         },
-        resourceIds: resources
-          .filter((e) => !R.isNil(e.data.resource.arn))
-          .map((e) => e.data.resource.arn),
+        resourceIds: R.flatten(resources
+          .filter((e) => !R.isEmpty(e.data.resourceId))
+          .map((e) => e.data.resourceId)),
         period: { from: fromDate, to: toDate },
       },
     });
@@ -128,6 +128,9 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
+              isDateEnabled={date =>
+                new dayjs(date).isBefore(new dayjs())
+              }
             />
           </FormField>
           <FormField
@@ -143,6 +146,9 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
+              isDateEnabled={date =>
+                new dayjs(date).isBefore(new dayjs())
+              }
             />
           </FormField>
         </SpaceBetween>

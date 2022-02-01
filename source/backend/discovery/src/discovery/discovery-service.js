@@ -7,8 +7,8 @@ const R = require('ramda');
 const advancedQueryUnsupported = ["AWS::KMS::Key", "AWS::Elasticsearch::Domain", "AWS::ApiGateway::RestApi", "AWS::ApiGatewayV2::Api",
   "AWS::EC2::Volume"];
 
-const EcsConstructs = new Set(['AWS::ECS::Cluster', 'AWS::ECS::TaskDefinition',
-  'AWS::ECS::Service', 'AWS::ECS::TaskSet']);
+const SdkResourceTypes = new Set(['AWS::ECS::Cluster', 'AWS::ECS::TaskDefinition',
+  'AWS::ECS::Service', 'AWS::ECS::TaskSet', 'AWS::ApiGateway::RestApi']);
 
 /**
  * Service responsible for discovering Architectural components for a specific resource.
@@ -52,6 +52,7 @@ class DiscoveryService {
       "AWS::AutoScaling::AutoScalingGroup",
       "AWS::EC2::NatGateway",
       "AWS::Elasticsearch::Domain",
+      "AWS::OpenSearch::Domain",
       "AWS::KMS::Key",
       "AWS::CodeBuild::Project",
       "AWS::CodePipeline::Pipeline",
@@ -97,7 +98,7 @@ class DiscoveryService {
             allResourceTypes.push(configData);
           }
         } catch (err) {
-          zoomUtils.dumpError(err);
+          zoomUtils.dumpError(err, {resource});
         }
       }
     }
@@ -161,9 +162,9 @@ class DiscoveryService {
 
   async processConfigurationChildren(data, accountId, region, depth, extrasToStore, children){
     for (let resource of data.relationships) {
-      // we don't want to use Config for ECS resources yet
+      // we don't want to use Config for SDK resources
       if (resource.resourceId) {
-          if(!EcsConstructs.has(resource.resourceType)) {
+          if(!SdkResourceTypes.has(resource.resourceType)) {
               await this.handleChildResources(resource, accountId, region, depth, extrasToStore, children);
           }
       }
@@ -209,31 +210,41 @@ class DiscoveryService {
     }
   }
 
-  // Tag nodes are auto generated from the data.  Therefore when loading from an ICL 
-  // we need to reprocess them and add them to the nodesProcessed map so that they are 
-  // not deleted.
+  /** Tag nodes are auto generated from the data.  Therefore when loading from an ICL
+  we need to reprocess them and add them to the nodesProcessed map so that they are
+  not deleted.
+  **/
   async preventTagsFromBeingDeleted(icl) {
-    let tags = this.dataClient.processTags(icl);
+      const tags = this.dataClient.processTags(icl)
+          .filter(resource => !(resource.link || resource.resourceType === "AWS::TAGS::TAG"));
 
-    if (tags) {
-      return tags.map(async tag => {
-        let hash = await this.dataClient.hashNode(tag);
-        this.dataClient.nodesProcessed.set(hash, '');
-      });
-    }
+      if (tags) {
+          return Promise.all(tags.map(async tag => {
+              const hash = await this.dataClient.hashNode(tag);
+              this.dataClient.nodesProcessed.set(hash, '');
+          }));
+      }
   }
 
   async handleChildResources(resource, accountId, region, depth, extrasToStore, children) {
-    // Recursive get the resources of this resource.
-    try {
-      let child = await this.getResource(resource.resourceId, resource.resourceType, accountId, region, ++depth, extrasToStore);
-
-      if (child) {
-        delete child.relationships;
-        children.push(R.clone(child));
-      }
-    } catch (Error) {
-      zoomUtils.dumpError(Error);
+    const resourceType = resource.resourceType;
+      // We use the SDK to get these resource types
+    if(!SdkResourceTypes.has(resourceType)) {
+        try {
+            let child = await this.getResource(resource.resourceId, resourceType, accountId, region, ++depth, extrasToStore)
+            if(child) {
+                delete child.relationships;
+                children.push(R.clone(child));
+            }
+        } catch (Error) {
+            // These resource failures are expected as they require ResourceName rather ResourceId, they are
+            // handled in the processConfigurationChildren method
+            if(!R.test(/AWS::IAM::*/, resourceType) &&
+               !R.includes(['AWS::EC2::EIP', 'AWS::CodeBuild::Project', 'AWS::Elasticsearch::Domain'])) {
+               logger.debug('Resource failed, most likely it requires resourceName and will be handled later in the discovery process', {resource})
+               zoomUtils.dumpError(Error);
+            }
+        }
     }
   }
 

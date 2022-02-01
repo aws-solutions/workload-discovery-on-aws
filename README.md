@@ -1,8 +1,8 @@
-# AWS Perspective (v1.1.0)
+# AWS Perspective (v1.1.3)
 
 AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, mapping relationships between them, and displaying them in a web user interface (web UI).
 
-v1.1.0 brings a new feature that uses AWS Cost & Usage Reports (AWS CUR) to help you identify AWS resources that have incurred a cost. You can build architecture diagrams displaying this cost information and generate Cost Reports which graph the overall cost of your workload over a configurable time period. These reports can be exported in CSV format.
+v1.1.1 brings a new feature that uses AWS Cost & Usage Reports (AWS CUR) to help you identify AWS resources that have incurred a cost. You can build architecture diagrams displaying this cost information and generate Cost Reports which graph the overall cost of your workload over a configurable time period. These reports can be exported in CSV format.
 
 The new release includes many UX improvements among them a Grouped Resources ** view which displays an inventory of your workloads. Resource type coverage has also been improved with Perspective now supporting your Amazon Redshift Clusters. 
 
@@ -217,9 +217,10 @@ Parameters required by the template:
 * **OptOutOfSendingAnonymousUsageMetrics** - Yes/No depending on whether you are happy to send anonymous usage metrics back to AWS.
 * **CreateNeptuneReplica** - Yes/No depending on whether you want a read-replica created for Amazon Neptune. Note, that this will increase the cost of running the solution.
 * **NeptuneInstanceClass** - Select from a range of instance types that will be provisioned for the Amazon Neptune database. Note, the selection could increase the cost associated with running the solution.
-* **ElasticsearchInstanceType** - Select the instance type that will be provisioned for the Amazon ElasticSearch Domain.
+* **OpensearchInstanceType** - Select the instance type that will be provisioned for the Amazon ElasticSearch Domain.
 * **CreateAPIGatewayCloudWatchLogsRole** - If set to Yes, the solution creates a role and overwrites the existing APIGatewayCloudWatchLogsLogsRole property. Set to No if you already have an existing role set.
 * **AthenaWorkgroup** - The Workgroup that will be used to issue the Athena query when the Cost feature is enabled.
+* **OpensearchMultiAz** - Choose whether to create an Opensearch cluster that spans multiple Availability Zone. Choosing Yes improves resilience; however, increases the cost of this solution.
   
 **Note** - You will need to deploy in the same account and region as the S3 bucket that the deployment artefacts are uploaded to.
 
@@ -301,6 +302,7 @@ curl -X POST "https://${DRAWIO_API_URL}.execute-api.${AWS_REGION}.amazonaws.com/
     --data-raw '{"elements":{"nodes":[], "edges": []}}'
 ```
 
+
 ##### Response
 
 You will receive a URL that when clicked will open up DrawIO in the browser and show your graph.
@@ -309,7 +311,17 @@ You will receive a URL that when clicked will open up DrawIO in the browser and 
 
 ## Collecting Anonymous Operational Metrics
 
-This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution. For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/appendix-g-collection-of-operational-metrics.html).
+This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution. For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/aws-perspective/collection-of-operational-metrics.html).
+
+## Acknowledgements
+
+AWS Perspective is able to generate its architecture diagrams thanks to these libraries developed and maintained by the [Info Visualization Research Lab](https://www.cs.bilkent.edu.tr/~ivis/) over at Bilkent University:
+
+* [cytoscape.js-fcose](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose)
+* [cytoscape.js-grid-guide](https://github.com/iVis-at-Bilkent/cytoscape.js-grid-guide)
+* [cytoscape.js-context-menus](https://github.com/iVis-at-Bilkent/cytoscape.js-context-menus)
+* [cytoscape.js-expand-collapse](https://github.com/iVis-at-Bilkent/cytoscape.js-expand-collapse)
+
 
 Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 

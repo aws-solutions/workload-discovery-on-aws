@@ -247,22 +247,23 @@ function getCost(sqlQuery, { pagination }, attempts = 0) {
     });
 }
 
-const cache = {}
+const cache = {};
 async function getRegions() {
   // make call to aws api to get regions
-  const {Regions} = await ec2.describeRegions({}).promise()
+  const { Regions } = await ec2.describeRegions({}).promise();
   return R.pluck('RegionName', Regions);
 }
 
 exports.handler = async (event, context) => {
   const args = event.arguments;
-  if(R.isNil(cache.regions)) cache.regions = await getRegions()
+  if (R.isNil(cache.regions)) cache.regions = await getRegions();
   switch (event.info.fieldName) {
     case 'readResultsFromS3':
       return fetchPaginatedResults({ ...args.s3Query });
     case 'getResourcesByCostByDay':
       return getCost(
-        athenaQueryBuilder.byResourceIdOrderedByDayQuery({cache,
+        athenaQueryBuilder.byResourceIdOrderedByDayQuery({
+          cache,
           athenaTableName,
           ...args.costForResourceQueryByDay,
         }),
@@ -270,7 +271,8 @@ exports.handler = async (event, context) => {
       );
     case 'getResourcesByCost':
       return getCost(
-        athenaQueryBuilder.getResourcesByCostQuery({cache,
+        athenaQueryBuilder.getResourcesByCostQuery({
+          cache,
           athenaTableName,
           ...args.resourcesByCostQuery,
         }),
@@ -278,7 +280,8 @@ exports.handler = async (event, context) => {
       );
     case 'getCostForResource':
       return getCost(
-        athenaQueryBuilder.byResourceIdQuery({cache,
+        athenaQueryBuilder.byResourceIdQuery({
+          cache,
           athenaTableName,
           ...args.costForResourceQuery,
         }),
@@ -286,7 +289,8 @@ exports.handler = async (event, context) => {
       );
     case 'getCostForService':
       return getCost(
-        athenaQueryBuilder.byServiceQuery({cache,
+        athenaQueryBuilder.byServiceQuery({
+          cache,
           athenaTableName,
           ...args.costForServiceQuery,
         }),

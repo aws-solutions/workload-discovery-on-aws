@@ -1,5 +1,4 @@
 export const graphReducer = (state, action) => {
-  
   switch (action.type) {
     case 'updateGraphResources':
       return {

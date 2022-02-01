@@ -27,6 +27,7 @@ export const processEdges = (nodes, selectedNodeId) => {
             isSourceParent: expandedNode.data.children,
             source: expandedNode.data.id,
             sourceMetadata: {
+              type: expandedNode.data.resource.type,
               childIds: expandedNode.data.children
                 ? getChildren(nodes, expandedNode, [])
                 : [],
@@ -34,6 +35,7 @@ export const processEdges = (nodes, selectedNodeId) => {
             isTargetParent: node.data.children,
             target: node.data.id,
             targetMetadata: {
+              type: node.data.resource.type,
               childIds: node.data.children ? getChildren(nodes, node, []) : [],
             },
           },

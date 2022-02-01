@@ -5,7 +5,58 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2022-01-08
+
+### Added
+
+- Missing icons for EC2 types and a few [others](https://github.com/awslabs/aws-perspective/issues/232)
+  
+### Changed
+
+### Fixed
+
+- Cost calculations to query on resourceIds as well as ARNs. https://github.com/awslabs/aws-perspective/issues/231
+- Drawio export bug that was causing diagrams with collapsed nodes to cause an error. https://github.com/awslabs/aws-perspective/issues/219
+- Hover over box when hovering over a resource it was going outside the screen. https://github.com/awslabs/aws-perspective/issues/220
+- Slow deployment step that uploads files to S3. Increase **maxSockets** in HTTPS agent within the Lambda.
+  
+## [1.1.2] - 2021-11-03
+
+### Added
+
+- Amazon OpenSearch Service to discovery process Config queries.
+  
+### Changed
+
+- Limiting the date pickers to select dates in the past. To limit confusion around the cost data Perspective displays.
+
+### Fixed
+
+- Fixed permissions errors preventing in-place upgrades.
+- Fixed a bug causing Amazon Elasticsearch Service costs to be missed out when calculating estimated workload costs (https://github.com/awslabs/aws-perspective/issues/216).
+- Fixed a bug causing cost query date not to update in the overview component. 
+
+## [1.1.1] - 2021-09-28
+
+### Added
+
+- Missing icons for MariaDB, Aurora, SQL-Server RDS types.
+- OpensearchMultiAz parameter to CloudFormation template to set Amazon OpenSearch Service up with a single instance.
+
+### Changed
+
+- Migrated from Lambda@Edge to CloudFront Functions to handle secure headers for web requests to the frontend.
+- References to Amazon Elasticsearch Service to Amazon OpenSearch Service
+
+### Fixed
+
+- Fixed a bug causing a blank screen when expanding nodes whilst filters are enabled - https://github.com/awslabs/aws-perspective/issues/201
+- Fixed a bug that meant the time period for cost report queries was not persisted - https://github.com/awslabs/aws-perspective/issues/200
+- Fixed a bug that could result in python files being incorrectly excluded - https://github.com/awslabs/aws-perspective/issues/64
+- A bug causing some resource types to throw an exception when clicking "Show more details"
+
 ## [1.1.0] - 2021-08-26
+
 ### Added
 
 - Support for newer ECS task ARNs

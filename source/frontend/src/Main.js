@@ -31,7 +31,6 @@ const fromDate = dayjs()
   .format('YYYY-MM-DD');
 
 const toDate = dayjs()
-  .endOf('month')
   .format('YYYY-MM-DD');
 
 export default (...props) => {

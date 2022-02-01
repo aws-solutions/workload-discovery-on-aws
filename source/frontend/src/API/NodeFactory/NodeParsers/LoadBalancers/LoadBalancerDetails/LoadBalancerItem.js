@@ -8,8 +8,17 @@ import {
   ExpandableSection,
 } from '@awsui/components-react';
 
+const parseConfiguration = (configuration) => {
+  try{
+    return JSON.parse(JSON.parse(configuration))
+  } catch(Error)
+  {
+    return JSON.parse(configuration)
+  }
+}
+
 export default ({ configuration }) => {
-  const parsedConfig = JSON.parse(JSON.parse(configuration));
+  const parsedConfig = parseConfiguration(configuration);
 
   const ValueWithLabel = ({ label, children }) => (
     <div>

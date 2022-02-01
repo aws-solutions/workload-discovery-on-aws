@@ -55,6 +55,7 @@ class RDSCluster {
                 resourceType: "AWS::RDS::DBCluster",
                 accountId: accountId,
                 availabilityZones: rdsCluster.AvailabilityZones.join(","),
+                availabilityZone: 'Multiple Availability Zones',
                 dbClusterParameterGroup: rdsCluster.DbClusterParameterGroup,
                 dBSubnetGroup: rdsCluster.DBSubnetGroup,
                 status: rdsCluster.status,

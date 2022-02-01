@@ -14,6 +14,31 @@ const logger = require('./logger');
 
 const isItemIn = (map, id) => map.has(id) ? map.get(id) : false;
 
+const apiGatewayToKeep = ["name", "createdDate", "apiKeySource", "policy", "endpointConfiguration", "parentId",
+    "pathPart", "path", "resourceMethods", "type", "httpMethod", "uri",
+    "passthroughBehavior", "contentHandling", "timeoutInMillis",
+    "cacheNamespace", "integrationResponses"];
+const vpcConfigToKeep = ["cidrBlock", "dhcpOptionsId", "state", "instanceTenancy", "isDefault"];
+const subnetConfigToKeep = ["availableIpAddressCount", "cidrBlock", "defaultForAz", "mapPublicIpOnLaunch", "state", "assignIpv6AddressOnCreation"];
+const networkAclConfigToKeep = ["associations", "isDefault"];
+const securityGroupConfigToKeep = ["description", "groupName"];
+const ec2NetworkConfigToKeep = ["interfaceType", "macAddress", "networkInterfaceId", "privateDnsName", "privateIpAddress", "requesterId", "requesterManaged", "sourceDestCheck", "status"];
+const ec2InstanceConfigToKeep = ["imageId", "amiLaunchIndex", "instanceId", "instanceType", "kernelId", "keyName", "launchTime", "platform", "privateDnsName", "privateIpAddress", "publicDnsName", "publicIpAddress",
+    "ramdiskId", "state", "stateTransitionReason", "architecture", "clientToken", "ebsOptimized", "enaSupport", "hypervisor", "iamInstanceProfile", "instanceLifecycle", "description",
+    "macAddress", "spotInstanceRequestId", "sriovNetSupport", "stateReason", "virtualizationType", "capacityReservationId"];
+
+const dbInstanceConfigToKeep = ["dBInstanceIdentifier", "dBInstanceClass", "engine", "dBInstanceStatus", "masterUsername", "dBName", "endpoint", "allocatedStorage", "instanceCreateTime", "preferredBackupWindow", "backupRetentionPeriod",
+    "preferredMaintenanceWindow", "latestRestorableTime", "multiAZ", "engineVersion", "autoMinorVersionUpgrade", "readReplicaSourceDBInstanceIdentifier", "licenseModel", "iops",
+    "characterSetName", "secondaryAvailabilityZone", "publiclyAccessible", "storageType", "tdeCredentialArn", "dbInstancePort", "dBClusterIdentifier", "storageEncrypted",
+    "kmsKeyId", "dbiResourceId", "cACertificateIdentifier", "copyTagsToSnapshot", "monitoringInterval", "enhancedMonitoringResourceArn", "monitoringRoleArn", "timezone", "iAMDatabaseAuthenticationEnabled",
+    "performanceInsightsEnabled", "performanceInsightsKMSKeyId", "performanceInsightsRetentionPeriod", "enabledCloudwatchLogsExports", "processorFeatures", "deletionProtection", "associatedRoles", "listenerEndpoint"];
+
+const genericToKeep = ["vpcId", "subnetId"];
+
+const configToKeep = new Set([...vpcConfigToKeep, ...subnetConfigToKeep, ...networkAclConfigToKeep,
+    ...securityGroupConfigToKeep, ...ec2NetworkConfigToKeep, ...ec2InstanceConfigToKeep,
+    ...dbInstanceConfigToKeep, ...apiGatewayToKeep, ...genericToKeep]);
+
 class DataClient {
 
     constructor(importConfig, accessKeys, configData, opts = {}) {
@@ -322,40 +347,20 @@ class DataClient {
     * @param {*} node 
     */
     formatNode(node) {
-        const apiGatewayToKeep = ["name", "createdDate", "apiKeySource", "policy", "endpointConfiguration", "parentId",
-            "pathPart", "path", "resourceMethods", "type", "httpMethod", "uri",
-            "passthroughBehavior", "contentHandling", "timeoutInMillis",
-            "cacheNamespace", "integrationResponses"];
-        const vpcConfigToKeep = ["cidrBlock", "dhcpOptionsId", "state", "instanceTenancy", "isDefault"];
-        const subnetConfigToKeep = ["availableIpAddressCount", "cidrBlock", "defaultForAz", "mapPublicIpOnLaunch", "state", "assignIpv6AddressOnCreation"];
-        const networkAclConfigToKeep = ["associations", "isDefault"];
-        const securityGroupConfigToKeep = ["description", "groupName"];
-        const ec2NetworkConfigToKeep = ["interfaceType", "macAddress", "networkInterfaceId", "privateDnsName", "privateIpAddress", "requesterId", "requesterManaged", "sourceDestCheck", "status"];
-        const ec2InstanceConfigToKeep = ["imageId", "amiLaunchIndex", "instanceId", "instanceType", "kernelId", "keyName", "launchTime", "platform", "privateDnsName", "privateIpAddress", "publicDnsName", "publicIpAddress",
-            "ramdiskId", "state", "stateTransitionReason", "architecture", "clientToken", "ebsOptimized", "enaSupport", "hypervisor", "iamInstanceProfile", "instanceLifecycle", "description",
-            "macAddress", "spotInstanceRequestId", "sriovNetSupport", "stateReason", "virtualizationType", "capacityReservationId"];
-
-        const dbInstanceConfigToKeep = ["dBInstanceIdentifier", "dBInstanceClass", "engine", "dBInstanceStatus", "masterUsername", "dBName", "endpoint", "allocatedStorage", "instanceCreateTime", "preferredBackupWindow", "backupRetentionPeriod",
-            "preferredMaintenanceWindow", "latestRestorableTime", "multiAZ", "engineVersion", "autoMinorVersionUpgrade", "readReplicaSourceDBInstanceIdentifier", "licenseModel", "iops",
-            "characterSetName", "secondaryAvailabilityZone", "publiclyAccessible", "storageType", "tdeCredentialArn", "dbInstancePort", "dBClusterIdentifier", "storageEncrypted",
-            "kmsKeyId", "dbiResourceId", "cACertificateIdentifier", "copyTagsToSnapshot", "monitoringInterval", "enhancedMonitoringResourceArn", "monitoringRoleArn", "timezone", "iAMDatabaseAuthenticationEnabled",
-            "performanceInsightsEnabled", "performanceInsightsKMSKeyId", "performanceInsightsRetentionPeriod", "enabledCloudwatchLogsExports", "processorFeatures", "deletionProtection", "associatedRoles", "listenerEndpoint"];
-
-        const genericToKeep = ["vpcId", "subnetId"];
-
-        const configToKeep = [].concat(vpcConfigToKeep).concat(subnetConfigToKeep).concat(networkAclConfigToKeep)
-            .concat(securityGroupConfigToKeep).concat(ec2NetworkConfigToKeep).concat(ec2InstanceConfigToKeep)
-            .concat(dbInstanceConfigToKeep).concat(apiGatewayToKeep).concat(genericToKeep);
 
         let configuration = JSON.parse(node.properties.configuration);
 
-        if (configuration === null) {
+        if (configuration == null) {
             logger.error("Config parse error, configuration = null check config settings");
+            if(node.properties.configurationItemStatus === 'ResourceNotRecorded') {
+                logger.error('AWS Config is not configured to discover resources of type: ' + node.resourceType);
+            }
+            logger.error(node);
         }
 
-        if (configuration && configuration !== null) {
+        if (configuration != null) {
             for (let element of Object.keys(configuration)) {
-                if (configToKeep.includes(element)) {
+                if (configToKeep.has(element)) {
                     node.properties[element] = configuration[element]
                 }
             }
@@ -382,9 +387,18 @@ class DataClient {
         generateHeader.generateHeader(node);
 
         // Add in missing VPC and subnet config
-        if (node.properties.resourceType === "AWS::Lambda::Function" && configuration) {
-            if (configuration.vpcConfig) {
-                node.properties.subnetIds = configuration.vpcConfig.subnetIds;
+        if(configuration != null) {
+            if (node.properties.resourceType === "AWS::Lambda::Function") {
+                if (configuration.vpcConfig != null) {
+                    node.properties.subnetIds = configuration.vpcConfig.subnetIds;
+                }
+            } else if(node.properties.resourceType === "AWS::RDS::DBInstance") {
+                if(configuration.dBSubnetGroup != null) {
+                    node.properties.vpcId = configuration.dBSubnetGroup.vpcId;
+                    const {subnetIdentifier} = R.find(({subnetAvailabilityZone}) => subnetAvailabilityZone.name === configuration.availabilityZone,
+                        configuration.dBSubnetGroup.subnets);
+                    node.properties.subnetId = subnetIdentifier;
+                }
             }
         }
 

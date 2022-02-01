@@ -1,13 +1,12 @@
 import React from 'react';
 
-
 import { useGraphState } from '../../Contexts/GraphContext';
 import TreeMenuClearGraphMenu from './TreeMenuClearGraphMenu';
 import TreeMenuExportMenu from './TreeMenuExportMenu';
 import { ExpandableSection } from '@awsui/components-react';
 
 export default () => {
-  const [{ cy }, dispatch] = useGraphState();
+  const [{ cy }] = useGraphState();
 
   return (
     <ExpandableSection

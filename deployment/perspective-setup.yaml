@@ -28,20 +28,20 @@ Parameters:
   AlreadyHaveConfigSetup:
     Type: String
     Default: 'No'
-    Description: 'Is AWS Config set-up within this Account or Region?'
+    Description: 'Is AWS Config set-up within this Region?'
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this account has config set-up (Yes / No)'
-  CreateElasticsearchServiceRole:
+    ConstraintDescription: 'Please specify if this Region has AWS Config set-up (Yes / No)'
+  CreateOpensearchServiceRole:
     Type: String
     Default: 'Yes'
-    Description: 'Do you need an ElasticSearch Service Role to be created?
+    Description: 'Do you need an OpenSearch Service Role to be created?
     You can check for a Role called AWSServiceRoleForAmazonElasticsearchService in your account. If it exists then you do NOT need one creating'
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this account has config set-up (Yes / No)'
+    ConstraintDescription: 'Please specify if this account has AWS Config set-up (Yes / No)'
   AdminUserEmailAddress:
     Type: String
     AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
@@ -71,8 +71,8 @@ Parameters:
       - 'Yes'
     Default: 'No'
     Description: If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of running the solution.
-  ElasticsearchInstanceType:
-    Description: The instance type for Elasticsearch data nodes
+  OpensearchInstanceType:
+    Description: The instance type for OpenSearch data nodes
     Type: String
     Default: m6g.large.elasticsearch
     AllowedValues:
@@ -136,7 +136,17 @@ Parameters:
       - i3.4xlarge.elasticsearch
       - i3.8xlarge.elasticsearch
       - i3.16xlarge.elasticsearch
-  
+
+
+  OpensearchMultiAz:
+    Description: Deploys the OpenSearch cluster across two Availability Zones (AZs) in the same region to prevent
+      data loss and minimize downtime in the event of node or data center failure. This will increase the cost of running the solution
+    Type: String
+    Default: "No"
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+
   CreateAPIGatewayCloudWatchLogsRole:
     Type: String
     Default: "Yes"
@@ -390,6 +400,18 @@ Resources:
                   - cloudfront:TagResource
                   - cloudfront:GetDistribution
                   - cloudfront:CreateInvalidation
+                  - cloudfront:CreateFunction
+                  - cloudfront:DeleteFunction
+                  - cloudfront:DescribeFunction
+                  - cloudfront:GetFunction
+                  - cloudfront:ListFunctions
+                  - cloudfront:UpdateFunction
+                  - cloudfront:TestFunction
+                  - cloudfront:PublishFunction
+                  - cloudfront:GetDistribution
+                  - cloudfront:GetDistributionConfig
+                  - cloudfront:ListTagsForResource
+                  - cloudfront:UpdateDistribution
                 Resource: '*'
               - Effect: Allow
                 Action:
@@ -397,6 +419,7 @@ Resources:
                   - apigateway:POST
                   - apigateway:PUT
                   - apigateway:PATCH
+                  - apigateway:DELETE
                 Resource:
                   - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PerspectiveWebRestAPI}/*
                   - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerGremlinAPI}/*
@@ -481,6 +504,7 @@ Resources:
                   - glue:CreateDatabase
                   - glue:CreateTable
                   - glue:CreateCrawler
+                  - glue:UpdateCrawler
                 Resource: !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:*'
   LambdaSetup:
     Metadata:
@@ -509,7 +533,8 @@ Resources:
           ANONYMOUS_METRIC_OPT_OUT: !Ref OptOutOfSendingAnonymousUsageMetrics
           NEPTUNE_INSTANCE_CLASS: !Ref NeptuneInstanceClass
           CREATE_READ_REPLICA: !Ref CreateNeptuneReplica
-          ELASTICSEARCH_INSTANCE_TYPE: !Ref ElasticsearchInstanceType
+          OPENSEARCH_INSTANCE_TYPE: !Ref OpensearchInstanceType
+          OPENSEARCH_MULTI_AZ: !Ref OpensearchMultiAz
           ACCOUNT_ID: !Ref AWS::AccountId
           API_GATEWAY: !Sub https://${PerspectiveWebRestAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod
           SERVER_API_GATEWAY: !Sub https://${ServerGremlinAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/
@@ -530,7 +555,7 @@ Resources:
           DISCOVERY_ARN: !GetAtt PerspectiveDiscoveryRole.Arn
           CONFIG_AGGREGATOR: !Sub aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
           EXISTING_CONFIG: !Ref AlreadyHaveConfigSetup
-          CREATE_ES_SERVICE_ROLE: !Ref CreateElasticsearchServiceRole
+          CREATE_OPENSEARCH_SERVICE_ROLE: !Ref CreateOpensearchServiceRole
           ATHENA_WORKGROUP: !Ref AthenaWorkgroup
           APPSYNC_API_ARN: !GetAtt PerspectiveAppSyncApi.Arn
           APPSYNC_API_ID: !GetAtt PerspectiveAppSyncApi.ApiId
@@ -1074,6 +1099,11 @@ Resources:
 
 
   WebUIBucket:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W51
+            reason: This bucket will get a policy attached to it from another template during deployment.
     Type: AWS::S3::Bucket
     Properties:
       PublicAccessBlockConfiguration:
@@ -1103,21 +1133,6 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-
-  WebUIBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref WebUIBucket
-      PolicyDocument:
-        Statement:
-          - Sid: HttpsOnly
-            Action: '*'
-            Effect: Deny
-            Resource: !Sub arn:aws:s3:::${WebUIBucket}/*
-            Principal: '*'
-            Condition:
-              Bool:
-                'aws:SecureTransport': 'false'
 
   AmplifyStorageBucket:
     Type: AWS::S3::Bucket
@@ -1154,7 +1169,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${AmplifyStorageBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${AmplifyStorageBucket}/*
+              - !Sub arn:aws:s3:::${AmplifyStorageBucket}
             Principal: '*'
             Condition:
               Bool:
@@ -1197,7 +1214,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${AccessLogsBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${AccessLogsBucket}/*
+              - !Sub arn:aws:s3:::${AccessLogsBucket}
             Principal: '*'
             Condition:
               Bool:
@@ -1238,7 +1257,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*
+              - !Sub arn:aws:s3:::${CostAndUsageAthenaResultsBucket}
             Principal: '*'
             Condition:
               Bool:
@@ -1273,7 +1294,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${CostAndUsageReportBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${CostAndUsageReportBucket}/*
+              - !Sub arn:aws:s3:::${CostAndUsageReportBucket}
             Principal: '*'
             Condition:
               Bool:
@@ -1308,7 +1331,9 @@ Resources:
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
-            Resource: !Sub arn:aws:s3:::${DiscoveryBucket}/*
+            Resource: 
+              - !Sub arn:aws:s3:::${DiscoveryBucket}/*
+              - !Sub arn:aws:s3:::${DiscoveryBucket}
             Principal: '*'
             Condition:
               Bool:
