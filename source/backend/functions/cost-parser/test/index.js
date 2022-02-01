@@ -320,12 +320,13 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
       const to = '2020-01-21 00:00:00.000';
 
-      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl','vol-012b559287dd97d1e') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
 
       const actual = byResourceIdQuery({
         resourceIds: resourceIds,
@@ -342,6 +343,7 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = ';Select * from nastypasty';
@@ -366,6 +368,7 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
@@ -383,28 +386,28 @@ describe('testing the athena query builder', () => {
       );
     });
 
-    it('should throw an Error as the to arn is invalid', async () => {
+    it('should return a query with only the valid ids', async () => {
       const byResourceIdQuery = athenaQueryBuilder.__get__('byResourceIdQuery');
 
       const resourceIds = [
         '; Select * from nastypasty',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
       const to = '2020-01-02 00:00:00.000';
 
-      assert.throws(
-        () =>
-          byResourceIdQuery({
-            resourceIds: resourceIds,
-            athenaTableName: athenaTableName,
-            period: { from: from, to: to },
-          }),
-        Error,
-        `Cannot build query`
-      );
+      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl','vol-012b559287dd97d1e') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-02 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+
+      const actual = byResourceIdQuery({
+        resourceIds: resourceIds,
+        athenaTableName: athenaTableName,
+        period: { from: from, to: to },
+      });
+
+      assert.deepEqual(actual, queryResult);
     });
   });
 
@@ -418,12 +421,13 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
       const to = '2020-01-21 00:00:00.000';
 
-      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
+      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl','vol-012b559287dd97d1e') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
 
       const actual = byResourceIdOrderedByDayQuery({
         resourceIds: resourceIds,
@@ -442,6 +446,7 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = ';Select * from nastypasty';
@@ -468,6 +473,7 @@ describe('testing the athena query builder', () => {
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhk',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
@@ -485,7 +491,7 @@ describe('testing the athena query builder', () => {
       );
     });
 
-    it('should throw an Error as the to arn is invalid', async () => {
+    it('should build a query with only the valid ids', async () => {
       const byResourceIdOrderedByDayQuery = athenaQueryBuilder.__get__(
         'byResourceIdOrderedByDayQuery'
       );
@@ -494,21 +500,20 @@ describe('testing the athena query builder', () => {
         '; Select * from nastypasty',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
         'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
+        'vol-012b559287dd97d1e',
       ];
       const athenaTableName = 'test-table';
       const from = '2020-01-01 00:00:00.000';
       const to = '2020-01-02 00:00:00.000';
 
-      assert.throws(
-        () =>
-          byResourceIdOrderedByDayQuery({
-            resourceIds: resourceIds,
-            athenaTableName: athenaTableName,
-            period: { from: from, to: to },
-          }),
-        Error,
-        `Cannot build query`
-      );
+      const queryResult = `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_resource_id IN ('arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj','arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl','vol-012b559287dd97d1e') AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-02 00:00:00.000' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
+
+      const actual = byResourceIdOrderedByDayQuery({
+        resourceIds: resourceIds,
+        athenaTableName: athenaTableName,
+        period: { from: from, to: to },
+      });
+      assert.deepEqual(actual, queryResult);
     });
   });
 });

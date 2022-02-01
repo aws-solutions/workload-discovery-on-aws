@@ -44,8 +44,8 @@ function getNodes({id: vId, arn}) {
         const start = vId == null ? g.V().has('arn', arn) : g.V(vId);
 
         const nodes = await start
-            .hasNot('softDelete')
-            .optional(__.both().hasNot('softDelete'))
+            .or(__.hasNot("softDelete"), __.hasNot('softDeleteType'))
+            .optional(__.both().or(__.hasNot("softDelete"), __.hasNot('softDeleteType')))
             .path()
             .by(__.elementMap())
             .unfold()
@@ -54,21 +54,34 @@ function getNodes({id: vId, arn}) {
 
         return Promise.resolve(nodes)
             .then(R.reduce((acc, {label, vpcId, subnetId, resourceType}) => {
-                const present = ['AWS::EC2::VPC', 'AWS::EC2::Subnet'].includes(resourceType);
-                if(resourceType === 'AWS::EC2::VPC') {
-                    acc[vpcId] = {propName: 'vpcId', label, present}
-                } else if (resourceType === 'AWS::EC2::Subnet') {
-                    acc[subnetId] = {propName: 'subnetId', label, present}
-                } else if (vpcId != null && acc[vpcId] == null) {
-                    acc[vpcId] = {propName: 'vpcId', label, present};
-                } else if (subnetId != null && acc[subnetId] == null) {
-                    acc[subnetId] = {propName: 'subnetId', label, present};
+                const networkTypes = ['AWS::EC2::VPC', 'AWS::EC2::Subnet'];
+                const [vpcType, subnetType] = networkTypes;
+
+                const present = networkTypes.includes(resourceType);
+
+                switch (resourceType) {
+                    case vpcType:
+                        acc[vpcId] = {propName: 'vpcId', label, present};
+                        break;
+                    case subnetType:
+                        acc[subnetId] = {propName: 'subnetId', label, present}
+                        break;
+                    default:
+                        if (vpcId != null && acc[vpcId] == null) {
+                            acc[vpcId] = {propName: 'vpcId', label: vpcType.replace(/::/g, '_'), present};
+                        }
+                        if (subnetId != null && acc[subnetId] == null) {
+                            acc[subnetId] = {propName: 'subnetId', label: subnetType.replace(/::/g, '_'), present};
+                        }
                 }
+
                 return acc;
             }, {}))
             .then(Object.entries)
             .then(R.reject(([_, {present}]) => present))
-            .then(R.map(([id, {propName, label}]) => g.V().has(propName, id).hasLabel(label).hasNot('softDelete').elementMap().next().then(x => x.value)))
+            .then(R.map(([id, {propName, label}]) => {
+                return g.V().has(propName, id).hasLabel(label).or(__.hasNot("softDelete"), __.hasNot('softDeleteType')).elementMap().next().then(x => x.value)
+            }))
             .then(ps => Promise.all(ps))
             .then(xs => [xs, nodes])
             .then(R.chain(R.map(async ({id, label, perspectiveBirthDate, ...props}) => {

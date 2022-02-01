@@ -20,20 +20,12 @@ import {
 } from '../../../../API/Handlers/SettingsGraphQLHandler';
 import {
   getResourcesByCost,
-  readResultsFromS3,
-  wrapCostAPIRequest,
   handleResponse,
   getCostForService,
   getCostForResource,
 } from '../../../../API/Handlers/CostsGraphQLHandler';
 import Flashbar from '../../../../Utils/Flashbar/Flashbar';
-import {
-  Input,
-  RadioGroup,
-  Select,
-  TextContent,
-} from '@awsui/components-react';
-import ResourceCountAlert from './ResourceCountAlert';
+import { Input, RadioGroup, Select } from '@awsui/components-react';
 import AttributeCreator from '../../../../Utils/Forms/AttributeCreator';
 import QueryDetails from './QueryDetails';
 import { getRegions } from './Utils/CostUtils';
@@ -62,53 +54,11 @@ const Control = React.memo(({ value, index, placeholder, setItems, prop }) => {
   );
 });
 
-const columns = [
-  {
-    id: 'resource',
-    header: 'Resource',
-    cell: (e) =>
-      e.line_item_resource_id ? e.line_item_resource_id : 'No Resource ID',
-    width: 320,
-    minWidth: 320,
-  },
-  {
-    id: 'service',
-    header: 'Service',
-    cell: (e) => e.product_servicename,
-    width: 320,
-    minWidth: 320,
-  },
-  {
-    id: 'cost',
-    header: 'Estimated cost',
-    cell: (e) => `${getSymbolFromCurrency(e.line_item_currency_code)}${e.cost}`,
-    sortingField: 'cost',
-    width: 200,
-    minWidth: 200,
-  },
-  {
-    id: 'accountId',
-    header: 'Account Id',
-    cell: (e) => e.line_item_usage_account_id,
-    width: 150,
-    minWidth: 150,
-  },
-  {
-    id: 'region',
-    header: 'Region',
-    cell: (e) => e.product_region,
-    width: 150,
-    minWidth: 150,
-  },
-];
-
 const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
   const [fromDate, setFromDate] = React.useState(
     dayjs().startOf('month').format('YYYY-MM-DD')
   );
-  const [toDate, setToDate] = React.useState(
-    dayjs().format('YYYY-MM-DD')
-  );
+  const [toDate, setToDate] = React.useState(dayjs().format('YYYY-MM-DD'));
   const [selectedAccounts, setSelectedAccounts] = React.useState([]);
   const [selectedRegions, setSelectedRegions] = React.useState([]);
   const [selectedService, setSelectedService] = React.useState([]);
@@ -154,7 +104,7 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
             prop='resourceArn'
             value={resourceArn}
             index={itemIndex}
-            placeholder={'Enter an Resource ARN'}
+            placeholder={'Enter a Resource Id or ARN'}
             setItems={setResourceItems}
           />
         ),
@@ -162,7 +112,6 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
     ],
     []
   );
-
 
   const datesValid = () =>
     R.and(
@@ -266,9 +215,9 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
                   },
                   {
                     value: 'arn',
-                    label: 'Query by ARN',
+                    label: 'Query by Id/ARN',
                     description:
-                      'Build a query that will return cost data for the provided Amazon Resource Names (ARNs)',
+                      'Build a query that will return cost data for the provided Resource Ids or Amazon Resource Names (ARNs)',
                   },
                 ]}
               />
@@ -314,10 +263,10 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
               )}
               {R.equals(queryType, 'arn') && (
                 <AttributeCreator
-                  item='Resource ARN'
+                  item='Resource Id'
                   items={resourceItems}
-                  label='Amazon Resource Name (ARN)'
-                  placeholder='Enter a resource ARN'
+                  label='Amazon Resource Id'
+                  placeholder='Enter a Resource Id or ARN'
                   itemAdded={() => setResourceItems([...resourceItems, {}])}
                   itemRemoved={(itemIndex) => {
                     const tmpItems = [...resourceItems];
@@ -341,7 +290,7 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
                   placeholder='YYYY/MM/DD'
                   previousMonthAriaLabel='Previous month'
                   todayAriaLabel='Today'
-                  isDateEnabled={date =>
+                  isDateEnabled={(date) =>
                     new dayjs(date).isBefore(new dayjs())
                   }
                 />
@@ -359,7 +308,7 @@ const CostQueryForm = ({ executeQuery, loading, queryDetails }) => {
                   placeholder='YYYY/MM/DD'
                   previousMonthAriaLabel='Previous month'
                   todayAriaLabel='Today'
-                  isDateEnabled={date =>
+                  isDateEnabled={(date) =>
                     new dayjs(date).isBefore(new dayjs())
                   }
                 />

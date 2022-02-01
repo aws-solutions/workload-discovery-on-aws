@@ -8,25 +8,26 @@ const DISCOVERY_ZIP = 'discovery.zip';
 const CONFIG_FILENAME = 'settings.js';
 
 module.exports = (customerS3, config) => {
-    const {
-        ACCOUNT_ID,
-        API_GATEWAY,
-        DRAWIO_API_GATEWAY,
-        COGNITO_IDENTITY_POOL,
-        COGNITO_USER_POOL_ID,
-        COGNITO_USER_POOL_WEB_CLIENT_ID,
-        DEPLOYMENT_BUCKET,
-        DEPLOYMENT_BUCKET_KEY,
-        REGION,
-        WEBUI_BUCKET,
-        DISCOVERY_BUCKET,
-        ANONYMOUS_METRIC_OPT_OUT,
-        AMPLIFY_STORAGE_BUCKET,
-        APPSYNC_API_GRAPHQL_URL,
-        VERSION
-    } = config;
+  const {
+    ACCOUNT_ID,
+    API_GATEWAY,
+    DRAWIO_API_GATEWAY,
+    COGNITO_IDENTITY_POOL,
+    COGNITO_USER_POOL_ID,
+    COGNITO_USER_POOL_WEB_CLIENT_ID,
+    DEPLOYMENT_BUCKET,
+    DEPLOYMENT_BUCKET_KEY,
+    REGION,
+    WEBUI_BUCKET,
+    DISCOVERY_BUCKET,
+    ANONYMOUS_METRIC_OPT_OUT,
+    AMPLIFY_STORAGE_BUCKET,
+    APPSYNC_API_GRAPHQL_URL,
+    VERSION,
+  } = config;
 
-  const customerListFiles = (params) => customerS3.listObjects(params).promise();
+  const customerListFiles = (params) =>
+    customerS3.listObjects(params).promise();
   const customerPutObject = (params) => customerS3.putObject(params).promise();
   const customerUpload = (params) => customerS3.upload(params).promise();
 
@@ -58,18 +59,20 @@ module.exports = (customerS3, config) => {
           directory.files.filter((x) => x.type !== 'Directory')
         )
         .then((files) =>
-            files.map(async file => {
-                return customerUpload({
-                    ACL,
-                    Body: file.stream(),
-                    Bucket: WEBUI_BUCKET,
-                    ContentType: mime.lookup(file.path) || 'application/octet-stream',
-                    Key: file.path,
-                })
-            })
+          files.map(async (file) => {
+            return customerUpload({
+              ACL,
+              Body: file.stream(),
+              Bucket: WEBUI_BUCKET,
+              ContentType: mime.lookup(file.path) || 'application/octet-stream',
+              Key: file.path,
+            });
+          })
         )
-        .then(ps => Promise.all(ps))
-        .catch(err => console.error(`${err} were detected in ui file copy`)),
+
+        .then((ps) => Promise.all(ps))
+        .then(() => console.log('UI files uploaded'))
+        .catch((err) => console.error(`${err} were detected in ui file copy`)),
 
     setupDiscoveryFiles: () =>
       customerS3
@@ -87,6 +90,7 @@ module.exports = (customerS3, config) => {
             Key: DISCOVERY_ZIP,
           })
         )
+        .then(() => console.log('ecr files uploaded'))
         .catch((err) =>
           console.error(`${err} was detected in account import file copy`)
         ),
@@ -162,13 +166,13 @@ module.exports = (customerS3, config) => {
         window.perspectiveMetadata = ${JSON.stringify({
           rootAccount: ACCOUNT_ID,
           rootRegion: REGION,
-          version: VERSION
+          version: VERSION,
         })};
         window.collectAnonymousMetrics = ${JSON.stringify({
           optOut: ANONYMOUS_METRIC_OPT_OUT === 'Yes' ? true : false,
         })};`,
       })
-        .then(console.dir)
+        .then(() => console.log('Settings file updated'))
         .catch(console.error),
   };
 };

@@ -24,16 +24,18 @@ const serviceNameValidator = (serviceName) => {
   else throw Error('Invalid service name');
 };
 
-const arnValidator = (arn) => {
-  if (/arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):.*/.test(arn)) return true;
-  else throw Error('Invalid ARN');
+const resourceIdValidator = (id) => {
+  return R.or(
+    /arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):.*/.test(id),
+    !/[!@#$%^&*(),.?"{}:|<>;]/.test(id)
+  );
 };
 
 const getResourcesByCostQuery = ({
   cache,
-  accountIds,
+  accountIds = [],
   athenaTableName,
-  regions,
+  regions = [],
   period,
 }) => {
   try {
@@ -58,10 +60,10 @@ const getResourcesByCostQuery = ({
 
 const byServiceQuery = ({
   cache,
-  accountIds,
+  accountIds = [],
   serviceName,
   athenaTableName,
-  regions,
+  regions = [],
   period,
 }) => {
   try {
@@ -85,43 +87,58 @@ const byServiceQuery = ({
   }
 };
 
-const byResourceIdQuery = ({ resourceIds, athenaTableName, period }) => {
+const byResourceIdQuery = ({ resourceIds = [], athenaTableName, period }) => {
   try {
     period && dateValidator(period.from);
     period && dateValidator(period.to);
-    resourceIds && R.map(arnValidator, resourceIds);
-
-    return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
-      resourceIds
-    )}) AND line_item_usage_start_date >= TIMESTAMP '${
-      period.from
-    }' AND line_item_usage_end_date <= TIMESTAMP '${
-      period.to
-    }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
   } catch (err) {
     throw Error('Cannot build query');
   }
+  const ids = R.reduce(
+    (acc, val) => {
+      if (resourceIdValidator(val)) acc.push(val);
+      return acc;
+    },
+    [],
+    resourceIds
+  );
+
+  return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
+    ids
+  )}) AND line_item_usage_start_date >= TIMESTAMP '${
+    period.from
+  }' AND line_item_usage_end_date <= TIMESTAMP '${
+    period.to
+  }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
 };
 
 const byResourceIdOrderedByDayQuery = ({
-  resourceIds,
+  resourceIds = [],
   athenaTableName,
   period,
 }) => {
   try {
     period && dateValidator(period.from);
     period && dateValidator(period.to);
-    resourceIds && R.map(arnValidator, resourceIds);
-    return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
-      resourceIds
-    )}) AND line_item_usage_start_date >= TIMESTAMP '${
-      period.from
-    }' AND line_item_usage_end_date <= TIMESTAMP '${
-      period.to
-    }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
   } catch (err) {
     throw Error('Cannot build query');
   }
+  const ids = R.reduce(
+    (acc, val) => {
+      if (resourceIdValidator(val)) acc.push(val);
+      return acc;
+    },
+    [],
+    resourceIds
+  );
+
+  return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
+    ids
+  )}) AND line_item_usage_start_date >= TIMESTAMP '${
+    period.from
+  }' AND line_item_usage_end_date <= TIMESTAMP '${
+    period.to
+  }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
 };
 
 module.exports = {

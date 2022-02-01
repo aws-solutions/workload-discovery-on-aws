@@ -352,6 +352,10 @@ class DataClient {
 
         if (configuration == null) {
             logger.error("Config parse error, configuration = null check config settings");
+            if(node.properties.configurationItemStatus === 'ResourceNotRecorded') {
+                logger.error('AWS Config is not configured to discover resources of type: ' + node.resourceType);
+            }
+            logger.error(node);
         }
 
         if (configuration != null) {

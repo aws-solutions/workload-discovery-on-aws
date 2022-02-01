@@ -67,8 +67,8 @@ const getCostsForARNs = (resourceIds, preferences) => {
 const updateNodesWithCost = (costs, nodes) => {
   R.forEach((e) => {
     R.forEach((n) => {
-      if (R.hasPath(['data', 'resource', 'arn'], n)) {
-        if (R.equals(n.data.resource.arn, e.line_item_resource_id)) {
+      if (R.hasPath(['data', 'resourceId'], n)) {
+        if (R.includes(e.line_item_resource_id, n.data.resourceId)) {
           n.data.cost = parseFloat(e.cost).toFixed(2);
         }
       }
@@ -84,12 +84,20 @@ export const fetchCosts = (nodes, preferences) =>
         R.hasPath(['data', 'type'], e) &&
         R.equals(e.data.type, 'resource') &&
         R.hasPath(['data', 'resource', 'arn'], e) &&
-        !R.isNil(e.data.resource.arn)
+        !R.isEmpty(e.data.resourceId)
       );
     }, nodes)
   )
-    .then(R.map((e) => e.data.resource.arn))
+    .then((x) =>
+      R.filter(
+        (y) => !R.isNil(y),
+        R.flatten(R.map((e) => e.data.resourceId, x))
+      )
+    )
     .then((e) => getCostsForARNs(e, preferences))
+    .then((e) => {
+      return e;
+    })
     .then((e) => updateNodesWithCost(e, nodes))
     .catch((err) => console.error(err));
 
@@ -130,9 +138,11 @@ export const handleSelectedResource = (
       e.forEach((item) =>
         item.edge ? newEdges.push(item) : newNodes.push(item)
       );
-      R.forEach(e => { if(e.data.clickedId === nodeId) {
-        e.data.selected = true
-      }} , newNodes)
+      R.forEach((e) => {
+        if (e.data.clickedId === nodeId) {
+          e.data.selected = true;
+        }
+      }, newNodes);
       return newNodes
         .concat(newEdges)
         .filter((item) => (item.data.target === nodeId ? false : true));

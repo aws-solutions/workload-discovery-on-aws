@@ -149,7 +149,7 @@ def handler(event, context):
     for node in nodes:
         node_id = node['data']['id']
         node_type = node['data']['type']
-        if node_type == 'resource':
+        if (node_type == 'resource' and 'image' in node['data']):
             node_type = node['data']['image'].split('/')[-1].split('.')[0]
         label = node['data']['label'].replace(' - $0', '')
         title = node['data']['title']
@@ -159,7 +159,6 @@ def handler(event, context):
         is_end_node = ('children' not in node['data'])
         parent = node['data'].get('parent')
         node = Node(node_id, node_type, label, title, level, x, y, is_end_node)
-
         node_dict[node_id] = node
 
         if parent and parent in node_dict:
@@ -175,7 +174,7 @@ def handler(event, context):
         edge = Edge(edge_id, source, target)
 
         elements.append(edge)
-
+        
     xml_output = produce_xml_output(elements)
 
     # Compress and encode XML tree

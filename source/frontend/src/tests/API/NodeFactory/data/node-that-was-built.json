@@ -2,6 +2,7 @@
   "edge": false,
   "data": {
     "arn": "ARN",
+    "resourceId":["RESOURCE_ID","ARN"],
     "parent": "parent",
     "level": 0,
     "id": "7ca02a916ec816935cda126fddaa351f",

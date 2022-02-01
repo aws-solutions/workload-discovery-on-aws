@@ -1,13 +1,21 @@
 const AWS = require('aws-sdk');
 const config = require('./config');
+const https = require('https');
 const ResponseHandler = require('./response-handler');
 const S3Handler = require('./s3-handler');
 const cfnHandler = require('./cfn-handler');
 const cloudfrontHandler = require('./cloudfront-handler');
 
+const agent = new https.Agent({ maxSockets: 500, keepAlive: true });
+AWS.config.update({
+  httpOptions: { agent },
+});
+
 const customerS3 = new AWS.S3();
 const cfn = new AWS.CloudFormation();
 const cloudfront = new AWS.CloudFront();
+
+
 
 exports.handler = async (event, context, callback) => {
     console.log('Event: ', JSON.stringify(event));
@@ -40,6 +48,7 @@ exports.handler = async (event, context, callback) => {
 
     await Promise.all(actions)
         .then(async () => {
+            console.log('the actions completed')
             if (eventType === 'Delete') {
                 console.log('disabling stack termination block')
                 await updateStackTermination();
@@ -51,8 +60,9 @@ exports.handler = async (event, context, callback) => {
                 await Promise.all([invalidateCache(), updateStack()]);
                 console.log('Stack update and Cloudfront cache invalidation initiated.');
             } else {
+                console.dir('creating stack')
                 await createStack();
-                console.log('Creating stack...');
+                console.log('created stack...');
             }
 
             console.log('All actions successfully performed');
