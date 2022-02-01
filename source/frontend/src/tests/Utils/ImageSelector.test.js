@@ -16,13 +16,14 @@ test('fetches image with status' , () => {
 })
 
 test('fetches nothing with undefined' , () => {
-    const image = fetchImage(undefined);
-    expect(image).toBeUndefined();        
+    const image = fetchImage(undefined, undefined);
+    expect(image).toMatch('icons/default-icon.svg');        
 })
 
 test('fetches nothing with not a real type' , () => {
-    const image = fetchImage('AWS::EBS::Volume');
-    expect(image).toBeUndefined();       
+    const image = fetchImage('AWS::EBS::Volume', undefined);
+    expect(image).toBeUndefined();        
+       
 })
 
 test('fetches transparent logo' , () => {

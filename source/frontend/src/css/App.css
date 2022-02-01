@@ -250,7 +250,7 @@ li.active.list-group-item:hover {
 
 .hoverOver {
   max-width: 350px;
-  max-height: 100vh;
+  max-height: 1000px;
   margin: 20px 10px 20px 10px;
   border: 1px solid #232f3e;
   background: #fff;

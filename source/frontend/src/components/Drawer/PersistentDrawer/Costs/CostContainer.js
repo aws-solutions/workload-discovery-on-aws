@@ -42,17 +42,14 @@ export default function PersistentDrawerLeft() {
   const [{ costPreferences }, costDispatch] = useCostsState();
   const [fromDate, setFromDate] = React.useState(
     R.pathOr(
-      dayjs()
-        .startOf('month')
-        .format('YYYY-MM-DD'),
+      dayjs().startOf('month').format('YYYY-MM-DD'),
       ['period', 'fromDate'],
       costPreferences
     )
   );
   const [toDate, setToDate] = React.useState(
     R.pathOr(
-      dayjs()
-        .format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD'),
       ['period', 'toDate'],
       costPreferences
     )
@@ -75,9 +72,9 @@ export default function PersistentDrawerLeft() {
         }, nodes)
       : R.forEach((e) => {
           R.forEach((n) => {
-            if (R.hasPath(['data', 'resource', 'arn'], n)) {
-              if (R.equals(n.data.resource.arn, e.line_item_resource_id)) {
-                n.data.cost = e.cost;
+            if (R.hasPath(['data', 'resourceId'], n)) {
+              if (R.includes(e.line_item_resource_id, n.data.resourceId)) {
+                n.data.cost = parseFloat(e.cost).toFixed(2);
               }
             }
           }, nodes);
@@ -91,12 +88,17 @@ export default function PersistentDrawerLeft() {
       R.filter(
         (e) =>
           R.equals(e.data.type, 'resource') &&
-          R.hasPath(['data', 'resource', 'arn'], e) &&
-          !R.isNil(e.data.resource.arn),
+          R.hasPath(['data', 'resourceId'], e) &&
+          !R.isEmpty(e.data.resourceId),
         nodes
       )
     )
-      .then(R.map((e) => e.data.resource.arn))
+      .then((x) =>
+        R.filter(
+          (y) => !R.isNil(y),
+          R.flatten(R.map((e) => e.data.resourceId, x))
+        )
+      )
       .then((e) =>
         getCostsForARNs(e, from, to)
           .then(updateNodesWithCost(nodes))
@@ -259,9 +261,7 @@ export default function PersistentDrawerLeft() {
                 placeholder='YYYY-MM-DD'
                 previousMonthAriaLabel='Previous month'
                 todayAriaLabel='Today'
-                isDateEnabled={date =>
-                  new dayjs(date).isBefore(new dayjs())
-                }
+                isDateEnabled={(date) => new dayjs(date).isBefore(new dayjs())}
               />
             </FormField>
             <FormField
@@ -275,9 +275,7 @@ export default function PersistentDrawerLeft() {
                 placeholder='YYYY-MM-DD'
                 previousMonthAriaLabel='Previous month'
                 todayAriaLabel='Today'
-                isDateEnabled={date =>
-                  new dayjs(date).isBefore(new dayjs())
-                }
+                isDateEnabled={(date) => new dayjs(date).isBefore(new dayjs())}
               />
             </FormField>
           </ColumnLayout>

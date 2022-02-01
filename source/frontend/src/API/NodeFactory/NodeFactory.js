@@ -83,6 +83,12 @@ const findARN = (properties) => {
   );
 };
 
+const buildResourceId = (properties) =>
+  Array.of(
+    properties.resourceId,
+    !R.isNil(properties.arn) ? properties.arn : findARN(properties)
+  );
+
 export const buildNode = (node, parent, level, clickedNode) => {
   try {
     const properties = node.data ? node.data.properties : node.properties;
@@ -91,6 +97,7 @@ export const buildNode = (node, parent, level, clickedNode) => {
       edge: false,
       data: {
         arn: !R.isNil(properties.arn) ? properties.arn : findARN(properties),
+        resourceId: buildResourceId(properties),
         parent: parent,
         level: level,
         id: node.id,

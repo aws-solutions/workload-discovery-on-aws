@@ -100,8 +100,8 @@ const CostQuery = ({
 
   const buildQuery = () => {
     return {
-      toDate: R.pathOr(dayjs().format('YYYY-MM-DD'), ['queryOptions', 'resourcesByCostQuery', 'period', 'to'], query),
-      fromDate: R.pathOr(dayjs().startOf('month').format('YYYY-MM-DD'), ['queryOptions', 'resourcesByCostQuery', 'period', 'from'], query)
+      toDate: R.pathOr(dayjs().format('YYYY-MM-DD'), ['queryOptions', R.prop('queryType', query), 'period', 'to'], query),
+      fromDate: R.pathOr(dayjs().startOf('month').format('YYYY-MM-DD'), ['queryOptions', R.prop('queryType', query), 'period', 'from'], query)
     };
   };
 

@@ -100,7 +100,6 @@ const CostQueryResults = ({
   setSelectedResources,
 }) => {
   const pageSize = 10;
-
   return (
     <div>
       <Container
@@ -171,7 +170,7 @@ CostQueryResults.propTypes = {
   setSelectedResources: PropTypes.func.isRequired,
   queryType: PropTypes.string,
   fetchNext: PropTypes.func,
-  addToGraph: PropTypes.func
+  addToGraph: PropTypes.func,
 };
 
 export default CostQueryResults;

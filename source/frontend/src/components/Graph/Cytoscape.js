@@ -603,7 +603,7 @@ export default () => {
             x:
               event.renderedPosition('x') < window.innerWidth / 2
                 ? document.getElementById('sidepanel-true')
-                  ? window.innerWidth - 280
+                  ? window.innerWidth - 500
                   : window.innerWidth
                 : document.getElementById('sidepanel-true')
                 ? 180

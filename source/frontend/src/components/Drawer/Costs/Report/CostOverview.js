@@ -101,7 +101,7 @@ const CostOverview = ({ resources, costDispatch, costPreferences }) => {
     R.forEach((e) => {
       R.forEach((n) => {
         if (R.hasPath(['data', 'resource', 'arn'], n)) {
-          if (R.equals(n.data.resource.arn, e.line_item_resource_id)) {
+          if (R.equals(n.data.resourceId, e.line_item_resource_id)) {
             n.data.cost = e.cost;
           }
         }
@@ -127,7 +127,7 @@ const CostOverview = ({ resources, costDispatch, costPreferences }) => {
     wrapCostAPIRequest(getResourcesByCostByDay, {
       costForResourceQueryByDay: {
         pagination: { start: 0, end: getPageSize(selectedItems) },
-        resourceIds: R.map((e) => e.resourceArn, selectedItems),
+        resourceIds: R.flatten(R.map((e) => e.resource, selectedItems)),
         period: { from: fromDate, to: toDate },
       },
     })

@@ -57,6 +57,7 @@ export const sendPostRequest = async (query, processor) => {
 export const sendDrawioPostRequest = async (query, processor) => {
   let apiName = 'PerspectiveDrawioWebRestAPI';
   let path = `/resources`;
+
   await Auth.currentSession().catch((err) => {
     if (R.equals(err, 'No current user')) Auth.signOut();
   });
@@ -69,7 +70,6 @@ export const sendDrawioPostRequest = async (query, processor) => {
         .getJwtToken()}`,
     },
   };
-
   return API.post(apiName, path, myInit)
     .then(async (response) => {
       return wrapResponse(await processor(response, query.params), false);

@@ -65,6 +65,7 @@ describe('index.js', () => {
                     'SK': 'ACCNUMBER#12345#METADATA',
                     'PK': 'Account',
                     'accountId': '12345',
+                    'name': 'account1',
                     'type': 'account'
                 },
                 {
@@ -79,6 +80,7 @@ describe('index.js', () => {
                     'SK': 'ACCNUMBER#54321#METADATA',
                     'PK': 'Account',
                     'accountId': '54321',
+                    'name': 'account2',
                     'type': 'account'
                 },
                 {
@@ -120,6 +122,7 @@ describe('index.js', () => {
                             }
                         ],
                         'accountId': '12345',
+                        'name': 'account1',
                         'lastCrawled': '2020-08-20T16:52:13.754Z'
                     },
                     {
@@ -133,6 +136,7 @@ describe('index.js', () => {
                                 'name': 'eu-west-3'
                             }
                         ],
+                        'name': 'account2',
                         'accountId': '54321',
                         'lastCrawled': '2020-08-20T16:52:13.754Z'
                     }

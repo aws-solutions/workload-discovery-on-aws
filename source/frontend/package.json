@@ -22,7 +22,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/styles": "^4.9.0",
-    "aws-amplify": "4.2.7",
+    "aws-amplify": "4.2.11",
     "currency-symbol-map": "^5.0.1",
     "cytoscape": "3.18.0",
     "cytoscape-context-menus": "^4.0.0",

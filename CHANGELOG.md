@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2022-01-08
+
+### Added
+
+- Missing icons for EC2 types and a few [others](https://github.com/awslabs/aws-perspective/issues/232)
+  
+### Changed
+
+### Fixed
+
+- Cost calculations to query on resourceIds as well as ARNs. https://github.com/awslabs/aws-perspective/issues/231
+- Drawio export bug that was causing diagrams with collapsed nodes to cause an error. https://github.com/awslabs/aws-perspective/issues/219
+- Hover over box when hovering over a resource it was going outside the screen. https://github.com/awslabs/aws-perspective/issues/220
+- Slow deployment step that uploads files to S3. Increase **maxSockets** in HTTPS agent within the Lambda.
+  
 ## [1.1.2] - 2021-11-03
 
 ### Added
