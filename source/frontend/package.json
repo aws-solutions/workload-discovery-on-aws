@@ -17,7 +17,7 @@
     "@aws-amplify/ui-components": "^1.7.6",
     "@aws-amplify/ui-react": "^1.2.13",
     "@awsui/collection-hooks": "^1.0.11",
-    "@awsui/components-react": "^3.0.84",
+    "@awsui/components-react": "^3.0.367",
     "@material-ui/core": "^4.9.14",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.53",
