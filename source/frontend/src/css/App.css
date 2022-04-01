@@ -566,7 +566,7 @@ input[type='range']::-ms-fill-upper {
   font-size: 0.75vw;
   margin-right: 1.5vw;
 }
-*/ .resourceDetail {
+.resourceDetail {
   padding: 1vw;
   color: #000;
   background-color: #fff;

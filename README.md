@@ -1,4 +1,4 @@
-# AWS Perspective (v1.1.3)
+# AWS Perspective (v1.1.4)
 
 AWS Perspective is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, mapping relationships between them, and displaying them in a web user interface (web UI).
 
@@ -323,6 +323,6 @@ AWS Perspective is able to generate its architecture diagrams thanks to these li
 * [cytoscape.js-expand-collapse](https://github.com/iVis-at-Bilkent/cytoscape.js-expand-collapse)
 
 
-Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright 2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at https://www.apache.org/licenses/ or in the "[license](LICENSE.txt)" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
