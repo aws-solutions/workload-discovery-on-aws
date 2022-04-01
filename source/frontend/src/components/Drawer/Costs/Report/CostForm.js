@@ -10,7 +10,7 @@ import {
   ColumnLayout,
   Grid,
   DatePicker,
-} from '@awsui/components-react/';
+} from '@awsui/components-react';
 import {
   getCostForResource,
   handleResponse,
@@ -58,11 +58,12 @@ export default ({
       costForResourceQuery: {
         pagination: {
           start: 0,
-          end: resources.filter((e) => !R.isEmpty(e.data.resourceId)).length,
+          end: R.length(R.filter((e) => !R.isEmpty(e.data.resourceId), resources)),
         },
-        resourceIds: R.flatten(resources
-          .filter((e) => !R.isEmpty(e.data.resourceId))
-          .map((e) => e.data.resourceId)),
+        resourceIds: 
+          resources
+            .flatMap((e) => e.data.resourceId)
+        ,
         period: { from: fromDate, to: toDate },
       },
     });
@@ -112,7 +113,7 @@ export default ({
         actions={
           <Button onClick={onSubmit} variant='primary' loading={loading}>
             Submit
-          </Button>          
+          </Button>
         }>
         <SpaceBetween direction='horizontal' size='l'>
           <FormField
@@ -128,9 +129,7 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
-              isDateEnabled={date =>
-                new dayjs(date).isBefore(new dayjs())
-              }
+              isDateEnabled={(date) => new dayjs(date).isBefore(new dayjs())}
             />
           </FormField>
           <FormField
@@ -146,9 +145,7 @@ export default ({
               placeholder='YYYY/MM/DD'
               previousMonthAriaLabel='Previous month'
               todayAriaLabel='Today'
-              isDateEnabled={date =>
-                new dayjs(date).isBefore(new dayjs())
-              }
+              isDateEnabled={(date) => new dayjs(date).isBefore(new dayjs())}
             />
           </FormField>
         </SpaceBetween>

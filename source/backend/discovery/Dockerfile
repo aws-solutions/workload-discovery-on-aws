@@ -1,4 +1,4 @@
-FROM public.ecr.aws/bitnami/node-snapshot:14
+FROM public.ecr.aws/docker/library/node:16
 
 RUN groupadd -r discovery && useradd -r -g discovery discovery
 

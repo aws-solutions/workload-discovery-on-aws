@@ -453,6 +453,7 @@ Resources:
                   - ecr:PutLifecyclePolicy
                   - ecr:SetRepositoryPolicy
                   - ecr:PutImageScanningConfiguration
+                  - ecr:TagResource
                 Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*'
               - Effect: Allow
                 Action:

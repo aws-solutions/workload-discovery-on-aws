@@ -127,7 +127,7 @@ const CostOverview = ({ resources, costDispatch, costPreferences }) => {
     wrapCostAPIRequest(getResourcesByCostByDay, {
       costForResourceQueryByDay: {
         pagination: { start: 0, end: getPageSize(selectedItems) },
-        resourceIds: R.flatten(R.map((e) => e.resource, selectedItems)),
+        resourceIds: R.chain((e) => [e.resource, e.resourceArn], selectedItems),
         period: { from: fromDate, to: toDate },
       },
     })

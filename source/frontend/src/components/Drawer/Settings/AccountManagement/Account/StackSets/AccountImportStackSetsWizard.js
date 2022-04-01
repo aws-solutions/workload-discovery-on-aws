@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wizard, Link } from '@awsui/components-react/';
+import { Wizard } from '@awsui/components-react';
 
 import {
   addAccounts,

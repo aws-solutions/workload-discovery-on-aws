@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description:
   This CloudFormation template sets up AWS Config so that it will start
   collecting resource information for a region.
-  (SO0075c) - Solution - Import Region Template (uksb-1r0720e5f) (version:v1.1.3)
+  (SO0075c) - Solution - Import Region Template (uksb-1r0720e5f) (version:v1.1.4)
 Parameters:
   AccountId:
     Type: String
