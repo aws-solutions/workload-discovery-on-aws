@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const AWS = require('aws-sdk');
 const sts = new AWS.STS();
-const getCreds = require('@aws-sdk/credential-provider-node').defaultProvider();
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const logger = require('./logger');
 const config = require('./config');
