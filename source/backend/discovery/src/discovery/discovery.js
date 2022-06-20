@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 const AWS = require('aws-sdk');
 const sts = new AWS.STS();
-const getCreds = require('@aws-sdk/credential-provider-node').defaultProvider();
-
+const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
 const logger = require('./logger');
 const config = require('./config');
 const db = require('./db');
@@ -34,8 +33,8 @@ const UpdatedResources = require('./updatedResources');
 const discover = async () => {
 
   logger.profile('Discover Process');
-
-  const containerCreds = await getCreds();
+  const CredentialsProvider = fromNodeProviderChain();
+  const containerCreds = await CredentialsProvider();
   const settingsApi = appSync({...config, creds: containerCreds});
 
   const {bootStrap, canImportRun} = discoveryConfig(settingsApi, config);
