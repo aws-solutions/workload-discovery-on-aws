@@ -1,10 +1,9 @@
 import React from 'react';
 import { fetchImage } from '../../../../Utils/ImageSelector';
 import { getStateInformation } from '../../../../Utils/Resources/ResourceStateParser';
-import LoadBalancerHover from './LoadBalancerDetails/LoadBalancerHover';
 import LoadBalancerItem from './LoadBalancerDetails/LoadBalancerItem';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseLoadBalancer = (node) => {
   const properties = R.hasPath(['properties'], node)
     ? node.properties
@@ -39,9 +38,6 @@ export const parseLoadBalancer = (node) => {
         title='Load Balancer Details'
         configuration={properties.configuration}
       />
-    ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={properties.configuration} />
     ),
   };
 };

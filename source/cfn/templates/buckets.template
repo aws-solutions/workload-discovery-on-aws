@@ -1,0 +1,501 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Workload Discovery on AWS S3 Buckets Stack
+
+Transform: "AWS::Serverless-2016-10-31"
+
+Parameters:
+  CreateConfigBucket:
+    Type: String
+
+  CustomResourceHelperLambdaLayer:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues:
+      - CRITICAL
+      - FATAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - NOTSET
+
+  S3CleanupBucket:
+    Type: String
+
+Conditions:
+  CreateConfigBucket: !Equals
+    - Ref: CreateConfigBucket
+    - "true"
+
+Resources:
+  # The custom resource disables access logging because otherwise logs will be
+  # written to the access logging bucket during the cleanup. We set a DependsOn
+  # for the resources below so their processing completes before the access
+  # logs' processing begins.
+
+  AccessLogsBucket:
+    Type: "AWS::S3::Bucket"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: This bucket will contain access logs for all buckets
+    Properties:
+      AccessControl: LogDeliveryWrite
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 45
+            Id: DeleteAfter45Days
+            Prefix: ""
+            Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  ConfigBucket:
+    Type: "AWS::S3::Bucket"
+    Condition: CreateConfigBucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: only accessed by config, writes very frequently so will be costly
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  AccessLogsBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref AccessLogsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - "Fn::Sub": "arn:aws:s3:::${AccessLogsBucket}/*"
+              - "Fn::Sub": "arn:aws:s3:::${AccessLogsBucket}"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  AmplifyStorageBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            AllowedOrigins:
+              - "*"
+            Id: PerspectiveCorsRule
+            MaxAge: 3600
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: amplify-storage-bucket/
+      VersioningConfiguration:
+        Status: Enabled
+
+  ConfigBucketBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Condition: CreateConfigBucket
+    Properties:
+      Bucket: !Ref ConfigBucket
+      PolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Sid": "AWSConfigBucketPermissionsCheck",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "config.amazonaws.com"
+                ]
+              },
+              "Action": "s3:GetBucketAcl",
+              "Resource": "arn:aws:s3:::${ConfigBucket}"
+            },
+            {
+              "Sid": "AWSConfigBucketExistenceCheck",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "config.amazonaws.com"
+                ]
+              },
+              "Action": "s3:ListBucket",
+              "Resource": "arn:aws:s3:::${ConfigBucket}"
+            },
+            {
+              "Sid": " AWSConfigBucketDelivery",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "config.amazonaws.com"
+                ]
+              },
+              "Action": "s3:PutObject",
+              "Resource": "arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/Config/*",
+              "Condition": {
+                "StringEquals": {
+                  "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+              }
+            },
+            {
+              "Sid": "HttpsOnly",
+              "Action": "*",
+              "Effect": "Deny",
+              "Resource": ["arn:aws:s3:::${ConfigBucket}/AWSLogs/${AWS::AccountId}/Config/*", "arn:aws:s3:::${ConfigBucket}"],
+              "Principal": "*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+        
+
+  CostAndUsageAthenaResultsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 7
+            Id: DeleteAfter7Days
+            Prefix: ""
+            Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: cost-and-usage-report-bucket/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  CostAndUsageReportBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: cost-and-usage-report-bucket/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  DiscoveryBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: discovery-bucket/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  WebUIBucket:
+    Type: "AWS::S3::Bucket"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W51
+            reason: This bucket will get a policy attached to it from another template during deployment.
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            Id: PerspectiveCorsRule
+            MaxAge: 3600
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogsBucket
+        LogFilePrefix: webui-bucket/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      WebsiteConfiguration:
+        ErrorDocument: error.html
+        IndexDocument: index.html
+
+  AmplifyStorageBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref AmplifyStorageBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - "Fn::Sub": "arn:aws:s3:::${AmplifyStorageBucket}/*"
+              - "Fn::Sub": "arn:aws:s3:::${AmplifyStorageBucket}"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  CostAndUsageAthenaResultsBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref CostAndUsageAthenaResultsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - "Fn::Sub": "arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*"
+              - "Fn::Sub": "arn:aws:s3:::${CostAndUsageAthenaResultsBucket}"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  CostAndUsageReportBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref CostAndUsageReportBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - "Fn::Sub": "arn:aws:s3:::${CostAndUsageReportBucket}/*"
+              - "Fn::Sub": "arn:aws:s3:::${CostAndUsageReportBucket}"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  DiscoveryBucketBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref DiscoveryBucket
+      PolicyDocument:
+        Statement:
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: "*"
+            Resource:
+              - "Fn::Sub": "arn:aws:s3:::${DiscoveryBucket}/*"
+              - "Fn::Sub": "arn:aws:s3:::${DiscoveryBucket}"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  CleanupBucketFunction:
+    Type: "AWS::Serverless::Function"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Not applicable
+          - id: W92
+            reason: Not applicable
+    Properties:
+      CodeUri:
+        Bucket: !Ref S3CleanupBucket
+        Key: !Sub ${DeploymentBucketKey}/cleanup-bucket.zip
+      Description: Custom Lambda resource for emptying S3 buckets on stack deletion
+      Handler: cleanup_bucket.handler
+      Layers:
+        - Ref: CustomResourceHelperLambdaLayer
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - "s3:DeleteObject*"
+                - "s3:ListBucket*"
+                - "s3:ListObject*"
+                - "s3:PutBucketLogging"
+              Resource:
+                - "Fn::Sub": "arn:aws:s3:::${AccessLogsBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${AccessLogsBucket}/*"
+                - "Fn::Sub": "arn:aws:s3:::${AmplifyStorageBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${AmplifyStorageBucket}/*"
+                - "Fn::Sub": "arn:aws:s3:::${CostAndUsageReportBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${CostAndUsageReportBucket}/*"
+                - "Fn::Sub": "arn:aws:s3:::${CostAndUsageAthenaResultsBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${CostAndUsageAthenaResultsBucket}/*"
+                - "Fn::Sub": "arn:aws:s3:::${DiscoveryBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${DiscoveryBucket}/*"
+                - "Fn::Sub": "arn:aws:s3:::${WebUIBucket}"
+                - "Fn::Sub": "arn:aws:s3:::${WebUIBucket}/*"
+                - "Fn::If":
+                    - CreateConfigBucket
+                    - "Fn::Sub": "arn:aws:s3:::${ConfigBucket}"
+                    - Ref: "AWS::NoValue"
+                - "Fn::If":
+                    - CreateConfigBucket
+                    - "Fn::Sub": "arn:aws:s3:::${ConfigBucket}/*"
+                    - Ref: "AWS::NoValue"
+      Runtime: python3.8
+      Timeout: 60
+
+  CleanupAccessLogsBucket:
+    Type: "Custom::S3BucketCleanup"
+    Properties:
+      Bucket: !Ref AccessLogsBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupAmplifyStorageBucket:
+    Type: "Custom::S3BucketCleanup"
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref AmplifyStorageBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupConfigBucket:
+    Type: "Custom::Setup"
+    Condition: CreateConfigBucket
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref ConfigBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupCostAndUsageAthenaResultsBucket:
+    Type: "Custom::S3BucketCleanup"
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref CostAndUsageAthenaResultsBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupCostAndUsageReportBucket:
+    Type: "Custom::S3BucketCleanup"
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref CostAndUsageReportBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupDiscoveryBucket:
+    Type: "Custom::S3BucketCleanup"
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref DiscoveryBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+  CleanupWebUIBucket:
+    Type: "Custom::S3BucketCleanup"
+    DependsOn:
+      - CleanupAccessLogsBucket
+    Properties:
+      Bucket: !Ref WebUIBucket
+      LogLevel: !Ref LogLevel
+      ServiceToken: !GetAtt CleanupBucketFunction.Arn
+
+Outputs:
+  AccessLogsBucket:
+    Value: !Ref AccessLogsBucket
+
+  AmplifyStorageBucket:
+    Value: !Ref AmplifyStorageBucket
+
+  ConfigBucket:
+    Value: !If
+      - CreateConfigBucket
+      - Ref: ConfigBucket
+      - None
+
+  CostAndUsageAthenaResultsBucket:
+    Value: !Ref CostAndUsageAthenaResultsBucket
+
+  CostAndUsageReportBucket:
+    Value: !Ref CostAndUsageReportBucket
+
+  DiscoveryBucket:
+    Value: !Ref DiscoveryBucket
+
+  WebUIBucket:
+    Value: !Ref WebUIBucket
+
+  WebUIBucketRegionalDomainName:
+    Value: !GetAtt WebUIBucket.RegionalDomainName

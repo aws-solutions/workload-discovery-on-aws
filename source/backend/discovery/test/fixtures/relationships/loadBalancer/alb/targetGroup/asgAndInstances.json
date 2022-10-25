@@ -1,0 +1,52 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "ec2Instance1": {
+    "resourceId": "i-0123456789acdef0",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "configuration": {}
+  },
+  "ec2Instance2": {
+    "resourceId": "i-9876543210abcdef9",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "configuration": {}
+  },
+  "asg": {
+    "id": "id1",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:autoscaling:${$constants.region}:${$constants.accountId}:autoScalingGroup:4b1e9cdb-331b-462e-a577-9c861d068a98:autoScalingGroupName/my-asg",
+    "resourceType": "AWS::AutoScaling::AutoScalingGroup",
+    "resourceId": "${asg.arn}",
+    "resourceName": "eks-ng-337771de-46c0048f-fc81-d1a8-b487-f24ca675733f",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Multiple Availability Zones",
+    "relationships": [],
+    "configuration": {
+      "targetGroupARNs": [
+        "${targetGroup.arn}"
+      ],
+      "instances": [
+        {
+          "instanceId": "${ec2Instance1.resourceId}"
+        }
+      ]
+    }
+  },
+  "targetGroup": {
+    "id": "id2",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:targetgroup/test-tg",
+    "availabilityZone": "Multiple Availability Zones",
+    "awsRegion": "${$constants.region}",
+    "configurationItemStatus": "ResourceDiscovered",
+    "resourceId": "${targetGroup.arn}",
+    "resourceName": "${targetGroup.arn}",
+    "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    "relationships": [],
+    "configuration": {}
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "lambda": {
+      "resourceType": "AWS::Lambda::Function"
+    },
+    "subnet": {
+      "resourceType": "AWS::EC2::Subnet",
+      "relationshipName": "Is contained in "
+    }
+  },
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet1": {
+    "id": "${subnet1.arn}",
+    "arn": "subnet1Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}a",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-0123456789abcdef",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "subnet2": {
+    "id": "${subnet2.arn}",
+    "arn": "subnet2Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}b",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-9876543210fedcba",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "lambda": {
+    "id": "${lambda.arn}",
+    "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:${lambda.resourceId}",
+    "resourceId": "testLambdaFunc",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "resourceType": "${$constants.lambda.resourceType}",
+    "relationships": [
+      {
+        "resourceId": "${subnet1.resourceId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "relationshipName": "${$constants.subnet.relationshipName}"
+      },
+      {
+        "resourceId": "${subnet2.resourceId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "relationshipName": "${$constants.subnet.relationshipName}"
+      }
+    ],
+    "configuration": {
+      "vpcConfig": {
+        "subnetIds": [
+          "${subnet1.resourceId}",
+          "${subnet2.resourceId}"
+        ]
+      }
+    }
+  }
+}

@@ -11,22 +11,60 @@
 template_dir="$PWD"
 source_dir="$template_dir/../source"
 
+if [[ -n "${CODEBUILD_BUILD_ID}" ]]
+then
+  echo "Starting DynamoDb local"
+  mkdir ./dynamodb_local
+  cd ./dynamodb_local
+
+  curl -O "https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz"
+  tar -xvzf dynamodb_local_latest.tar.gz; rm dynamodb_local_latest.tar.gz
+
+  java -jar DynamoDBLocal.jar -port 9000 &
+fi
+
 echo "------------------------------------------------------------------------------"
-echo "[Test] API"
+echo "[Test] Drawio"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/api
+cd $source_dir/backend/functions/drawio
+pipenv install --dev
+pipenv run pytest --cov-report xml --cov .
+echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Account Import Templates"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/account-import-templates-api
 npm test
 
 echo "------------------------------------------------------------------------------"
-echo "[Test] Search"
+echo "[Test] Cost Parser"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/search
+cd $source_dir/backend/functions/cost-parser
 npm test
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Discovery"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/discovery/
+npm test
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Graph API"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/graph-api
+npm test
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Search"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/search-api
+npm test
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Settings"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/settings
 npm test
 
 echo "------------------------------------------------------------------------------"

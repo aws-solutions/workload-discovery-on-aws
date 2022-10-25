@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Account Import Template API
+
+Parameters:
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+Resources:
+
+  AccountImportTemplatesApiLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+  AccountImportTemplatesApiFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This Lambda does not connect to any resources in a VPC
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt AccountImportTemplatesApiLambdaFunctionRole.Arn
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Sub ${DeploymentBucketKey}/account-import-templates-api.zip
+      Runtime: nodejs16.x
+      Description: Lambda for Account Import Template Api
+      Timeout: 10
+      TracingConfig:
+        Mode: Active
+      MemorySize: 1024
+      ReservedConcurrentExecutions: 5
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          REGION: !Ref AWS::Region
+
+  AccountImportTemplatesApiInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncSearchRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt AccountImportTemplatesApiFunction.Arn
+
+  AccountImportTemplatesApiLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: Account_Import_Lambda_DS9
+      Description: Account Import Template Api Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt AccountImportTemplatesApiInvokeRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt AccountImportTemplatesApiFunction.Arn
+
+  AccountImportTemplatesApiGetGlobalTemplateResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getGlobalTemplate
+      DataSourceName: !GetAtt AccountImportTemplatesApiLambdaDataSource.Name
+
+  AccountImportTemplatesApiGetRegionalTemplateResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getRegionalTemplate
+      DataSourceName: !GetAtt AccountImportTemplatesApiLambdaDataSource.Name

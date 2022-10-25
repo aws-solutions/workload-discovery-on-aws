@@ -1,0 +1,210 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Settings Api Stack
+
+Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+  ConfigurationAggregator:
+    Type: String
+
+  CustomUserAgent: 
+    Type: String
+
+Resources:
+
+  PerspectiveSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  PerspectiveSettingsLambdaRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: The ec2:DescribeRegions action only supports * resources
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncLambdaRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:BatchWriteItem
+                Resource: !GetAtt PerspectiveSettingsTable.Arn
+              - Effect: Allow
+                Action:
+                  - config:putConfigurationAggregator
+                Resource: !Sub arn:aws:config:${AWS::Region}:${AWS::AccountId}*
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeRegions
+                Resource: '*'
+
+  PerspectiveSettingsFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Lambda does not connect to any resources in a VPC
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt PerspectiveSettingsLambdaRole.Arn
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/settings.zip
+      Runtime: nodejs16.x
+      Description: Lambda for Appsync resolvers
+      Timeout: 10
+      MemorySize: 1024
+      ReservedConcurrentExecutions: 10
+      Tracing: Active
+      Environment:
+        Variables:
+          DB_TABLE: !Ref PerspectiveSettingsTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+          CONFIG_AGGREGATOR: !Ref ConfigurationAggregator
+          CUSTOM_USER_AGENT: !Ref CustomUserAgent
+
+  PerspectiveSettingsLambdaAppSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt PerspectiveSettingsFunction.Arn
+
+  PerspectiveAppSyncSettingsLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: Settings_Lambda_Source
+      Description: Perspective Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt PerspectiveSettingsLambdaAppSyncRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt PerspectiveSettingsFunction.Arn
+
+  PerspectiveAppSyncGetAccountQueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getAccount
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncAddRegionsMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: addRegions
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncDeleteRegionsMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: deleteRegions
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncGetAccountsQueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getAccounts
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncAddAccountsMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: addAccounts
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncUpdateAccountMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: updateAccount
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncUpdateRegionsMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: updateRegions
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+  PerspectiveAppSyncDeleteAccountsMutationResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: deleteAccounts
+      DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name

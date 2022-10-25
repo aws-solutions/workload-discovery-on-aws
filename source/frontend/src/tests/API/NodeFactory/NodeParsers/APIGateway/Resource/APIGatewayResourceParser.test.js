@@ -1,5 +1,3 @@
-import React from 'react';
-import APIResourceHover from '../../../../../../API/NodeFactory/NodeParsers/APIGateway/Resource/APIResourceHover';
 import { parseAPIGatewayResource } from '../../../../../../API/NodeFactory/NodeParsers/APIGateway/Resource/APIGatewayResourceParser';
 import { fetchImage } from '../../../../../../Utils/ImageSelector';
 
@@ -17,13 +15,11 @@ test('when node that is an API Resource gets custom parsed it will have a custom
       colour: '#fff'
     },
     icon: fetchImage(node.properties.resourceType),
-    hoverComponent: <APIResourceHover path={node.properties.name} />
   };
 
   const result = parseAPIGatewayResource(node);
   expect(result.styling).toEqual(expectedResult.styling);
   expect(result.icon).toEqual(expectedResult.icon);
-  expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
 });
 
 test('when node that is undefined gets custom parsed it will return empty object', () => {

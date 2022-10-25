@@ -2,10 +2,11 @@ import { retryAttempts } from '../../config/api-retry';
 import { Auth, API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
 import * as mutations from '../GraphQL/mutations';
-var forOwn = require('lodash.forown');
-var isObject = require('lodash.isobject');
+const forOwn = require('lodash.forown');
+const isObject = require('lodash.isobject');
 
-const R = require('ramda');
+import * as R  from 'ramda';
+
 // Query using a parameter
 export const getAccounts = () => {
   return API.graphql(graphqlOperation(queries.getAccounts, {}));
@@ -29,6 +30,14 @@ export const deleteRegions = (params) => {
 
 export const deleteAccounts = (accountIds) => {
   return API.graphql(graphqlOperation(mutations.deleteAccounts, accountIds));
+};
+
+export const getGlobalTemplate = () => {
+  return API.graphql(graphqlOperation(queries.getGlobalTemplate, {}));
+};
+
+export const getRegionalTemplate = () => {
+  return API.graphql(graphqlOperation(queries.getRegionalTemplate, {}));
 };
 
 const delay = (retryCount) =>
@@ -86,7 +95,7 @@ const wrapResponse = (data, error) => {
 };
 
 export function handleResponse(response) {
-  if (response.error) {
+  if (!response || response.error) {
     throw new Error('We could not complete that action. Please try again');
   } else return response;
 }

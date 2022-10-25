@@ -1,0 +1,65 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "lambda": {
+      "resourceType": "AWS::Lambda::Function"
+    },
+    "subnet": {
+      "resourceType": "AWS::EC2::Subnet"
+    }
+  },
+  "subnet1": {
+    "id": "${subnet1.arn}",
+    "arn": "subnet1Arn",
+    "accountId": "${$constants.accountId}",
+    "availabilityZone": "${$constants.region}a",
+    "vpcId": "vpc-0123456789abcdef0",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-0123456789abcdef",
+    "configuration": {},
+    "relationships": []
+  },
+  "subnet2": {
+    "id": "${subnet2.arn}",
+    "arn": "subnet2Arn",
+    "accountId": "${$constants.accountId}",
+    "availabilityZone": "${$constants.region}b",
+    "vpcId": "vpc-0123456789abcdef0",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-9876543210fedcba",
+    "configuration": {},
+    "relationships": []
+  },
+  "efs": {
+    "id": "${efs.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "efsApArn",
+    "awsRegion": "${$constants.region}",
+    "resourceId": "fsap-0123456789abcdef0",
+    "resourceType": "AWS::EFS::AccessPoint",
+    "relationships": [],
+    "configuration": {}
+  },
+  "lambda": {
+    "id": "${lambda.arn}",
+    "arn": "lambdaArn",
+    "resourceId": "testLambdaFunc",
+    "accountId": "${$constants.accountId}",
+    "resourceType": "${$constants.lambda.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "vpcConfig": {
+        "subnetIds": [
+          "${subnet1.resourceId}",
+          "${subnet2.resourceId}"
+        ]
+      },
+      "fileSystemConfigs": [
+        {
+          "arn": "${efs.arn}"
+        }
+      ]
+    }
+  }
+}

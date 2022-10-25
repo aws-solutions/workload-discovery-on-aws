@@ -1,0 +1,29 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "managedRole": {
+    "id": "${managedRole.arn}",
+    "arn": "arn:aws:iam::aws:policy/AdministratorAccess",
+    "resourceId": "${managedRole.arn}",
+    "resourceName": "${managedRole.arn}",
+    "resourceType": "AWS::IAM::AWSManagedPolicy",
+    "configuration": {},
+    "relationships": []
+  },
+  "role": {
+    "id": "${role.arn}",
+    "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
+    "resourceType": "AWS::IAM::Role",
+    "resourceName": "testRole",
+    "relationships": [],
+    "configuration": {
+      "attachedManagedPolicies": [
+        {
+          "policyArn": "${managedRole.resourceId}"
+        }
+      ]
+    }
+  }
+}

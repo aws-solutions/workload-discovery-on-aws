@@ -1,0 +1,20 @@
+{
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet": {
+    "resourceId": "subnet-0123456789abcdef0"
+  },
+  "eni": {
+    "accountId": "xxxxxxxxxxxx",
+    "relationships": [],
+    "resourceType": "AWS::EC2::NetworkInterface",
+    "resourceId": "eni-0123456789abcdef0",
+    "configuration": {
+      "interfaceType": "nat_gateway",
+      "description": "Interface for NAT Gateway nat-01234567890abcdef",
+      "vpcId": "${vpc.resourceId}",
+      "subnetId": "${subnet.resourceId}"
+    }
+  }
+}

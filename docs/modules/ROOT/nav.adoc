@@ -1,0 +1,6 @@
+* xref:post-deployment.adoc[]
+* xref:WebUI-Features.adoc[]
+* xref:data_model.adoc[]
+* xref:debugging-the-discovery-component.adoc[]
+* Appendix
+** xref:cost-optimization.adoc[]

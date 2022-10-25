@@ -1,7 +1,7 @@
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 
 const methods = ['POST', 'PUT', 'DELETE', 'PATCH', 'GET'];
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseAPIGatewayMethod = (node) => {
     try {
     return {

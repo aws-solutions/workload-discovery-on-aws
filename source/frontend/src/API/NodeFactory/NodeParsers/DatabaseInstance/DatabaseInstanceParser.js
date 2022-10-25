@@ -3,7 +3,7 @@ import { fetchImage } from '../../../../Utils/ImageSelector';
 import { getStateInformation } from '../../../../Utils/Resources/ResourceStateParser';
 import DatabaseInstanceItem from './DatabaseInstanceDetails/DatabaseInstanceItem';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseDatabaseInstance = (node) => {
   const properties = R.hasPath(['properties'], node)
     ? node.properties

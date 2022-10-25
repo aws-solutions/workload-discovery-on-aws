@@ -3,7 +3,8 @@ import { getAccountColour, getRegionColour } from '../../Utils/ColorCreator.js';
 import { getCostData } from '../../Utils/Resources/CostCalculator.js';
 import { parseNode } from './NodeParserHandler.js';
 
-const R = require('ramda');
+import * as R  from 'ramda';
+
 export const buildBoundingBox = (node, parent, level) => {
   try {
     const boundingBox = {
@@ -21,7 +22,7 @@ export const buildBoundingBox = (node, parent, level) => {
         borderColour: '#AAB7B8',
         opacity: '0',
         image: !node.children[0].children
-          ? fetchImage(node.children[0].label)
+          ? fetchImage(node.children[0].properties?.resourceType ?? node.children[0].type)
           : fetchImage(node.type),
         clickedId: node.id,
         cost: Number(0),
@@ -44,7 +45,6 @@ export const buildBoundingBox = (node, parent, level) => {
     };
 
     if (node.data) {
-      // boundingBox.data.image = fetchImage(node.data.properties);
       boundingBox.data.properties = node.data.properties;
       boundingBox.data.resource = {
         id: node.data.properties.resourceId,
@@ -152,7 +152,6 @@ export const buildNode = (node, parent, level, clickedNode) => {
     };
     if (builtNode.data.type === 'resource') {
       builtNode.classes.push(
-        builtNode.data.softDelete ? 'softDelete' : undefined,
         builtNode.data.highlight ? 'highlight' : undefined,
         builtNode.data.existing ? 'existing' : undefined,
         clickedNode ? 'clicked' : undefined,

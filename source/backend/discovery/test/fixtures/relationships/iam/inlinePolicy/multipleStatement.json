@@ -1,0 +1,62 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx"
+  },
+  "s3Bucket1": {
+    "id": "${s3Bucket1.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "s3Arn1",
+    "resourceType": "AWS::S3::Bucket",
+    "resourceId": "bucketName",
+    "resourceName": "bucketName",
+    "awsRegion": "${$constants.region}",
+    "relationships": [],
+    "configuration": {}
+  },
+  "s3Bucket2": {
+    "id": "${s3Bucket2.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "s3Arn2",
+    "resourceType": "AWS::S3::Bucket",
+    "resourceId": "bucketName2",
+    "resourceName": "bucketName2",
+    "awsRegion": "${$constants.region}",
+    "relationships": [],
+    "configuration": {}
+  },
+  "policy": {
+    "id": "${policy.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "inlinePolicyArn",
+    "availabilityZone": "Not Applicable",
+    "awsRegion": "global",
+    "configuration": {
+      "policyName": "perspectiveS3test",
+      "policyDocument": {
+        "Statement": [
+          {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject"
+            ],
+            "Resource": "${s3Bucket1.arn}"
+          },
+          {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListObjects"
+            ],
+            "Resource": "${s3Bucket2.arn}"
+          }
+        ]
+      }
+    },
+    "resourceId": "inlinePolicyResourceId",
+    "resourceName": "inlinePolicyResourceName",
+    "resourceType": "AWS::IAM::InlinePolicy",
+    "tags": [],
+    "relationships": []
+  }
+}

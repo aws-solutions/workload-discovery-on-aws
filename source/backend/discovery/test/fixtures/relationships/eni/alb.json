@@ -1,0 +1,21 @@
+{
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet": {
+    "resourceId": "subnet-0123456789abcdef0"
+  },
+  "eni": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-1",
+    "relationships": [],
+    "resourceType": "AWS::EC2::NetworkInterface",
+    "resourceId": "eni-0123456789abcdef0",
+    "configuration": {
+      "requesterId": "amazon-elasticsearch",
+      "description": "ELB app/my-alb/1feef78b6a10bcd5",
+      "vpcId": "${vpc.resourceId}",
+      "subnetId": "${subnet.resourceId}"
+    }
+  }
+}

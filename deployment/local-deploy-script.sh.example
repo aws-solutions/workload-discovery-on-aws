@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# The Region you wish to deploy to.
+AWS_REGION=<aws-region>
+# The S3 Bucket name to be created to store your deployment artefacts
+DIST_OUTPUT_BUCKET=<s3-bucket>
+# A name for your test solution
+SOLUTION_NAME=<solution-name>
+# A version number for this test release e.g vX.Y.Z
+VERSION=<version>
+# Tag that will be given to Docker image.
+IMAGE_TAG=<tag>
+
+if aws s3api head-bucket --bucket "${DIST_OUTPUT_BUCKET}" 2>/dev/null;
+then
+    echo "${DIST_OUTPUT_BUCKET} bucket exists and you own it, so not creating it"
+else
+    echo "creating bucket in region ${AWS_REGION} with name ${DIST_OUTPUT_BUCKET}"
+    aws --region ${AWS_REGION} s3 mb s3://${DIST_OUTPUT_BUCKET}
+    aws --region ${AWS_REGION} s3api put-bucket-versioning --bucket "${DIST_OUTPUT_BUCKET}" --versioning-configuration Status=Enabled
+fi
+
+if aws s3api head-bucket --bucket "${DIST_OUTPUT_BUCKET}-${AWS_REGION}" 2>/dev/null;
+then
+    echo "${DIST_OUTPUT_BUCKET}-${AWS_REGION} bucket exists and you own it, so not creating it"
+else
+    echo "creating bucket in region ${AWS_REGION} with name ${DIST_OUTPUT_BUCKET}-${AWS_REGION}"
+    aws --region ${AWS_REGION} s3 mb s3://${DIST_OUTPUT_BUCKET}-${AWS_REGION}
+    aws --region ${AWS_REGION} s3api put-bucket-versioning --bucket "${DIST_OUTPUT_BUCKET}-${AWS_REGION}" --versioning-configuration Status=Enabled
+fi
+
+cd deployment
+./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION $IMAGE_TAG
+aws s3 cp global-s3-assets  s3://${DIST_OUTPUT_BUCKET}/${SOLUTION_NAME}/${VERSION}/ --recursive --acl bucket-owner-full-control
+aws s3 cp regional-s3-assets  s3://${DIST_OUTPUT_BUCKET}-${AWS_REGION}/${SOLUTION_NAME}/${VERSION}/ --recursive --acl bucket-owner-full-control
+
+echo "You can now deploy using this template URL https://${DIST_OUTPUT_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${SOLUTION_NAME}/${VERSION}/aws-perspective.template"

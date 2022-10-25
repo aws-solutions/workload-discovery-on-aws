@@ -1,0 +1,44 @@
+{
+  "fleetRequests": {
+    "euWest2": [
+      {
+        "SpotFleetRequestId": "spotFleetRequestId1",
+        "SpotFleetRequestConfig": {
+          "OnDemandFulfilledCapacity": 0
+        }
+      }
+    ],
+    "usWest2": [
+      {
+        "SpotFleetRequestId": "spotFleetRequestId2",
+        "SpotFleetRequestConfig": {
+          "OnDemandFulfilledCapacity": 1
+        }
+      }
+    ]
+  },
+  "instanceRequests": {
+    "euWest2": [
+      {
+        "InstanceId": "instanceId1",
+        "Tags": [
+          {
+            "Key": "aws:ec2spot:fleet-request-id",
+            "Value": "spotFleetRequestId1"
+          }
+        ]
+      }
+    ],
+    "usWest2": [
+      {
+        "InstanceId": "instanceId2",
+        "Tags": [
+          {
+            "Key": "aws:ec2spot:fleet-request-id",
+            "Value": "spotFleetRequestId2"
+          }
+        ]
+      }
+    ]
+  }
+}

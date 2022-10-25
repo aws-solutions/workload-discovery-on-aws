@@ -1,6 +1,8 @@
 env:
   browser: true
+  node: true
   es2021: true
+  jest: true
 extends:
   - 'eslint:recommended'
   - 'plugin:react/recommended'
@@ -11,6 +13,7 @@ parserOptions:
   sourceType: module
 plugins:
   - react
+  - react-hooks
 settings:
   react:
     createClass: createReactClass
@@ -27,11 +30,16 @@ settings:
   - Hyperlink
   - name: Link
     linkAttribute: to
-rules: {
-  no-unused-vars: 1,
-  "react/prop-types": 1,
-  "react/display-name": 1,
-  no-empty-pattern: 1,
-  "react/jsx-no-target-blank": 1,
+rules:
+  no-unused-vars: 1
+  no-empty-pattern: 1
   no-dupe-keys: 1
-}
+  react/prop-types: 0
+  react/display-name: 1
+  react/jsx-no-target-blank: 1
+  react-hooks/exhaustive-deps: 1
+  react/no-unknown-property:
+    - error
+    - ignore:
+        - css
+#  ['error', { ignore: ['css'] }]

@@ -1,0 +1,27 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "vpc": {
+    "resourceId": "vpc-0123456789acdef01",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "configuration": {}
+  },
+  "targetGroup": {
+    "id": "id1",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:targetgroup/test-tg",
+    "availabilityZone": "Multiple Availability Zones",
+    "awsRegion": "${$constants.region}",
+    "configurationItemStatus": "ResourceDiscovered",
+    "resourceId": "${targetGroup.arn}",
+    "resourceName": "${targetGroup.arn}",
+    "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    "relationships": [],
+    "configuration": {
+      "VpcId": "${vpc.resourceId}"
+    }
+  }
+}

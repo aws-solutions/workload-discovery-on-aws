@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+    <defs>
+        <style>
+            .cls-1 {
+                fill: #a166ff;
+            }
+        </style>
+    </defs>
+    <title>Amazon-VPC_Customer-Gateway_dark-bg</title>
+    <g id="Working" transform="scale(0.8)">
+        <path class="cls-1"
+            d="M25,48.5A23.5,23.5,0,1,1,48.5,25,23.52,23.52,0,0,1,25,48.5Zm0-45A21.5,21.5,0,1,0,46.5,25,21.52,21.52,0,0,0,25,3.5Z" />
+        <path class="cls-1" d="M29,11.64l-4-4-4,4-1.41-1.41,4.68-4.69a1,1,0,0,1,1.42,0l4.68,4.69Z" />
+        <rect class="cls-1" x="24" y="7" width="2" height="36" />
+        <path class="cls-1"
+            d="M25,44.75a1,1,0,0,1-.71-.29l-4.68-4.69L21,38.36l4,4,4-4,1.41,1.41-4.68,4.69A1,1,0,0,1,25,44.75Z" />
+        <path class="cls-1" d="M39.77,30.39,38.36,29l4-4-4-4,1.41-1.41,4.69,4.68a1,1,0,0,1,0,1.42Z" />
+        <rect class="cls-1" x="7" y="24" width="36" height="2" />
+        <path class="cls-1" d="M10.23,30.39,5.54,25.71a1,1,0,0,1,0-1.42l4.69-4.68L11.65,21l-4,4,4,4Z" />
+    </g>
+    <style type="text/css">
+        .st4 {
+            fill: #f90
+        }
+    </style>
+    <g id="grid_x5F_locked" />
+    <g id="icon" transform="scale(0.6)">
+        <g transform="translate(60,-0)">
+            <path class="st4" d="M15.9,14.6l-7-14c-0.3-0.7-1.5-0.7-1.8,0l-7,14c-0.2,0.3-0.1,0.7,0,1C0.3,15.8,0.7,16,1,16h14
+			c0.3,0,0.7-0.2,0.9-0.5C16,15.2,16,14.9,15.9,14.6z M2.6,14L8,3.2L13.4,14H2.6z" />
+            <polygon class="st4" points="7,11 7,13 9,13 9,11 		" />
+            <rect x="7" y="6" class="st4" width="2" height="4" />
+        </g>
+    </g>
+</svg>

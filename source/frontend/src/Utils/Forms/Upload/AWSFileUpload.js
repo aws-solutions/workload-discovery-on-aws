@@ -4,6 +4,7 @@ import { SpaceBetween, Button } from '@awsui/components-react';
 import PropTypes from 'prop-types';
 
 const reader = new FileReader();
+import * as R  from 'ramda';
 
 const FileUploader = ({ validateAndUpload, onError }) => {
   // Create a reference to the hidden file input element
@@ -29,13 +30,16 @@ const FileUploader = ({ validateAndUpload, onError }) => {
     } else {
       reader.readAsText(fileUploaded);
 
-      reader.onload = function () {
+      reader.onload = function () {        
         validateAndUpload(
-          readString(reader.result, {
-            header: true,
-            delimiter: ',',
-            skipEmptyLines: true,
-          }).data
+          R.map(
+            (e) => R.pick(['accountId', 'accountName', 'region'], e),
+            readString(reader.result, {
+              header: true,
+              delimiter: ',',
+              skipEmptyLines: true,
+            }).data
+          )
         );
       };
 

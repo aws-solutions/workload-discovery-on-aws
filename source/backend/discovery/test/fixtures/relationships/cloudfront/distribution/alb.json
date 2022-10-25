@@ -1,0 +1,42 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "cfResourceId": "E11XXXXXXXXXXXX",
+    "domainName": "mytestalb.${$constants.region}.elb.amazonaws.com"
+  },
+  "cfDistro": {
+    "id": "id1",
+    "arn": "arn:aws:cloudfront::${$constants.accountId}:distribution/${$constants.cfResourceId}",
+    "accountId": "${$constants.accountId}",
+    "resourceType": "AWS::CloudFront::Distribution",
+    "resourceId": "${$constants.cfResourceId}",
+    "awsRegion": "global",
+    "availabilityZone": "Not Applicable",
+    "relationships": [],
+    "configuration": {
+      "distributionConfig": {
+        "origins": {
+          "items": [
+            {
+              "domainName": "${$constants.domainName}"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "alb": {
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/app/my-alb/b0697a1f1acefdc2",
+    "resourceType": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    "resourceId": "${alb.arn}",
+    "resourceName": "my-alb",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Multiple Availability Zones",
+    "relationships": [],
+    "configuration": {
+      "dNSName": "${$constants.domainName}"
+    }
+  }
+}

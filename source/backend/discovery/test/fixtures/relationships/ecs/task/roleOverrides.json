@@ -1,0 +1,68 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "resourceType": {
+      "role": "AWS::IAM::Role"
+    }
+  },
+  "ecsCluster": {
+    "id": "${ecsCluster.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "clusterArn",
+    "resourceType": "AWS::ECS::Cluster",
+    "resourceId": "testCluster",
+    "relationships": [],
+    "configuration": {}
+  },
+  "ecsTaskRole": {
+    "id": "${ecsTaskRole.arn}",
+    "arn": "arn:aws:iam::${$constants.accountId}:role/taskRole",
+    "resourceType": "${$constants.resourceType.role}",
+    "resourceName": "taskRole",
+    "relationships": [],
+    "configuration": {
+      "attachedManagedPolicies": []
+    }
+  },
+  "ecsTaskExecutionRole": {
+    "id": "${ecsTaskExecutionRole.arn}",
+    "arn": "arn:aws:iam::${$constants.accountId}:role/${ecsTaskExecutionRole.resourceName}",
+    "resourceType": "${$constants.resourceType.role}",
+    "resourceName": "taskExecutionRole",
+    "relationships": [],
+    "configuration": {
+      "attachedManagedPolicies": []
+    }
+  },
+  "ecsTask": {
+    "id": "${ecsTask.arn}",
+    "arn": "ecsTaskArn",
+    "resourceId": "${ecsTask.arn}",
+    "resourceType": "AWS::ECS::Task",
+    "relationships": [],
+    "configuration": {
+      "clusterArn": "${ecsCluster.arn}",
+      "overrides": {
+        "executionRoleArn": "${ecsTaskExecutionRole.arn}",
+        "taskRoleArn": "${ecsTaskRole.arn}"
+      },
+      "taskDefinitionArn": "${ecsTaskDefinition.arn}",
+      "ContainerDefinitions": []
+    }
+  },
+  "ecsTaskDefinition": {
+    "resourceId": "${ecsTaskDefinition.arn}",
+    "id": "${ecsTaskDefinition.arn}",
+    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/hello_world:1",
+    "resourceType": "AWS::ECS::TaskDefinition",
+    "relationships": [],
+    "configuration": {
+      "TaskRoleArn": "arn:aws:iam::${$constants.accountId}:role/oldTaskRole",
+      "ExecutionRoleArn": "arn:aws:iam::${$constants.accountId}:role/oldTaskExecutionRoleArn",
+      "ContainerDefinitions": [],
+      "Volumes": []
+    }
+  }
+}

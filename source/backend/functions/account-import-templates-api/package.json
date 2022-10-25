@@ -1,0 +1,25 @@
+{
+  "name": "wd-import-templates",
+  "version": "2.0.0",
+  "description": "Lambda function that serves cfn templates for account and region importing",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm i",
+    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
+    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -urj account-import-templates-api.zip src/",
+    "build:dist": "mkdir dist && mv account-import-templates-api.zip dist/",
+    "build": "npm run clean && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test"
+  },
+  "author": "svozza",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "nyc-report-lcov-absolute": "^1.0.0",
+    "rewire": "^6.0.0",
+    "yaml-cfn": "^0.3.1"
+  }
+}

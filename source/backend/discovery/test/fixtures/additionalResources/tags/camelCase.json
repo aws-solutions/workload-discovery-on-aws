@@ -1,0 +1,20 @@
+{
+  "tagInfo": {
+    "testTagKey": "testTag",
+    "testTagValue": "testTagValue",
+    "sqsName": "SQSSpecific.",
+    "sqsValue": "SQSSpecificValue"
+  },
+  "instanceRequests": {
+    "euWest2": [
+      {
+        "SpotInstanceRequestId": "spotInstanceRequestId1",
+        "InstanceId": "instanceId1",
+        "Tags": [{
+          "Key": "${tagInfo.testTagKey}",
+          "Value": "${tagInfo.testTagValue}"
+        }]
+      }
+    ]
+  }
+}

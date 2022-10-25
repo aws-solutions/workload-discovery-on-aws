@@ -1,284 +1,1810 @@
 const rewire = require('rewire');
-const index = rewire('../src');
+const dynamoDbLocal = require('dynamo-db-local');
 const sinon = require('sinon');
+const { DynamoDB, DynamoDBClient} = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocument, DynamoDBDocumentClient, BatchWriteCommand, QueryCommand} = require('@aws-sdk/lib-dynamodb');
 const {assert} = require('chai');
+const {mockClient} = require('aws-sdk-client-mock');
+
+const index = rewire('../src/index');
+
+const endpoint = `http://localhost:${process.env.CODEBUILD_BUILD_ID == null ? 4567 : 9000}`;
+
+const dbClient = new DynamoDB({
+    region: 'eu-west-1',
+    endpoint,
+    credentials: {
+        accessKeyId: 'accessKeyId',
+        secretAccessKey: 'secretAccessKey'
+    }
+});
+
+const docClient = DynamoDBDocument.from(dbClient);
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function createTable(TableName) {
+    return dbClient.createTable({
+        AttributeDefinitions: [
+            {
+                AttributeName: 'PK',
+                AttributeType: 'S'
+            },
+            {
+                AttributeName: 'SK',
+                AttributeType: 'S'
+            }
+        ],
+        KeySchema: [
+            {
+                AttributeName: 'PK',
+                KeyType: 'HASH'
+            },
+            {
+                AttributeName: 'SK',
+                KeyType: 'RANGE'
+            }
+        ],
+        TableName,
+        BillingMode: 'PAY_PER_REQUEST'
+    });
+}
 
 describe('index.js', () => {
-    
-    const queryResult = {
-        Items: [
-            {
-                PK: 'Account',
-                SK: 'ACCNUMBER#123453#FOO'
-            },
-            {
-                PK: 'Account',
-                SK: 'ACCNUMBER#123453#BAR'
-            },
-            {
-                PK: 'Account',
-                SK: 'ACCNUMBER#123453#BAZ'
-            },
-            {
-                PK: 'Account',
-                SK: 'ACCNUMBER#54321#FOO'
-            },
-            {
-                PK: 'Account',
-                SK: 'ACCNUMBER#54321#BAR'
-            }
-        ]
-    };
 
-    const unprocessed =
-        {
-            'UnprocessedItems': {
-                'Table_Name': [
-                    {
-                        'DeleteRequest': {
-                            'Key': {
-                                PK: 'Account',
-                                SK: 'ACCNUMBER#123453#FOO'
-                            }
-                        }
-                    },
-                    {
-                        'DeleteRequest': {
-                            'Key': {
-                                PK: 'Account',
-                                SK: 'ACCNUMBER#123453#BAR'
-                            }
-                        }
-                    }
-                ]
-            }
-        };
-
-    const empty = {UnprocessedItems: []};
-
-    describe('getAccounts', () => {
-        const getAccounts = index.__get__('getAccounts');
-
-        const queryResult = {Items: [
-                {
-                    'lastCrawled': '2020-08-20T16:52:13.754Z',
-                    'SK': 'ACCNUMBER#12345#METADATA',
-                    'PK': 'Account',
-                    'accountId': '12345',
-                    'name': 'account1',
-                    'type': 'account'
-                },
-                {
-                    'lastCrawled': '2020-08-20T16:52:13.582Z',
-                    'SK': 'ACCNUMBER#12345#REGION#eu-west-1',
-                    'PK': 'Account',
-                    'accountId': '12345',
-                    'name': 'eu-west-1',
-                    'type': 'region'
-                }, {
-                    'lastCrawled': '2020-08-20T16:52:13.754Z',
-                    'SK': 'ACCNUMBER#54321#METADATA',
-                    'PK': 'Account',
-                    'accountId': '54321',
-                    'name': 'account2',
-                    'type': 'account'
-                },
-                {
-                    'lastCrawled': '2020-08-20T16:52:13.582Z',
-                    'SK': 'ACCNUMBER#54321#REGION#eu-west-1',
-                    'PK': 'Account',
-                    'accountId': '54321',
-                    'name': 'eu-west-2',
-                    'type': 'region'
-                },
-                {
-                    'lastCrawled': '2020-08-20T16:52:13.582Z',
-                    'SK': 'ACCNUMBER#54321#REGION#eu-west-1',
-                    'PK': 'Account',
-                    'accountId': '54321',
-                    'name': 'eu-west-3',
-                    'type': 'region'
+    describe('handler', () => {
+        const mockEc2Client = {
+            async describeRegions() {
+                return {
+                    Regions: [
+                        {RegionName: 'eu-west-1'},
+                        {RegionName: 'eu-west-2'},
+                        {RegionName: 'eu-central-1'},
+                        {RegionName: 'us-east-1'},
+                        {RegionName: 'us-east-2'},
+                    ]
                 }
-            ]};
+            }
+        }
 
-            it('should return empty array when no results', async () => {
-                const mockQuery = sinon.stub().returns({promise: () => Promise.resolve({Items: []})});
+        let dynamoDbLocalProcess
+        before(async function() {
+            this.timeout(5000);
+            dynamoDbLocalProcess = dynamoDbLocal.spawn({ port: 4567 });
+            await sleep(2000);
+        });
 
-                const mockDocClient = {
-                    query: mockQuery
-                };
+        const handler = index.__get__('handler');
 
-                const actual = await getAccounts(mockDocClient, 'Table_Name', ['12345', '54321']);
-                assert.deepEqual(actual, []);
+        describe('addAccounts', () => {
+            const DB_TABLE = 'addAccountsTable';
+
+            const mockPutConfigurationAggregator = sinon.stub().resolves({})
+
+            const mockConfig = {
+                putConfigurationAggregator: mockPutConfigurationAggregator
+            };
+
+            beforeEach(async () => {
+                await createTable(DB_TABLE);
             });
 
-            it('should return array of accounts with metadata', async () => {
-                const expected = [
-                    {
-                        'regions': [
+            it('should reject invalid account ids in accounts field', async () => {
+                return handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
                             {
-                                'lastCrawled': '2020-08-20T16:52:13.582Z',
-                                'name': 'eu-west-1'
-                            }
-                        ],
-                        'accountId': '12345',
-                        'name': 'account1',
-                        'lastCrawled': '2020-08-20T16:52:13.754Z'
-                    },
-                    {
-                        'regions': [
-                            {
-                                'lastCrawled': '2020-08-20T16:52:13.582Z',
-                                'name': 'eu-west-2'
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
                             },
                             {
-                                'lastCrawled': '2020-08-20T16:52:13.582Z',
-                                'name': 'eu-west-3'
+                                accountId: 'xxx',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                }).catch(err => {
+                    assert.strictEqual(err.message, 'The following account ids are invalid: xxx');
+                });
+            });
+
+            it('should reject invalid regions in accounts field', async () => {
+                return handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'invalid-region'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                }).catch(err => {
+                    assert.strictEqual(err.message, 'The following regions are invalid: invalid-region');
+                });
+            });
+
+            it('should add account', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111',
+                                '222222222222'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2',
+                                'us-east-1',
+                                'us-east-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
                             }
                         ],
-                        'name': 'account2',
-                        'accountId': '54321',
-                        'lastCrawled': '2020-08-20T16:52:13.754Z'
+                        type: 'account'
+                    },
+                    {
+                        SK: '222222222222',
+                        name: 'test',
+                        accountId: '222222222222',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'us-east-1'
+                            },
+                            {
+                                name: 'us-east-2'
+                            }
+                        ],
+                        type: 'account'
                     }
-                ];
-
-                const mockQuery = sinon.stub().returns({promise: () => Promise.resolve(queryResult)});
-
-                const mockDocClient = {
-                    query: mockQuery
-                };
-
-                const actual = await getAccounts(mockDocClient, 'Table_Name', ['12345', '54321']);
-                assert.deepEqual(actual, expected);
-            });
-    });
-    
-    describe('deleteAccounts',  () => {
-
-        const deleteAccounts = index.__get__('deleteAccounts');
-
-        it('should handle config duplicate error', async () => {
-            const mockQuery = sinon.stub().returns({promise: () => Promise.resolve(queryResult)});
-            const mockBatchWrite = sinon.stub().returns({promise: () => Promise.resolve(empty)});
-
-            const mockDocClient = {
-                batchWrite: mockBatchWrite,
-                query: mockQuery
-            };
-
-            const mockPutConfigurationAggregator = sinon.stub().returns({
-                promise: async () => {
-                    throw new Error('Your configuration aggregator contains duplicate accounts. Delete the duplicate accounts and try again.');
-                }
-            });
-            const mockConfigService = {putConfigurationAggregator: mockPutConfigurationAggregator};
-
-            const actual = await deleteAccounts(mockDocClient, mockConfigService, 'Table_Name', {
-                configAggregator: 'agg',
-                accountIds: ['123453', '54321']
+                ]);
             });
 
-            assert.deepEqual(actual, {unprocessedAccounts: []});
+            it('should remove duplicate regions before adding account', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should overwrite account', async () => {
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '333333333333',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '333333333333',
+                        type: 'account'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '333333333333',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '333333333333'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'us-east-1',
+                                'us-east-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK: '333333333333',
+                        name: 'test',
+                        accountId: '333333333333',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'us-east-1'
+                            },
+                            {
+                                name: 'us-east-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should ignore duplicate accounts', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK: '111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should handle unprocessed items that resolve after retry', async () => {
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchWriteCommand)
+                    .resolvesOnce({UnprocessedItems: {
+                            addAccountsTable: [
+                                {
+                                    PutRequest: {
+                                        Item: {
+                                            PK: 'Account',
+                                            SK: '111111111111',
+                                            type: 'account',
+                                            accountId: '111111111111',
+                                            name: 'test',
+                                            regions: [
+                                                {
+                                                    name: 'eu-west-1'
+                                                },
+                                                {
+                                                    name: 'eu-west-2'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    PutRequest: {
+                                        Item: {
+                                            PK: 'Account',
+                                            SK: '222222222222',
+                                            type: 'account',
+                                            accountId: '222222222222',
+                                            name: 'test',
+                                            regions: [
+                                                {
+                                                    name: 'us-east-1'
+                                                },
+                                                {
+                                                    name: 'us-east-2'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }});
+
+                ddbMock.send.callThrough();
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator', RETRY_TIME: 10})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                        unprocessedAccounts: []
+                    }
+                );
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111',
+                                '222222222222'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2',
+                                'us-east-1',
+                                'us-east-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    },
+                    {
+                        SK: '222222222222',
+                        name: 'test',
+                        accountId: '222222222222',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'us-east-1'
+                            },
+                            {
+                                name: 'us-east-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should handle unprocessed items that do not resolve after retry', async () => {
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchWriteCommand)
+                    .resolves({UnprocessedItems: {
+                            addAccountsTable: [
+                                {
+                                    PutRequest: {
+                                        Item: {
+                                            PK: 'Account',
+                                            SK: '111111111111',
+                                            type: 'account',
+                                            accountId: '111111111111',
+                                            name: 'test',
+                                            regions: [
+                                                {
+                                                    name: 'eu-west-1'
+                                                },
+                                                {
+                                                    name: 'eu-west-2'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    PutRequest: {
+                                        Item: {
+                                            PK: 'Account',
+                                            SK: '222222222222',
+                                            type: 'account',
+                                            accountId: '222222222222',
+                                            name: 'test',
+                                            regions: [
+                                                {
+                                                    name: 'us-east-1'
+                                                },
+                                                {
+                                                    name: 'us-east-2'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }});
+
+                ddbMock.send.callThrough();
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    DB_TABLE,
+                    RETRY_TIME: 10,
+                    CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                        unprocessedAccounts: [
+                            '111111111111',
+                            '222222222222'
+                        ]
+                    }
+                );
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111',
+                                '222222222222'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2',
+                                'us-east-1',
+                                'us-east-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, []);
+
+            }).timeout(6250);
+
+            afterEach(async function() {
+                mockPutConfigurationAggregator.resetHistory();
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
         });
 
-        it('should process accounts', async () => {
-            const mockQuery = sinon.stub().returns({promise: () => Promise.resolve(queryResult)});
-            const mockBatchWrite = sinon.stub().returns({promise: () => Promise.resolve(empty)});
+        describe('addRegions', () => {
+            const DB_TABLE = 'addRegionsTable';
 
-            const mockDocClient = {
-                batchWrite: mockBatchWrite,
-                query: mockQuery
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
             };
 
-            const mockPutConfigurationAggregator = sinon.stub().returns({promise: () => Promise.resolve({})});
-            const mockConfigService = {putConfigurationAggregator: mockPutConfigurationAggregator};
-
-            const actual = await deleteAccounts(mockDocClient, mockConfigService, 'Table_Name', {
-                configAggregator: 'agg',
-                accountIds: ['123453', '54321']
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        name: 'testAccount',
+                        lastCrawled: 'new Date()',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
             });
 
-            assert.deepEqual(actual, {unprocessedAccounts: []});
-        });
+            it('should add regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addRegions'
+                    }
+                });
 
-        it('should batch when processing accounts with large numbers of regions', async () => {
-            const queryResult = Array(30)
-                .fill('1')
-                .map((_, i) => ({
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-central-1'},
+                        {name: "eu-west-1"},
+                        {name: "eu-west-2"}
+                    ],
+                    lastCrawled: "new Date()",
+                    name: "testAccount"
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-central-1',
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
                     PK: 'Account',
-                    SK: 'ACCNUMBER#123453#' + i
-                }));
-
-            const mockQuery = sinon.stub().returns({promise: () => Promise.resolve({Items: queryResult})});
-            const mockBatchWrite = sinon.stub().returns({promise: () => Promise.resolve(empty)});
-
-            const mockDocClient = {
-                batchWrite: mockBatchWrite,
-                query: mockQuery
-            };
-
-            const mockPutConfigurationAggregator = sinon.stub().returns({promise: () => Promise.resolve({})});
-            const mockConfigService = {putConfigurationAggregator: mockPutConfigurationAggregator};
-
-            const actual = await deleteAccounts(mockDocClient, mockConfigService, 'Table_Name', {
-                configAggregator: 'agg',
-                accountIds: ['123453']
+                    regions: [
+                        {
+                            name: 'eu-central-1'
+                        },
+                        {
+                            name: 'eu-west-1'
+                        },
+                        {
+                            name: 'eu-west-2'
+                        }
+                    ],
+                    lastCrawled: 'new Date()',
+                    name: 'testAccount',
+                    type: 'account'
+                });
             });
 
-            assert.deepEqual(actual, {unprocessedAccounts: []});
-            sinon.assert.calledTwice(mockBatchWrite);
+            it('should ignore duplicates regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-central-1'},
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addRegions'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-central-1'},
+                        {name: "eu-west-1"},
+                        {name: "eu-west-2"}
+                    ],
+                    lastCrawled: 'new Date()',
+                    name: 'testAccount'
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-central-1',
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    lastCrawled: 'new Date()',
+                    name: 'testAccount',
+                    regions: [
+                        {
+                            name: 'eu-central-1'
+                        },
+                        {
+                            name: 'eu-west-1'
+                        },
+                        {
+                            name: 'eu-west-2'
+                        }
+                    ],
+                    type: 'account'
+                });
+            });
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
         });
 
-        it('should return unprocessed accounts', async () => {
-            const mockQuery = sinon.stub().returns({promise: () => Promise.resolve(queryResult)});
+        describe('deleteAccounts', () => {
+            const DB_TABLE = 'deleteAccountsTable';
 
-            const mockBatchWrite = sinon.stub().returns({promise: () => Promise.resolve(unprocessed)});
-
-            const mockDocClient = {
-                batchWrite: mockBatchWrite,
-                query: mockQuery
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
             };
 
-            const mockPutConfigurationAggregator = sinon.stub().returns({promise: () => Promise.resolve({})});
-            const mockConfigService = {putConfigurationAggregator: mockPutConfigurationAggregator};
-
-            const actual = await deleteAccounts(mockDocClient, mockConfigService, 'Table_Name', {
-                configAggregator: 'agg',
-                accountIds: ['123453', '54321']
+            beforeEach(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '222222222222',
+                        regions: [{
+                            name: 'us-west-1'
+                        }, {
+                            name: 'us-west-2'
+                        }],
+                        accountId: '222222222222',
+                        type: 'account'
+                    }
+                });
             });
 
-            assert.deepEqual(actual, {unprocessedAccounts: [ '123453' ]});
-        }).timeout(6250);
+            it('should reject invalid account ids in the accountIds field', async () => {
+                return handler(mockEc2Client, docClient, mockConfig, {
+                    DB_TABLE,
+                    RETRY_TIME: 10,
+                    CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountIds: ['xxx', '222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                }).catch(err => {
+                    assert.strictEqual(err.message, 'The following account ids are invalid: xxx');
+                });
+            });
 
+            it('should delete account', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountIds: ['222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should handle unprocessed items that resolve after retry', async () => {
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchWriteCommand)
+                    .resolvesOnce({
+                        UnprocessedItems: {
+                            deleteAccountsTable: [
+                                {
+                                    DeleteRequest: {
+                                        Key: {
+                                            PK: 'Account',
+                                            SK: '222222222222'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    });
+
+                ddbMock.send.callThrough();
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    DB_TABLE,
+                    RETRY_TIME: 10,
+                    CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountIds: ['222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        accountId: '111111111111',
+                        regions: [
+                            {
+                                'name': 'eu-west-1'
+                            },
+                            {
+                                'name': 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should handle unprocessed items that do not resolve after retry', async () => {
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchWriteCommand)
+                    .resolves({
+                        UnprocessedItems: {
+                            deleteAccountsTable: [
+                                {
+                                    DeleteRequest: {
+                                        Key: {
+                                            PK: 'Account',
+                                            SK: '222222222222'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    });
+                ddbMock.send.callThrough();
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    DB_TABLE,
+                    RETRY_TIME: 10,
+                    CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountIds: ['222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: ['222222222222']
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        accountId: '111111111111',
+                        regions: [
+                            {
+                                'name': 'eu-west-1'
+                            },
+                            {
+                                'name': 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    },
+                    {
+                        PK: 'Account',
+                        SK: '222222222222',
+                        accountId: '222222222222',
+                        regions: [
+                            {
+                                name: 'us-west-1'
+                            },
+                            {
+                                name: 'us-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            afterEach(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        describe('deleteRegions', () => {
+            const DB_TABLE = 'deleteRegionsTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }, {
+                            name: 'eu-central-1'}
+                        ],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+            });
+
+            it('should reject invalid account id in accountId field', async () => {
+                return handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: 'xxx',
+                        regions: [
+                            {name: 'eu-west-2'},
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'deleteRegions'
+                    }
+                }).catch(err => {
+                    assert.strictEqual(err.message, 'xxx is not a valid AWS account id.');
+                });
+            });
+
+            it('should reject invalid region in regions field', async () => {
+                return handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'invalid-region'},
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'deleteRegions'
+                    }
+                }).catch(err => {
+                    assert.strictEqual(err.message, 'The following regions are invalid: invalid-region');
+                });
+            });
+
+            it('should delete regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-west-2'},
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'deleteRegions'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-west-1'}
+                    ]
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1'
+                            ]
+                        }
+                    ]
+                });
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-west-1'
+                        }
+                    ],
+                    type: 'account'
+                });
+            });
+
+            it('should ignore duplicate regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-west-2'},
+                            {name: 'eu-west-2'},
+                            {name: 'eu-central-1'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'deleteRegions'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-west-1'}
+                    ]
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                '111111111111'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1'
+                            ]
+                        }
+                    ]
+                });
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-west-1'
+                        }
+                    ],
+                    type: 'account'
+                });
+            });
+
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        describe('getAccounts', () => {
+            const DB_TABLE = 'getAccountsTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '222222222222',
+                        regions: [{
+                            name: 'us-west-1'
+                        }, {
+                            name: 'us-west-2'
+                        }],
+                        accountId: '222222222222',
+                        type: 'account'
+                    }
+                });
+            });
+
+            it('should get accounts', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    info: {
+                        fieldName: 'getAccounts'
+                    },
+                    arguments: {}
+                });
+
+                assert.deepEqual(actual, [{
+                    accountId: '111111111111',
+                    regions: [{
+                        name: 'eu-west-1'
+                    }, {
+                        name: 'eu-west-2'
+                    }]
+                },
+                    {
+                        accountId: '222222222222',
+                        regions: [{
+                            name: 'us-west-1'
+                        }, {
+                            name: 'us-west-2'
+                        }]
+                    }
+                ]);
+            });
+
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        describe('getAccount', () => {
+            const DB_TABLE = 'getAccountTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+            });
+
+            it('should get account', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111'
+                    },
+                    info: {
+                        fieldName: 'getAccount'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [{
+                        name: 'eu-west-1'
+                    }, {
+                        name: 'eu-west-2'
+                    }]
+                });
+            });
+
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        describe('updateAccount', () => {
+            const DB_TABLE = 'updateAccountTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+            });
+
+            it('should update account', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        lastCrawled: 'new Date()'
+                    },
+                    info: {
+                        fieldName: 'updateAccount'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    lastCrawled: 'new Date()'
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    lastCrawled: 'new Date()',
+                    regions: [
+                        {
+                            name: 'eu-west-1'
+                        },
+                        {
+                            name: 'eu-west-2'
+                        }
+                    ],
+                    type: 'account'
+                });
+
+            });
+
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        describe('updateRegions', () => {
+            const DB_TABLE = 'updateRegionsTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            before(async () => {
+                await createTable(DB_TABLE);
+                await docClient.put({
+                    TableName : DB_TABLE,
+                    Item: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                        regions: [{
+                            name: 'eu-west-1'
+                        }, {
+                            name: 'eu-west-2'
+                        }],
+                        accountId: '111111111111',
+                        type: 'account'
+                    }
+                });
+            });
+
+            it('should update regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-west-1', lastCrawled: 'new Date()1'},
+                            {name: 'eu-west-2', lastCrawled: 'new Date()2'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'updateRegions'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-west-1', lastCrawled: 'new Date()1'},
+                        {name: 'eu-west-2', lastCrawled: 'new Date()2'}
+                    ]
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-west-1',
+                            lastCrawled: 'new Date()1'
+                        },
+                        {
+                            name: 'eu-west-2',
+                            lastCrawled: 'new Date()2'
+                        }
+                    ],
+                    type: 'account'
+                });
+            });
+
+            it('should ignore duplicate regions', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [
+                            {name: 'eu-west-1', lastCrawled: 'new Date()1'},
+                            {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                            {name: 'eu-west-2', lastCrawled: 'new Date()2'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'updateRegions'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-west-1', lastCrawled: 'new Date()1'},
+                        {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                        {name: 'eu-west-2', lastCrawled: 'new Date()2'}
+                    ]
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111'
+                    }});
+
+                assert.deepEqual(actualDb, {
+                    SK:'111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-west-1',
+                            lastCrawled: 'new Date()1'
+                        },
+                        {
+                            name: 'eu-west-2',
+                            lastCrawled: 'new Date()2'
+                        }
+                    ],
+                    type: 'account'
+                });
+            });
+
+
+            after(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+        });
+
+        after( function(done) {
+            dynamoDbLocalProcess.kill();
+            done();
+        })
     });
-
-    describe('batchWrite', () => {
-        const batchWrite = index.__get__('batchWrite');
-
-        it('should not retry if no unprocessed items', async () => {
-            const mockBatchWrite = sinon.stub();
-            mockBatchWrite.returns({promise: () => Promise.resolve(empty)});
-
-            const actual = await batchWrite({batchWrite: mockBatchWrite}, 50, ['write']);
-            assert.deepEqual(actual, empty);
-        }).timeout(25);
-
-        it('should retry unprocessed items', async () => {
-            const mockBatchWrite = sinon.stub();
-            mockBatchWrite.onFirstCall().returns({promise: () => Promise.resolve(unprocessed)});
-            mockBatchWrite.onSecondCall().returns({promise: () => Promise.resolve(empty)});
-
-            const actual = await batchWrite({batchWrite: mockBatchWrite}, 50, ['write']);
-            assert.deepEqual(actual, empty);
-        }).timeout(75);
-
-        it('should return unprocessed items not processed after 3 attempts', async () => {
-            const mockBatchWrite = sinon.stub();
-            mockBatchWrite.returns({promise: () => Promise.resolve(unprocessed)});
-
-            const actual = await batchWrite({batchWrite: mockBatchWrite}, 50, ['write']);
-            assert.deepEqual(actual, unprocessed);
-        }).timeout(325);
-    })
 
 });

@@ -1,0 +1,42 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "resourceType": {
+      "role": "AWS::IAM::Role"
+    }
+  },
+  "ecsTaskRole": {
+    "id": "${ecsTaskRole.arn}",
+    "arn": "arn:aws:iam::${$constants.accountId}:role/taskRole",
+    "resourceType": "${$constants.resourceType.role}",
+    "resourceName": "taskRole",
+    "relationships": [],
+    "configuration": {
+      "attachedManagedPolicies": []
+    }
+  },
+  "ecsTaskExecutionRole": {
+    "id": "${ecsTaskExecutionRole.arn}",
+    "arn": "arn:aws:iam::${$constants.accountId}:role/taskExecutionRole",
+    "resourceType": "${$constants.resourceType.role}",
+    "resourceName": "taskExecutionRole",
+    "relationships": [],
+    "configuration": {
+      "attachedManagedPolicies": []
+    }
+  },
+  "ecsTaskDefinition": {
+    "id": "${ecsTaskDefinition.arn}",
+    "resourceId": "${ecsTaskDefinition.arn}",
+    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/hello_world:1",
+    "resourceType": "AWS::ECS::TaskDefinition",
+    "relationships": [],
+    "configuration": {
+      "TaskRoleArn": "${ecsTaskRole.arn}",
+      "ExecutionRoleArn": "${ecsTaskExecutionRole.arn}",
+      "ContainerDefinitions": [],
+      "Volumes": []
+    }
+  }
+}

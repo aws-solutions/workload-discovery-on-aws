@@ -14,7 +14,7 @@
     "author": "ballmat",
     "license": "ISC",
     "dependencies": {
-        "ramda": "0.27.0"
+        "ramda": "0.28.0"
     },
     "devDependencies": {
         "aws-sdk": "latest",

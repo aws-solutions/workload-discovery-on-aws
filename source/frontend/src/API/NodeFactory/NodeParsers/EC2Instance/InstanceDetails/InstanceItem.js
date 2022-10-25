@@ -1,17 +1,13 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import {
   Box,
-  Container,
   ColumnLayout,
   SpaceBetween,
-  ExpandableSection,
 } from '@awsui/components-react';
-
-var dayjs = require('dayjs')
-var localizedFormat = require('dayjs/plugin/localizedFormat')
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(localizedFormat)
-const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
 
@@ -24,7 +20,7 @@ const parseConfiguration = (configuration) => {
   }
 }
 
-export default ({ configuration }) => {
+export const InstanceItem = ({ configuration }) => {
   const parsedConfig = parseConfiguration(configuration);
 
   const ValueWithLabel = ({ label, children }) => (
@@ -79,3 +75,5 @@ export default ({ configuration }) => {
     </ColumnLayout>
   );
 };
+
+export default InstanceItem;

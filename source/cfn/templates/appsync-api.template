@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Appsync Api Stack
+
+Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  CognitoUserPoolId:
+    Type: String
+
+Resources:
+
+  PerspectiveAppSyncLoggingRole:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'CreateLogGroup requires wildcard, but we have locked down actions that we can to resources in region and account'
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AWSAppSyncPushToCloudWatchLogsPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*'
+
+  PerspectiveAppSyncApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Sub ${AWS::StackName}-AppSync-api
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      AdditionalAuthenticationProviders:
+        - AuthenticationType: AWS_IAM
+      LogConfig:
+        CloudWatchLogsRoleArn: !GetAtt PerspectiveAppSyncLoggingRole.Arn
+        FieldLogLevel: ALL
+      UserPoolConfig:
+        UserPoolId: !Ref CognitoUserPoolId
+        AwsRegion: !Sub ${AWS::Region}
+        DefaultAction: ALLOW
+
+  AppSyncSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt PerspectiveAppSyncApi.ApiId
+      DefinitionS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/perspective-api.graphql
+
+Outputs:
+  AppSyncApiId:
+    Value: !GetAtt PerspectiveAppSyncApi.ApiId
+  AppSyncApiArn:
+    Value: !GetAtt PerspectiveAppSyncApi.Arn
+  AppSyncApiUrl:
+    Value: !GetAtt PerspectiveAppSyncApi.GraphQLUrl

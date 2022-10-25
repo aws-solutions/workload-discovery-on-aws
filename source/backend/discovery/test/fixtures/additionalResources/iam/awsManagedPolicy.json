@@ -1,0 +1,10 @@
+{
+  "euWest2": [{
+    "Arn": "managedPolicyArn1",
+    "PolicyName": "policyName1"
+  }],
+  "usWest2": [{
+    "Arn": "managedPolicyArn2",
+    "PolicyName": "policyName2"
+  }]
+}

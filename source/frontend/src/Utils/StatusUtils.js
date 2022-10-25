@@ -1,0 +1,1 @@
+export const getStatus = (isFetching, isError) => isFetching ? 'loading' : isError ? 'error' : 'finished';

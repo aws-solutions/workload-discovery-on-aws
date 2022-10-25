@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="75px" height="75px" viewBox="0 0 75 75" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon-Resource/Application-Integration/Res_Amazon-API-Gateway_Endpoint_48_Light</title>
+    <g transform="translate(2,1), scale(1.5)" id="Product-Icon"
+       stroke="none" stroke-width="1"
+       fill="none" fill-rule="evenodd">
+    </g>
+    <g>
+        <path d="M34.5,2h-19L2,15.5V34.6L15.5,48H34.6L48,34.5v-19ZM46,33.7,33.7,46H16.3L4,33.7V16.3L16.3,4H33.7L46,16.3Z" transform="scale(1.5)" fill="#B0084D"/>
+        <path d="M18,38.5l-7-6.2V17.8l7-6.2V18a9.51,9.51,0,0,1,2-1.5v-7l-.5-.3a2.78,2.78,0,0,0-1.8,0l-8,7A1.71,1.71,0,0,0,9,17.5V32.6a1.56,1.56,0,0,0,.8,1.3l7.7,6.8.3.2a3.55,3.55,0,0,0,1,.2,1.2,1.2,0,0,0,.8-.2l.5-.3V34a9.51,9.51,0,0,1-2-1.5v6Z" transform="scale(1.5)" fill="#B0084D"/>
+        <path d="M40.2,16.2,32.5,9.4l-.3-.2a2.48,2.48,0,0,0-1.7,0l-.5.3v7A9.51,9.51,0,0,1,32,18V11.6l7,6.2V32.4l-7,6.2v-6a9.51,9.51,0,0,1-2,1.5v6.6l.5.3a1.88,1.88,0,0,0,.8.2,3.55,3.55,0,0,0,1-.2l8-7a1.56,1.56,0,0,0,.7-1.3V17.5A1.56,1.56,0,0,0,40.2,16.2Z" transform="scale(1.5)" fill="#B0084D"/>
+    </g>
+    <circle cx="23.1" cy="23.1" r="7.9" fill="none" stroke="#B0084D" stroke-miterlimit="10" stroke-width="1.84" transform="scale(1.5) translate(2,2)"/>
+    <g transform="translate(15, 15), scale(0.9)">
+        <path d="M30.62,32.56H19.37a1,1,0,0,1-1-1V22.19a1,1,0,0,1,1-1H30.63a1,1,0,0,1,1,1v9.37a1,1,0,0,1-1,1Zm-10.24-2h9.24V23.19H20.38Z" fill="#B0084D" fill-opacity="1.0"/>
+        <path d="M28.81,22.19h-2V19.72a2.45,2.45,0,0,0-.57-1.61,1.66,1.66,0,0,0-1.23-.6h0a2,2,0,0,0-1.82,2.19v2.48h-2V19.69A4,4,0,0,1,25,15.51h0a3.62,3.62,0,0,1,2.73,1.29,4.43,4.43,0,0,1,1.06,2.93Z" fill="#B0084D" fill-opacity="1.0"/>
+    </g>
+</svg>

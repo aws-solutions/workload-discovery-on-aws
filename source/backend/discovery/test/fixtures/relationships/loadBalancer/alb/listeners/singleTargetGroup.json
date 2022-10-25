@@ -1,0 +1,41 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "alb": {
+    "resourceId": "${alb.arn}",
+    "arn": "loadBalancerArn"
+  },
+  "targetGroup": {
+    "resourceId": "${targetGroup.arn}",
+    "arn": "targetGroupArn"
+  },
+  "listener": {
+    "id": "${listener.arn}}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "listenerArn",
+    "resourceId": "${listener.arn}}",
+    "resourceName": "${listener.arn}}",
+    "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
+    "availabilityZone": "Multiple Availability Zones",
+    "configuration": {
+      "LoadBalancerArn": "${alb.arn}",
+      "DefaultActions": [
+        {
+          "TargetGroupArn": "${targetGroup.arn}",
+          "ForwardConfig": {
+            "TargetGroups": [
+              {
+                "TargetGroupArn": "${targetGroup.arn}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tags": [],
+    "relationships": []
+  }
+}

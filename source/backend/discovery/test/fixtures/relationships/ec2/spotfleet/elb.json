@@ -1,0 +1,35 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "elb": {
+    "resourceId": "testElb",
+    "awsRegion": "${$constants.region}"
+  },
+  "spotFleet": {
+    "id": "${spotFleet.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "spotFleetArn",
+    "resourceId": "${spotFleet.arn}",
+    "resourceName": "${spotFleet.arn}",
+    "resourceType": "AWS::EC2::SpotFleet",
+    "availabilityZone": "Multiple Availability Zones",
+    "configuration": {
+      "SpotFleetRequestConfig": {
+        "LoadBalancersConfig": {
+          "ClassicLoadBalancersConfig": {
+            "ClassicLoadBalancers": [
+              {
+                "Name": "${elb.resourceId}"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "tags": [],
+    "relationships": []
+  }
+}

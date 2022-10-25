@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Workload Discovery on AWS Amazon Cognito Stack
+
+Parameters:
+  AmplifyStorageBucket:
+    Type: String
+    Description: The bucket that will store saved maps
+
+  AdminUserEmailAddress:
+    Type: String
+
+  WebUiUrl:
+    Type: String
+
+Resources:
+
+  CognitoAuthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              ForAnyValue:StringLike:
+                cognito-identity.amazonaws.com:amr: authenticated
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref CognitoIdentityPool
+      Policies:
+        - PolicyName: AuthPerspectiveCognitoExecuteApiAndStorageBucket
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:PutObjectAcl
+                Resource:
+                  - Fn::Sub:
+                      - arn:aws:s3:::${AmplifyStorageBucket}/private/${CognitoSub}/*
+                      - AmplifyStorageBucket: !Ref AmplifyStorageBucket
+                        CognitoSub: '${cognito-identity.amazonaws.com:sub}'
+                  - Fn::Sub:
+                      - arn:aws:s3:::${AmplifyStorageBucket}/protected/${CognitoSub}/*
+                      - AmplifyStorageBucket: !Ref AmplifyStorageBucket
+                        CognitoSub: '${cognito-identity.amazonaws.com:sub}'
+                  - !Sub "arn:aws:s3:::${AmplifyStorageBucket}/public/*"
+                Effect: Allow
+              - Action: s3:PutObject
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}/uploads/*"
+                Effect: Allow
+              - Action: s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}/protected/*"
+                Effect: Allow
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - "public/"
+                      - "public/*"
+                      - "protected/"
+                      - "protected/*"
+                      - "private/${cognito-identity.amazonaws.com:sub}/"
+                      - "private/${cognito-identity.amazonaws.com:sub}/*"
+              - Action: s3:ListBucket
+                Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}"
+                Effect: "Allow"
+
+  IdentityPoolRoleMap:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPool
+      Roles:
+        authenticated: !GetAtt CognitoAuthRole.Arn
+
+  CognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !GetAtt WDCognitoUserPool.ProviderName
+          ServerSideTokenCheck: true
+
+  WDCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+        UnusedAccountValidityDays: 90
+        InviteMessageTemplate:
+          EmailMessage: !Sub |
+            <!DOCTYPE html><html><body style="font-family:sans-serif">
+            <p>Thank you for your interest in Workload Discovery on AWS.</p>
+            <p>You can login at <a href="${WebUiUrl}">${WebUiUrl}</a>.</p>
+            <p>Your temporary login credentials are:</p><ul><li>Username: {username}</li><li>Password: {####}</li></ul></p>
+            <p>For any issues or feedback, please create an <a href="https://github.com/awslabs/aws-perspective/issues">issue on GitHub</a>.</p>
+            </body></html>
+          EmailSubject: 'Welcome to Workload Discovery on AWS'
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+
+  CognitoUserPoolAdmin:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      Username: admin
+      DesiredDeliveryMediums:
+        - EMAIL
+      UserPoolId: !Ref WDCognitoUserPool
+      UserAttributes:
+        - Name: email
+          Value: !Ref AdminUserEmailAddress
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: aws-perspective-client-web
+      RefreshTokenValidity: 1
+      UserPoolId:
+        Ref: WDCognitoUserPool
+      PreventUserExistenceErrors: ENABLED
+
+Outputs:
+  AuthPerspectiveRoleName:
+    Value: !Ref CognitoAuthRole
+  IdentityPoolId:
+    Value: !Ref CognitoIdentityPool
+  UserPoolId:
+    Value: !Ref WDCognitoUserPool
+  UserPoolARN:
+    Value: !GetAtt WDCognitoUserPool.Arn
+  WebClientId:
+    Value: !Ref UserPoolClient

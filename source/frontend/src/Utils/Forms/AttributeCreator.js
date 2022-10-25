@@ -1,16 +1,12 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import AttributeEditor from '@awsui/components-react/attribute-editor';
-import Input from '@awsui/components-react/input';
 
-export default ({
+export const AttributeCreator = ({
   item,
   items,
   limit,
-  label,
-  placeholder,
   itemAdded,
   itemRemoved,
-  setItems,
   definition,
 }) => {
   return (
@@ -35,3 +31,5 @@ export default ({
     />
   );
 };
+
+export default AttributeCreator;

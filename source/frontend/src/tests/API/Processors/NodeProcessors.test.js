@@ -7,7 +7,6 @@ import currentGraphResources from './data/handle-selected-node-initial.json';
 import selectedNode from './data/selected-node.json';
 import processChildNodeResult from './data/process-child-final-array.json';
 import rootNode from './data/process-child-root-node.json';
-var difference = require('lodash.difference');
 
 const PUBLIC_URL = process.env;
 
@@ -22,33 +21,15 @@ afterEach(() => {
 
 test('when we pass node to handleSelectedResource it will build the correct data structure to add the nodes to graph', () => {
   const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
-  const params = {
-    focusing: false,
-    nodeId: nodeId,
-  };
   const newGraph = handleSelectedResource(
     Promise.resolve(handleSelectedResourceResponse),
-    params,
+    nodeId,
     currentGraphResources
   );
-  newGraph.then( e => expect(e).toContainEqual(selectedNode));
+  return newGraph.then( e => expect(e).toContainEqual(selectedNode));
 });
 
-test('when we pass node to handleSelectedResource it will build the correct data structure to add the nodes to graph with focussing as undefined', () => {
-  const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
-  const params = {
-    focusing: undefined,
-    nodeId: nodeId,
-  };
-  const newGraph = handleSelectedResource(
-    Promise.resolve(handleSelectedResourceResponse),
-    params,
-    currentGraphResources
-  );
-  newGraph.then((e) => expect(e).toContainEqual(selectedNode));
-});
-
-test('when we pass undefined to handleSelectedResource a undefined it will return empty []', () => {
+test('when we pass undefined to handleSelectedResource a undefined response it will return empty []', () => {
   const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
   const params = {
     focusing: false,
@@ -59,17 +40,7 @@ test('when we pass undefined to handleSelectedResource a undefined it will retur
     params,
     currentGraphResources
   );
-  newGraph.then((e) => expect(e).toEqual([]));
-});
-
-test('when we pass undefined params to handleSelectedResource it will return empty []', () => {
-  const nodeId = 'ebc5cd4c047867d5ab6154d07ff468f9';
-  const newGraph = handleSelectedResource(
-    Promise.resolve(handleSelectedResourceResponse),
-    undefined,
-    currentGraphResources
-  );
-  newGraph.then(e => expect(e).toEqual([]));
+  return newGraph.then((e) => expect(e).toEqual([]));
 });
 
 test('when we pass processChildNodes a node it will return an array of the boundingboxes and nodes that are its children', () => {

@@ -1,115 +1,325 @@
 const gremlin = require('gremlin');
 const R = require('ramda');
+const {lambdaRequestTracker} = require('pino-lambda');
+const {PromisePool} = require('@supercharge/promise-pool')
 const __ = gremlin.process.statics;
+const c = gremlin.process.column
+const p = gremlin.process.P;
+const {cardinality: {single}, t} = gremlin.process;
+const logger = require('./logger');
 const {createHierarchy} = require('./hierarchy');
-const {run} = require('./query')(process.env);
+const {create: createGremlinClient} = require('neptune-lambda-client');
 
-const resourceTypes = new Set(['AWS::EC2::Instance', 'AWS::RDS::DBInstance',
-    'AWS::IAM::IAMCustomerManagedPolicyStatement', 'AWS::ApiGateway::Method']);
+const gremlinClient = createGremlinClient(process.env.neptuneConnectURL, process.env.neptunePort);
 
-const isPrivateSubnet =  id => async g => {
-    let linked = await g.V(id).both().has('resourceType', 'AWS::EC2::RouteTable').both().has('resourceType', 'AWS::EC2::NatGateway').toList();
-    return linked.length > 0;
+const withRequest = lambdaRequestTracker();
+
+function getNodes(query, vId) {
+    return query(async g => {
+        return g.V(vId).aggregate('nodes')
+            .both().aggregate('nodes')
+            .outE('IS_CONTAINED_IN_VPC', 'IS_ASSOCIATED_WITH_VPC', 'IS_CONTAINED_IN_SUBNET', 'IS_ASSOCIATED_WITH_SUBNET').inV().aggregate('nodes')
+            .fold()
+            .select('nodes')
+            .by(__.unfold().dedup().elementMap().fold())
+            .next()
+            .then(x => x.value)
+            .then(R.map(({id, label, ...properties}) => {
+                return {
+                    id,
+                    label,
+                    parent: vId === id,
+                    properties
+                };
+            }))
+    });
 }
 
-function createProperties({resourceName, resourceValue, resourceType, tags, arn, awsRegion, subnetId,
-                              state, loggedInURL, loginURL, accountId, title, softDelete, private,
-                              resourceId, configuration, availabilityZone, vpcId, ...rest}) {
+function getLinkedNodesHierarchy({query}, args) {
+    return getNodes(query, args).then(createHierarchy).then(R.head);
+}
+
+async function batchGetLinkedNodesHierarchy({query}, ids) {
+    const {results, errors} = await PromisePool
+        .withConcurrency(10)
+        .for(ids)
+        .process(async id => {
+            const hierarchy = await getLinkedNodesHierarchy({query}, id);
+            return {parentId: id, hierarchy};
+        });
+
+    logger.info(`There were ${errors.length} errors when fetching hierarchies.`);
+    logger.debug({errors}, 'Errors: ');
+
+    const [notFound, hierarchies] = R.partition(x => x.hierarchy == null, results);
+
     return {
-        resourceName,
-        resourceValue,
-        resourceType,
-        resourceId,
-        tags,
-        arn,
-        awsRegion,
-        availabilityZone,
-        vpcId,
-        subnetId,
-        state,
-        loggedInURL,
-        loginURL,
-        accountId,
-        title,
-        softDelete,
-        private,
-        __typename: resourceTypes.has(resourceType) ?
-            resourceType.replace('AWS::', '').replace('::', '') : 'ResourceProperties',
-        configuration: configuration ?? JSON.stringify(rest)
+        hierarchies,
+        notFound: notFound.map(x => x.parentId),
+        unprocessedResources: errors.map(x => x.item)
     }
 }
 
-function getNodes({id: vId, arn}) {
-    return async g => {
-        const start = vId == null ? g.V().has('arn', arn) : g.V(vId);
+function createAccountPredicates(accounts) {
+    return accounts.map(({accountId, regions}) => {
+            return regions == null ?
+                __.has('accountId', accountId) :
+                __.has('accountId', accountId).has('awsRegion', p.within(R.pluck('name', regions)))
 
-        const nodes = await start
-            .or(__.hasNot("softDelete"), __.hasNot('softDeleteType'))
-            .optional(__.both().or(__.hasNot("softDelete"), __.hasNot('softDeleteType')))
-            .path()
-            .by(__.elementMap())
+        }
+    );
+}
+
+function getResources({query}, {resourceTypes = [], accounts = [], pagination: {start, end}}) {
+    return query(async g => {
+        let q = g.with_('Neptune#enableResultCacheWithTTL', 60).V();
+
+        if (!R.isEmpty(resourceTypes)) q = q.hasLabel(...resourceTypes.map(R.replace(/::/g, '_')));
+
+        if (!R.isEmpty(accounts)) {
+            q = q.or(...createAccountPredicates(accounts));
+        }
+
+        return q.range(start, end).elementMap().toList()
+            .then(R.map(({id, label, md5Hash, ...properties}) => {
+                return {
+                    id, label: label.replace(/_/g, '::'), md5Hash, properties
+                };
+            }));
+    });
+}
+
+function addResources({query}, resources) {
+    return query(async g => {
+        return g.inject(resources).unfold().as('nodes')
+            .addV(__.select('nodes').select('label')).as('v')
+            .property(t.id, __.select('nodes').select('id'))
+            .property('md5Hash', __.select('nodes').select('md5Hash'))
+            .select('nodes').select('properties').unfold().as('kv')
+            .select('v').property(__.select('kv').by(c.keys), __.select('kv').by(c.values))
+            .toList();
+    });
+}
+
+function updateResources({query}, resources) {
+    return query(async g => {
+        return resources.reduce((q, {id, md5Hash, properties}) => {
+            return Object.entries(properties).reduce((acc, [k, v]) => {
+                acc.property(single, k, v);
+                return acc;
+            }, q.V(id).property(single, 'md5Hash', md5Hash));
+        }, g)
+            .next()
+            .then(() => resources.map(R.pick(['id'])));
+    });
+}
+
+function addRelationships({query}, relationships) {
+    return query(async g => {
+        if (R.isEmpty(relationships)) return [];
+
+        return relationships.reduce((q, {source, label, target}) => {
+            return q.V(source)
+                .addE(label).to(__.V(target))
+                .project('id', 'label', 'target','source')
+                    .by(t.id)
+                    .by(t.label)
+                    .by(__.inV())
+                    .by(__.outV())
+                .aggregate('edges')
+        }, g)
+            .select('edges')
+            .next()
+            .then(x => x.value)
+    });
+}
+
+function getRelationships({query}, {pagination: {start, end}}) {
+    return query(async g => {
+        return g.with_('Neptune#enableResultCacheWithTTL', 60)
+            .E()
+            .range(start, end)
+            .project('id', 'label', 'target','source')
+                .by(t.id)
+                .by(t.label)
+                .by(__.inV())
+                .by(__.outV())
+            .toList()
+    });
+}
+
+function deleteRelationships({query}, relationshipIds) {
+    return query(async g => {
+        return g.E(...relationshipIds)
+            .drop()
+            .next()
+            .then(() => relationshipIds);
+    });
+}
+
+function deleteAllResources({query}) {
+    return query(async g => {
+        return g.V().drop().next();
+    });
+}
+
+function deleteResources({query}, resourceIds) {
+    return query(async g => {
+        return g.V(...resourceIds)
+            .drop()
+            .next()
+            .then(() => resourceIds);
+    });
+}
+
+function getResourcesMetadata({query}) {
+    return query(async g => {
+        const q1 = g.V()
+            .groupCount().by('resourceType')
+            .project('resourceTypes', 'count')
+            .by(__.unfold().project('type', 'count')
+                .by(__.select(c.keys))
+                .by(__.select(c.values)).fold())
+            .by(__.coalesce(__.unfold().select(c.values).sum(), __.constant(0)))
+            .next()
+            .then(R.prop('value'));
+
+        const q2 = g.V().group().by('accountId').by(__.group().by('awsRegion'))
             .unfold()
-            .dedup()
+            .project('accountId', 'regions')
+            .by(__.select(c.keys))
+            .by(
+                __.select(c.values)
+                    .unfold()
+                    .project('name')
+                    .by(__.select(c.keys))
+                    .fold())
             .toList();
 
-        return Promise.resolve(nodes)
-            .then(R.reduce((acc, {label, vpcId, subnetId, resourceType}) => {
-                const networkTypes = ['AWS::EC2::VPC', 'AWS::EC2::Subnet'];
-                const [vpcType, subnetType] = networkTypes;
-
-                const present = networkTypes.includes(resourceType);
-
-                switch (resourceType) {
-                    case vpcType:
-                        acc[vpcId] = {propName: 'vpcId', label, present};
-                        break;
-                    case subnetType:
-                        acc[subnetId] = {propName: 'subnetId', label, present}
-                        break;
-                    default:
-                        if (vpcId != null && acc[vpcId] == null) {
-                            acc[vpcId] = {propName: 'vpcId', label: vpcType.replace(/::/g, '_'), present};
-                        }
-                        if (subnetId != null && acc[subnetId] == null) {
-                            acc[subnetId] = {propName: 'subnetId', label: subnetType.replace(/::/g, '_'), present};
-                        }
-                }
-
-                return acc;
-            }, {}))
-            .then(Object.entries)
-            .then(R.reject(([_, {present}]) => present))
-            .then(R.map(([id, {propName, label}]) => {
-                return g.V().has(propName, id).hasLabel(label).or(__.hasNot("softDelete"), __.hasNot('softDeleteType')).elementMap().next().then(x => x.value)
-            }))
-            .then(ps => Promise.all(ps))
-            .then(xs => [xs, nodes])
-            .then(R.chain(R.map(async ({id, label, perspectiveBirthDate, ...props}) => {
-                if(props.resourceType === 'AWS::EC2::Subnet') {
-                    props.private = await run(isPrivateSubnet(id));
-                }
-                return {
-                    id, label: label.replace(/_/g, '::'), parent: vId === id, perspectiveBirthDate, properties: createProperties(props)
-                };
-            })))
-            .then(ps => Promise.all(ps));
-    };
+        // it is quicker to do two concurrent queries than a single query using `.union`
+        const [resourceCount, accounts] = await Promise.all([q1, q2]);
+        return {
+            ...resourceCount,
+            accounts
+        }
+    });
 }
 
-const isHash = R.test(/^[a-f0-9]{32}$/);
+function getResourcesAccountMetadata({query}, accounts) {
+    return query(async g => {
+        let q = g.V().has('accountId').has('awsRegion');
+
+        if (!R.isEmpty(accounts)) {
+            q = q.or(...createAccountPredicates(accounts));
+        }
+
+        return q
+            .group().by('accountId')
+            .unfold()
+            .project('accountId', 'count', 'resourceTypes')
+            .by(__.select(c.keys))
+            .by(__.select(c.values).unfold().count())
+            .by(__.select(c.values)
+                .unfold()
+                .groupCount().by('resourceType')
+                .unfold()
+                .project('type', 'count').by(__.select(c.keys)).by(__.select(c.values))
+                .fold())
+            .toList()
+    })
+}
+
+function getResourcesRegionMetadata({query}, accounts) {
+    return query(async g => {
+        let q = g.V().has('accountId').has('awsRegion');
+
+        if (!R.isEmpty(accounts)) {
+            q = q.or(...createAccountPredicates(accounts));
+        }
+
+        return q
+            .group().by('accountId').by(__.group().by('awsRegion'))
+            .unfold()
+            .project('accountId', 'count', 'regions')
+            .by(__.select(c.keys))
+            .by(__.select(c.values).select(c.values).unfold().unfold().count())
+            .by(
+                __.select(c.values)
+                    .unfold()
+                    .project('name', 'count', 'resourceTypes')
+                    .by(__.select(c.keys))
+                    .by(__.select(c.values).unfold().count().sum())
+                    .by(
+                        __.select(c.values)
+                            .unfold()
+                            .groupCount().by('resourceType')
+                            .unfold()
+                            .project('type', 'count')
+                            .by(__.select(c.keys))
+                            .by(__.select(c.values))
+                            .fold())
+                    .fold())
+            .toList();
+    });
+}
 
 const isArn = R.test(/arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):.*/);
+const MAX_PAGE_SIZE = 2500;
 
-exports.handler = async event => {
-    const args = event.arguments;
-    console.log(JSON.stringify(args));
-    switch (event.info.fieldName) {
-        case 'getLinkedNodesHierarchy':
-            if(args.id == null && args.arn == null) throw new Error('You must specify either an id or arn parameter.');
-            if(args.id != null && !isHash(args.id)) throw new Error('The id parameter must be a valid md5 hash.');
-            if(args.arn != null && !isArn(args.arn)) throw new Error('The arn parameter must be a valid ARN.');
-            return run(getNodes(args)).then(createHierarchy).then(R.head);
-        default:
-            return Promise.reject(new Error(`Unknown field, unable to resolve ${event.info.fieldName}.`));
+function handler(gremlinClient) {
+    return async (event, context) => {
+        withRequest(event, context);
+
+        const args = event.arguments;
+
+        const pagination = args?.pagination ?? {start: 0, end: 1000};
+
+        if((pagination.end - pagination.start) > MAX_PAGE_SIZE) {
+            return Promise.reject(new Error(`Maximum page size is ${MAX_PAGE_SIZE}.`));
+        }
+
+        logger.info({arguments: args}, 'GraphQL arguments:');
+
+        switch (event.info.fieldName) {
+            case 'addRelationships':
+                return addRelationships(gremlinClient, args.relationships);
+            case 'deleteRelationships':
+                return deleteRelationships(gremlinClient, args.relationshipIds);
+            case 'getRelationships':
+                return getRelationships(gremlinClient, {pagination});
+            case 'addResources':
+                return addResources(gremlinClient, args.resources);
+            case 'deleteAllResources':
+                return deleteAllResources(gremlinClient);
+            case 'deleteResources':
+                return deleteResources(gremlinClient, args.resourceIds);
+            case 'getLinkedNodesHierarchy':
+                if (!isArn(args.id)) throw new Error('The id parameter must be a valid ARN.');
+                return getLinkedNodesHierarchy(gremlinClient, args.id);
+            case 'batchGetLinkedNodesHierarchy':
+                const invalidArns = R.filter(id => !isArn(id), args.ids);
+                if (!R.isEmpty(invalidArns)) {
+                    logger.error({invalidArns}, 'Invalid ARNs provided. ');
+                    throw new Error('The following ARNs are invalid: ' + invalidArns);
+                }
+                return batchGetLinkedNodesHierarchy(gremlinClient, args.ids)
+            case 'getResources':
+                if (R.isEmpty(args.resourceTypes)) return []
+                const resourceTypes = args.resourceTypes ?? [];
+                const accounts = args.accounts ?? []
+                return getResources(gremlinClient, {pagination, resourceTypes, accounts});
+            case 'getResourcesMetadata':
+                return getResourcesMetadata(gremlinClient);
+            case 'getResourcesAccountMetadata':
+                return getResourcesAccountMetadata(gremlinClient, args.accounts ?? []);
+            case 'getResourcesRegionMetadata':
+                return getResourcesRegionMetadata(gremlinClient, args.accounts ?? []);
+            case 'updateResources':
+                return updateResources(gremlinClient, args.resources);
+            default:
+                return Promise.reject(new Error(`Unknown field, unable to resolve ${event.info.fieldName}.`));
+        }
     }
 }
+
+exports.handler = handler(gremlinClient);

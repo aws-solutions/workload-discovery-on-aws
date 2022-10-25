@@ -1,0 +1,61 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "tagInfo": {
+    "applicationName": "Application",
+    "applicationValue": "testApplication",
+    "sqsName": "SQSSpecific",
+    "sqsValue": "SQSSpecificValue"
+  },
+  "ec2Instance": {
+    "id": "${ec2Instance.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "instanceArn1",
+    "resourceType": "AWS::EC2::Instance",
+    "resourceId": "${ec2Instance.arn}",
+    "resourceName": "testCluster",
+    "configuration": {},
+    "relationships": [],
+    "tags": [
+      {
+        "key": "${tagInfo.applicationName}",
+        "value": "${tagInfo.applicationValue}"
+      }
+    ]
+  },
+  "sqsQueue": {
+    "id": "${sqsQueue.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "sqsQueueArn1",
+    "resourceType": "AWS::SQS::Queue",
+    "resourceId": "${sqsQueue.arn}",
+    "resourceName": "testQueue",
+    "configuration": {},
+    "relationships": [],
+    "tags": [
+      {
+        "key": "${tagInfo.applicationName}",
+        "value": "${tagInfo.applicationValue}"
+      },{
+        "key": "${tagInfo.sqsName}",
+        "value": "${tagInfo.sqsValue}"
+      }
+    ]
+  },
+  "forecast": {
+    "id": "${forecast.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "forecastArn1",
+    "resourceType": "AWS::Forecast::Dataset",
+    "resourceId": "${forecast.arn}",
+    "resourceName": "testForecast",
+    "configuration": {},
+    "relationships": [],
+    "tags": []
+  }
+}

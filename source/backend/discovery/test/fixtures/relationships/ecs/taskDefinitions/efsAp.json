@@ -1,0 +1,30 @@
+{
+  "$constants": {
+    "accountId": "${$constants.accountId}",
+    "region": "eu-west-2"
+  },
+  "efsAp": {
+    "resourceId": "efsApResourceId"
+  },
+  "ecsTaskDefinition": {
+    "id": "${ecsTaskDefinition.arn}",
+    "resourceId": "ecsTaskDefinitionResourceId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion}",
+    "arn": "ecsTaskDefinitionArn",
+    "resourceType": "AWS::ECS::TaskDefinition",
+    "relationships": [],
+    "configuration": {
+      "ContainerDefinitions": [],
+      "Volumes": [
+        {
+          "EfsVolumeConfiguration": {
+            "AuthorizationConfig": {
+              "AccessPointId": "${efsAp.resourceId}"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

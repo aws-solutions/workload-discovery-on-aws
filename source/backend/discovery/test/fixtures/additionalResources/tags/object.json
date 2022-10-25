@@ -1,0 +1,26 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "eksCluster": {
+    "id": "${eksCluster.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "eksClusterArn",
+    "resourceType": "AWS::EKS::Cluster",
+    "resourceId": "${eksCluster.arn}",
+    "resourceName": "testCluster",
+    "configuration": {
+    },
+    "relationships": []
+  },
+  "nodeGroup": {
+    "nodegroupArn": "nodeGroupArn",
+    "nodegroupName": "nodegroupName",
+    "tags": {
+      "tag1": "value1",
+      "tag2": "value2"
+    }
+  }
+}

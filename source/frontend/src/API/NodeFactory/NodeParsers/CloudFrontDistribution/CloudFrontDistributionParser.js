@@ -2,7 +2,7 @@ import React from 'react';
 import { fetchImage } from '../../../../Utils/ImageSelector';
 import CloudFrontDistributionItem from './CloudFrontDistributionDetails/CloudFrontDistributionItem';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseCloudFrontDistribution = (node) => {
   const properties = R.hasPath(['properties'], node)
     ? node.properties

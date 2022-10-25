@@ -1,0 +1,53 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "eni": {
+    "resourceId": "unknownResourceId",
+    "resourceType": "AWS::EC2::NetworkInterface"
+  },
+  "dbRelationships": {},
+  "dbResources": {},
+  "resources": {
+    "AWS::EC2::Instance": {
+      "id": "instanceArn",
+      "resourceId": "instanceResourceId",
+      "resourceType": "AWS::EC2::Instance",
+      "accountId": "${$constants.accountId}",
+      "awsRegion": "${$constants.region}",
+      "properties": {
+        "a": "instanceProp"
+      },
+      "relationships": [
+        {
+          "resourceId": "${resources.AWS::EC2::VPC.resourceId}",
+          "resourceType": "${resources.AWS::EC2::VPC.resourceType}",
+          "relationshipName": "is contained in VPC"
+        },
+        {
+          "resourceId": "${eni.resourceId}",
+          "resourceType": "${eni.resourceType}",
+          "relationshipName": "is associated with"
+        }
+      ]
+    },
+    "AWS::EC2::VPC": {
+      "id": "vpcArn",
+      "resourceId": "vpcResourceId",
+      "resourceType": "AWS::EC2::VPC",
+      "accountId": "${$constants.accountId}",
+      "awsRegion": "${$constants.region}",
+      "properties": {
+        "b": "vpcProp"
+      },
+      "relationships": [
+        {
+          "resourceId": "${resources.AWS::EC2::Instance.resourceId}",
+          "resourceType": "${resources.AWS::EC2::Instance.resourceType}",
+          "relationshipName": "contains"
+        }
+      ]
+    }
+  }
+}

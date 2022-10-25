@@ -1,0 +1,73 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "subnet": {
+      "resourceType": "AWS::EC2::Subnet",
+      "relationshipName": "Is contained in Subnet"
+    }
+  },
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet1": {
+    "id": "${subnet1.arn}",
+    "arn": "subnet1Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}a",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-0123456789abcdef",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "subnet2": {
+    "id": "${subnet2.arn}",
+    "arn": "subnet2Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}b",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-9876543210fedcba",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "launchTemplate":  {
+    "resourceId": "lt-0123456789abcdef1"
+  },
+  "asg": {
+    "id": "${asg.arn}",
+    "resourceId": "${asg.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "asgArn",
+    "resourceCreationTime": "2022-03-02T17:28:27.771Z",
+    "resourceType": "AWS::AutoScaling::AutoScalingGroup",
+    "configuration": {
+      "targetGroupARNs": [],
+      "vpczoneIdentifier":"${subnet1.resourceId},${subnet2.resourceId}",
+      "launchTemplate": {
+        "launchTemplateId": "${launchTemplate.resourceId}"
+      }
+    },
+    "resourceName": "asgResourceName",
+    "availabilityZone": "Multiple Availability Zones",
+    "tags": [],
+    "relationships": [
+      {
+        "resourceId": "${subnet1.resourceId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "relationshipName": "${$constants.subnet.relationshipName}"
+      },
+      {
+        "resourceId": "${subnet2.resourceId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "relationshipName": "${$constants.subnet.relationshipName}"
+      }
+    ]
+  }
+}

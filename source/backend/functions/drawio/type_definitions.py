@@ -1,6 +1,8 @@
 from collections import defaultdict
 import zipfile
 import urllib.request
+import tempfile
+import urllib.request
 import os.path
 from base64 import b64encode
 
@@ -8,7 +10,7 @@ from base64 import b64encode
 def get_type_definitions():
     
     # URL where perspective icon set is hosted
-    perspective_icon_url = 'https://perspective-icon-svg-set.s3-eu-west-1.amazonaws.com/perspective-icons.zip'
+    perspective_icon_url = 'https://perspective-icon-svg-set.s3-eu-west-1.amazonaws.com/v2.0.0/perspective-icons.zip'
     perspective_zip = 'perspective-icons.zip'
     
     # Build a dictionary that provides a default AWS Resource Icon if type does not exist in definitions
@@ -39,14 +41,16 @@ def get_type_definitions():
             'style' : 'points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=11;fontStyle=0;fontFamily=Tahoma;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;strokeColor=#248814;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;'
         }
     }
-    
+
+    tmp = tempfile.gettempdir()
+
     # If icons don't exist in /tmp, then download them to tmp
-    if not os.path.isfile('/tmp/' + perspective_zip):
-        with urllib.request.urlopen(perspective_icon_url) as dl_file:
-            with open('/tmp/' + perspective_zip, 'wb') as out_file:
+    if not os.path.isfile(tmp + '/' + perspective_zip):
+        with urllib.request.urlopen(perspective_icon_url) as dl_file: #nosec
+            with open(tmp + '/' + perspective_zip, 'wb') as out_file:
                 out_file.write(dl_file.read())
     
-    zipped_icons = zipfile.ZipFile('/tmp/' + perspective_zip)
+    zipped_icons = zipfile.ZipFile(tmp + '/' + perspective_zip)
     for i in range(len(zipped_icons.namelist())):
         icon_filename = zipped_icons.namelist()[i]
         if (".svg" in icon_filename):
