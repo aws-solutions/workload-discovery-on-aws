@@ -1,0 +1,60 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet1": {
+    "id": "${subnet1.arn}",
+    "arn": "subnet1Arn",
+    "availabilityZone": "${$constants.region}a",
+    "awsRegion": "${$constants.region}",
+    "resourceId": "subnet-11111111111111111",
+    "accountId": "${$constants.accountId}",
+    "resourceType": "AWS::EC2::Subnet",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "subnet2": {
+    "id": "${subnet2.arn}",
+    "arn": "subnet2Arn",
+    "resourceId": "subnet-22222222222222222",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}b",
+    "accountId": "${$constants.accountId}",
+    "resourceType": "AWS::EC2::Subnet",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "securityGroup": {
+    "resourceId": "sg-0123456789abcdef"
+  },
+  "cluster": {
+    "id": "${cluster.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "kafkaArn",
+    "resourceType": "AWS::MSK::Cluster",
+    "resourceId": "${cluster.arn}",
+    "resourceName": "serverful",
+    "availabilityZone": "Regional",
+    "relationships": [],
+    "configuration": {
+      "BrokerNodeGroupInfo": {
+        "ClientSubnets": [
+          "${subnet1.resourceId}",
+          "${subnet2.resourceId}"
+        ],
+        "SecurityGroups": [
+          "${securityGroup.resourceId}"
+        ]
+      }
+    }
+  }
+}

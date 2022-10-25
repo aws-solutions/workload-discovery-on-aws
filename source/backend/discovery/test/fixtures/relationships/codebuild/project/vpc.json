@@ -1,0 +1,67 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "subnet": {
+      "resourceType": "AWS::EC2::Subnet",
+      "relationshipName": "Is associated with "
+    }
+  },
+  "vpc": {
+    "resourceId": "vpcResourceId"
+  },
+  "subnet1": {
+    "id": "${subnet1.arn}",
+    "arn": "subnet1Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}a",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-0123456789abcdef",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "subnet2": {
+    "id": "${subnet2.arn}",
+    "arn": "subnet2Arn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}b",
+    "resourceType": "${$constants.subnet.resourceType}",
+    "resourceId": "subnet-9876543210fedcba",
+    "configuration": {
+      "vpcId": "${vpc.resourceId}"
+    },
+    "relationships": []
+  },
+  "securityGroup": {
+    "resourceId": "sgResourceId"
+  },
+  "project": {
+    "id": "${project.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "codebuildProjectArn",
+    "resourceType": "AWS::CodeBuild::Project",
+    "resourceId": "codebuildProjectResourceId",
+    "availabilityZone": "Not Applicable",
+    "relatedEvents": [],
+    "relationships": [],
+    "configuration": {
+      "vpcConfig": {
+        "vpcId": "${vpc.resourceId}",
+        "subnets": [
+          "${subnet1.resourceId}",
+          "${subnet2.resourceId}"
+        ],
+        "securityGroupIds": [
+          "${securityGroup.resourceId}"
+        ]
+      },
+      "serviceRole": "serviceRoleArn",
+      "tags": []
+    }
+  }
+}

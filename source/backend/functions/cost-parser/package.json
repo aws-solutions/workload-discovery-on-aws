@@ -1,10 +1,12 @@
 {
-  "name": "perspective-cost",
-  "version": "1.1.0",
+  "name": "wd-cost",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/*.js",
+    "pretest": "npm i",
+    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
+    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
     "clean": "rm -rf dist && rm -rf node_modules",
     "build:zip": "zip -rq --exclude=package-lock.json cost.zip node_modules/ && zip -urj cost.zip src/",
     "build:dist": "mkdir dist && mv cost.zip dist/",
@@ -14,17 +16,18 @@
   "author": "svozza",
   "license": "ISC",
   "dependencies": {
-    "@most/core": "^1.6.1",
-    "athena-express": "^6.0.4",
-    "dayjs": "^1.10.5",
-    "most": "^1.9.0",
-    "ramda": "0.27.0"
+    "@most/core": "1.6.1",
+    "athena-express": "6.0.4",
+    "dayjs": "1.11.5",
+    "most": "1.9.0",
+    "ramda": "0.28.0"
   },
   "devDependencies": {
     "aws-sdk": "latest",
     "chai": "^4.3.4",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
+    "nyc-report-lcov-absolute": "^1.0.0",
     "rewire": "^6.0.0",
     "sinon": "^9.0.2"
   }

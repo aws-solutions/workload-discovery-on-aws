@@ -1,8 +1,6 @@
-import React from 'react';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
-import APIEndpointHover from './APIEndpointHover';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseAPIGatewayEndpoint = (node) => {
   try {
     const properties = R.hasPath(['properties'], node)
@@ -18,7 +16,6 @@ export const parseAPIGatewayEndpoint = (node) => {
         colour: '#fff',
       },
       icon: fetchImage(properties.resourceType),
-      hoverComponent: <APIEndpointHover name={properties.name} />,
     };
   } catch (e) {
     return {};

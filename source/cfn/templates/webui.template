@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Workload Discovery on AWS Web Interface Stack
+
+Parameters:
+  AccessLogsBucket:
+    Type: String
+
+  WebUIBucket:
+    Type: String
+
+  WebUIBucketRegionalDomainName:
+    Type: String
+
+Resources:
+  WebUIBucketReadPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebUIBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource: !Sub "arn:aws:s3:::${WebUIBucket}/*"
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - CloudFrontOriginAccessIdentity
+                  - S3CanonicalUserId
+          - Sid: HttpsOnly
+            Action: '*'
+            Effect: Deny
+            Resource:
+              - !Sub "arn:aws:s3:::${WebUIBucket}"
+              - !Sub "arn:aws:s3:::${WebUIBucket}/*"
+            Principal: '*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Ref WebUIBucket
+
+  CloudFrontDistribution:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W70
+            reason: 'If the distribution uses the CloudFront domain name such as d111111abcdef8.cloudfront.net (you set CloudFrontDefaultCertificate to true), CloudFront automatically sets the security policy to TLSv1 regardless of the value that you set here.'
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !Ref WebUIBucketRegionalDomainName
+            Id: perspective-origin
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Sub: origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+        Enabled: true
+        HttpVersion: http2
+        Comment: The Distribution for the Perspective Web UI
+        DefaultRootObject: index.html
+        Logging:
+          Bucket: !Sub ${AccessLogsBucket}.s3.amazonaws.com
+          IncludeCookies: false
+          Prefix: 'aws-perspective-ui'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - HEAD
+            - GET
+            - OPTIONS
+          TargetOriginId: perspective-origin
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+          ResponseHeadersPolicyId: !Ref SecurityHeaders
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+          MinimumProtocolVersion: TLSv1.1_2016
+
+  SecurityHeaders:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub '${AWS::StackName}-SecurityHeaders'
+        SecurityHeadersConfig:
+          ContentSecurityPolicy:
+            ContentSecurityPolicy: |-
+              default-src 'none'; font-src https://*.cloudfront.net data:; img-src 'self' data:; script-src 'self';manifest-src 'self'; style-src 'unsafe-inline' 'self'; style-src-elem 'unsafe-inline' 'self'; object-src 'none'; connect-src https://*.amazonaws.com
+            Override: True
+          ContentTypeOptions:
+            Override: True
+          FrameOptions:
+            FrameOption: DENY
+            Override: True
+          ReferrerPolicy:
+            ReferrerPolicy: same-origin
+            Override: True
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 63072000
+            IncludeSubdomains: True
+            Preload: True
+            Override: True
+          XSSProtection:
+            ModeBlock: True
+            Protection: True
+            Override: True
+
+Outputs:
+
+  DistributionId:
+    Value: !Ref CloudFrontDistribution
+
+  WebUiUrl:
+    Value: !Sub https://${CloudFrontDistribution.DomainName}
+    Description: WebUI URL

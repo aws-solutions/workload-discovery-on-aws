@@ -44,7 +44,7 @@ const getResourcesByCostQuery = ({
     accountIds && R.map(accountIdValidator, accountIds);
     regions && R.map((e) => regionValidator(e, cache.regions), regions);
 
-    return `SELECT line_item_resource_id, product_servicename, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
+    return `SELECT line_item_resource_id, product_servicename, line_item_usage_account_id, Array_join(Array_distinct(Array_agg(product_region)), '|') AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
       accountIds
     )}) AND product_region IN (${createINValues(
       regions
@@ -52,8 +52,9 @@ const getResourcesByCostQuery = ({
       period.from
     }' AND line_item_usage_end_date <= TIMESTAMP '${
       period.to
-    }' GROUP BY line_item_resource_id, product_servicename, pricing_term, line_item_usage_account_id, product_region, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+    }' GROUP BY line_item_resource_id, product_servicename, pricing_term, line_item_usage_account_id, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
   } catch (err) {
+    console.error(err)
     throw Error('Cannot build query');
   }
 };
@@ -73,7 +74,7 @@ const byServiceQuery = ({
     regions && R.map((e) => regionValidator(e, cache.regions), regions);
     serviceName && serviceNameValidator(serviceName);
 
-    return `SELECT product_servicename, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
+    return `SELECT product_servicename, line_item_usage_account_id, product_region AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
       accountIds
     )}) AND product_region IN (${createINValues(
       regions
@@ -81,7 +82,7 @@ const byServiceQuery = ({
       period.from
     }' AND line_item_usage_end_date <= TIMESTAMP '${
       period.to
-    }' GROUP BY  product_servicename, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+    }' GROUP BY  product_servicename, line_item_usage_account_id, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
   } catch (err) {
     throw Error('Cannot build query');
   }
@@ -103,13 +104,13 @@ const byResourceIdQuery = ({ resourceIds = [], athenaTableName, period }) => {
     resourceIds
   );
 
-  return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
+  return `SELECT line_item_resource_id, product_servicename, line_item_usage_account_id, Array_join(Array_distinct(Array_agg(product_region)), '|') AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
     ids
   )}) AND line_item_usage_start_date >= TIMESTAMP '${
     period.from
   }' AND line_item_usage_end_date <= TIMESTAMP '${
     period.to
-  }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+  }' GROUP BY line_item_resource_id, product_servicename, line_item_usage_account_id, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
 };
 
 const byResourceIdOrderedByDayQuery = ({
@@ -132,18 +133,18 @@ const byResourceIdOrderedByDayQuery = ({
     resourceIds
   );
 
-  return `SELECT line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
+  return `SELECT line_item_resource_id, product_servicename, line_item_usage_account_id, Array_join(Array_distinct(Array_agg(product_region)), '|') AS region, pricing_term, line_item_usage_start_date, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_resource_id IN (${createINValues(
     ids
   )}) AND line_item_usage_start_date >= TIMESTAMP '${
     period.from
   }' AND line_item_usage_end_date <= TIMESTAMP '${
     period.to
-  }' GROUP BY line_item_resource_id, line_item_usage_account_id, product_region, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
+  }' GROUP BY line_item_resource_id, product_servicename, line_item_usage_account_id, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY line_item_usage_start_date DESC;`;
 };
 
 module.exports = {
-  getResourcesByCostQuery: getResourcesByCostQuery,
-  byServiceQuery: byServiceQuery,
-  byResourceIdQuery: byResourceIdQuery,
-  byResourceIdOrderedByDayQuery: byResourceIdOrderedByDayQuery,
+  getResourcesByCostQuery,
+  byServiceQuery,
+  byResourceIdQuery,
+  byResourceIdOrderedByDayQuery
 };

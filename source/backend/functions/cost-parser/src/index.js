@@ -69,11 +69,10 @@ const createReadlineInterface = (input) =>
 
 const getCostOfItem = (headers, item) => {
   const mergedResult = {};
-
   R.split(',', R.replace(/"/g, '', item)).map((e, index) => {
     mergedResult[`${headers[index]}`] = e;
   });
-  return parseFloat(mergedResult.cost).toFixed(2);
+  return parseFloat(parseFloat(mergedResult.cost).toFixed(2));
 };
 
 /* Will take an array of headers and results from Athena and return an array of objects with headers for keys and results as values e.g.
@@ -81,7 +80,7 @@ const getCostOfItem = (headers, item) => {
      "line_item_resource_id": "arn:aws:your-resource-id",
      "product_servicename": "Amazon Service Name",
      "line_item_usage_account_id": "account-id",
-     "product_region": "ap-southeast-1",
+     "region": "ap-southeast-1",
      "pricing_term": "OnDemand",
      "cost": "100.000000000",
      "line_item_currency_code": "USD"
@@ -91,28 +90,33 @@ const buildCostItems = (headers, results) =>
   results.map((result) => {
     const mergedResult = {};
     R.split(',', R.replace(/"/g, '', result)).map((item, index) => {
-      if (headers[index] === 'cost')
+      if (headers[index] === 'cost') {
         mergedResult[`${headers[index]}`] = parseFloat(item).toFixed(2);
-      else mergedResult[`${headers[index]}`] = item;
+      } else if(headers[index] === 'region') {
+        // global services such as S3 often have two line items, one in the region you created the bucket and then us-east-1.
+        // These cases return a string that is delimited with `|`, i.e., `region: eu-west-1|us-east-1`, that must be parsed.
+        const parsed = item.split('|');
+        mergedResult[`${headers[index]}`] = parsed.length > 1 ? R.head(R.reject(x => x === 'us-east-1', parsed)) : R.head(parsed);
+      } else {
+        mergedResult[`${headers[index]}`] = item;
+      }
     });
     return mergedResult;
   });
 
 // Counts up the total cost of items returned by Athena in the S3 result csv.
 const buildTotalCost = async (headers, query) => {
-  let totalCost = 0;
-  await Promise.resolve(createObjectReadStream(s3, query.bucket, query.key))
+  return  Promise.resolve(createObjectReadStream(s3, query.bucket, query.key))
     .then(createReadlineInterface)
     .then((rl) =>
       most
         .fromEvent('line', rl)
         .until(most.fromEvent('close', rl))
         .skip(1)
-        .observe(
-          (e) => (totalCost = R.add(totalCost, getCostOfItem(headers, e)))
-        )
+        .reduce((acc, item) => {
+            return parseFloat((acc + getCostOfItem(headers, item)).toFixed(2));
+        }, 0)
     );
-  return parseFloat(totalCost).toFixed(2);
 };
 
 //Counts the number of results returned by Athena in the S3 result csv.
@@ -130,19 +134,18 @@ const getResultCount = async (query) => {
 
 // Creates the header row that includes the column names returned in the Athena result
 const buildHeaderRow = async (query) => {
-  let headers;
-  await Promise.resolve(createObjectReadStream(s3, query.bucket, query.key))
+  return Promise.resolve(createObjectReadStream(s3, query.bucket, query.key))
     .then(createReadlineInterface)
     .then((rl) =>
       most
         .fromEvent('line', rl)
         .until(most.fromEvent('close', rl))
         .slice(0, 1)
-        .observe(
-          (header) => (headers = R.split(',', R.replace(/"/g, '', header)))
-        )
+        .reduce((acc, item) => {
+          acc.push(...R.split(',', R.replace(/"/g, '', item)));
+          return acc;
+        }, [])
     );
-  return headers;
 };
 
 // Creates and returns an array of cost items requested in the API.
@@ -192,7 +195,7 @@ async function fetchPaginatedResults(query) {
   Provided with a query object containing details of the Athena query. It will build and return the response object to be returned to the client
 */
 async function readResultsFromS3(query) {
-  const [headers, results, queryDetails, totalCost] = await Promise.all([
+  const [headers, results, queryDetails] = await Promise.all([
     buildHeaderRow(query),
     buildItems(query),
     enrichQueryDetails(query, query.queryDetails),
@@ -224,7 +227,7 @@ const buildQueryDetails = (result) => {
   4. Reads the results from S3
   5. Exponentially backoff when errors are detected.
 */
-function getCost(sqlQuery, { pagination }, attempts = 0) {
+function getCost(sqlQuery, { pagination = {start: 0, end: 10} }, attempts = 0) {
   return Promise.resolve(athenaExpress.query(sqlQuery))
     .then(buildQueryDetails)
     .then((query) =>

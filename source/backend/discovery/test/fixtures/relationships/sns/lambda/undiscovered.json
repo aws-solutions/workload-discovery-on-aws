@@ -1,0 +1,16 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-2"
+  },
+  "snsTopic": {
+    "id": "${snsTopic.arn}",
+    "arn": "snsTopicArn",
+    "resourceId": "${snsTopic.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion}",
+    "resourceType": "AWS::SNS::Topic",
+    "relationships": [],
+    "configuration": {}
+  }
+}

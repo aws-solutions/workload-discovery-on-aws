@@ -1,0 +1,29 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "lambda": {
+    "id": "${lambda.arn}",
+    "resourceId": "my-lambda",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "arn:aws:lambda:${$constants.region}:${$constants.accountId}:function:${lambda.resourceId}",
+    "resourceType": "AWS::Lambda::Function",
+    "relationships": [],
+    "configuration": {}
+  },
+  "targetGroup": {
+    "id": "${targetGroup.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:targetgroup/test-tg",
+    "availabilityZone": "Multiple Availability Zones",
+    "awsRegion": "${$constants.region}",
+    "configurationItemStatus": "ResourceDiscovered",
+    "resourceId": "${targetGroup.arn}",
+    "resourceName": "${targetGroup.arn}",
+    "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    "relationships": [],
+    "configuration": {}
+  }
+}

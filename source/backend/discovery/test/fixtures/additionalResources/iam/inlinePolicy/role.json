@@ -1,0 +1,62 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "global"
+  },
+  "role": {
+    "id": "${role.arn}",
+    "arn": "roleArn",
+    "resourceType": "AWS::IAM::Role",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "configuration": {
+      "rolePolicyList": [
+        {
+          "policyDocument": "%7B%22Version%22%3A%222012-10-17%22%2C%22Statement%22%3A%5B%7B%22Action%22%3A%5B%22logs%3ACreateLogGroup%22%2C%22logs%3ACreateLogStream%22%2C%22logs%3APutLogEvents%22%5D%2C%22Resource%22%3A%22%2A%22%2C%22Effect%22%3A%22Allow%22%7D%5D%7D",
+          "policyName": "LoggingPolicy"
+        },
+        {
+          "policyDocument": "%7B%22Version%22%3A%222012-10-17%22%2C%22Statement%22%3A%5B%7B%22Action%22%3A%5B%22s3%3AList%2A%22%2C%22s3%3ADeleteObject%22%5D%2C%22Resource%22%3A%22%2A%22%2C%22Effect%22%3A%22Allow%22%7D%5D%7D",
+          "policyName": "S3Policy"
+        }
+      ]
+    },
+    "resourceName": "testRole",
+    "availabilityZone": "Not Applicable",
+    "tags": [],
+    "relationships": []
+  },
+  "inlinePolicy1": {
+    "policyName": "LoggingPolicy",
+    "policyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ],
+          "Resource": "*",
+          "Effect": "Allow"
+        }
+      ]
+    }
+  },
+  "inlinePolicy2": {
+    "policyName": "S3Policy",
+    "policyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": [
+            "s3:List*",
+            "s3:DeleteObject"
+          ],
+          "Resource": "*",
+          "Effect": "Allow"
+        }
+      ]
+    }
+  }
+}

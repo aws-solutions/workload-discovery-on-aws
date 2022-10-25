@@ -1,0 +1,46 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "vpc": {
+    "resourceId": "vpc-0123456789abcdef0"
+  },
+  "subnet1": {
+    "resourceId": "subnet-0123456789abcdef"
+  },
+  "subnet2": {
+    "resourceId": "subnet-9876543210fedcba"
+  },
+  "securityGroup": {
+    "resourceId": "sg-0123456789abcdef"
+  },
+  "domain": {
+    "id": "${domain.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "domainArn",
+    "availabilityZone": "Multiple Availability Zones",
+    "awsRegion": "${$constants.region}",
+    "configuration": {
+      "VPCOptions": {
+        "AvailabilityZones": [
+          "${$constants.region}a",
+          "${$constants.region}b"
+        ],
+        "SecurityGroupIds": [
+          "${securityGroup.resourceId}"
+        ],
+        "SubnetIds": [
+          "${subnet1.resourceId}",
+          "${subnet2.resourceId}"
+        ],
+        "VPCId": "${vpc.resourceId}"
+      }
+    },
+    "resourceId": "domainResourceId",
+    "resourceName": "domainResourceName",
+    "resourceType": "AWS::OpenSearch::Domain",
+    "tags": [],
+    "relationships": []
+  }
+}

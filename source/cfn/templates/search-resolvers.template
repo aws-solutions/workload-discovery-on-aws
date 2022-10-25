@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS AppSync Search API Stack
+
+Parameters:
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  VPCCidrBlock:
+    Type: String
+
+  PrivateSubnet0:
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+
+  OpenSearchSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  OpenSearchLambdaRoleArn:
+    Type: String
+
+  OpenSearchDomainEndpoint:
+    Type: String
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+  CustomUserAgent:
+    Type: String
+
+  SolutionVersion:
+    Type: String
+
+Resources:
+
+  SearchLambdaSg:
+    Type: AWS::EC2::SecurityGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: We are looking to introduce VPCe for Config that will let us lock this down futher.
+    Properties:
+      GroupDescription: Security group for Search API lambda
+      VpcId: !Ref VpcId
+
+  OpenSearchSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress Security Group for OpenSearch appsync lambda
+      FromPort: 443
+      ToPort: 443
+      GroupId: !Ref OpenSearchSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref SearchLambdaSg
+
+  OpenSearchSetupFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: SAM construct automatically creates these permissions
+          - id: W89
+            reason: This function is deployed in a VPC
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/opensearch-setup.zip
+      Role: !Ref OpenSearchLambdaRoleArn
+      Runtime: nodejs16.x
+      Description: Custom resource to create OpenSearch index
+      Environment:
+        Variables:
+          ES_REGION: !Sub ${AWS::Region}
+          ES_DOMAIN: !Ref OpenSearchDomainEndpoint
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SearchLambdaSg
+        SubnetIds:
+          - !Ref PrivateSubnet0
+          - !Ref PrivateSubnet1
+      MemorySize: 256
+      Timeout: 65
+      ReservedConcurrentExecutions: 1
+
+  OpenSearchSetup:
+    Type: Custom::OpenSearchSetup
+    Properties:
+      ServiceToken: !GetAtt   OpenSearchSetupFunction.Arn
+      SolutionVersion: !Ref SolutionVersion
+      
+  SearchApiAppSyncFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: SAM construct automatically creates these permissions
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !Ref OpenSearchLambdaRoleArn
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Sub ${DeploymentBucketKey}/search-api.zip
+      Runtime: nodejs16.x
+      Description: Lambda for Search AppSync API
+      Timeout: 10
+      TracingConfig:
+        Mode: Active
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SearchLambdaSg
+        SubnetIds:
+          - !Ref PrivateSubnet0
+          - !Ref PrivateSubnet1
+      MemorySize: 1024
+      ReservedConcurrentExecutions: 50
+      Environment:
+        Variables:
+          ES_REGION: !Sub ${AWS::Region}
+          ES_DOMAIN: !Ref OpenSearchDomainEndpoint
+          CustomUserAgent: !Ref CustomUserAgent
+          
+  PerspectiveSearchLambdaAppSyncInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncSearchRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt SearchApiAppSyncFunction.Arn
+                
+  PerspectiveAppSyncSearchLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: Perspective_Search_Lambda_DS9
+      Description: Perspective Search Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt PerspectiveSearchLambdaAppSyncInvokeRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt SearchApiAppSyncFunction.Arn
+
+  PerspectiveAppSyncIndexResourcesResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: indexResources
+      DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
+
+  PerspectiveAppSyncDeleteIndexedResourcesResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: deleteIndexedResources
+      DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
+
+  PerspectiveAppSyncUpdateIndexedResourcesResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Mutation
+      FieldName: updateIndexedResources
+      DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
+
+  PerspectiveAppSyncSearchResourcesResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: searchResources
+      DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name

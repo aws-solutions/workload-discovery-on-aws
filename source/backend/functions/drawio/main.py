@@ -1,9 +1,9 @@
-import json
 import urllib.parse
 from xml.etree.ElementTree import Element, SubElement, tostring
 from type_definitions import get_type_definitions
 from zlib import compress
 from base64 import b64encode
+from operator import itemgetter
 
 # standardized drawing margin based on cytoscape graphing library defaults
 drawing_margin = 30
@@ -85,7 +85,6 @@ class Node:
 
     def add_child(self, child):
         self.children.append(child)
-        return
 
     def get_xml_object(self):
         # Draw IO Context
@@ -105,7 +104,8 @@ class Node:
         # Build object
         obj = Element('object', content)
         styled_obj = SubElement(obj, 'mxCell', icon)
-        placed_obj = SubElement(styled_obj, 'mxGeometry', coords)
+        # SubElement mutates styled_obj
+        SubElement(styled_obj, 'mxGeometry', coords)
 
         return obj
 
@@ -131,33 +131,33 @@ class Edge:
             'as': 'geometry'
         }
         obj = Element('mxCell', content)
-        placed_obj = SubElement(obj, 'mxGeometry', coords)
+        # SubElement mutates obj
+        SubElement(obj, 'mxGeometry', coords)
 
         return obj
 
 
-def handler(event, context):
+def handler(event, _):
     """
     Main Lambda Handler
     """
     node_dict = dict()
 
-    data = json.loads(event['body'])['data']
-    nodes = data.get('nodes', [])
-    edges = data.get('edges', [])
+    args = event['arguments']
+    nodes = args.get('nodes', [])
+    edges = args.get('edges', [])
 
     for node in nodes:
-        node_id = node['data']['id']
-        node_type = node['data']['type']
-        if (node_type == 'resource' and 'image' in node['data']):
-            node_type = node['data']['image'].split('/')[-1].split('.')[0]
-        label = node['data']['label'].replace(' - $0', '')
-        title = node['data']['title']
-        level = node['data']['level']
-        x = node['position']['x']
-        y = node['position']['y']
-        is_end_node = ('children' not in node['data'])
-        parent = node['data'].get('parent')
+        node_id, node_type, label, level, title, position = \
+            itemgetter('id', 'type', 'label', 'level', 'title', 'position')(node)
+
+        if node_type == 'resource' and 'image' in node:
+            node_type = node['image'].split('/')[-1].split('.')[0]
+
+        x = position['x']
+        y = position['y']
+        is_end_node = not node.get('hasChildren', False)
+        parent = node.get('parent')
         node = Node(node_id, node_type, label, title, level, x, y, is_end_node)
         node_dict[node_id] = node
 
@@ -168,13 +168,11 @@ def handler(event, context):
     elements.sort(key=lambda x: x.level)
 
     for edge in edges:
-        edge_id = edge['data']['id']
-        source = edge['data']['source']
-        target = edge['data']['target']
+        edge_id, source, target = itemgetter('id', 'source', 'target')(edge)
         edge = Edge(edge_id, source, target)
 
         elements.append(edge)
-        
+
     xml_output = produce_xml_output(elements)
 
     # Compress and encode XML tree
@@ -184,16 +182,7 @@ def handler(event, context):
     # Attach XML string to Draw IO URL (Note: Draw IO is not app.diagram.net due to .io vulnerabilities)
     drawio_url = 'https://app.diagrams.net?title=AWS%20Architecture%20Diagram.xml#R' + xml_output_url
 
-    return {
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-        },
-        'statusCode': 200,
-        'body': json.dumps(drawio_url)
-    }
+    return drawio_url
 
 
 def produce_xml_output(elements):
@@ -208,9 +197,11 @@ def produce_xml_output(elements):
 
     # Draw IO needs two default cells to start drawing
     default_cell_contents = {'id': '0'}
-    default_cell = SubElement(root, 'mxCell', default_cell_contents)
+
+    # SubElement mutates root
+    SubElement(root, 'mxCell', default_cell_contents)
     default_cell_contents = {'id': '1', 'parent': '0'}
-    default_cell = SubElement(root, 'mxCell', default_cell_contents)
+    SubElement(root, 'mxCell', default_cell_contents)
 
     for elem in elements:
         xml_object = elem.get_xml_object()

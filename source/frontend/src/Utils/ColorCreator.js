@@ -1,6 +1,5 @@
-var randomColor = require('randomcolor');
-var hash = require('object-hash');
-
+import randomColor from 'randomcolor';
+import hash from 'object-hash';
 
 export const getAccountColour = (account) => {
   return randomColor({

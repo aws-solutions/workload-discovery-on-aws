@@ -6,7 +6,7 @@
 # cd deployment
 # ./build-s3-dist.sh source-bucket-base-name solution-name version-code
 #
-# Paramenters:
+# Parameters:
 #  - source-bucket-base-name: Name for the S3 bucket location where the template will source the Lambda
 #    code from. The template will append '-[region_name]' to this bucket name.
 #    For example: ./build-s3-dist.sh solutions my-solution v1.0.0
@@ -31,219 +31,167 @@ source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
 auditDeps () {
-   npx better-npm-audit audit --production
+   npm_config_yes=true npx better-npm-audit audit --production
    OUTPUT=$?
-   if [[ $OUTPUT -eq 0 ]];
+   if [[ "$OUTPUT" -eq 0 ]];
    then
        echo dependencies are fine
        return 0
    else
        echo You have vulnerabilies in your package
-       exit -1
+       return 1
    fi
 }
-
-echo "------------------------------------------------------------------------------"
-echo "[Packing] Creating Directories"
-echo "------------------------------------------------------------------------------"
-echo "rm -rf $template_dist_dir && mkdir -p $template_dist_dir"
-rm -rf $template_dist_dir && mkdir -p $template_dist_dir
-echo "rm -rf $build_dist_dir && mkdir -p $build_dist_dir"
-rm -rf $build_dist_dir && mkdir -p $build_dist_dir
-
-echo "------------------------------------------------------------------------------"
-echo "[Packing] Custom Resource Template"
-echo "------------------------------------------------------------------------------"
-echo "cp $template_dir/*.template $template_dist_dir/"
-echo "copy yaml templates and rename"
-cp $template_dir/*.yaml $template_dist_dir/
-cd $template_dist_dir
-# Rename all *.yaml to *.template
-for f in *.yaml; do
-    mv -- "$f" "${f%.yaml}.template"
-done
 
 # command that will work on both Linux and MacOS
 sedi () {
     sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
 }
 
-cd ..
-echo "Updating code source bucket in template with $1"
-replace="s|<BUCKET_NAME>|$1|g"
-echo "sed -i $replace $template_dist_dir/*.template"
-sedi $replace $template_dist_dir/*.template
-replace="s|<SOLUTION_NAME>|$2|g"
-echo "sed -i $replace $template_dist_dir/*.template"
-sedi $replace $template_dist_dir/*.template
-replace="s|<VERSION>|$3|g"
-echo "sed -i $replace $template_dist_dir/*.template"
-sedi $replace $template_dist_dir/*.template
-replace="s|<IMAGE_VERSION>|$4|g"
-echo "sed -i $replace $template_dist_dir/*.template"
-sedi $replace $template_dist_dir/*.template
+echo "------------------------------------------------------------------------------"
+echo "[Packing] Creating Directories"
+echo "------------------------------------------------------------------------------"
+
+rm -rf "$template_dist_dir" && mkdir -p "$template_dist_dir"
+rm -rf "$build_dist_dir" && mkdir -p "$build_dist_dir"
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Nested Stack Templates"
 echo "------------------------------------------------------------------------------"
-echo "cp $nested_stack_template_dir/*.yaml $template_dist_dir"
-cp $nested_stack_template_dir/*.yaml $template_dist_dir
-# echo "cp $source_dir/backend/functions/api/templates/*.yaml $build_dist_dir"
-# cp $source_dir/backend/funcitons/api/templates/*.yaml $build_dist_dir
-cd $template_dist_dir
 
-# Rename all *.yaml to *.template
-for f in *.yaml; do
-    mv -- "$f" "${f%.yaml}.template"
-done
+cp "$nested_stack_template_dir"/*.template "$build_dist_dir"
+cd "$build_dist_dir"
+sedi "s|<BUCKET_NAME>|${1}|g; s|<SOLUTION_NAME>|${2}|g; s|<VERSION>|${3}|g; s|<IMAGE_VERSION>|${4}|g" main.template
 
-echo "cp $nested_stack_template_dir/*.yaml $build_dist_dir"
-cp $nested_stack_template_dir/*.yaml $build_dist_dir
-# echo "cp $source_dir/backend/functions/api/templates/*.yaml $build_dist_dir"
-# cp $source_dir/backend/funcitons/api/templates/*.yaml $build_dist_dir
-cd $build_dist_dir
+echo "------------------------------------------------------------------------------"
+echo "[Packing] Main Distribution Template"
+echo "------------------------------------------------------------------------------"
 
-# Rename all *.yaml to *.template
-for f in *.yaml; do
-    mv -- "$f" "${f%.yaml}.template"
-done
-
-echo "cp $nested_stack_template_dir/*.yaml $build_dist_dir"
-cp $nested_stack_template_dir/*.yaml $build_dist_dir
-# echo "cp $source_dir/backend/functions/api/templates/*.yaml $build_dist_dir"
-# cp $source_dir/backend/funcitons/api/templates/*.yaml $build_dist_dir
-cd $build_dist_dir
-
-# Rename all *.yaml to *.template
-for f in *.yaml; do
-    mv -- "$f" "${f%.yaml}.template"
-done
+cp "${build_dist_dir}/main.template" "${template_dist_dir}/workload-discovery-on-aws.template"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Layers"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/lambda-layers
-for i in `ls -d */ | sed 's#/##'` ; do
-  mkdir $i/python
-  [ -f "$i/$i.py" ] && cp $i/$i.py $i/python
-  [ -f "$i/requirements.txt" ] && pip install -r $i/requirements.txt -t $i/python/
-  cd $i
-  zip  -q  -r9 ../$i.zip ./python
+cd "${source_dir}/backend/functions/lambda-layers"
+for i in $(ls -d -- */ | sed 's#/##') ; do
+  mkdir "${i}/python"
+  [ -f "$i/$i.py" ] && cp "${i}/${i}.py" "${i}/python"
+  [ -f "$i/requirements.txt" ] && pip install -r "${i}/requirements.txt" -t "${i}/python/"
+  cd "$i"
+  zip  -q  -r9 "../${i}.zip" ./python
   cd ..
-  rm -rf $i/python
+  rm -rf "${i}/python"
 done
-cp ./*.zip $build_dist_dir/
-
-echo "------------------------------------------------------------------------------"
-echo "[Rebuild] HSTS CloudFront Function"
-echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/secured-edge
-rm -rf dist && mkdir dist && cp cff-hsts.js dist/cff-hsts.js
-cp ./dist/cff-hsts.js $build_dist_dir/cff-hsts.js
+cp ./*.zip "${build_dist_dir}/"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Cleanup Bucket Lambda"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/cleanup-bucket
+cd "${source_dir}/backend/functions/cleanup-bucket"
 rm -rf dist && mkdir dist
-pip install --target ./package -r requirements.txt
-cd package
-zip -q -r9 ${OLDPWD}/dist/cleanup-bucket.zip * -x requirements.txt
-cd -
-zip -g dist/cleanup-bucket.zip cleanup_bucket.py
-cp ./dist/cleanup-bucket.zip $build_dist_dir/cleanup-bucket.zip
+zip -q -r9 dist/cleanup-bucket.zip cleanup_bucket.py
+cp ./dist/cleanup-bucket.zip "${build_dist_dir}/cleanup-bucket.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Codebuild Runner Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/run-codebuild-project"
+rm -rf dist && mkdir dist
+zip -q -r9 dist/run-codebuild-project.zip run_codebuild.py
+cp ./dist/run-codebuild-project.zip "${build_dist_dir}/run-codebuild-project.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Cleanup ECR Lambda"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/cleanup-ecr
-rm -rf dist
-mkdir dist && zip -q -r9 dist/cleanup-ecr.zip cleanup_ecr.py
-cp ./dist/cleanup-ecr.zip $build_dist_dir/cleanup-ecr.zip
+cd "${source_dir}/backend/functions/cleanup-ecr"
+rm -rf dist && mkdir dist
+zip -q -r9 dist/cleanup-ecr.zip cleanup_ecr.py
+cp ./dist/cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
 
+echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Drawio Lambda"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/drawio
+cd "${source_dir}/backend/functions/drawio"
 rm -rf dist && mkdir -p dist
 zip -q -r9 dist/drawio.zip main.py type_definitions.py
-cp ./dist/drawio.zip $build_dist_dir/drawio.zip
+cp ./dist/drawio.zip "${build_dist_dir}/drawio.zip"
 
 echo "------------------------------------------------------------------------------"
-echo "[Rebuild] API"
+echo "[Rebuild] Account Import Template API"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/api
+cd "${source_dir}/backend/functions/account-import-templates-api"
 
 auditDeps
 npm run build
-cp ./dist/api.zip $build_dist_dir/api.zip
+cp ./dist/account-import-templates-api.zip "${build_dist_dir}/account-import-templates-api.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Gremlin Resolver"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/graph-api
+cd "${source_dir}/backend/functions/graph-api"
 
 auditDeps
 npm run build
-cp ./dist/graph-api.zip $build_dist_dir/graph-api.zip
+cp ./dist/graph-api.zip "${build_dist_dir}/graph-api.zip"
 
 echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Search"
+echo "[Rebuild] opensearch-setup"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/search
+cd "${source_dir}/backend/functions/opensearch-setup"
 auditDeps
 npm run build
-cp ./dist/search.zip $build_dist_dir/search.zip
+cp ./dist/opensearch-setup.zip "${build_dist_dir}/opensearch-setup.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Search API"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/search-api"
+auditDeps
+npm run build
+cp ./dist/search-api.zip "${build_dist_dir}/search-api.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Settings"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/settings
+cd "${source_dir}/backend/functions/settings"
 auditDeps
 npm run build
-cp ./dist/settings.zip $build_dist_dir/settings.zip
-
-echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Setup"
-echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/setup
-auditDeps
-npm run build
-cp ./dist/setup.zip $build_dist_dir/setup.zip
+cp ./dist/settings.zip "${build_dist_dir}/settings.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Cost-Parser"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/cost-parser
+cd "${source_dir}/backend/functions/cost-parser"
 auditDeps
 npm run build
-cp ./dist/cost.zip $build_dist_dir/cost.zip
+cp ./dist/cost.zip "${build_dist_dir}/cost.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] CUR-Setup"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/functions/cur-setup
+cd "${source_dir}/backend/functions/cur-setup"
 auditDeps
 npm run build
-cp ./dist/cur-setup.zip $build_dist_dir/cur-setup.zip
+cp ./dist/cur-setup.zip "${build_dist_dir}/cur-setup.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Upload GraphQL Schema"
 echo "------------------------------------------------------------------------------"
-cp $source_dir/backend/graphql/schema/perspective-api.graphql $build_dist_dir/perspective-api.graphql
+cp "${source_dir}/backend/graphql/schema/perspective-api.graphql" "${build_dist_dir}/perspective-api.graphql"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Discovery"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/backend/discovery
+cd "${source_dir}/backend/discovery"
 auditDeps
 npm run build
-cp ./dist/discovery.zip $build_dist_dir/discovery.zip
+cp ./dist/discovery.zip "${build_dist_dir}/discovery.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] UI"
 echo "------------------------------------------------------------------------------"
-cd $source_dir/frontend
+cd "${source_dir}/frontend"
 auditDeps
 #npm run test
 npm run build
-cp ./build/ui.zip $build_dist_dir/ui.zip
+cp ./build/ui.zip "${build_dist_dir}/ui.zip"

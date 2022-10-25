@@ -1,7 +1,5 @@
-import React from 'react';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
-import APIResourceHover from './APIResourceHover';
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseAPIGatewayResource = (node) => {
   
   try {
@@ -18,11 +16,6 @@ export const parseAPIGatewayResource = (node) => {
         colour: '#fff',
       },
       icon: fetchImage(properties.resourceType),
-      hoverComponent: (
-        <APIResourceHover
-          path={properties.path}
-        />
-      ),
     };
   } catch (e) {
     return {};

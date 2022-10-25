@@ -36,8 +36,65 @@ input AccountInput {
   accountId: String!
   # A friendly name the user can provide for an account.
   name: String
-  # The regions AWS Perspective is enabled on
+  # The regions AWS Perspective is enabled on. For queries, if region is absent
+  # then all regions will be returned
   regions: [RegionInput]
+}
+
+input ResourcePropertiesInput {
+    accountId: String
+    arn: String
+    availabilityZone: String
+    awsRegion: String
+    configuration: String
+    configurationItemCaptureTime: String
+    configurationItemStatus: String
+    configurationStateId: String
+    relationships: String
+    resourceCreationTime: String
+    resourceId: String
+    resourceName: String
+    resourceType: String
+    supplementaryConfiguration: String
+    tags: String
+    version: String
+    vpcId: String
+    subnetId: String
+    subnetIds: String
+    resourceValue: String
+    state: String
+    private: String
+    dBInstanceStatus: String
+    statement: String
+    instanceType: String
+    title: String
+    loginURL: String
+    loggedInURL: String
+}
+
+input ResourceInput {
+    id: String
+    label: String
+    md5Hash: String
+    properties: ResourcePropertiesInput
+}
+
+input RelationshipInput {
+    source: String
+    label: String
+    target: String
+}
+
+type ResourceIdentifier @aws_iam {
+    id: String
+    label: String
+}
+
+type Relationship @aws_iam {
+    id: String
+    label: String
+    source: ResourceIdentifier
+    target: ResourceIdentifier
 }
 
 type UnprocessedAccounts @aws_cognito_user_pools @aws_iam {
@@ -45,19 +102,93 @@ type UnprocessedAccounts @aws_cognito_user_pools @aws_iam {
   unprocessedAccounts: [String]
 }
 
+type UnprocessedResources @aws_iam {
+    unprocessedResources: [String]
+}
+
+type ResourceCount {
+  count: Int
+  type: String
+}
+
+type ResourceRegionCount {
+    count: Int
+    name: String
+    resourceTypes: [ResourceCount]
+}
+
+type ResourcesMetadata {
+  count: Int
+  accounts: [Account]
+  resourceTypes: [ResourceCount]
+}
+
+type ResourcesAccountMetadata {
+  accountId: String
+  count: Int
+  resourceTypes: [ResourceCount]
+}
+
+type ResourcesRegionMetadata {
+    accountId: String
+    count: Int
+    regions: [ResourceRegionCount]
+}
+
+input drawIoNodePositionInput {
+    x: Float
+    y: Float
+}
+
+input drawIoNodeInput {
+    id: String!
+    parent: String
+    level: Int!
+    title: String!
+    label: String!
+    type: String!
+    image: String
+    hasChildren: Boolean
+    position: drawIoNodePositionInput!
+}
+
+input drawIoEdgeInput {
+    id: String
+    source: String
+    target: String
+}
+
 type Mutation {
   # Adds accounts to be scanned
-  addAccounts(accounts: [AccountInput]): UnprocessedAccounts
+  addAccounts(accounts: [AccountInput]!): UnprocessedAccounts
+  # Deletes the relationship specified by id in the relationshipIds variable
+  deleteRelationships(relationshipIds: [String]!): [String] @aws_iam
+  # Deletes the resources specified by id in the resources variable
+  deleteResources(resourceIds: [String]!): [String] @aws_iam
   # Updates an account, returns account id in response
-  updateAccount(accountId: String!, lastCrawled: AWSDateTime, name: String): AccountMetadata
-  @aws_cognito_user_pools
-  @aws_iam
+  updateAccount(
+    accountId: String!
+    lastCrawled: AWSDateTime
+    name: String
+  ): AccountMetadata @aws_cognito_user_pools @aws_iam
   # Updates one or more regions to be scanned
   updateRegions(accountId: String!, regions: [RegionInput]!): Account
     @aws_cognito_user_pools
     @aws_iam
   # Adds one or more regions to be scanned
   addRegions(accountId: String!, regions: [RegionInput]!): Account
+  # Adds one or more relationships to Perspective
+  addRelationships(relationships: [RelationshipInput]!): [Relationship]  @aws_iam
+  # Adds one or more resources to Perspective
+  addResources(resources: [ResourceInput]!): [ResourceIdentifier]  @aws_iam
+  # Indexes one or more resources in Opensearch
+  indexResources(resources: [ResourceInput]!): UnprocessedResources @aws_iam
+  # Deletes one or more resources indexed in Opensearch
+  deleteIndexedResources(resourceIds: [String]!): UnprocessedResources @aws_iam
+  # Updates one or more resources in Perspective
+  updateResources(resources: [ResourceInput]!): [ResourceIdentifier]  @aws_iam
+  # Updates one or more resources indexed in Opensearch
+  updateIndexedResources(resources: [ResourceInput]!): UnprocessedResources @aws_iam
   # Deletes one or more regions to be scanned
   deleteRegions(accountId: String!, regions: [RegionInput]!): Account
   # Deletes one or more accounts to be scanned
@@ -65,9 +196,33 @@ type Mutation {
 }
 
 type Query {
-  # Gets the children of the node with the supplied id or arn, if an id is provided the
-  # arn parameter will be ignored
-  getLinkedNodesHierarchy(id: String, arn: String): Hierarchy
+  # Gets resources from Neptune. Default pagination is 1000 elements. This is
+  # defined in the lambda function rather than the schema as AppSync does not
+  # support default parameters yet. If resourceTypes is absent then all
+  # resourceTypes will be returned. If accounts is absent then all accounts
+  # will be returned
+  getResources(
+    pagination: Pagination
+    resourceTypes: [String]
+    accounts: [AccountInput]
+  ): [Resource] @aws_cognito_user_pools @aws_iam
+  # Gets relationships from Neptune. Default pagination is 1000 elements. This is
+  # defined in the lambda function rather than the schema as AppSync does not
+  # support default parameters yet.
+  getRelationships(pagination: Pagination): [Relationship] @aws_iam
+  # Gets the children of the node with the supplied id
+  getLinkedNodesHierarchy(id: String!): Hierarchy
+  # For each supplied id, gets the children of the node with that id
+  batchGetLinkedNodesHierarchy(ids: [String]!): BatchHierarchyResponse
+  # Get resource counts broken down by resource type and a list of all accounts and
+  # associated regions.
+  getResourcesMetadata: ResourcesMetadata
+  # Get resource counts broken down by account. If accounts is absent then all
+  # accounts will be returned
+  getResourcesAccountMetadata(accounts: [AccountInput]): [ResourcesAccountMetadata]
+  # Get resource counts broken down by account and region. If accounts is absent then
+  # all accounts will be returned
+  getResourcesRegionMetadata(accounts: [AccountInput]): [ResourcesRegionMetadata]
   # Gets a single account and the regions that are being scanned
   getAccount(accountId: String!): Account
   # Gets each account and its associated regions that are being scanned
@@ -90,6 +245,33 @@ type Query {
   getResourcesByCostByDay(
     costForResourceQueryByDay: CostForResourceQueryByDay
   ): Cost @aws_cognito_user_pools @aws_iam
+  # Gets global template for account importing
+  getGlobalTemplate: String
+  # Gets regional template for account importing
+  getRegionalTemplate: String
+  # Gets resources based on string search text
+  searchResources(text: String!
+      pagination: Pagination
+      resourceTypes: [String]
+      accounts: [AccountInput]): ResourcesResponse
+  # Export a diagram to draw.io
+  exportToDrawIo(nodes: [drawIoNodeInput], edges: [drawIoEdgeInput]) : String
+}
+
+type ResourcesResponse @aws_cognito_user_pools @aws_iam {
+    count: Int
+    resources: [Resource]
+}
+
+type BatchHierarchy {
+    parentId: String!
+    hierarchy: Hierarchy
+}
+
+type BatchHierarchyResponse {
+    hierarchies: [BatchHierarchy]
+    notFound: [String]
+    unprocessedResources: [String]
 }
 
 type Cost @aws_cognito_user_pools @aws_iam {
@@ -137,7 +319,7 @@ type CostItem @aws_cognito_user_pools @aws_iam {
   product_servicename: String
   line_item_usage_start_date: String
   line_item_usage_account_id: String!
-  product_region: String!
+  region: String!
   pricing_term: String!
   cost: Float!
   line_item_currency_code: String!
@@ -194,7 +376,7 @@ type QueryDetails @aws_cognito_user_pools @aws_iam {
 input ResourcesByCostQuery {
   # A list of account Ids that you wish to locate costs in.
   accountIds: [String!]
-    # A list of regions that you wish to locate costs in.
+  # A list of regions that you wish to locate costs in.
   regions: [String!]
   # The time period to query for cost data.
   period: Period!
@@ -215,147 +397,48 @@ type Hierarchy {
   id: String
   label: String!
   type: String!
-  data: HierarchyData
-  perspectiveBirthDate: AWSDateTime
-  properties: Properties
+  data: Resource
+  md5Hash: String
+  properties: ResourceProperties
   children: [Hierarchy]
   parent: Boolean
 }
 
-type HierarchyData {
-  id: String
-  label: String
-  perspectiveBirthDate: AWSDateTime
-  properties: Properties
+type Resource @aws_cognito_user_pools @aws_iam {
+    id: String!
+    label: String,
+    md5Hash: String
+    properties: ResourceProperties
 }
 
-interface Properties {
-  resourceName: String
-  resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
+type ResourceProperties @aws_cognito_user_pools @aws_iam {
+  accountId: String
   arn: String
-  awsRegion: String
   availabilityZone: String
+  awsRegion: String
+  configuration: AWSJSON
+  configurationItemCaptureTime: String
+  configurationItemStatus: String
+  configurationStateId: String
+  relationships: AWSJSON
+  resourceCreationTime: String
+  resourceId: String
+  resourceName: String
+  resourceType: String
+  supplementaryConfiguration: AWSJSON
+  tags: String
+  version: String
   vpcId: String
   subnetId: String
-  state: String
-  loggedInURL: String
-  loginURL: String
-  accountId: String
-  title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
-}
-
-type ResourceProperties implements Properties {
-  resourceName: String
+  subnetIds: String
   resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
-  arn: String
-  awsRegion: String
-  availabilityZone: String
-  vpcId: String
-  subnetId: String
   state: String
+  private: String
   loggedInURL: String
   loginURL: String
-  accountId: String
   title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
-}
-
-type RDSDBInstance implements Properties {
-  resourceName: String
-  resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
-  arn: String
-  awsRegion: String
-  availabilityZone: String
-  vpcId: String
-  subnetId: String
-  state: String
-  loggedInURL: String
-  loginURL: String
-  accountId: String
-  title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
   dBInstanceStatus: String
-}
-
-type ApiGatewayMethod implements Properties {
-  resourceName: String
-  resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
-  arn: String
-  awsRegion: String
-  availabilityZone: String
-  vpcId: String
-  subnetId: String
-  state: String
-  loggedInURL: String
-  loginURL: String
-  accountId: String
-  title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
-  path: String
-}
-
-type IAMCustomerManagedPolicyStatement implements Properties {
-  resourceName: String
-  resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
-  arn: String
-  awsRegion: String
-  availabilityZone: String
-  vpcId: String
-  subnetId: String
-  state: String
-  loggedInURL: String
-  loginURL: String
-  accountId: String
-  title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
   statement: String
-}
-
-type EC2Instance implements Properties {
-  resourceName: String
-  resourceValue: String
-  resourceType: String
-  resourceId: String
-  tags: String
-  arn: String
-  awsRegion: String
-  availabilityZone: String
-  vpcId: String
-  subnetId: String
-  state: String
-  loggedInURL: String
-  loginURL: String
-  accountId: String
-  title: String
-  softDelete: String
-  private: Boolean
-  configuration: AWSJSON
   instanceType: String
 }
 

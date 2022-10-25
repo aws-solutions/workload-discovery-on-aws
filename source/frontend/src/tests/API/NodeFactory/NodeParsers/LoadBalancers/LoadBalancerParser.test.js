@@ -10,7 +10,6 @@ import {
   internetNetwork
 } from './data/loadbalancers';
 import LoadBalancerItem from '../../../../../API/NodeFactory/NodeParsers/LoadBalancers/LoadBalancerDetails/LoadBalancerItem'
-import LoadBalancerHover from '../../../../../API/NodeFactory/NodeParsers/LoadBalancers/LoadBalancerDetails/LoadBalancerHover'
 
 const PUBLIC_URL = process.env;
 
@@ -53,9 +52,7 @@ test('when node is a load balancer of scheme internal and type application that 
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -94,9 +91,7 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -135,9 +130,7 @@ test('when node is a load balancer of scheme internal and type network that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -175,9 +168,7 @@ test('when node is a load balancer of scheme internet-facing and type network th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -215,9 +206,7 @@ test('when node is a load balancer of scheme internal and type classic that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -254,9 +243,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -296,9 +283,7 @@ test('when node is a load balancer of scheme internal and type application that 
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -337,9 +322,7 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -378,9 +361,7 @@ test('when node is a load balancer of scheme internal and type network that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -418,9 +399,7 @@ test('when node is a load balancer of scheme internet-facing and type network th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -458,9 +437,7 @@ test('when node is a load balancer of scheme internal and type classic that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -497,9 +474,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -538,9 +513,7 @@ test('when node is a load balancer of scheme internal and type application that 
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -579,9 +552,7 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -620,9 +591,7 @@ test('when node is a load balancer of scheme internal and type network that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -660,9 +629,7 @@ test('when node is a load balancer of scheme internet-facing and type network th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -700,9 +667,7 @@ test('when node is a load balancer of scheme internal and type classic that is i
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -739,9 +704,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -779,9 +742,7 @@ test('when node is a load balancer of scheme internet-facing and type classic th
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);
@@ -818,9 +779,7 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
         configuration={node.properties.configuration}
       />
     ),
-    hoverComponent: (
-      <LoadBalancerHover configuration={node.properties.configuration} />
-    )
+
   };
 
   const result = parseLoadBalancer(node);

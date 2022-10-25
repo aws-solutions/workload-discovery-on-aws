@@ -1,6 +1,5 @@
 import React from 'react';
 import StatementItem from '../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/Statement/StatementItem';
-import StatementHover from '../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/Statement/StatementHover';
 import { parseCustomerManagedPolicyStatement } from '../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 import {
@@ -57,19 +56,11 @@ test('when node that is customer managed policy statement with at risk actions a
         statement={JSON.parse(atRiskActionsResources)}
       />
     ),
-    hoverComponent: (
-      <StatementHover
-        statement={JSON.parse(atRiskActionsResources)}
-        resourceStatus={{ status: 'status-negative', text: 'At Risk' }}
-        actionStatus={{ status: 'status-negative', text: 'At Risk' }}
-      />
-    )
   };
 
   const result = parseCustomerManagedPolicyStatement(node);
   expect(result.styling).toEqual(expectedResult.styling);
   expect(result.icon).toEqual(expectedResult.icon);
-  expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
@@ -103,19 +94,11 @@ test('when node that is customer managed policy statement with at risk actions a
         statement={JSON.parse(atRiskActionsNeedsAttentionResources)}
       />
     ),
-    hoverComponent: (
-      <StatementHover
-        statement={JSON.parse(atRiskActionsNeedsAttentionResources)}
-        resourceStatus={{ status: 'status-warning', text: 'Needs Attention' }}
-        actionStatus={{ status: 'status-negative', text: 'At Risk' }}
-      />
-    )
   };
 
   const result = parseCustomerManagedPolicyStatement(node);
   expect(result.styling).toEqual(expectedResult.styling);
   expect(result.icon).toEqual(expectedResult.icon);
-  expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
@@ -149,19 +132,11 @@ test('when node that is customer managed policy statement with needs attention a
         statement={JSON.parse(needsAttentionActionsNeedsAttentionResources)}
       />
     ),
-    hoverComponent: (
-      <StatementHover
-        statement={JSON.parse(needsAttentionActionsNeedsAttentionResources)}
-        resourceStatus={{ status: 'status-warning', text: 'Needs Attention' }}
-        actionStatus={{ status: 'status-warning', text: 'Needs Attention' }}
-      />
-    )
   };
 
   const result = parseCustomerManagedPolicyStatement(node);
   expect(result.styling).toEqual(expectedResult.styling);
   expect(result.icon).toEqual(expectedResult.icon);
-  expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 
@@ -195,13 +170,6 @@ test('when node that is customer managed policy statement with ok actions and at
         statement={JSON.parse(okActionsAtRiskResources)}
       />
     ),
-    hoverComponent: (
-      <StatementHover
-        statement={JSON.parse(okActionsAtRiskResources)}
-        resourceStatus={{ status: 'status-negative', text: 'At Risk' }}
-        actionStatus={{ status: 'status-available', text: 'OK' }}
-      />
-    )
   };
 
   const result = parseCustomerManagedPolicyStatement(node);
@@ -241,19 +209,11 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(atRiskActionsOKResources)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(atRiskActionsOKResources)}
-          resourceStatus={{ status: 'status-available', text: 'OK' }}
-          actionStatus={{ status: 'status-negative', text: 'At Risk' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
@@ -287,19 +247,11 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(needsAttentionActionsOKResources)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(needsAttentionActionsOKResources)}
-          resourceStatus={{ status: 'status-available', text: 'OK' }}
-          actionStatus={{ status: 'status-warning', text: 'Needs Attention' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
@@ -333,19 +285,11 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(okActionsNeedsAttentionResources)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(okActionsNeedsAttentionResources)}
-          resourceStatus={{ status: 'status-warning', text: 'Needs Attention' }}
-          actionStatus={{ status: 'status-available', text: 'OK' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
@@ -379,19 +323,11 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(okActionsOKResources)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(okActionsOKResources)}
-          resourceStatus={{ status: 'status-available', text: 'OK' }}
-          actionStatus={{ status: 'status-available', text: 'OK' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
@@ -425,19 +361,11 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(okActionsNotArrayOKResources)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(okActionsNotArrayOKResources)}
-          resourceStatus={{ status: 'status-available', text: 'OK' }}
-          actionStatus={{ status: 'status-available', text: 'OK' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });
 
@@ -471,18 +399,10 @@ test('when node that is customer managed policy statement with at risk actions a
           statement={JSON.parse(okActionsOKResourcesArray)}
         />
       ),
-      hoverComponent: (
-        <StatementHover
-          statement={JSON.parse(okActionsOKResourcesArray)}
-          resourceStatus={{ status: 'status-available', text: 'OK' }}
-          actionStatus={{ status: 'status-available', text: 'OK' }}
-        />
-      )
     };
   
     const result = parseCustomerManagedPolicyStatement(node);
     expect(result.styling).toEqual(expectedResult.styling);
     expect(result.icon).toEqual(expectedResult.icon);
-    expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
     expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
   });

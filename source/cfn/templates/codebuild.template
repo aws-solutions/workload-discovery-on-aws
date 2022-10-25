@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Codepipeline/Codebuild Stack
+
+Parameters:
+  CloudfrontDistributionId:
+    Type: String
+
+  ContainerRepo:
+    Type: String
+
+  CustomResourceHelperLambdaLayer:
+    Type: String
+
+  ImageVersion:
+    Description: Release version
+    Type: String
+
+  DeploymentBucketName:
+    Type: String
+    Description: The bucket where the zip files containing the source code for the ECR cleanup lambda
+
+  DeploymentBucketKey:
+    Type: String
+    Description: The key within the bucket that contains the source code zips
+
+  WebUIBucket:
+    Type: String
+
+  SolutionVersion:
+    Type: String
+
+Resources:
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: The ecr:GetAuthorizationToken action only supports * resources
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-codebuild
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ContainerRepo}*
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+              - Effect: Allow
+                Resource:
+                  - "*"
+                Action:
+                  - ecr:GetAuthorizationToken
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${DeploymentBucketName}/*"
+              - Effect: Allow
+                Action:
+                  - "cloudfront:CreateInvalidation"
+                Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudfrontDistributionId}"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${WebUIBucket}/*"
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W32
+            reason: 'Default behaviour of using AWS-managed CMK is sufficient'
+    Properties:
+      ConcurrentBuildLimit: 1
+      TimeoutInMinutes: 30
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Source:
+        Type: NO_SOURCE
+        BuildSpec: |-
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - aws ecr get-login-password | docker login --username AWS --password-stdin "${DOCKER_REGISTRY}"
+                - aws s3 cp --no-progress "${DISCOVERY_ZIP_URI}" discovery.zip
+                - aws s3 cp --no-progress "${UI_ZIP_URI}" ui.zip
+                - sha256sum discovery.zip ui.zip
+                - unzip -q -d discovery discovery.zip
+                - unzip -q -d ui ui.zip
+            build:
+              commands:
+                - aws s3 cp --only-show-errors --recursive ui/ "s3://${WEBUI_BUCKET}/"
+                - docker build --progress plain --tag "${DOCKER_IMAGE_TAG}" discovery/
+                - docker push --quiet "${DOCKER_IMAGE_TAG}"
+            post_build:
+              commands:
+                - aws cloudfront create-invalidation --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" --paths "/*"
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:5.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: DOCKER_REGISTRY
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}
+          - Name: DOCKER_IMAGE_TAG
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${ContainerRepo}:${ImageVersion}
+          - Name: CLOUDFRONT_DISTRIBUTION_ID
+            Value: !Ref CloudfrontDistributionId
+          - Name: DISCOVERY_ZIP_URI
+            Value: !Sub "s3://${DeploymentBucketName}/${DeploymentBucketKey}/discovery.zip"
+          - Name: UI_ZIP_URI
+            Value: !Sub "s3://${DeploymentBucketName}/${DeploymentBucketKey}/ui.zip"
+          - Name: WEBUI_BUCKET
+            Value: !Ref WebUIBucket
+        PrivilegedMode: true
+      Name: !Ref AWS::StackName
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+
+  RunCodebuild:
+    Type: Custom::CodebuildRunner
+    Properties:
+      ServiceToken: !GetAtt RunCodebuildFunction.Arn
+      # The following parameters are to ensure CodeBuild is started on version updates.
+      # They do not affect the CodeBuild job.
+      ImageVersion: !Ref ImageVersion
+      SolutionVersion: !Ref SolutionVersion
+
+  RunCodebuildFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This Lambda does not connect to any resources in a VPC
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: run_codebuild.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucketName
+        Key: !Sub ${DeploymentBucketKey}/run-codebuild-project.zip
+      Layers:
+        - Ref: CustomResourceHelperLambdaLayer
+      Environment:
+        Variables:
+          CODEBUILD_PROJECT_NAME: !Ref CodeBuildProject
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - codebuild:StartBuild
+              Resource: !GetAtt CodeBuildProject.Arn
+      Runtime: python3.8
+      ReservedConcurrentExecutions: 1
+      Timeout: 900

@@ -1,0 +1,35 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "ecsCluster": {
+    "id": "${ecsCluster.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+    "resourceType": "AWS::ECS::Cluster",
+    "resourceId": "testCluster",
+    "configuration": {
+      "Cluster": "testCluster"
+    },
+    "relationships": []
+  },
+  "ecsService": {
+    "id": "${ecsService.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
+    "resourceId": "${ecsService.arn}",
+    "resourceName":  "service",
+    "resourceType": "AWS::ECS::Service",
+    "relationships": [],
+    "configuration": {
+      "Cluster": "${ecsCluster.arn}"
+    }
+  },
+  "ecsTask": {
+    "taskArn": "taskArn",
+    "availabilityZone": "${$constants.region}a"
+  }
+}

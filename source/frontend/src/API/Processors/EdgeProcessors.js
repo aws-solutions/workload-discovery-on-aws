@@ -1,4 +1,4 @@
-const R = require('ramda');
+import * as R  from 'ramda';
 export const processEdges = (nodes, selectedNodeId) => {
   const edges = [];
   const expandedNode = R.find(

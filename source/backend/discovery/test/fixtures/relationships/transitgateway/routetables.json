@@ -1,0 +1,28 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "tgwRouteTable1":  {
+    "resourceId": "tgw-rtb-fedcba0987654321"
+  },
+  "tgwRouteTable2":  {
+    "resourceId": "tgw-rtb-1234567890abcdef"
+  },
+  "tgw": {
+    "id": "${tgw.arn}",
+    "resourceId": "tgw-0f16382fd59d06fb5",
+    "resourceName": "${tgw.resourceId}",
+    "resourceType": "AWS::EC2::TransitGateway",
+    "accountId": "${$constants.accountId}",
+    "arn": "tgwArn",
+    "availabilityZone": "Regional",
+    "awsRegion": "${$constants.region}",
+    "configuration": {
+      "AssociationDefaultRouteTableId": "${tgwRouteTable1.resourceId}",
+      "PropagationDefaultRouteTableId": "${tgwRouteTable2.resourceId}"
+    },
+    "tags": [],
+    "relationships": []
+  }
+}

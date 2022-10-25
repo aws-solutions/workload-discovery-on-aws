@@ -1,0 +1,228 @@
+= Data Model
+
+== Introduction
+
+AWS Perspective relies on AWS Config when discovering the vast majority of its resources. We will follow the modelling
+that Config provides and extend it to the resources that Perspective discovers using AWS SDK calls also.
+
+== Applying The Config Model
+
+AWS Perspective uses a graph database as its persistence layer, as such the main entities we are concerned with are the
+vertices and the edges that describe the relationships between individual vertexes.
+
+=== Vertices
+
+Neptune allows us to label vertices, we will use the `ResourceType` value returned by config, which also maps to the
+resource type used by CloudFormation, e.g, `AWS::EC2::Instance`. It thus makes sense to use this CloudFormation
+naming scheme for Perspectives non-Config resources.
+
+=== Edges
+
+For many resource types, AWS Config also gives us information about the relationships between the resources it returns
+and annotates these with a relationship type, e.g., `is contained in` or `is associated with`. We will reuse these as
+edge labels between the vertices in the graph. We will follow the convention of labeling edge in Upper Case, e.g.,
+`IS_CONTAINED_IN. For non-Config resources, we will follow relationship types Config provides and map them where
+appropriate. 
+
+== Relationship Types
+
+=== AWS Config
+
+|===
+|Resource Type |Relationship Type |Related Resource Type
+
+|AWS::ApiGateway::RestApi |CONTAINS |AWS::ApiGateway::Stage 
+|AWS::ApiGateway::Stage |IS_CONTAINED_IN |AWS::ApiGateway::RestApi 
+| |IS_ASSOCIATED_WITH |AWS::WAF::WebACL 
+|AWS::ApiGatewayV2::Api |CONTAINS |AWS::ApiGateway::Stage 
+|AWS::ApiGatewayV2::Stage |IS_CONTAINED_IN |AWS::ApiGatewayV2::Api 
+|AWS::CloudFront::Distribution |IS_ASSOCIATED_WITH |AWS::WAF::WebACL 
+| |IS_ASSOCIATED_WITH |AWS::ACM::Certificate 
+| |IS_ASSOCIATED_WITH |AWS::S3::Bucket 
+| |IS_ASSOCIATED_WITH |AWS::IAM::ServerCertificate 
+|AWS::CloudFront::StreamingDistribution |IS_ASSOCIATED_WITH |AWS::WAF::WebACL 
+| |IS_ASSOCIATED_WITH |AWS::ACM::Certificate 
+| |IS_ASSOCIATED_WITH |AWS::S3::Bucket 
+| |IS_ASSOCIATED_WITH |AWS::IAM::ServerCertificate 
+|AWS::EC2::Volume |IS_ATTACHED_TO |AWS::EC2::Instance 
+|AWS::EC2::Host |CONTAINS |AWS::EC2::Instance 
+|AWS::EC2::EIP |IS_ATTACHED_TO |AWS::EC2::Instance 
+|AWS::EC2::Instance |CONTAINS |AWS::EC2::NetworkInterface 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ATTACHED_TO |AWS::EC2::Volume 
+| |IS_ATTACHED_TO |AWS::EC2::EIP 
+| |IS_CONTAINED_IN |AWS::EC2::Host 
+| |IS_CONTAINED_IN |AWS::EC2::RouteTable 
+| |IS_CONTAINED_IN |AWS::EC2::Subnet 
+| |IS_CONTAINED_IN |AWS::EC2::VPC 
+|AWS::EC2::NetworkInterface |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ATTACHED_TO |AWS::EC2::EIP 
+| |IS_ATTACHED_TO |AWS::EC2::Instance 
+| |IS_CONTAINED_IN |AWS::EC2::Host 
+| |IS_CONTAINED_IN |AWS::EC2::Subnet 
+| |IS_CONTAINED_IN |AWS::EC2::VPC 
+|AWS::EC2::SecurityGroup |IS_ASSOCIATED_WITH |AWS::EC2::Instance 
+| |IS_ASSOCIATED_WITH |AWS::EC2::NetworkInterface 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::EC2::NatGateway |IS_CONTAINED_IN |AWS::EC2::Subnet 
+|AWS::EC2::EgressOnlyInternetGateway |IS_CONTAINED_IN |AWS::EC2::VPC 
+|AWS::EC2::VPCEndpoint |IS_CONTAINED_IN |AWS::EC2::VPC 
+| |IS_CONTAINED_IN |AWS::EC2::Subnet 
+| |IS_ATTACHED_TO |AWS::EC2::NetworkInterface 
+|AWS::EC2::VPCEndpointService |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancingV2::LoadBalancer 
+|AWS::EC2::VPCPeeringConnection |IS_ASSOCIATED_WITH |AWS::EC2::VPC
+|AWS::EC2::RegisteredHAInstance |IS_ASSOCIATED_WITH |AWS::EC2::Instance 
+|AWS::Elasticsearch::Domain |IS_ASSOCIATED_WITH |AWS::KMS::Key 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::EC2::Subnet 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::Redshift::Cluster |IS_ASSOCIATED_WITH |AWS::Redshift::ClusterParameterGroup 
+| |IS_ASSOCIATED_WITH |AWS::Redshift::ClusterSecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::Redshift::ClusterSubnetGroup 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::Redshift::ClusterSnapshot |IS_ASSOCIATED_WITH |AWS::Redshift::Cluster 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::Redshift::ClusterSubnetGroup |IS_ASSOCIATED_WITH |AWS::Redshift::Cluster 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::RDS::DBInstance |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::RDS::DBSecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::RDS::DBSubnetGroup 
+|AWS::RDS::DBSecurityGroup |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::RDS::DBSnapshot |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::RDS::DBSubnetGroup |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::RDS::DBCluster |CONTAINS |AWS::RDS::DBInstance 
+| |IS_ASSOCIATED_WITH |AWS::RDS::DBSubnetGroup 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+|AWS::RDS::DBClusterSnapshot |IS_ASSOCIATED_WITH |AWS::RDS::DBCluster 
+| |IS_ASSOCIATED_WITH |AWS::EC2::VPC 
+|AWS::EC2::CustomerGateway |IS_ATTACHED_TO |AWS::EC2::VPNConnection 
+|AWS::EC2::InternetGateway |IS_ATTACHED_TO |AWS::EC2::VPC 
+|AWS::EC2::RouteTable |CONTAINS |AWS::EC2::Instance 
+| |CONTAINS |AWS::EC2::NetworkInterface 
+| |CONTAINS |AWS::EC2::Subnet 
+| |CONTAINS |AWS::EC2::VPNGateway 
+|AWS::EC2::Subnet |CONTAINS |AWS::EC2::Instance 
+| |CONTAINS |AWS::EC2::NetworkInterface 
+| |IS_ATTACHED_TO |AWS::EC2::NetworkAcl 
+| |IS_CONTAINED_IN |AWS::EC2::RouteTable 
+| |IS_CONTAINED_IN |AWS::EC2::VPC 
+|AWS::EC2::VPC |CONTAINS |AWS::EC2::Instance 
+| |CONTAINS |AWS::EC2::NetworkInterface 
+| |CONTAINS |AWS::EC2::NetworkAcl 
+| |CONTAINS |AWS::EC2::RouteTable 
+| |CONTAINS |AWS::EC2::Subnet 
+|AWS::EC2::VPNConnection |IS_ATTACHED_TO |AWS::EC2::CustomerGateway 
+| |IS_ATTACHED_TO |AWS::EC2::VPNGateway 
+|AWS::EC2::VPNGateway |IS_ATTACHED_TO |AWS::EC2::VPNConnection 
+| |IS_ATTACHED_TO |AWS::EC2::VPC 
+| |IS_CONTAINED_IN |AWS::EC2::RouteTable 
+|AWS::AutoScaling::AutoScalingGroup |CONTAINS |AWS::EC2::Instance 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancing::LoadBalancer 
+| |IS_ASSOCIATED_WITH |AWS::AutoScaling::LaunchConfiguration 
+| |IS_ASSOCIATED_WITH |AWS::EC2::Subnet 
+|AWS::AutoScaling::LaunchConfiguration |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+|AWS::AutoScaling::ScalingPolicy |IS_ASSOCIATED_WITH |AWS::AutoScaling::AutoScalingGroup 
+| |IS_ASSOCIATED_WITH |AWS::CloudWatch::Alarm 
+|AWS::AutoScaling::ScheduledAction |IS_ASSOCIATED_WITH |AWS::AutoScaling::AutoScalingGroup 
+|AWS::CloudFormation::Stack |CONTAINS |AWS::* 
+|AWS::CodeBuild::Project |IS_ASSOCIATED_WITH |AWS::S3::Bucket 
+| |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+|AWS::CodePipeline::Pipeline |IS_ATTACHED_TO |AWS::S3::Bucket 
+| |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+| |IS_ASSOCIATED_WITH |AWS::CodeBuild::Project 
+| |IS_ASSOCIATED_WITH |AWS::Lambda::Function 
+| |IS_ASSOCIATED_WITH |AWS::CloudFormation::Stack 
+| |IS_ASSOCIATED_WITH |AWS::ElasticBeanstalk::Application 
+|AWS::Config::ResourceCompliance |IS_ASSOCIATED_WITH |AWS::* 
+|AWS::ElasticBeanstalk::Application |CONTAINS |AWS::ElasticBeanstalk::ApplicationVersion 
+| |CONTAINS |AWS::ElasticBeanstalk::Environment 
+| |CONTAINS |AWS::IAM::Role 
+|AWS::ElasticBeanstalk::ApplicationVersion |IS_CONTAINED_IN |AWS::ElasticBeanstalk::Application 
+| |IS_ASSOCIATED_WITH |AWS::ElasticBeanstalk::Environment 
+| |IS_ASSOCIATED_WITH |AWS::S3::Bucket 
+|AWS::ElasticBeanstalk::Environment |IS_CONTAINED_IN |AWS::ElasticBeanstalk::Application 
+| |IS_ASSOCIATED_WITH |AWS::ElasticBeanstalk::ApplicationVersion 
+| |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+| |CONTAINS |AWS::CloudFormation::Stack 
+|AWS::IAM::User |IS_ATTACHED_TO |AWS::IAM::Group 
+|AWS::IAM::Group |CONTAINS |AWS::IAM::User 
+|AWS::IAM::User |IS_ATTACHED_TO |AWS::IAM::Group 
+| |IS_ATTACHED_TO |AWS::IAM::User 
+| |IS_ATTACHED_TO |AWS::IAM::Role 
+|AWS::Lambda::Function |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_CONTAINED_IN |AWS::EC2::Subnet 
+|AWS::NetworkFirewall::Firewall |IS_ATTACHED_TO |AWS::EC2::Subnet 
+| |IS_ASSOCIATED_WITH |AWS::NetworkFirewall::FirewallPolicy 
+|AWS::NetworkFirewall::FirewallPolicy |IS_ASSOCIATED_WITH |AWS::NetworkFirewall::RuleGroup 
+|AWS::SecretsManager::Secret |IS_ASSOCIATED_WITH |AWS::KMS::Key 
+| |IS_ASSOCIATED_WITH |AWS::Lambda::Function 
+|AWS::ServiceCatalog::CloudFormationProduct |IS_ASSOCIATED_WITH |AWS::ServiceCatalog::CloudFormationProvisionedProduct 
+| |IS_CONTAINED_IN |AWS::ServiceCatalog::Portfolio 
+|AWS::ServiceCatalog::CloudFormationProvisionedProduct |IS_ASSOCIATED_WITH |AWS::ServiceCatalog::Portfolio 
+| |IS_ASSOCIATED_WITH |AWS::ServiceCatalog::CloudFormationProduct 
+| |IS_ASSOCIATED_WITH |AWS::CloudFormation::Stack 
+|AWS::ServiceCatalog::Portfolio |CONTAINS |AWS::ServiceCatalog::CloudFormationProduct 
+|AWS::Shield::Protection |IS_ASSOCIATED_WITH |AWS::CloudFront::Distribution 
+|AWS::ShieldRegional::Protection |IS_ASSOCIATED_WITH |AWS::EC2::EIP 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancing::LoadBalancer 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancingV2::LoadBalancer 
+|AWS::SSM::ManagedInstanceInventory |IS_ASSOCIATED_WITH |AWS::EC2::Instance 
+|AWS::SSM::PatchCompliance |IS_ASSOCIATED_WITH |AWS::SSM::ManagedInstanceInventory 
+|AWS::SSM::AssociationCompliance |IS_ASSOCIATED_WITH |AWS::SSM::ManagedInstanceInventory 
+|AWS::SSM::FileData |IS_ASSOCIATED_WITH |AWS::SSM::ManagedInstanceInventory 
+|AWS::WAF::WebACL |IS_ASSOCIATED_WITH |AWS::WAF::Rule 
+| |IS_ASSOCIATED_WITH |AWS::WAFRegional::RateBasedRule 
+| |IS_ASSOCIATED_WITH |AWS::WAF::RuleGroup 
+|AWS::WAF::RuleGroup |IS_ASSOCIATED_WITH |AWS::WAF::Rule 
+|AWS::WAFRegional::WebACL |IS_ASSOCIATED_WITH |AWS::WAFRegional::Rule 
+| |IS_ASSOCIATED_WITH |AWS::WAFRegional::RateBasedRule 
+| |IS_ASSOCIATED_WITH |AWS::WAFRegional::RuleGroup 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancingV2::LoadBalancer 
+|AWS::WAFRegional::RuleGroup |IS_ASSOCIATED_WITH |AWS::WAFRegional::Rule 
+|AWS::WAFv2::WebACL |IS_ASSOCIATED_WITH |AWS::WAFv2::RuleGroup 
+| |IS_ASSOCIATED_WITH |AWS::WAFv2::IPSet 
+| |IS_ASSOCIATED_WITH |AWS::WAFv2::ManagedRuleSet 
+| |IS_ASSOCIATED_WITH |AWS::WAFv2::RegexPatternSet 
+| |IS_ASSOCIATED_WITH |AWS::ApiGateway::Stage 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancingV2::LoadBalancer 
+|AWS::WAFv2::RuleGroup |IS_ASSOCIATED_WITH |AWS::WAFv2::IPSet 
+| |IS_ASSOCIATED_WITH |AWS::WAFv2::RegexPatternSet 
+|AWS::WAFv2::ManagedRuleSet |IS_ASSOCIATED_WITH |AWS::WAFv2::RuleGroup 
+|AWS::ElasticLoadBalancingV2::LoadBalancer |IS_CONTAINED_IN |AWS::EC2::VPC 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ATTACHED_TO |AWS::EC2::Subnet 
+|AWS::ElasticLoadBalancing::LoadBalancer |IS_CONTAINED_IN |AWS::EC2::VPC 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ATTACHED_TO |AWS::EC2::Subnet 
+|===
+
+=== AWS SDK
+
+|===
+|Resource Type |Relationship Type |Related Resource Type
+
+|AWS::ApiGateway::RestApi |CONTAINS |AWS::ApiGateway::Resource 
+|AWS::ApiGateway::Resource |IS_CONTAINED_IN |AWS::ApiGateway::RestApi 
+| |CONTAINS |AWS::ApiGateway::Method 
+|AWS::ApiGateway::Method |IS_CONTAINED_IN |AWS::ApiGateway::Resource 
+|AWS::EC2::SpotFleet |CONTAINS |AWS::EC2::Spot 
+|AWS::EC2::Spot |IS_CONTAINED_IN |AWS::EC2::SpotFleet 
+| |IS_ASSOCIATED_WITH |AWS::EC2::Instance 
+|AWS::ECS::Cluster |CONTAINS |AWS::ECS::Service 
+|AWS::ECS::Service |IS_CONTAINED_IN |AWS::ECS::Cluster 
+| |CONTAINS |AWS::ECS::Task 
+| |IS_ASSOCIATED_WITH |AWS::ElasticLoadBalancingV2::LoadBalancer 
+| |IS_ASSOCIATED_WITH |AWS::EC2::SecurityGroup 
+| |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+|AWS::ECS::Task |IS_CONTAINED_IN |AWS::ECS::Service 
+|AWS::ECS::TaskDefinition |IS_ASSOCIATED_WITH |AWS::ECS::Task 
+|AWS::IAM::AWSManagedPolicy |IS_ASSOCIATED_WITH |AWS::IAM::Role 
+| |IS_ASSOCIATED_WITH |AWS::IAM::User 
+| |IS_ASSOCIATED_WITH |AWS::IAM::Group 
+|AWS::Lambda::EnvironmentVariable |IS_CONTAINED_IN |AWS::Lambda::Function 
+|AWS::Lambda::Function |CONTAINS |AWS::Lambda::EnvironmentVariable 
+|AWS::VPC::Endpoint |IS_ASSOCIATED_WITH |AWS::EC2::NetworkInterface 
+|===

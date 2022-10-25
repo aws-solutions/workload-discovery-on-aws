@@ -31,6 +31,10 @@
 *.DS_Store
 **/.vscode
 
+# Python coverage files
+**/coverage.xml
+**/.coverage
+
 #nyc output
 **/.nyc_output
 
@@ -44,7 +48,11 @@ source/backend/functions/cost-parser/src/setting-up-athena-integration.md
 
 local-deploy-perspective.sh
 
+# docs build
+docs/build
+
 # codebuild local testing
+dynamodb_local
 codebuild_build.sh
 source/backend/functions/cost-parser/test/local-deploy.sh
 source/backend/functions/cost-parser/test/local-invoke-read-s3.sh

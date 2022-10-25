@@ -1,0 +1,134 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Workload Discovery on AWS Web Interface Settings Stack
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  AmplifyBucketName:
+    Type: String
+
+  AppSyncEndpoint:
+    Type: String
+
+  CognitoIdentityPoolId:
+    Type: String
+
+  CognitoUserPoolId:
+    Type: String
+
+  CognitoUserPoolWebClientId:
+    Type: String
+
+  CollectAnonymousMetrics:
+    Type: String
+
+  SettingsObjectKey:
+    Type: String
+
+  SolutionVersion:
+    Type: String
+
+  WebUIBucket:
+    Type: String
+
+Resources:
+
+  UiSettingsResource:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Lambda does not connect to any resources in a VPC
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      InlineCode: |
+        import boto3
+        import cfnresponse
+        import logging
+        log = logging.getLogger(__name__)
+        s3 = boto3.client("s3")
+        def handler(event, context):
+          status, response_data, failed_reason, physical_id = cfnresponse.SUCCESS, {}, None, None
+          try:
+            acl, bucket, object, content_type, content = (event["ResourceProperties"][k] for k in ("ACL", "BucketName", "ObjectKey", "ContentType", "Content",))
+            physical_id = s3_url = f"s3://{bucket}/{object}"
+            cfn_request_type = event["RequestType"]
+            if cfn_request_type in ("Create", "Update",):
+              log.info(f"Creating {s3_url}")
+              s3.put_object(ACL=acl, Bucket=bucket, Key=object, ContentType=content_type, Body=content.encode())
+            elif cfn_request_type == "Delete":
+              log.info(f"Deleting {s3_url}")
+              s3.delete_object(Bucket=bucket, Key=object)
+            else:
+              raise Exception("Unhandled CloudFormation request type")
+          except Exception as e:
+            log.error(f"Exception: {e}")
+            status = cfnresponse.FAILED
+            failed_reason = str(e)
+          finally:
+            log.info("Sending CloudFormation response")
+            cfnresponse.send(
+              event=event, 
+              context=context, 
+              responseStatus=status, 
+              responseData=response_data, 
+              physicalResourceId=physical_id, 
+              reason=failed_reason,
+            )
+
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:PutObjectAcl
+                - s3:DeleteObject
+              Resource: !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}/${SettingsObjectKey}
+      Runtime: python3.9
+      Timeout: 120
+      ReservedConcurrentExecutions: 1
+
+  UiSettings:
+    Type: Custom::UiSettings
+    DeletionPolicy: Delete
+    Properties:
+      ACL: private
+      BucketName: !Ref WebUIBucket
+      Content: !Sub |-
+        window.amplify = {
+        "Auth": {
+          "mandatorySignIn": true,
+          "identityPoolId": "${CognitoIdentityPoolId}",
+          "region": "${AWS::Region}",
+          "userPoolId": "${CognitoUserPoolId}",
+          "userPoolWebClientId": "${CognitoUserPoolWebClientId}"
+        },
+        "API": {
+          "aws_appsync_graphqlEndpoint": "${AppSyncEndpoint}",
+          "aws_appsync_region": "${AWS::Region}",
+          "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
+          "endpoints": []
+        },
+        "Storage": {
+          "AWSS3": {
+            "bucket": "${AmplifyBucketName}",
+            "region": "${AWS::Region}"
+          }
+        }
+        };
+        window.pinpoint = {
+        "Auth": {"identityPoolId": "eu-west-1:07a0c94b-d3b7-47d4-b857-3cdd288c7973", "region": "eu-west-1"},
+        "Analytics": {
+          "autoSessionRecord": false,
+          "AWSPinpoint": {"appId": "81a5891dfce54202ad80c5a3308dd61c", "region": "eu-west-1"}
+        }
+        };
+        window.perspectiveMetadata = {"rootAccount": "${AWS::AccountId}", "rootRegion": "${AWS::Region}", "version": "${SolutionVersion}"};
+        window.collectAnonymousMetrics = {"optOut": "${CollectAnonymousMetrics}" === "Yes"};
+      ContentType: text/javascript
+      ObjectKey: !Ref SettingsObjectKey
+      ServiceToken: !GetAtt UiSettingsResource.Arn
+    UpdateReplacePolicy: Delete

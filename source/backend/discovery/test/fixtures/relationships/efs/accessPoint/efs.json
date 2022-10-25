@@ -1,0 +1,26 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "efs": {
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "resourceId": "fs-0123456789abcdefg",
+    "configuration": {}
+  },
+  "accessPoint": {
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticfilesystem:${$constants.region}:${$constants.accountId}:access-point/fsap-028f5e60fc863cdfc",
+    "availabilityZone": "Regional",
+    "awsRegion": "${$constants.region}",
+    "resourceId": "fsap-028f5e60fc863cdfc",
+    "resourceName": "${accessPoint.resourceId}",
+    "resourceType": "AWS::EFS::AccessPoint",
+    "relationships": [],
+    "id": "id1",
+    "configuration": {
+      "FileSystemId": "${efs.resourceId}"
+    }
+  }
+}

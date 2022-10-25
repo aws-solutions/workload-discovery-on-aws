@@ -3,7 +3,7 @@ import {
   wrapCostAPIRequest,
 } from '../Handlers/CostsGraphQLHandler';
 import { buildNode, buildBoundingBox } from '../NodeFactory/NodeFactory';
-const R = require('ramda');
+import * as R from "ramda";
 
 const getARN = (node) =>
   node.properties ? node.properties.arn : node.data.properties.arn;
@@ -57,8 +57,8 @@ const getCostsForARNs = (resourceIds, preferences) => {
       pagination: { start: 0, end: resourceIds.length },
       resourceIds: resourceIds,
       period: {
-        from: preferences.period.fromDate,
-        to: preferences.period.toDate,
+        from: preferences.period.startDate,
+        to: preferences.period.endDate,
       },
     },
   });
@@ -95,11 +95,7 @@ export const fetchCosts = (nodes, preferences) =>
       )
     )
     .then((e) => getCostsForARNs(e, preferences))
-    .then((e) => {
-      return e;
-    })
-    .then((e) => updateNodesWithCost(e, nodes))
-    .catch((err) => console.error(err));
+    .then((e) => updateNodesWithCost(e, nodes));
 
 const getDuplicateNodes = (currentResources, newResources) => {
   const nodesToDelete = [];
@@ -115,7 +111,8 @@ const getDuplicateNodes = (currentResources, newResources) => {
 export const handleSelectedResource = (
   response,
   nodeId,
-  currentGraphResources
+  currentGraphResources,
+  allowUnparsed = true,
 ) => {
   return response
     .then(
@@ -145,10 +142,11 @@ export const handleSelectedResource = (
       }, newNodes);
       return newNodes
         .concat(newEdges)
-        .filter((item) => (item.data.target === nodeId ? false : true));
+        .filter((item) => item.data.target !== nodeId);
     })
     .catch((err) => {
       console.error(err);
+      if (!allowUnparsed) throw err;
       return [];
     });
 };

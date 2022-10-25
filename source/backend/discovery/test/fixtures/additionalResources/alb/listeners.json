@@ -1,0 +1,23 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "alb": {
+    "id": "${alb.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}a",
+    "arn": "albArn",
+    "resourceType": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    "resourceId": "${alb.arn}",
+    "configuration": {},
+    "relationships": []
+  },
+  "listener": {
+    "DefaultActions":  [
+      {"TargetGroupArn":  "targetGroupArn"}
+    ],
+    "ListenerArn": "listenerArn"
+  }
+}

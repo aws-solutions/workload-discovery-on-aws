@@ -6,19 +6,23 @@ export const services = [
       "service": "Amazon AWS"
     },
     {
-      "service": "Amazon Web Services"
+      "service": "Amazon Web Services",
+      "filteringTags": ["AWS"]
     },
     {
       "service": "Amplify"
     },
     {
-      "service": "API Gateway"
+      "service": "API Gateway",
+      "filteringTags": ["API GW"]
     },
     {
-      "service": "Application Auto Scaling"
+      "service": "Application Auto Scaling",
+      "filteringTags": ["Autoscaling"]
     },
     {
-      "service": "Application Discovery Service"
+      "service": "Application Discovery Service",
+      "filteringTags": ["ADS"]
     },
     {
       "service": "AppFlow"
@@ -69,7 +73,8 @@ export const services = [
       "service": "Blox"
     },
     {
-      "service": "Certificate Manager"
+      "service": "Certificate Manager",
+      "filteringTags": ["ACM"]
     },
     {
       "service": "Chalice"
@@ -84,7 +89,8 @@ export const services = [
       "service": "Client VPN"
     },
     {
-      "service": "Cloud Development Kit"
+      "service": "Cloud Development Kit",
+      "filteringTags": ["CDK"]
     },
     {
       "service": "Cloud Digital Interface SDK"
@@ -99,7 +105,8 @@ export const services = [
       "service": "Cloud9"
     },
     {
-      "service": "CloudFormation"
+      "service": "CloudFormation",
+      "filteringTags": ["CFN"]
     },
     {
       "service": "CloudFront"
@@ -150,7 +157,8 @@ export const services = [
       "service": "Cognito"
     },
     {
-      "service": "Command Line Interface"
+      "service": "Command Line Interface",
+      "filteringTags": ["CLI"]
     },
     {
       "service": "Comprehend"
@@ -183,7 +191,8 @@ export const services = [
       "service": "DataSync"
     },
     {
-      "service": "Database Migration Service"
+      "service": "Database Migration Service",
+      "filteringTags": ["DMS"]
     },
     {
       "service": "Deep Learning AMIs"
@@ -210,7 +219,8 @@ export const services = [
       "service": "DevPay"
     },
     {
-      "service": "Direct Connect"
+      "service": "Direct Connect",
+      "filteringTags": ["DC"]
     },
     {
       "service": "Directory Service"
@@ -228,40 +238,51 @@ export const services = [
       "service": "DocumentDB"
     },
     {
-      "service": "DynamoDB"
+      "service": "DynamoDB",
+      "filteringTags": ["DDB"]
     },
     {
-      "service": "DynamoDB Streams"
+      "service": "DynamoDB Streams",
+      "filteringTags": ["DDB"]
     },
     {
       "service": "EC2 Auto Scaling"
     },
     {
-      "service": "Elastic Beanstalk"
+      "service": "Elastic Beanstalk",
+      "filteringTags": ["EB"]
     },
     {
-      "service": "Elastic Block Store"
+      "service": "Elastic Block Store",
+      "filteringTags": ["EBS"]
     },
     {
-      "service": "Elastic Compute Cloud"
+      "service": "Elastic Compute Cloud",
+      "filteringTags": ["EC2"]
     },
     {
-      "service": "Elastic Container Registry"
+      "service": "Elastic Container Registry",
+      "filteringTags": ["ECR"]
     },
     {
-      "service": "Elastic Container Service"
+      "service": "Elastic Container Service",
+      "filteringTags": ["ECS"]
     },
     {
-      "service": "Elastic Kubernetes Service"
+      "service": "Elastic Kubernetes Service",
+      "filteringTags": ["EKS"]
     },
     {
-      "service": "Elastic File System"
+      "service": "Elastic File System",
+      "filteringTags": ["EFS"]
     },
     {
-      "service": "Elastic Inference"
+      "service": "Elastic Inference",
+      "filteringTags": ["EI"]
     },
     {
-      "service": "Elastic Load Balancing"
+      "service": "Elastic Load Balancing",
+      "filteringTags": ["ELB"]
     },
     {
       "service": "Elastic Transcoder"
@@ -342,7 +363,8 @@ export const services = [
       "service": "Honeycode"
     },
     {
-      "service": "Identity and Access Management"
+      "service": "Identity and Access Management",
+      "filteringTags": ["IAM"]
     },
     {
       "service": "Image Builder"
@@ -390,7 +412,8 @@ export const services = [
       "service": "Kendra"
     },
     {
-      "service": "Key Management Service"
+      "service": "Key Management Service",
+      "filteringTags": ["KMS"]
     },
     {
       "service": "Kinesis"
@@ -405,7 +428,8 @@ export const services = [
       "service": "Kinesis Video Streams"
     },
     {
-      "service": "Lake Formation"
+      "service": "Lake Formation",
+      "filteringTags": ["LF"]
     },
     {
       "service": "Lambda"
@@ -456,7 +480,8 @@ export const services = [
       "service": "Managed Services"
     },
     {
-      "service": "Managed Streaming for Apache Kafka"
+      "service": "Managed Streaming for Apache Kafka",
+      "filteringTags": ["MSK"]
     },
     {
       "service": "Management Console"
@@ -546,7 +571,8 @@ export const services = [
       "service": "Polly"
     },
     {
-      "service": "Private Certificate Authority"
+      "service": "Private Certificate Authority",
+      "filteringTags": ["PCA"]
     },
     {
       "service": "Prometheus"
@@ -570,7 +596,8 @@ export const services = [
       "service": "Rekognition"
     },
     {
-      "service": "Relational Database Service"
+      "service": "Relational Database Service",
+      "filteringTags": ["RDS"]
     },
     {
       "service": "Remote Configuration TBR"
@@ -579,19 +606,22 @@ export const services = [
       "service": "Resource Groups"
     },
     {
-      "service": "Resource Access Manager"
+      "service": "Resource Access Manager",
+      "filteringTags": ["RAM"]
     },
     {
       "service": "RoboMaker"
     },
     {
-      "service": "Route 53"
+      "service": "Route 53",
+      "filteringTags": ["R53"]
     },
     {
       "service": "SageMaker"
     },
     {
-      "service": "Schema Conversion Tool"
+      "service": "Schema Conversion Tool",
+      "filteringTags": ["SCT"]
     },
     {
       "service": "Secrets Manager"
@@ -600,16 +630,19 @@ export const services = [
       "service": "Security Hub"
     },
     {
-      "service": "Security Token Service"
+      "service": "Security Token Service",
+      "filteringTags": ["STS"]
     },
     {
       "service": "Server Migration Service"
     },
     {
-      "service": "Serverless Application Model"
+      "service": "Serverless Application Model",
+      "filteringTags": ["SAM"]
     },
     {
-      "service": "Serverless Application Repository"
+      "service": "Serverless Application Repository",
+      "filteringTags": ["SAR"]
     },
     {
       "service": "Service Catalog"
@@ -630,22 +663,28 @@ export const services = [
       "service": "Silk"
     },
     {
-      "service": "Simple Email Service"
+      "service": "Simple Email Service",
+      "filteringTags": ["SES"]
     },
     {
-      "service": "Simple Notification Service"
+      "service": "Simple Notification Service",
+      "filteringTags": ["SNS"]
     },
     {
-      "service": "Simple Queue Service"
+      "service": "Simple Queue Service",
+      "filteringTags": ["SQS"]
     },
     {
-      "service": "Simple Storage Service"
+      "service": "Simple Storage Service",
+      "filteringTags": ["S3"]
     },
     {
-      "service": "Simple Storage Service Glacier"
+      "service": "Simple Storage Service Glacier",
+      "filteringTags": ["S3"]
     },
     {
-      "service": "Simple Workflow Service"
+      "service": "Simple Workflow Service",
+      "filteringTags": ["SWS"]
     },
     {
       "service": "SimpleDB"
@@ -696,19 +735,23 @@ export const services = [
       "service": "Transfer Family"
     },
     {
-      "service": "Transit Gateway"
+      "service": "Transit Gateway",
+      "filteringTags": ["TGW"]
     },
     {
       "service": "Translate"
     },
     {
-      "service": "Trusted Advisor"
+      "service": "Trusted Advisor",
+      "filteringTags": ["TA"]
     },
     {
-      "service": "Virtual Private Cloud"
+      "service": "Virtual Private Cloud",
+      "filteringTags": ["VPC"]
     },
     {
-      "service": "WAF"
+      "service": "WAF",
+      "filteringTags": ["Web Application Firewall"]
     },
     {
       "service": "Wavelength"
@@ -729,7 +772,8 @@ export const services = [
       "service": "WorkSpaces"
     },
     {
-      "service": "WAM"
+      "service": "WAM",
+      "filteringTags": ["WorkSpaces Application Manager"]
     },
     {
       "service": "X-Ray"

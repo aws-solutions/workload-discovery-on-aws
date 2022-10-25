@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Cost Api Stack
+
+Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  CostAndUsageReportBucket:
+    Type: String
+  
+  CostAndUsageResultsBucket:
+    Type: String
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+  AthenaDatabaseName: 
+    Type: String
+    Default: athenacurcfn_aws_perspective_cost_and_usage
+  
+  AthenaTableName:
+    Type: String
+    Default: perspective_glue_crawler
+  
+  AthenaWorkgroup:
+    Type: String
+    Default: primary
+
+  CustomUserAgent: 
+    Type: String
+
+Resources:
+
+  PerspectiveCostLambdaRole:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: We are working on exposing the athena components to be able to include them here.
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncCostLambdaRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - athena:GetDatabase
+                  - athena:StartQueryExecution
+                  - athena:StopQueryExecution
+                  - athena:GetQueryExecution
+                  - athena:GetQueryResults
+                  - ec2:DescribeRegions
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketLocation
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:ListBucketMultipartUploads
+                  - s3:ListMultipartUploadParts
+                  - s3:AbortMultipartUpload
+                  - s3:CreateBucket
+                  - s3:PutObject
+                Resource: 
+                  - !Sub arn:aws:s3:::${CostAndUsageReportBucket}*
+                  - !Sub arn:aws:s3:::${CostAndUsageResultsBucket}*
+              - Effect: Allow
+                Action:
+                  - glue:CreateDatabase
+                  - glue:DeleteDatabase
+                  - glue:GetDatabase
+                  - glue:GetDatabases
+                  - glue:UpdateDatabase
+                  - glue:CreateTable
+                  - glue:DeleteTable
+                  - glue:BatchDeleteTable
+                  - glue:UpdateTable
+                  - glue:GetTable
+                  - glue:GetTables
+                  - glue:BatchCreatePartition
+                  - glue:CreatePartition
+                  - glue:DeletePartition
+                  - glue:BatchDeletePartition
+                  - glue:UpdatePartition
+                  - glue:GetPartition
+                  - glue:GetPartitions
+                  - glue:BatchGetPartition
+                Resource: 
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/${AthenaDatabaseName}
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/${AthenaDatabaseName}/${AthenaTableName}
+
+  PerspectiveCostFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Not applicable
+          - id: W92
+            reason: Not applicable
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt PerspectiveCostLambdaRole.Arn
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/cost.zip
+      Runtime: nodejs16.x
+      Description: Lambda for Appsync Cost API resolvers
+      Timeout: 300
+      MemorySize: 1024
+      Tracing: Active
+      Environment:
+        Variables:
+          AthenaDatabaseName: !Sub ${AthenaDatabaseName}
+          AthenaTableName: !Sub ${AthenaTableName}
+          AthenaResultsBucketName: !Sub s3://${CostAndUsageResultsBucket}
+          AthenaWorkgroup: !Ref AthenaWorkgroup
+          CustomUserAgent: !Ref CustomUserAgent
+
+  PerspectiveCostLambdaAppSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncCostRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt PerspectiveCostFunction.Arn
+
+  PerspectiveAppSyncCostLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: Cost_Lambda_DS
+      Description: Perspective Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt PerspectiveCostLambdaAppSyncRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt PerspectiveCostFunction.Arn
+
+  PerspectiveAppSyncReadResultsFromS3QueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: readResultsFromS3
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+
+  PerspectiveAppSyncGetCostForServiceQueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getCostForService
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+
+  PerspectiveAppSyncGetCostForResourceQueryByDayResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getResourcesByCostByDay
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+
+  PerspectiveAppSyncGetCostForResourceQueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getCostForResource
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+
+  PerspectiveAppSyncGetResourcesByCostQueryResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getResourcesByCost
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name

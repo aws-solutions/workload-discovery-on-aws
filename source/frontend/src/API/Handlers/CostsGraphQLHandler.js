@@ -1,9 +1,9 @@
 import { retryAttempts } from '../../config/api-retry';
 import { Auth, API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
-var forOwn = require('lodash.forown');
-var isObject = require('lodash.isobject');
-const R = require('ramda');
+const forOwn = require('lodash.forown');
+const isObject = require('lodash.isobject');
+import * as R  from 'ramda';
 export const readResultsFromS3 = (params) => {
   return API.graphql(graphqlOperation(queries.readResultsFromS3, params));
 };
@@ -82,7 +82,7 @@ const wrapResponse = (data, error) => {
 };
 
 export function handleResponse(response) {
-  if (response.error)
+  if (!response || response.error)
     throw new Error('We could not complete that action. Please try again');
   else return response;
 }

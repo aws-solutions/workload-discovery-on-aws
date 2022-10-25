@@ -1,0 +1,30 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "kms": {
+    "id": "${kms.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:kms:${$constants.region}:${$constants.accountId}:key/e2b2e43a-0d99-47d5-a0c0-937cc62441ea",
+    "resourceId": "${kms.arn}",
+    "resourceType": "AWS::KMS::Key",
+    "configuration": {},
+    "relationships": []
+  },
+  "efs": {
+    "id": "${efs.arn}",
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:elasticfilesystem:${$constants.region}:${$constants.accountId}:file-system/fs-0b6dc5f9392696d56",
+    "availabilityZone": "Regional",
+    "awsRegion": "${$constants.region}",
+    "resourceId": "fs-0123456789abcdefg",
+    "resourceName": "fs-0123456789abcdefg",
+    "resourceType": "AWS::EFS::FileSystem",
+    "relationships": [],
+    "tags": [],
+    "configuration": {
+      "KmsKeyId": "${kms.arn}"
+    }
+  }
+}

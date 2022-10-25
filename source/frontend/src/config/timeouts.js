@@ -1,1 +1,0 @@
- export const retryTimeout = retryNumber => retryNumber * 1000; 

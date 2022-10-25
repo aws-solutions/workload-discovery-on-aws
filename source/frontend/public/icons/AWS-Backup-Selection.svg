@@ -1,0 +1,14 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+    <title>
+        AWS-Backup-Selection
+    </title>
+    <g id="Art" transform="scale(1.5)">
+        <path d="M41.88,48.5H8.12a1,1,0,0,1-1-1V2.5a1,1,0,0,1,1-1H41.88a1,1,0,0,1,1,1v45A1,1,0,0,1,41.88,48.5Zm-32.76-2H40.88V3.5H9.12Z" style="fill:#3F8624"/>
+        <path d="M18.42,14.76H12.8a1,1,0,0,1-1-1V8.13a1,1,0,0,1,1-1h5.62a1,1,0,0,1,1,1v5.63A1,1,0,0,1,18.42,14.76Zm-4.62-2h3.62V9.13H13.8Z" style="fill:#3F8624"/>
+        <path d="M18.42,27.88H12.8a1,1,0,0,1-1-1V21.25a1,1,0,0,1,1-1h5.62a1,1,0,0,1,1,1v5.63A1,1,0,0,1,18.42,27.88Zm-4.62-2h3.62V22.25H13.8Z" style="fill:#3F8624"/>
+        <path d="M18.42,41H12.8a1,1,0,0,1-1-1V34.38a1,1,0,0,1,1-1h5.62a1,1,0,0,1,1,1V40A1,1,0,0,1,18.42,41ZM13.8,39h3.62V35.38H13.8Z" style="fill:#3F8624"/>
+        <rect x="21.25" y="9.94" width="16.88" height="2" style="fill:#3F8624"/>
+        <rect x="21.25" y="23.06" width="16.88" height="2" style="fill:#3F8624"/>
+        <rect x="21.25" y="36.19" width="16.88" height="2" style="fill:#3F8624"/>
+    </g>
+</svg>

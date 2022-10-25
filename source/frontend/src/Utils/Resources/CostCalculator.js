@@ -1,5 +1,6 @@
-const R = require('ramda');
-export const aggregateCostData = (nodes) => {
+import * as R from "ramda";
+
+export const aggregateCostData = (nodes, showCount=false) => {
   nodes.forEach((node) => {
     if (node.data.children) node.data.cost = 0;
   });
@@ -15,7 +16,7 @@ export const aggregateCostData = (nodes) => {
   });
   nodes.forEach((node) => {
     if (node.data.children) {
-      if (node.data.type === 'type') {
+      if (node.data.type === 'type' && showCount) {
         const count = nodes.filter((subResource) => {
           return subResource.data.parent === node.data.id;
         }).length;

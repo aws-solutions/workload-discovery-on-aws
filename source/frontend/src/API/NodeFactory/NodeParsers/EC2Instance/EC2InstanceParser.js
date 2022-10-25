@@ -3,7 +3,7 @@ import { fetchImage } from '../../../../Utils/ImageSelector';
 import { getStateInformation } from '../../../../Utils/Resources/ResourceStateParser';
 import InstanceItem from './InstanceDetails/InstanceItem';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 export const parseEC2Instance = (node) => {
   const getImageType = () => {
     try {
@@ -33,7 +33,6 @@ export const parseEC2Instance = (node) => {
       };
     }
   };
-
   const properties = R.hasPath(['properties'], node)
     ? node.properties
     : node.data('properties');

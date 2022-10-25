@@ -1,0 +1,45 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "securityGroupId": "sg-1234567890abcdef1"
+  },
+  "securityGroup": {
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:ec2:eu-west-2:${$constants.accountId}:security-group/${$constants.securityGroupId}",
+    "resourceType": "AWS::EC2::SecurityGroup",
+    "resourceId": "${$constants.securityGroupId}",
+    "awsRegion": "${$constants.region}",
+    "relationships": [],
+    "configuration": {
+      "ipPermissions": [],
+      "ipPermissionsEgress": [
+        {
+          "ipRanges": [],
+          "prefixListIds": [],
+          "fromPort": 8080,
+          "toPort": 8080,
+          "userIdGroupPairs": [
+            {
+              "groupId": "${outSecurityGroup1.resourceId}"
+            },
+            {
+              "groupId": "${outSecurityGroup2.resourceId}"
+            }
+          ],
+          "ipProtocol": "tcp",
+          "ipv4Ranges": [],
+          "ipv6Ranges": []
+        }
+      ]
+    }
+  },
+  "outSecurityGroup1": {
+    "resourceId": "sg-33333333333333333",
+    "configuration": {}
+  },
+  "outSecurityGroup2": {
+    "resourceId": "sg-44444444444444444",
+    "configuration": {}
+  }
+}

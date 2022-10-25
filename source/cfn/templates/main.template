@@ -1,0 +1,509 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Workload Discovery on AWS Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:<VERSION>)
+
+Transform: "AWS::Serverless-2016-10-31"
+
+Parameters:
+  AdminUserEmailAddress:
+    Type: String
+    AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
+    ConstraintDescription: Must be an email address
+    Description: 'A user will be created in the UI. This email address will be used to send your username and password.'
+  AlreadyHaveConfigSetup:
+    Type: String
+    Default: 'No'
+    Description: 'Is AWS Config set-up within this Region?'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    ConstraintDescription: 'Please specify if this Region has AWS Config set-up (Yes / No)'
+  OptOutOfSendingAnonymousUsageMetrics:
+    Type: String
+    Default: 'No'
+    Description: 'Opt out of sending any anonymous usage metrics to AWS Perspective'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+  CreateOpensearchServiceRole:
+    Type: String
+    Default: 'Yes'
+    Description: 'Do you need an OpenSearch Service Role to be created?
+    You can check for a Role called AWSServiceRoleForAmazonElasticsearchService in your account. If it exists then you do NOT need one creating'
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    ConstraintDescription: 'Please specify if this account has AWS Config set-up (Yes / No)'
+  NeptuneInstanceClass:
+    Type: String
+    Description: Neptune DB instance class that will be used for primary and all replicas. Changing this will affect the cost of running this solution.
+    Default: db.r5.large
+    AllowedValues:
+      - db.t3.medium
+      - db.r4.large
+      - db.r4.xlarge
+      - db.r4.2xlarge
+      - db.r4.4xlarge
+      - db.r4.8xlarge
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.12xlarge
+  CreateNeptuneReplica:
+    Type: String
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'No'
+    Description: If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of running the solution.
+  OpensearchInstanceType:
+    Description: The instance type for OpenSearch data nodes
+    Type: String
+    Default: m6g.large.search
+    AllowedValues:
+      - t3.small.search
+      - t3.medium.search
+      - t2.micro.search
+      - t2.small.search
+      - t2.medium.search
+      - m5.large.search
+      - m5.xlarge.search
+      - m5.2xlarge.search
+      - m5.4xlarge.search
+      - m5.12xlarge.search
+      - m4.large.search
+      - m4.xlarge.search
+      - m4.2xlarge.search
+      - m4.4xlarge.search
+      - m4.10xlarge.search
+      - m6g.large.search
+      - m6g.xlarge.search
+      - m6g.2xlarge.search
+      - m6g.4xlarge.search
+      - m6g.8xlarge.search
+      - m6g.12xlarge.search
+      - c5.large.search
+      - c5.xlarge.search
+      - c5.2xlarge.search
+      - c5.4xlarge.search
+      - c5.9xlarge.search
+      - c5.19xlarge.search
+      - c4.large.search
+      - c4.xlarge.search
+      - c4.2xlarge.search
+      - c4.4xlarge.search
+      - c4.8xlarge.search
+      - c6g.large.search
+      - c6g.xlarge.search
+      - c6g.2xlarge.search
+      - c6g.4xlarge.search
+      - c6g.8xlarge.search
+      - c6g.12xlarge.search
+      - r5.large.search
+      - r5.xlarge.search
+      - r5.2xlarge.search
+      - r5.4xlarge.search
+      - r5.12xlarge.search
+      - r4.large.search
+      - r4.xlarge.search
+      - r4.2xlarge.search
+      - r4.4xlarge.search
+      - r4.8xlarge.search
+      - r4.16xlarge.search
+      - r3.large.search
+      - r3.xlarge.search
+      - r3.2xlarge.search
+      - r3.4xlarge.search
+      - r3.8xlarge.search
+      - i3.large.search
+      - i3.xlarge.search
+      - i3.2xlarge.search
+      - i3.4xlarge.search
+      - i3.8xlarge.search
+      - i3.16xlarge.search
+  OpensearchMultiAz:
+    Description: Deploys the OpenSearch cluster across two Availability Zones (AZs) in the same region to prevent
+      data loss and minimize downtime in the event of node or data center failure. This will increase the cost of running the solution
+    Type: String
+    Default: "No"
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+  AthenaWorkgroup:
+    Type: String
+    Default: "primary"
+    Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
+
+Mappings:
+  Solution:
+    Constants:
+      AppName: workload-discovery
+      DeploymentBucketNamePrefix: <BUCKET_NAME>
+      DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
+      ImageVersion: <IMAGE_VERSION>
+      SolutionVersion: <VERSION>
+      CustomUserAgent: AwsSolution/SO0075/<VERSION>
+
+Conditions:
+  SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
+
+Resources:
+  EchoFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: index.handler
+      Runtime: python3.9
+      ReservedConcurrentExecutions: 1
+      InlineCode: |
+        import cfnresponse
+        def handler (event, context):
+          response_data = event.get("ResourceProperties", [])
+          cfnresponse.send(
+             event=event, 
+             context=context, 
+             responseStatus=cfnresponse.SUCCESS, 
+             responseData=response_data,
+             physicalResourceId=event.get("LogicalResourceId"), 
+             reason=None,
+           )
+
+  Variables:
+    Type: "Custom::Variables"
+    Properties:
+      ServiceToken: !GetAtt EchoFunction.Arn
+      DeploymentBucket: !Sub
+        - "https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}"
+        - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
+          DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
+          Region: !Ref AWS::Region
+      DeploymentBucketName: !Sub
+        - ${DeploymentBucketNamePrefix}-${Region}
+        - DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
+          Region: !Ref AWS::Region
+
+
+  LayerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        LayerBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
+      TemplateURL:
+        !Sub
+          - "${DeploymentBucket}/layers.template"
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+
+  S3Buckets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        S3CleanupBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
+        CreateConfigBucket: !If [SetUpConfig, 'true', 'false']
+        CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
+      TemplateURL:
+        !Sub
+          - "${DeploymentBucket}/buckets.template"
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+
+  VpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+         - "${DeploymentBucket}/vpc.template"
+         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+
+  NeptuneStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+         - "${DeploymentBucket}/neptune.template"
+         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !FindInMap [Solution, Constants, AppName]
+        AvailabilityZone0: !GetAtt VpcStack.Outputs.AvailabilityZone0
+        AvailabilityZone1: !GetAtt VpcStack.Outputs.AvailabilityZone1
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
+        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        Port: 6174
+        CreateNeptuneReplica: !Ref CreateNeptuneReplica
+        DBInstanceClass: !Ref NeptuneInstanceClass
+
+  ConfigAggregator:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/config-aggregator.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        ExistingConfigInstallation: !Ref AlreadyHaveConfigSetup
+        ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
+
+  OpenSearchRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/opensearch-roles.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
+
+  OpenSearchStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/opensearch.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !FindInMap [Solution, Constants, AppName]
+        InstanceType: !Ref OpensearchInstanceType
+        ZoneAwarenessEnabled: !Ref OpensearchMultiAz
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
+        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        SearchLambdaIAMRoleARN: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
+
+  TaskStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/discovery-crawler.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
+        AppName: !FindInMap [Solution, Constants, AppName]
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VpcEndpointsSg: !GetAtt VpcStack.Outputs.VpcEndpointsSg
+        ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
+        ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
+        AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
+        AppSyncApiUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
+        Cpu: 1024
+        Memory: 2048
+        Decorators: !GetAtt LayerStack.Outputs.Decorators
+        BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
+        CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  CodebuildStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/codebuild.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CloudfrontDistributionId: !GetAtt WebUiStack.Outputs.DistributionId
+        ContainerRepo: !GetAtt TaskStack.Outputs.ContainerRepo
+        CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
+        ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+
+  CognitoStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/cognito.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AdminUserEmailAddress: !Ref AdminUserEmailAddress
+        AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
+        WebUiUrl: !GetAtt WebUiStack.Outputs.WebUiUrl
+
+  GremlinResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/gremlin-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
+        NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
+        NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
+        NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  SearchResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/search-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        OpenSearchDomainEndpoint: !GetAtt OpenSearchStack.Outputs.DomainEndpoint
+        OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
+        OpenSearchLambdaRoleArn: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        VpcId: !GetAtt VpcStack.Outputs.VPCId
+        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
+        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  DrawIoExportResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/draw-io-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  AccountImportTemplatesResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/account-import-templates-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  AppSyncApiStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/appsync-api.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  CostResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/cost-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
+        CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  SettingsResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/settings-resolvers.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  AthenaGlueCrawlerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/athena-glue-crawler.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+
+  WebUiStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/webui.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AccessLogsBucket: !GetAtt S3Buckets.Outputs.AccessLogsBucket
+        WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+        WebUIBucketRegionalDomainName: !GetAtt S3Buckets.Outputs.WebUIBucketRegionalDomainName
+
+  WebUiSettingsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - ${DeploymentBucket}/webui-settings.template
+          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+        AmplifyBucketName: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
+        AppSyncEndpoint: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
+        CognitoIdentityPoolId: !GetAtt CognitoStack.Outputs.IdentityPoolId
+        CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
+        CognitoUserPoolWebClientId: !GetAtt CognitoStack.Outputs.WebClientId
+        CollectAnonymousMetrics: !Ref OptOutOfSendingAnonymousUsageMetrics
+        SettingsObjectKey: "settings.js"
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+
+Outputs:
+
+  WebUiUrl:
+    Value: !GetAtt WebUiStack.Outputs.WebUiUrl
+    Description: WebUI URL

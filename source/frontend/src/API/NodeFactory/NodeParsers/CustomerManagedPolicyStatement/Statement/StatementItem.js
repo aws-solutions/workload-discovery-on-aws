@@ -1,6 +1,4 @@
-/* eslint-disable react/display-name */
 import React from 'react';
-
 import {
   Box,
   TextContent,
@@ -8,14 +6,13 @@ import {
   ColumnLayout,
   SpaceBetween,
   StatusIndicator,
-  Container,
-  Header,
   Grid,
 } from '@awsui/components-react';
 
-const R = require('ramda');
+import * as R  from 'ramda';
 
-const removeBrackets = (item) => item.replace(/[[\]']+/g, '').replaceAll('"' , '');
+const removeBrackets = (item) =>
+  item.replace(/[[\]']+/g, '').replaceAll('"', '');
 
 const ValueWithLabel = ({ label, children }) => (
   <div>
@@ -26,20 +23,11 @@ const ValueWithLabel = ({ label, children }) => (
   </div>
 );
 
-
-export default ({ statement }) => {
-
-  const resources = R.split(',', removeBrackets(statement.resources))
-  const actions = R.split(',', removeBrackets(statement.actions))
+export const StatementItem = ({ statement }) => {
+  const resources = R.split(',', removeBrackets(statement.resources));
+  const actions = R.split(',', removeBrackets(statement.actions));
   const warningActions = (action) => action.includes('*');
   const badActions = (action) => action === '*';
-
-  
-
-  const capitalize = (str) =>
-    str.replace(/\w\S*/g, function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
 
   const getEffect = (effect) =>
     R.equals(effect, 'Allow') ? 'success' : 'error';
@@ -72,7 +60,7 @@ export default ({ statement }) => {
   const mapIndexed = R.addIndex(R.map);
 
   return (
-    <Container header={<Header variant='h2'>IAM Policy Statement</Header>}>
+    <ColumnLayout columns={1}>
       <ColumnLayout columns={2} variant='text-grid'>
         <SpaceBetween size='l'>
           <ValueWithLabel label='Effect'>
@@ -86,20 +74,15 @@ export default ({ statement }) => {
             {R.length(resources)}
           </ValueWithLabel>
           <ValueWithLabel label='No. of Actions'>
-          {R.length(actions)}
+            {R.length(actions)}
           </ValueWithLabel>
         </SpaceBetween>
       </ColumnLayout>
       <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
         <SpaceBetween size='l'>
           <ValueWithLabel label='Actions health'>
-            <StatusIndicator
-              type={getOverview(
-                actions
-              )}>
-              {getDescription(
-               actions
-              )}
+            <StatusIndicator type={getOverview(actions)}>
+              {getDescription(actions)}
             </StatusIndicator>
           </ValueWithLabel>
           <ExpandableSection header='Actions'>
@@ -110,7 +93,7 @@ export default ({ statement }) => {
                     <li key={index}>{e}</li>
                   </TextContent>
                 ),
-               actions
+                actions
               )}
             </ul>
           </ExpandableSection>
@@ -118,13 +101,8 @@ export default ({ statement }) => {
 
         <SpaceBetween size='l'>
           <ValueWithLabel label='Resources health'>
-            <StatusIndicator
-              type={getOverview(
-                resources
-              )}>
-              {getDescription(
-                resources
-              )}
+            <StatusIndicator type={getOverview(resources)}>
+              {getDescription(resources)}
             </StatusIndicator>
           </ValueWithLabel>
           <ExpandableSection header='Resources'>
@@ -141,6 +119,8 @@ export default ({ statement }) => {
           </ExpandableSection>
         </SpaceBetween>
       </Grid>
-    </Container>
+    </ColumnLayout>
   );
 };
+
+export default StatementItem;

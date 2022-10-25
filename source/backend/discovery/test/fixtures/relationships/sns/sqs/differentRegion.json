@@ -1,0 +1,27 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion1": "eu-west-2",
+    "awsRegion2": "us-east-2"
+  },
+  "sqs": {
+    "id": "${sqs.arn}",
+    "arn": "snsSqsArn",
+    "resourceId": "snsSqsResourceId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion2}",
+    "resourceType": "AWS::SQS::Queue",
+    "relationships": [],
+    "configuration": {}
+  },
+  "snsTopic": {
+    "id": "${snsTopic.arn}",
+    "arn": "snsTopicArn",
+    "resourceId": "${snsTopic.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion1}",
+    "resourceType": "AWS::SNS::Topic",
+    "relationships": [],
+    "configuration": {}
+  }
+}

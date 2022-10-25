@@ -5,6 +5,44 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2022-10-25
+
+### Added
+
+- Solution now ingests all resource types [supported](https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html), as well as the  following resource types
+  - `AWS::APIGateway::Resource` 
+  - `AWS::APIGateway::Method`
+  - `AWS::APIGateway::Authorizer`
+  - `AWS::IAM::InlinePolicy` 
+  - `AWS::IAM::ManagedPolicy` 
+  - `AWS::ECS::Task` 
+  - `AWS::EKS:::NodeGroup` 
+  - `AWS::ElasticLoadBalancingV2::TargetGroup` 
+  - `AWS::Cognito::UserPool` 
+  - `AWS::EC2::Spot`
+  - `AWS::EC2::SpotFleet`
+- Large increase in number of relationships not captured by AWS Config, including, but not limited to:
+  - Lambda -> SNS/SQS/Kinesis/MSK/EFS 
+  - AWS::APIGateway::Authorizer -> Cognito User Pool 
+  - CloudFront -> ELB/ELBv2 
+  - SecurityGroup -> SecurityGroup 
+  - ELBv2 -> ELBv2 Listener -> ELBv2 Target Group -> ASG 
+  - ECS Task -> EFS 
+  - EKS Cluster -> NodeGroup/VPC/Subnet/SecurityGroup/IAM Role 
+  - EKS NodeGroup -> ASG/VPC/Subnet/SecurityGroup/IAM Role/Launch Template 
+  - Transit Gateway -> VPC/Subnet
+- New UI:
+    - Uses [Cloudscape Design](https://cloudscape.design/) System to make look and feel more consistent
+    - Migrated from modal dialogs to React router for page management
+    - New Views feature to allow users to scope searches to only resource types they are interested in
+
+### Changed
+
+- Filters in UI now operate on a per diagram basis, rather than globally
+- Discovery process can now discover regions with tens of thousands of resources
+- Migrated all backend APIs using API Gateway to AppSync
+- Streamlined CloudFormation templates to improve reliability and deployment time
+
 ## [1.1.4] - 2022-04-01
 
 ### Added

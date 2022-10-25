@@ -1,0 +1,44 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "dbInstance": {
+      "resourceType": "AWS::RDS::DBInstance",
+      "resourceId": "db-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    },
+    "vpcId": "vpc-0123456789abcdef0",
+    "subnet1": "subnet-0123456789abcdef",
+    "subnet2": "subnet-9876543210fedcba"
+  },
+  "dbInstance": {
+    "id": "id1",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "${$constants.region}a",
+    "resourceType": "${$constants.dbInstance.resourceType}",
+    "resourceId": "${$constants.dbInstance.resourceId}",
+    "relationships": [],
+    "configuration": {
+      "endpoint": {
+        "address": "mydbcluster.${$constants.region}.rds.amazonaws.com"
+      },
+      "dBSubnetGroup": {
+        "vpcId": "${$constants.vpcId}",
+        "subnets": [
+          {
+            "subnetIdentifier": "${$constants.subnet1}",
+            "subnetAvailabilityZone": {
+              "name": "${$constants.region}a"
+            }
+          },
+          {
+            "subnetIdentifier": "${$constants.subnet2}",
+            "subnetAvailabilityZone": {
+              "name": "${$constants.region}b"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

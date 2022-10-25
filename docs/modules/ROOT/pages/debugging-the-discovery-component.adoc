@@ -1,0 +1,46 @@
+= Debugging the discovery component
+
+If you have imported an account and Region that does not show resources within the Workload Discovery on AWS UI, check the following items to ensure you have everything set up.
+
+. Check that you have deployed the CloudFormation template in the AWS Region of the account you are importing and that it created successfully.
+Ensure you have followed the steps for
+https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/import-a-region.html[importing a Region].
+. Double check the account ID that you have imported is correct.
+Follow the steps in
+https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/import-a-region.html#verify-the-region-was-imported-correctly[verify
+the Region was imported correctly] to verify the import details.
+. If resources are still not appearing, then there could be a problem with the discovery component.
+Check this by following these steps:
++
+To retrieve the logs for the API that the discovery service uses:
++
+.. Sign in to the http://console.aws.amazon.com/[AWS Management Console]
+in the account you deployed Workload Discovery on AWS in.
+.. Choose *Services*.
+.. From the collection of services, choose *Lambda*.
+.. Search for *GremlinAppSyncFunction* and select the function found. The name of the function will be longer and depends on what you named the CloudFormation stack.
+.. Choose the *Monitoring* tab.
+.. Choose *View logs* *in CloudWatch*.
+.. In the *Log streams* section, select the latest log file link in the table (usually the top entry).
+This opens up the log file.
+.. Search for "`+400+`" or "`+500+`".
+This searches for HTTP 400 or 500 error codes in the log file.
+If it returns any entries, then it means that there is a problem in the discovery component.
+
++
+To retrieve the logs for the discovery component:
+
+.. Sign in to the http://console.aws.amazon.com/[AWS Management Console]
+in the account you deployed Workload Discovery on AWS in.
+.. Choose *Services*.
+.. From the collection of services, choose *CloudWatch*.
+.. Under the *Log* section, select *Log Groups*.
+.. Search for the log group */ecs/workload-discovery-task*.
+.. Select the latest *Log Stream* tab.
+.. Scroll to the top of the page and choose *Load More* until the *No older events at this moment* message appears.
+.. Select *Actions* and then *Download search results* from the menu.
+.. Save the file locally.
+
+To request assistance from AWS, raise an issue in our
+https://github.com/awslabs/aws-perspective/issues[GitHub repository].
+Select *create an issue* and follow the prompts and include the logs from both the API and the discovery process.

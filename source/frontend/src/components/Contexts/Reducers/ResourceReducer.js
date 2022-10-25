@@ -1,14 +1,14 @@
 export const resourceReducer = (state, action) => {
   switch (action.type) {
-    case 'updateResources':
+    case 'updateGraphResources':
       return {
         ...state,
-        resources: action.resources
+        graphResources: action.graphResources,
       };
-    case 'updateAccountOrRegionFilters':
+    case 'select':
       return {
         ...state,
-        filters: action.filters
+        resources: action.resources,
       };
     default:
       return state;

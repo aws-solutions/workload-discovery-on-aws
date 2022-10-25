@@ -1,11 +1,8 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import {
   Box,
-  Container,
   ColumnLayout,
   SpaceBetween,
-  ExpandableSection,
 } from '@awsui/components-react';
 
 const parseConfiguration = (configuration) => {
@@ -17,7 +14,7 @@ const parseConfiguration = (configuration) => {
   }
 }
 
-export default ({ configuration }) => {
+export const LoadBalancerItem = ({ configuration }) => {
   const parsedConfig = parseConfiguration(configuration);
 
   const ValueWithLabel = ({ label, children }) => (
@@ -40,3 +37,5 @@ export default ({ configuration }) => {
     </ColumnLayout>
   );
 };
+
+export default LoadBalancerItem;

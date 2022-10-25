@@ -1,0 +1,8 @@
+{
+  "euWest2": [{
+    "TargetGroupArn": "targetGroupArn1"
+  }],
+  "usWest2": [{
+    "TargetGroupArn": "targetGroupArn2"
+  }]
+}

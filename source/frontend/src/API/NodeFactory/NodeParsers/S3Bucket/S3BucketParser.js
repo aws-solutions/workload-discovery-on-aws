@@ -1,11 +1,5 @@
-import React from 'react';
 import { fetchImage } from '../../../../Utils/ImageSelector';
-import { getStateInformation } from '../../../../Utils/Resources/ResourceStateParser';
-import S3BucketItem from './S3BucketDetails/S3BucketItem';
-import S3BucketHover from './S3BucketDetails/S3BucketHover';
-import { getConnectedNodes } from '../../../../components/Actions/GraphActions';
-
-const R = require('ramda')
+import * as R from 'ramda';
 
 export const parseS3Bucket = (node) => {
 

@@ -1,8 +1,7 @@
 import React from 'react';
 import StatementItem from './Statement/StatementItem';
-import StatementHover from './Statement/StatementHover';
 import { fetchImage } from '../../../../Utils/ImageSelector';
-const R = require('ramda');
+import * as R  from 'ramda';
 
 const removeBrackets = (item) => item.replace(/[[\]']+/g, '').replace('"', '');
 export const parseCustomerManagedPolicyStatement = (node) => {
@@ -53,20 +52,6 @@ export const parseCustomerManagedPolicyStatement = (node) => {
     else return { status: 'status-available' };
   };
 
-  const getResourceStatus = () => {
-    if (badResources()) return { status: 'status-negative', text: 'At Risk' };
-    else if (warningResources())
-      return { status: 'status-warning', text: 'Needs Attention' };
-    else return { status: 'status-available', text: 'OK' };
-  };
-
-  const getActionStatus = () => {
-    if (badActions()) return { status: 'status-negative', text: 'At Risk' };
-    else if (warningActions())
-      return { status: 'status-warning', text: 'Needs Attention' };
-    else return { status: 'status-available', text: 'OK' };
-  };
-
   const getTitle = () => {
     if (badResources() || badActions())
       return 'This is not secure. You should lockdown your policy statements by providing ARNs and full action names';
@@ -85,12 +70,6 @@ export const parseCustomerManagedPolicyStatement = (node) => {
     },
     icon: fetchImage(properties.resourceType, getStatus()),
     detailsComponent: <StatementItem title='Statement' statement={statement} />,
-    hoverComponent: (
-      <StatementHover
-        statement={statement}
-        resourceStatus={getResourceStatus()}
-        actionStatus={getActionStatus()}
-      />
-    ),
+   
   };
 };

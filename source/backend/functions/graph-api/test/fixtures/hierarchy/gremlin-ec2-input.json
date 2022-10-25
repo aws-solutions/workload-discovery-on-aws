@@ -1,9 +1,8 @@
 [
   {
-    "id": "5bcb59bfd39fe7a6eaa4d9e6f16ae880",
-    "label": "AWS::EC2::Instance",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec",
+    "label": "AWS_EC2_Instance",
     "parent": true,
-    "perspectiveBirthDate": "2021-03-12T16:46:58.536Z",
     "properties": {
       "resourceType": "AWS::EC2::Instance",
       "resourceId": "i-038f307ddeb9caaec",
@@ -18,15 +17,13 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/ec2?region=eu-west-1#Instances:sort=instanceId",
       "accountId": "xxxxxx",
       "title": "i-038f307ddeb9caaec",
-      "__typename": "EC2Instance",
       "configuration": "{\"amiLaunchIndex\":0,\"imageId\":\"ami-0d3c55e1582bd84fd\",\"instanceId\":\"i-038f307ddeb9caaec\",\"instanceType\":\"t2.large\",\"kernelId\":null,\"keyName\":null,\"launchTime\":\"2020-11-11T16:49:52.000Z\",\"monitoring\":{\"state\":\"enabled\"},\"placement\":{\"availabilityZone\":\"eu-west-1b\",\"affinity\":null,\"groupName\":\"\",\"partitionNumber\":null,\"hostId\":null,\"tenancy\":\"default\",\"spreadDomain\":null,\"hostResourceGroupArn\":null},\"platform\":null,\"privateDnsName\":\"ip-10-180-37-89.eu-west-1.compute.internal\",\"privateIpAddress\":\"10.180.37.89\",\"productCodes\":[],\"publicDnsName\":\"\",\"publicIpAddress\":null,\"ramdiskId\":null,\"state\":{\"code\":16,\"name\":\"running\"},\"stateTransitionReason\":\"\",\"subnetId\":\"subnet-05b78a71606d218fa\",\"vpcId\":\"vpc-08ab1368aff4e5657\",\"architecture\":\"x86_64\",\"blockDeviceMappings\":[{\"deviceName\":\"/dev/xvda\",\"ebs\":{\"attachTime\":\"2020-11-11T16:49:53.000Z\",\"deleteOnTermination\":true,\"status\":\"attached\",\"volumeId\":\"vol-045aff0accd0447e8\"}},{\"deviceName\":\"/dev/xvdcz\",\"ebs\":{\"attachTime\":\"2020-11-11T16:49:53.000Z\",\"deleteOnTermination\":true,\"status\":\"attached\",\"volumeId\":\"vol-0c52a596424c16120\"}}],\"clientToken\":\"d315d6e0-da9e-3845-842c-91665076bd54\",\"ebsOptimized\":false,\"enaSupport\":true,\"hypervisor\":\"xen\",\"iamInstanceProfile\":{\"arn\":\"arn:aws:iam::xxxxxx:instance-profile/ecs-refarch-ECS-1AFGNR7O7APCU-ECSInstanceProfile-10AECDOPB7UQW\",\"id\":\"AIPAQU6I6AO4SHWPDYPQ5\"},\"instanceLifecycle\":null,\"elasticGpuAssociations\":[],\"elasticInferenceAcceleratorAssociations\":[],\"networkInterfaces\":[{\"association\":null,\"attachment\":{\"attachTime\":\"2020-11-11T16:49:52.000Z\",\"attachmentId\":\"eni-attach-05db01ffad53b70d2\",\"deleteOnTermination\":true,\"deviceIndex\":0,\"status\":\"attached\",\"networkCardIndex\":0},\"description\":\"\",\"groups\":[{\"groupName\":\"ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6\",\"groupId\":\"sg-0c02229ab89b7cad1\"}],\"ipv6Addresses\":[],\"macAddress\":\"0a:76:24:17:11:dd\",\"networkInterfaceId\":\"eni-04938e2eb5bfafe99\",\"ownerId\":\"xxxxxx\",\"privateDnsName\":\"ip-10-180-37-89.eu-west-1.compute.internal\",\"privateIpAddress\":\"10.180.37.89\",\"privateIpAddresses\":[{\"association\":null,\"primary\":true,\"privateDnsName\":\"ip-10-180-37-89.eu-west-1.compute.internal\",\"privateIpAddress\":\"10.180.37.89\"}],\"sourceDestCheck\":true,\"status\":\"in-use\",\"subnetId\":\"subnet-05b78a71606d218fa\",\"vpcId\":\"vpc-08ab1368aff4e5657\",\"interfaceType\":\"interface\"}],\"outpostArn\":null,\"rootDeviceName\":\"/dev/xvda\",\"rootDeviceType\":\"ebs\",\"securityGroups\":[{\"groupName\":\"ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6\",\"groupId\":\"sg-0c02229ab89b7cad1\"}],\"sourceDestCheck\":true,\"spotInstanceRequestId\":null,\"sriovNetSupport\":null,\"stateReason\":null,\"tags\":[{\"key\":\"aws:cloudformation:stack-name\",\"value\":\"ecs-refarch-ECS-1AFGNR7O7APCU\"},{\"key\":\"Name\",\"value\":\"ecs-refarch ECS host\"},{\"key\":\"aws:autoscaling:groupName\",\"value\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\"},{\"key\":\"aws:cloudformation:logical-id\",\"value\":\"ECSAutoScalingGroup\"},{\"key\":\"aws:cloudformation:stack-id\",\"value\":\"arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-ECS-1AFGNR7O7APCU/8ea3b330-243d-11eb-879a-02201fce1aec\"}],\"virtualizationType\":\"hvm\",\"cpuOptions\":{\"coreCount\":2,\"threadsPerCore\":1},\"capacityReservationId\":null,\"capacityReservationSpecification\":{\"capacityReservationPreference\":\"open\",\"capacityReservationTarget\":null},\"hibernationOptions\":{\"configured\":false},\"licenses\":[],\"metadataOptions\":{\"state\":\"applied\",\"httpTokens\":\"optional\",\"httpPutResponseHopLimit\":1,\"httpEndpoint\":\"enabled\"},\"enclaveOptions\":{\"enabled\":false}}"
     }
   },
   {
-    "id": "9d5323e3a381b08b050155e358300690",
-    "label": "AWS::EC2::Volume",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:volume/vol-045aff0accd0447e8",
+    "label": "AWS_EC2_Volume",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.011Z",
     "properties": {
       "resourceType": "AWS::EC2::Volume",
       "resourceId": "vol-045aff0accd0447e8",
@@ -39,47 +36,43 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/ec2?region=eu-west-1#Volumes:sort=desc:name",
       "accountId": "xxxxxx",
       "title": "vol-045aff0accd0447e8",
-      "__typename": "ResourceProperties",
       "configuration": "{\"attachments\":[{\"attachTime\":\"2020-11-11T16:49:53.000Z\",\"device\":\"/dev/xvda\",\"instanceId\":\"i-038f307ddeb9caaec\",\"state\":\"attached\",\"volumeId\":\"vol-045aff0accd0447e8\",\"deleteOnTermination\":true}],\"availabilityZone\":\"eu-west-1b\",\"createTime\":\"2020-11-11T16:49:53.134Z\",\"encrypted\":false,\"kmsKeyId\":null,\"outpostArn\":null,\"size\":8,\"snapshotId\":\"snap-0b466c5815b302152\",\"state\":\"in-use\",\"volumeId\":\"vol-045aff0accd0447e8\",\"iops\":100,\"tags\":[],\"volumeType\":\"gp2\",\"fastRestored\":null,\"multiAttachEnabled\":false}"
     }
   },
   {
-    "id": "04c9db0dfb582a90d9eb23e02dd260a1",
-    "label": "AWS::TAGS::TAG",
+    "id": "arn::tags:tagArn1",
+    "label": "AWS_TAGS_TAG",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.009Z",
     "properties": {
+      "arn": "arn::tags:tagArn1",
       "resourceValue": "ecs-refarch-ECS-1AFGNR7O7APCU",
       "resourceType": "AWS::TAGS::TAG",
       "resourceId": "aws:cloudformation:stack-name",
       "awsRegion": "global",
       "accountId": "xxxxxx",
       "title": "aws:cloudformation:stack-name : ecs-refarch-ECS-1AFGNR7O7APCU",
-      "__typename": "ResourceProperties",
       "configuration": "{}"
     }
   },
   {
-    "id": "70a7436df8eed1e24b2d9bca629b64ad",
-    "label": "AWS::TAGS::TAG",
+    "id": "arn::tags:tagArn2",
+    "label": "AWS_TAGS_TAG",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.140Z",
     "properties": {
+      "arn": "arn::tags:tagArn2",
       "resourceValue": "ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
       "resourceType": "AWS::TAGS::TAG",
       "resourceId": "aws:autoscaling:groupName",
       "awsRegion": "global",
       "accountId": "xxxxxx",
       "title": "aws:autoscaling:groupName : ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
-      "__typename": "ResourceProperties",
       "configuration": "{}"
     }
   },
   {
-    "id": "4ac638a01992f97ebfcfa69c36b38ec9",
-    "label": "AWS::EC2::SecurityGroup",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:security-group/sg-0c02229ab89b7cad1",
+    "label": "AWS_EC2_SecurityGroup",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.013Z",
     "properties": {
       "resourceName": "ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6",
       "resourceType": "AWS::EC2::SecurityGroup",
@@ -93,15 +86,13 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/ec2?region=eu-west-1#SecurityGroups:sort=groupId",
       "accountId": "xxxxxx",
       "title": "ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6",
-      "__typename": "ResourceProperties",
       "configuration": "{\"description\":\"Access to the ECS hosts and the tasks/containers that run on them\",\"groupName\":\"ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6\",\"ipPermissions\":[{\"ipProtocol\":\"-1\",\"ipv6Ranges\":[],\"prefixListIds\":[],\"userIdGroupPairs\":[{\"groupId\":\"sg-08891adf615ba4aa1\",\"userId\":\"xxxxxx\"}],\"ipv4Ranges\":[],\"ipRanges\":[]}],\"ownerId\":\"xxxxxx\",\"groupId\":\"sg-0c02229ab89b7cad1\",\"ipPermissionsEgress\":[{\"ipProtocol\":\"-1\",\"ipv6Ranges\":[],\"prefixListIds\":[],\"userIdGroupPairs\":[],\"ipv4Ranges\":[{\"cidrIp\":\"0.0.0.0/0\"}],\"ipRanges\":[\"0.0.0.0/0\"]}],\"tags\":[{\"key\":\"Name\",\"value\":\"ecs-refarch-ECS-Hosts\"},{\"key\":\"aws:cloudformation:logical-id\",\"value\":\"ECSHostSecurityGroup\"},{\"key\":\"aws:cloudformation:stack-name\",\"value\":\"ecs-refarch-SecurityGroups-OB6L96U7FA2M\"},{\"key\":\"aws:cloudformation:stack-id\",\"value\":\"arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-SecurityGroups-OB6L96U7FA2M/800ddfd0-243d-11eb-a82a-060129d1c243\"}],\"vpcId\":\"vpc-08ab1368aff4e5657\"}"
     }
   },
   {
-    "id": "fa39dabd3f74fface5a2583f4dc68947",
-    "label": "AWS::EC2::VPC",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:vpc/vpc-08ab1368aff4e5657",
+    "label": "AWS_EC2_VPC",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.012Z",
     "properties": {
       "resourceType": "AWS::EC2::VPC",
       "resourceId": "vpc-08ab1368aff4e5657",
@@ -115,63 +106,58 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#vpcs:sort=VpcId",
       "accountId": "xxxxxx",
       "title": "vpc-08ab1368aff4e5657",
-      "__typename": "ResourceProperties",
       "configuration": "{\"cidrBlock\":\"10.180.0.0/16\",\"dhcpOptionsId\":\"dopt-01ea0a1b1a9b59c0a\",\"state\":\"available\",\"vpcId\":\"vpc-08ab1368aff4e5657\",\"ownerId\":\"xxxxxx\",\"instanceTenancy\":\"default\",\"ipv6CidrBlockAssociationSet\":[],\"cidrBlockAssociationSet\":[{\"associationId\":\"vpc-cidr-assoc-0882774a297230082\",\"cidrBlock\":\"10.180.0.0/16\",\"cidrBlockState\":{\"state\":\"associated\",\"statusMessage\":null}}],\"isDefault\":false,\"tags\":[{\"key\":\"aws:cloudformation:stack-id\",\"value\":\"arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-VPC-10OMNTHQBEJPY/fff0f030-243c-11eb-86cd-0652c6a49436\"},{\"key\":\"aws:cloudformation:logical-id\",\"value\":\"VPC\"},{\"key\":\"aws:cloudformation:stack-name\",\"value\":\"ecs-refarch-VPC-10OMNTHQBEJPY\"},{\"key\":\"Name\",\"value\":\"ecs-refarch\"}]}"
     }
   },
   {
-    "id": "8660489b4f76eb94fa2b97537ec7ddde",
-    "label": "AWS::TAGS::TAG",
+    "id": "arn::tags:tagArn3",
+    "label": "AWS_TAGS_TAG",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.088Z",
     "properties": {
+      "arn": "arn::tags:tagArn3",
       "resourceValue": "arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-ECS-1AFGNR7O7APCU/8ea3b330-243d-11eb-879a-02201fce1aec",
       "resourceType": "AWS::TAGS::TAG",
       "resourceId": "aws:cloudformation:stack-id",
       "awsRegion": "global",
       "accountId": "xxxxxx",
       "title": "aws:cloudformation:stack-id : arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-ECS-1AFGNR7O7APCU/8ea3b330-243d-11eb-879a-02201fce1aec",
-      "__typename": "ResourceProperties",
       "configuration": "{}"
     }
   },
   {
-    "id": "670f9854b9f636bb959a6e14dfa32981",
-    "label": "AWS::TAGS::TAG",
+    "id": "arn::tags:tagArn4",
+    "label": "AWS_TAGS_TAG",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.128Z",
     "properties": {
+      "arn": "arn::tags:tagArn4",
       "resourceValue": "ecs-refarch ECS host",
       "resourceType": "AWS::TAGS::TAG",
       "resourceId": "Name",
       "awsRegion": "global",
       "accountId": "xxxxxx",
       "title": "Name : ecs-refarch ECS host",
-      "__typename": "ResourceProperties",
       "configuration": "{}"
     }
   },
   {
-    "id": "fb97fa31a5276d085fbd545926e8c888",
-    "label": "AWS::TAGS::TAG",
+    "id": "arn::tags:tagArn5",
+    "label": "AWS_TAGS_TAG",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.134Z",
     "properties": {
+      "arn": "arn::tags:tagArn5",
       "resourceValue": "ECSAutoScalingGroup",
       "resourceType": "AWS::TAGS::TAG",
       "resourceId": "aws:cloudformation:logical-id",
       "awsRegion": "global",
       "accountId": "xxxxxx",
       "title": "aws:cloudformation:logical-id : ECSAutoScalingGroup",
-      "__typename": "ResourceProperties",
       "configuration": "{}"
     }
   },
   {
-    "id": "42d0cd35ea5298223c353d0c6ea93723",
-    "label": "AWS::EC2::Volume",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:volume/vol-0c52a596424c16120",
+    "label": "AWS_EC2_Volume",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.153Z",
     "properties": {
       "resourceType": "AWS::EC2::Volume",
       "resourceId": "vol-0c52a596424c16120",
@@ -184,15 +170,13 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/ec2?region=eu-west-1#Volumes:sort=desc:name",
       "accountId": "xxxxxx",
       "title": "vol-0c52a596424c16120",
-      "__typename": "ResourceProperties",
       "configuration": "{\"attachments\":[{\"attachTime\":\"2020-11-11T16:49:53.000Z\",\"device\":\"/dev/xvdcz\",\"instanceId\":\"i-038f307ddeb9caaec\",\"state\":\"attached\",\"volumeId\":\"vol-0c52a596424c16120\",\"deleteOnTermination\":true}],\"availabilityZone\":\"eu-west-1b\",\"createTime\":\"2020-11-11T16:49:53.222Z\",\"encrypted\":false,\"kmsKeyId\":null,\"outpostArn\":null,\"size\":22,\"snapshotId\":\"\",\"state\":\"in-use\",\"volumeId\":\"vol-0c52a596424c16120\",\"iops\":100,\"tags\":[],\"volumeType\":\"gp2\",\"fastRestored\":null,\"multiAttachEnabled\":false}"
     }
   },
   {
-    "id": "6aff08da1218dd73601e3213a86f7176",
-    "label": "AWS::EC2::NetworkInterface",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:network-interface/eni-04938e2eb5bfafe99",
+    "label": "AWS_EC2_NetworkInterface",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.090Z",
     "properties": {
       "resourceType": "AWS::EC2::NetworkInterface",
       "resourceId": "eni-04938e2eb5bfafe99",
@@ -206,15 +190,13 @@
       "loginURL": "https://xxxxxx.signin.aws.amazon.com/console/ec2?region=eu-west-1#NIC:sort=description",
       "accountId": "xxxxxx",
       "title": "eni-04938e2eb5bfafe99",
-      "__typename": "ResourceProperties",
       "configuration": "{\"association\":null,\"attachment\":{\"attachTime\":\"2020-11-11T16:49:52.000Z\",\"attachmentId\":\"eni-attach-05db01ffad53b70d2\",\"deleteOnTermination\":true,\"deviceIndex\":0,\"networkCardIndex\":0,\"instanceId\":\"i-038f307ddeb9caaec\",\"instanceOwnerId\":\"xxxxxx\",\"status\":\"attached\"},\"availabilityZone\":\"eu-west-1b\",\"description\":\"\",\"groups\":[{\"groupName\":\"ecs-refarch-SecurityGroups-OB6L96U7FA2M-ECSHostSecurityGroup-7Q5BPY9O86T6\",\"groupId\":\"sg-0c02229ab89b7cad1\"}],\"interfaceType\":\"interface\",\"ipv6Addresses\":[],\"macAddress\":\"0a:76:24:17:11:dd\",\"networkInterfaceId\":\"eni-04938e2eb5bfafe99\",\"outpostArn\":null,\"ownerId\":\"xxxxxx\",\"privateDnsName\":\"ip-10-180-37-89.eu-west-1.compute.internal\",\"privateIpAddress\":\"10.180.37.89\",\"privateIpAddresses\":[{\"association\":null,\"primary\":true,\"privateDnsName\":\"ip-10-180-37-89.eu-west-1.compute.internal\",\"privateIpAddress\":\"10.180.37.89\"}],\"requesterId\":null,\"requesterManaged\":false,\"sourceDestCheck\":true,\"status\":\"in-use\",\"subnetId\":\"subnet-05b78a71606d218fa\",\"tagSet\":[],\"vpcId\":\"vpc-08ab1368aff4e5657\"}"
     }
   },
   {
-    "id": "10dbfccf8c5a146bd63470e7cb68ac3d",
-    "label": "AWS::AutoScaling::AutoScalingGroup",
+    "id": "arn:aws:autoscaling:eu-west-1:xxxxxx:autoScalingGroup:afb5ee16-414e-4850-a65a-03b6f80e0a5b:autoScalingGroupName/ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
+    "label": "AWS_AutoScaling_AutoScalingGroup",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:47:01.689Z",
     "properties": {
       "resourceName": "ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
       "resourceType": "AWS::AutoScaling::AutoScalingGroup",
@@ -226,15 +208,13 @@
       "loggedInURL": "https://eu-west-1.console.aws.amazon.com/ec2/autoscaling/home?region=eu-west-1#AutoScalingGroups:id=ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD;view=details",
       "accountId": "xxxxxx",
       "title": "ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
-      "__typename": "ResourceProperties",
       "configuration": "{\"autoScalingGroupName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"autoScalingGroupARN\":\"arn:aws:autoscaling:eu-west-1:xxxxxx:autoScalingGroup:afb5ee16-414e-4850-a65a-03b6f80e0a5b:autoScalingGroupName/ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"launchConfigurationName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSLaunchConfiguration-VJ0I7YPXHY6F\",\"minSize\":4,\"maxSize\":4,\"desiredCapacity\":4,\"defaultCooldown\":300,\"availabilityZones\":[\"eu-west-1b\",\"eu-west-1a\"],\"loadBalancerNames\":[],\"targetGroupARNs\":[],\"healthCheckType\":\"EC2\",\"healthCheckGracePeriod\":0,\"instances\":[{\"instanceId\":\"i-024712c94a5e7e8bc\",\"instanceType\":\"t2.large\",\"availabilityZone\":\"eu-west-1a\",\"lifecycleState\":\"InService\",\"healthStatus\":\"Healthy\",\"launchConfigurationName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSLaunchConfiguration-VJ0I7YPXHY6F\",\"protectedFromScaleIn\":false},{\"instanceId\":\"i-038f307ddeb9caaec\",\"instanceType\":\"t2.large\",\"availabilityZone\":\"eu-west-1b\",\"lifecycleState\":\"InService\",\"healthStatus\":\"Healthy\",\"launchConfigurationName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSLaunchConfiguration-VJ0I7YPXHY6F\",\"protectedFromScaleIn\":false},{\"instanceId\":\"i-0568d352e5293f7ba\",\"instanceType\":\"t2.large\",\"availabilityZone\":\"eu-west-1b\",\"lifecycleState\":\"InService\",\"healthStatus\":\"Healthy\",\"launchConfigurationName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSLaunchConfiguration-VJ0I7YPXHY6F\",\"protectedFromScaleIn\":false},{\"instanceId\":\"i-0c90e93ebfc159e4a\",\"instanceType\":\"t2.large\",\"availabilityZone\":\"eu-west-1a\",\"lifecycleState\":\"InService\",\"healthStatus\":\"Healthy\",\"launchConfigurationName\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSLaunchConfiguration-VJ0I7YPXHY6F\",\"protectedFromScaleIn\":false}],\"createdTime\":XXXXXXXXXXXX0,\"suspendedProcesses\":[],\"enabledMetrics\":[],\"tags\":[{\"resourceId\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"resourceType\":\"auto-scaling-group\",\"key\":\"Name\",\"value\":\"ecs-refarch ECS host\",\"propagateAtLaunch\":true},{\"resourceId\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"resourceType\":\"auto-scaling-group\",\"key\":\"aws:cloudformation:logical-id\",\"value\":\"ECSAutoScalingGroup\",\"propagateAtLaunch\":true},{\"resourceId\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"resourceType\":\"auto-scaling-group\",\"key\":\"aws:cloudformation:stack-id\",\"value\":\"arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-ECS-1AFGNR7O7APCU/8ea3b330-243d-11eb-879a-02201fce1aec\",\"propagateAtLaunch\":true},{\"resourceId\":\"ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD\",\"resourceType\":\"auto-scaling-group\",\"key\":\"aws:cloudformation:stack-name\",\"value\":\"ecs-refarch-ECS-1AFGNR7O7APCU\",\"propagateAtLaunch\":true}],\"terminationPolicies\":[\"Default\"],\"newInstancesProtectedFromScaleIn\":false,\"serviceLinkedRoleARN\":\"arn:aws:iam::xxxxxx:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling\",\"vpczoneIdentifier\":\"subnet-05b78a71606d218fa,subnet-05e96e37260564e8f\"}"
     }
   },
   {
-    "id": "bc54b918263dab518723aea439540f55",
-    "label": "AWS::EC2::Subnet",
+    "id": "arn:aws:ec2:eu-west-1:xxxxxx:subnet/subnet-05b78a71606d218fa",
+    "label": "AWS_EC2_Subnet",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:46:59.768Z",
     "properties": {
       "resourceType": "AWS::EC2::Subnet",
       "resourceId": "subnet-05b78a71606d218fa",
@@ -250,15 +230,13 @@
       "accountId": "xxxxxx",
       "title": "subnet-05b78a71606d218fa",
       "private": true,
-      "__typename": "ResourceProperties",
       "configuration": "{\"availabilityZone\":\"eu-west-1b\",\"availabilityZoneId\":\"euw1-az3\",\"availableIpAddressCount\":2041,\"cidrBlock\":\"10.180.32.0/21\",\"defaultForAz\":false,\"mapPublicIpOnLaunch\":false,\"mapCustomerOwnedIpOnLaunch\":false,\"customerOwnedIpv4Pool\":null,\"state\":\"available\",\"subnetId\":\"subnet-05b78a71606d218fa\",\"vpcId\":\"vpc-08ab1368aff4e5657\",\"ownerId\":\"xxxxxx\",\"assignIpv6AddressOnCreation\":false,\"ipv6CidrBlockAssociationSet\":[],\"tags\":[{\"key\":\"aws:cloudformation:logical-id\",\"value\":\"PrivateSubnet2\"},{\"key\":\"Name\",\"value\":\"ecs-refarch Private Subnet (AZ2)\"},{\"key\":\"aws:cloudformation:stack-name\",\"value\":\"ecs-refarch-VPC-10OMNTHQBEJPY\"},{\"key\":\"aws:cloudformation:stack-id\",\"value\":\"arn:aws:cloudformation:eu-west-1:xxxxxx:stack/ecs-refarch-VPC-10OMNTHQBEJPY/fff0f030-243c-11eb-86cd-0652c6a49436\"}],\"subnetArn\":\"arn:aws:ec2:eu-west-1:xxxxxx:subnet/subnet-05b78a71606d218fa\",\"outpostArn\":null}"
     }
   },
   {
-    "id": "2c60cdfa9dbf5b525f2fc8ec17aa6e5c",
-    "label": "AWS::ECS::Cluster",
+    "id": "arn:aws:ecs:eu-west-1:xxxxxx:cluster/ecs-refarch",
+    "label": "AWS_ECS_Cluster",
     "parent": false,
-    "perspectiveBirthDate": "2021-03-12T16:53:03.358Z",
     "properties": {
       "resourceType": "AWS::ECS::Cluster",
       "resourceId": "arn:aws:ecs:eu-west-1:xxxxxx:cluster/ecs-refarch",
@@ -268,7 +246,6 @@
       "state": "ACTIVE",
       "accountId": "xxxxxx",
       "title": "ecs-refarch",
-      "__typename": "ResourceProperties",
       "configuration": "{\"clusterName\":\"ecs-refarch\",\"registeredContainerInstancesCount\":\"4\",\"runningTasksCount\":\"4\",\"pendingTasksCount\":\"0\",\"statistics\":\"[]\"}"
     }
   }

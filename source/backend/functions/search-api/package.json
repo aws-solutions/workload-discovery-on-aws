@@ -1,0 +1,32 @@
+{
+  "name": "wd-search-api",
+  "version": "2.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "pretest": "npm i",
+    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
+    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json search-api.zip node_modules/ && zip -urj search-api.zip src/",
+    "build:dist": "mkdir dist && mv search-api.zip dist/",
+    "build": "npm run clean && npm i --legacy-peer-deps --production && npm run build:zip && npm run build:dist",
+    "coverage": "nyc npm test"
+  },
+  "author": "ballmat",
+  "license": "ISC",
+  "dependencies": {
+    "@opensearch-project/opensearch": "1.0.2",
+    "aws-opensearch-connector": "1.0.0",
+    "ramda": "0.28.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "latest",
+    "chai": "^4.2.0",
+    "mocha": "^9.1.2",
+    "nyc": "^15.1.0",
+    "nyc-report-lcov-absolute": "^1.0.0",
+    "rewire": "^6.0.0",
+    "sinon": "^7.5.0"
+  }
+}

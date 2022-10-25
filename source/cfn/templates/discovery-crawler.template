@@ -1,0 +1,378 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Discovery Crawler Scheduled Task Stack
+
+Parameters:
+  AppName:
+    Type: String
+
+  ContainerPort:
+    Type: Number
+    Default: 80
+
+  DiscoveryBucket:
+    Type: String
+
+  PrivateSubnet0:
+    Description: Private Subnet
+    Type: String
+
+  PrivateSubnet1:
+    Description: Private Subnet
+    Type: String
+
+  Cpu:
+    Description: Cpu size
+    Type: String
+
+  Memory:
+    Description: Memory size
+    Type: String
+
+  ImageVersion:
+    Description: Release version
+    Type: String
+
+  RetainedImageCount:
+    Type: Number
+    Default: 5
+
+  DeploymentBucketName:
+    Type: String
+    Description: The bucket where the zip files containing the source code for the ECR cleanup lambda
+
+  DeploymentBucketKey:
+    Type: String
+    Description: The key within the bucket that contains the source code zips
+
+  Decorators:
+    Type: String
+    Description: Required library
+
+  BotoUtils:
+    Type: String
+    Description: Required library
+
+  CustomResourceHelper:
+    Type: String
+    Description: Required library
+
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues:
+      - CRITICAL
+      - FATAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - NOTSET
+
+  AppSyncApiUrl:
+    Type: String
+
+  AppSyncArn:
+    Type: String
+    Description: The AppSync GraphQl Arn
+
+  ConfigurationAggregator:
+    Type: String
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  VpcEndpointsSg:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  CustomUserAgent:
+    Type: String
+    Default: 'AwsSolution/SO0075/1.1.0'
+
+Resources:
+  PerspectiveContainerRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: !Sub
+          - '{"rules":[{"rulePriority":1,"description":"Retained Image count: ${RetainedImageCount}","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":${RetainedImageCount}},"action":{"type":"expire"}}]}'
+          - { RetainedImageCount: !Ref RetainedImageCount }
+      RepositoryPolicyText:
+        Version: '2012-10-17'
+        Statement:
+          Sid: AllowPull
+          Effect: Allow
+          Principal:
+            AWS: !GetAtt EcsTaskExecutionRole.Arn
+          Action:
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+
+  TaskSg:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F1000
+            reason: Needs open egress for API as it is on the internet.
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Discovery Task
+      VpcId: !Ref VpcId
+
+  VpcEndpointsSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress Security Group for ECR Vpc Endpoint
+      FromPort: 443
+      ToPort: 443
+      GroupId: !Ref VpcEndpointsSg
+      IpProtocol: tcp
+      SourceSecurityGroupId: !Ref TaskSg
+
+  CleanupRepositoryFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: 'Not applicable'
+          - id: W92
+            reason: 'Not applicable'
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: cleanup_ecr.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucketName
+        Key: !Sub ${DeploymentBucketKey}/cleanup-ecr.zip
+      Runtime: python3.8
+      Layers:
+        - !Ref Decorators
+        - !Ref BotoUtils
+        - !Ref CustomResourceHelper
+      Description: Custom Lambda resource for deleting images in ECR on stack deletion
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ecr:BatchDeleteImage
+                - ecr:ListImages
+              Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${PerspectiveContainerRepo}
+      Environment:
+        Variables:
+          CustomUserAgent: !Ref CustomUserAgent
+
+  CleanupECRRepository:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupRepositoryFunction.Arn
+      LogLevel: !Ref LogLevel
+      Repository: !Ref PerspectiveContainerRepo
+
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName:
+        Fn::Sub: ${AppName}-cluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  EcsTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  PerspectiveDiscoveryTaskRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      wildcard_resources:
+        - 'We have locked down resources as much as we can.
+          The nature of the role requires read-only access
+          to many services in order to discover what is in the account'
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: 'Role is with ECS task. It defines the roles that are to be assumed and also read-only actions required for Task Definition'
+          - id: W11
+            reason: 'We have locked down resources as far as we can. It is read only access. The actions we define require wildcard resources'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+        - PolicyName: perspective-discovery-cluster
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                Resource: '*'
+                Condition:
+                  ArnEquals:
+                    'ecs:cluster': !GetAtt Cluster.Arn
+        - PolicyName: assume-perspective-remote-discovery-role
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource: !Sub arn:aws:iam::*:role/WorkloadDiscoveryRole-${AWS::AccountId}
+        - PolicyName: list-aggregate-discovery-resources
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - config:BatchGetAggregateResourceConfig
+                  - config:ListAggregateDiscoveredResources
+                  - config:SelectAggregateResourceConfig
+                Resource: '*'
+        - PolicyName: access-appsync
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - appsync:GraphQL
+                Resource: !Sub ${AppSyncArn}/*
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family:
+        Fn::Sub: ${AppName}-taskgroup
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu:
+        Ref: Cpu
+      Memory:
+        Ref: Memory
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - EcsTaskExecutionRole
+          - Arn
+      TaskRoleArn:
+        Ref: PerspectiveDiscoveryTaskRole
+      ContainerDefinitions:
+        - Name:
+            Ref: AppName
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${PerspectiveContainerRepo}:${ImageVersion}
+          User: discovery:discovery
+          PortMappings:
+            - ContainerPort:
+                Ref: ContainerPort
+          Environment:
+            - Name: AWS_ACCOUNT_ID
+              Value: !Ref AWS::AccountId
+            - Name: AWS_REGION
+              Value: !Ref AWS::Region
+            - Name: CLUSTER
+              Value: !Ref Cluster
+            - Name: GRAPHQL_API_URL
+              Value: !Ref AppSyncApiUrl
+            - Name: CONFIG_AGGREGATOR
+              Value: !Ref ConfigurationAggregator
+            - Name: CUSTOM_USER_AGENT
+              Value: !Ref CustomUserAgent
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region:
+                Ref: AWS::Region
+              awslogs-group:
+                Ref: LogGroup
+              awslogs-stream-prefix: ecs
+
+  LogGroup:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: 'Not applicable'
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /ecs/${AppName}-task
+      RetentionInDays: 30
+
+  ZoomCrawlerTaskSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Workload Discovery on AWS Discovery service
+      Name:
+        Fn::Sub: ${AppName}-rule
+      RoleArn:
+        Fn::GetAtt:
+          - EcsTaskExecutionRole
+          - Arn
+      ScheduleExpression: cron(0/15 * * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - Cluster
+              - Arn
+          RoleArn:
+            Fn::GetAtt:
+              - EcsTaskExecutionRole
+              - Arn
+          Id: apiScheduledTask
+          EcsParameters:
+            TaskDefinitionArn:
+              Ref: TaskDefinition
+            LaunchType: FARGATE
+            PlatformVersion: LATEST
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                SecurityGroups:
+                  - Ref: TaskSg
+                Subnets:
+                  - Ref: PrivateSubnet0
+                  - Ref: PrivateSubnet1
+
+Outputs:
+  Endpoint:
+    Description: Cluster
+    Value:
+      Ref: Cluster
+
+  TaskDef:
+    Description: Task Name
+    Value:
+      Ref: TaskDefinition
+
+  EcsRoleDef:
+    Description: ECS Role Name
+    Value:
+      Fn::GetAtt:
+        - EcsTaskExecutionRole
+        - Arn
+
+  ContainerRepo:
+    Value: !Ref PerspectiveContainerRepo
