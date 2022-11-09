@@ -2,12 +2,12 @@
 
 == Introduction
 
-AWS Perspective relies on AWS Config when discovering the vast majority of its resources. We will follow the modelling
+Workload Discovery on AWS relies on AWS Config when discovering the vast majority of its resources. We will follow the modelling
 that Config provides and extend it to the resources that Perspective discovers using AWS SDK calls also.
 
 == Applying The Config Model
 
-AWS Perspective uses a graph database as its persistence layer, as such the main entities we are concerned with are the
+Workload Discovery on AWS uses a graph database as its persistence layer, as such the main entities we are concerned with are the
 vertices and the edges that describe the relationships between individual vertexes.
 
 === Vertices
