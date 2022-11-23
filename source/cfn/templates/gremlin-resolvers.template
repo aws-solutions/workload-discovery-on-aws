@@ -94,6 +94,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - neptune-db:connect
+                  - neptune-db:DeleteDataViaQuery
+                  - neptune-db:ReadDataViaQuery
+                  - neptune-db:WriteDataViaQuery
                 Resource: !Sub arn:aws:neptune-db:${AWS::Region}:${AWS::AccountId}:${NeptuneClusterResourceId}/*
 
   GremlinAppSyncFunction:

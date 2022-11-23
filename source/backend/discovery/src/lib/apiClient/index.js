@@ -3,7 +3,7 @@ const {PromisePool} = require("@supercharge/promise-pool");
 const logger = require("../logger");
 
 function getDbResourcesMap(appSync) {
-    const pageSize = 2000;
+    const pageSize = 500;
     function getDbResources(pagination, resourcesMap = new Map()) {
         return appSync.getResources({pagination})
             .then(resources => {

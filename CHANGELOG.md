@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2022-11-23
+
+### Fixed
+
+- Removing last account caused an AWS Config error and stopped account being removed [315](https://github.com/awslabs/workload-discovery-on-aws/issues/315)
+- Pagination size in discovery process could lead to maximum allowed payload errors [316](https://github.com/awslabs/workload-discovery-on-aws/issues/316)
+- Specifying `neptune1` family parameter group broke Neptune stack deployment scripts [320](https://github.com/awslabs/workload-discovery-on-aws/issues/320)
+- Inconsistent return type from AWS Config for tags broke tag creation 
+
 ## [2.0.0] - 2022-10-25
 
 ### Added

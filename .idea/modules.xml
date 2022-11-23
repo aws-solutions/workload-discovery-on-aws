@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/aws-perspective.iml" filepath="$PROJECT_DIR$/aws-perspective.iml" />
+      <module fileurl="file://$PROJECT_DIR$/workload-discovery-on-aws.iml" filepath="$PROJECT_DIR$/workload-discovery-on-aws.iml" />
     </modules>
   </component>
 </project>
