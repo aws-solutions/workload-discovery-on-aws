@@ -65,11 +65,13 @@ function createTags(resources) {
 }
 
 async function createAdditionalResources(accountsMap, awsClient, resources) {
+    const resourcesCopy = [...resources];
+
     const credentialsTuples = Array.from(accountsMap.entries());
 
     const batchResources = await createAllBatchResources(credentialsTuples, awsClient);
 
-    batchResources.forEach(resource => resources.push(resource));
+    batchResources.forEach(resource => resourcesCopy.push(resource));
 
     const firstOrderHandlers = createFirstOrderHandlers(accountsMap, awsClient);
 
@@ -79,7 +81,7 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
 
     const {results: firstResults, errors: firstErrors} = await PromisePool
         .withConcurrency(15)
-        .for(resources.filter(({resourceType}) => firstOrderResourceTypes.has(resourceType)))
+        .for(resourcesCopy.filter(({resourceType}) => firstOrderResourceTypes.has(resourceType)))
         .process(async resource => {
             const handler = firstOrderHandlers[resource.resourceType];
             return handler(resource);
@@ -88,7 +90,7 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
     logger.error(`There were ${firstErrors.length} errors when adding first order additional resources.`);
     logger.debug('Errors: ', {firstErrors});
 
-    firstResults.flat().forEach(resource => resources.push(resource));
+    firstResults.flat().forEach(resource => resourcesCopy.push(resource));
 
     const secondOrderResourceTypes = new Set(R.keys(secondOrderHandlers));
 
@@ -103,13 +105,13 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
     logger.error(`There were ${secondErrors.length} errors when adding second order additional resources.`);
     logger.debug('Errors: ', {secondErrors});
 
-    secondResults.flat().forEach(resource => resources.push(resource));
+    secondResults.flat().forEach(resource => resourcesCopy.push(resource));
 
-    const tags = createTags(resources);
+    const tags = createTags(resourcesCopy);
 
-    tags.forEach(tag => resources.push(tag))
+    tags.forEach(tag => resourcesCopy.push(tag))
 
-    return resources;
+    return resourcesCopy;
 }
 
 module.exports = {

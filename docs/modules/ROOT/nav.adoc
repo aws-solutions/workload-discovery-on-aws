@@ -1,4 +1,5 @@
 * xref:WebUI-Features.adoc[]
+* xref:cost-optimization.adoc[]
 * xref:data_model.adoc[]
 * xref:debugging-the-discovery-component.adoc[]
 * Additional Documentation

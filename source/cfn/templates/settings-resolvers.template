@@ -109,6 +109,7 @@ Resources:
         Variables:
           DB_TABLE: !Ref PerspectiveSettingsTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+          ACCOUNT_ID: !Ref AWS::AccountId
           CONFIG_AGGREGATOR: !Ref ConfigurationAggregator
           CUSTOM_USER_AGENT: !Ref CustomUserAgent
 

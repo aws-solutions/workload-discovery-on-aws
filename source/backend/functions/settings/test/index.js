@@ -984,6 +984,8 @@ describe('index.js', () => {
 
         describe('deleteAccounts', () => {
             const DB_TABLE = 'deleteAccountsTable';
+            const ACCOUNT_ID = 'xxxxxxxxxxxx';
+            const AWS_REGION = 'ap-south-1';
 
             const mockConfig = {
                 putConfigurationAggregator: sinon.stub().resolves({})
@@ -1023,6 +1025,8 @@ describe('index.js', () => {
 
             it('should reject invalid account ids in the accountIds field', async () => {
                 return handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
                     DB_TABLE,
                     RETRY_TIME: 10,
                     CONFIG_AGGREGATOR: 'aggregrator'})({
@@ -1038,7 +1042,11 @@ describe('index.js', () => {
             });
 
             it('should delete account', async () => {
-                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
+                    DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'
+                })({
                     arguments: {
                         accountIds: ['222222222222']
                     },
@@ -1093,6 +1101,51 @@ describe('index.js', () => {
                 ]);
             });
 
+            it('should supply default account and region to aggregator when all accounts removed', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregrator'
+                })({
+                    arguments: {
+                        accountIds: ['111111111111', '222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregrator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: [
+                                'xxxxxxxxxxxx'
+                            ],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'ap-south-1'
+                            ]
+                        }
+                    ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, []);
+            });
+
             it('should handle unprocessed items that resolve after retry', async () => {
                 const dynamoDB = new DynamoDBClient({
                     region: 'eu-west-1',
@@ -1127,6 +1180,8 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
                     DB_TABLE,
                     RETRY_TIME: 10,
                     CONFIG_AGGREGATOR: 'aggregrator'})({
@@ -1217,6 +1272,8 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
                     DB_TABLE,
                     RETRY_TIME: 10,
                     CONFIG_AGGREGATOR: 'aggregrator'})({

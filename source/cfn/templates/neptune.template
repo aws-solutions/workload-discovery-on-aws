@@ -77,19 +77,6 @@ Parameters:
     Description: Neptune DB instance class that will be used for primary and all replicas
     Type: String
     Default: db.r5.large
-    AllowedValues:
-      - db.t3.medium
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r5.large
-      - db.r5.xlarge
-      - db.r5.2xlarge
-      - db.r5.4xlarge
-      - db.r5.8xlarge
-      - db.r5.12xlarge
 
   Port:
     Description: Port used to connect to the Neptune cluster. Must be a valid port
@@ -256,8 +243,6 @@ Resources:
     Properties:
       BackupRetentionPeriod:
         Ref: BackupRetentionPeriod
-      DBClusterParameterGroupName:
-        Ref: NeptuneDBClusterParameterGroup
       DBSubnetGroupName:
         Ref: NeptuneDBSubnetGroup
       IamAuthEnabled: true
@@ -306,8 +291,6 @@ Resources:
         Ref: WDNeptuneDBCluster
       DBInstanceClass:
         Ref: DBInstanceClass
-      DBParameterGroupName:
-        Ref: NeptuneDBParameterGroup
       DBSubnetGroupName:
         Ref: NeptuneDBSubnetGroup
       PreferredMaintenanceWindow:
@@ -348,8 +331,6 @@ Resources:
         Ref: WDNeptuneDBCluster
       DBInstanceClass:
         Ref: DBInstanceClass
-      DBParameterGroupName:
-        Ref: NeptuneDBParameterGroup
       DBSubnetGroupName:
         Ref: NeptuneDBSubnetGroup
       PreferredMaintenanceWindow:
@@ -358,77 +339,6 @@ Resources:
         - Key: Name
           Value:
             Fn::Sub: ${AppName}-Instance
-        - Key: App
-          Value:
-            Fn::Sub: ${AppName}
-        - Key: User
-          Value:
-            Fn::Sub: ${User}
-        - Key: Owner
-          Value:
-            Fn::Sub: ${Owner}
-        - Key: Tier
-          Value:
-            Fn::Sub: ${Tier}
-        - Key: Version
-          Value:
-            Fn::Sub: ${Version}
-        - Key: Storage
-          Value:
-            Fn::Sub: ${Storage}
-
-  NeptuneDBClusterParameterGroup:
-    Type: AWS::Neptune::DBClusterParameterGroup
-    Properties:
-      Description:
-        Fn::Sub: CloudFormation managed Neptune DB Cluster Parameter Group - ${AppName}-cluster-parameter-group
-      Parameters:
-        neptune_enable_audit_log:
-          Fn::If:
-            - EnableAuditLogUpload
-            - 1
-            - 0
-      Family: neptune1
-      Name:
-        Fn::Sub: ${AppName}-neptune-cluster-parameter-group
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Sub: ${AppName}-cluster-parameter-group
-        - Key: App
-          Value:
-            Fn::Sub: ${AppName}
-        - Key: User
-          Value:
-            Fn::Sub: ${User}
-        - Key: Owner
-          Value:
-            Fn::Sub: ${Owner}
-        - Key: Tier
-          Value:
-            Fn::Sub: ${Tier}
-        - Key: Version
-          Value:
-            Fn::Sub: ${Version}
-        - Key: Storage
-          Value:
-            Fn::Sub: ${Storage}
-
-  NeptuneDBParameterGroup:
-    Type: AWS::Neptune::DBParameterGroup
-    Properties:
-      Description:
-        Fn::Sub: CloudFormation managed Neptune DB Parameter Group - ${AppName}-parameter-group
-      Parameters:
-        neptune_query_timeout:
-          Ref: NeptuneQueryTimeout
-      Family: neptune1
-      Name:
-        Fn::Sub: ${AppName}-parameter-group
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Sub: ${AppName}-parameter-group
         - Key: App
           Value:
             Fn::Sub: ${AppName}

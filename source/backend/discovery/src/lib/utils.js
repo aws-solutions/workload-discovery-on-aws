@@ -130,5 +130,7 @@ module.exports = {
     createConfigObject,
     hash,
     isDate,
-    isString
+    isString,
+    isObject,
+    objToKeyNameArray
 }

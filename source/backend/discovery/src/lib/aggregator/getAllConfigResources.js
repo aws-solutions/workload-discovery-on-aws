@@ -19,7 +19,7 @@ const {
     AWS_OPENSEARCH_DOMAIN,
     GLOBAL
 } = require("../constants");
-const {createArnWithResourceType, isDate, isString} = require('../utils')
+const {createArnWithResourceType, isDate, isString, isObject, objToKeyNameArray} = require('../utils')
 
 const unsupportedResourceTypes = [
     AWS_KINESIS_STREAM,
@@ -55,9 +55,11 @@ async function getAdvancedQueryUnsupportedResources(configServiceClient, aggrega
 
 function normaliseConfigurationItem(resource) {
     const {
-        arn, resourceType, accountId, awsRegion, resourceId, configuration, configurationItemCaptureTime
+        arn, resourceType, accountId, awsRegion, resourceId, configuration, tags = [],
+        configurationItemCaptureTime
     } = resource;
-    resource.id = arn ?? createArnWithResourceType({resourceType, accountId, awsRegion, resourceId});
+    resource.arn = arn ?? createArnWithResourceType({resourceType, accountId, awsRegion, resourceId});
+    resource.id = resource.arn;
 
     switch (resource.resourceType) {
         // resourceIds for these resource types are not unique per account
@@ -73,7 +75,9 @@ function normaliseConfigurationItem(resource) {
     resource.configuration = isString(configuration) ? JSON.parse(configuration) : configuration;
     resource.configurationItemCaptureTime = isDate(configurationItemCaptureTime) ?
         configurationItemCaptureTime.toISOString() : configurationItemCaptureTime;
-    resource.tags = resource.tags ?? [];
+    // the return type for tags is not always consistent, sometimes it returns an object where the key/value
+    // pairs represent the tags names and values
+    resource.tags = isObject(tags) ? objToKeyNameArray(tags) : tags;
     resource.relationships = resource.relationships ?? [];
     return resource;
 }

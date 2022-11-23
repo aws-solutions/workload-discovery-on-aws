@@ -70,7 +70,7 @@ function deleteAccounts(
     docClient,
     configService,
     TableName,
-    { configAggregator, accountIds, retryTime }
+    { defaultAccountId, defaultRegion, configAggregator, accountIds, retryTime }
 ) {
     return getAccountsFromDb(docClient, TableName)
         .then(dbAccounts => {
@@ -83,14 +83,17 @@ function deleteAccounts(
             return {AccountIds, AwsRegions};
         })
         .then(async ({AccountIds, AwsRegions}) => {
+            // The putConfigurationAggregator API requires that AccountIds and AsRegions be arrays of at least
+            // length 1. If a user deletes all their accounts an error occurs and the accounts are not deleted.
+            // To mitigate this, we supply the default region and account where the config aggregator is deployed.
             return configService
                 .putConfigurationAggregator({
                     ConfigurationAggregatorName: configAggregator,
                     AccountAggregationSources: [
                         {
-                            AccountIds,
+                            AccountIds: R.isEmpty(AccountIds) ? [defaultAccountId] : AccountIds,
                             AllAwsRegions: false,
-                            AwsRegions
+                            AwsRegions: R.isEmpty(AwsRegions) ? [defaultRegion]: AwsRegions,
                         },
                     ],
                 })
@@ -340,6 +343,7 @@ async function getRegions(ec2Client) {
 const cache = {};
 
 function handler(ec2Client, docClient, configService, {
+    ACCOUNT_ID: defaultAccountId, AWS_REGION: defaultRegion,
     DB_TABLE: TableName, CONFIG_AGGREGATOR: configAggregator, RETRY_TIME: retryTime = 1000
 }) {
     return async (event, _) => {
@@ -365,6 +369,8 @@ function handler(ec2Client, docClient, configService, {
                 });
             case 'deleteAccounts':
                 return deleteAccounts(docClient, configService, TableName, {
+                    defaultAccountId,
+                    defaultRegion,
                     configAggregator,
                     retryTime,
                     ...args,
