@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import Header from '@awsui/components-react/header';
 import FormField from '@awsui/components-react/form-field';

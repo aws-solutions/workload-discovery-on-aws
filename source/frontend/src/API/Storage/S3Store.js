@@ -1,5 +1,9 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import { Storage, Auth } from 'aws-amplify';
 import * as R  from 'ramda';
+import {ObjectNotFoundError} from "../../errors/ObjectNotFoundError";
 
 export const uploadObject = async (key, content, level, type) => {
   return Storage.put(key, content, {
@@ -49,18 +53,13 @@ export const getObject = async (key, level) => {
     .then((result) =>
       fetch(result)
         .then((res) => {
-          if (R.equals(res.status, 404))
-            throw {
-              name: 'ObjectNotFound',
-              message: res.statusText,
-              status: res.status,
-            };
-          else return res;
+          if (R.equals(res.status, 404)) {
+              throw new ObjectNotFoundError(res.statusText);
+          } else {
+              return res;
+          }
         })
         .then((response) => response.json())
-        .catch((err) => {
-          throw err;
-        })
     );
 };
 

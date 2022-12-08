@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const R = require("ramda");
 const {PromisePool} = require("@supercharge/promise-pool");
 const {parse: parseArn} = require('@aws-sdk/util-arn-parser');
@@ -81,6 +84,7 @@ const {
     createContainsRelationship,
     createAssociatedRelationship,
     createAttachedRelationship,
+    safeForEach
 } = require('./utils');
 
 function createResourceNameKey({resourceName, resourceType, accountId, awsRegion}) {
@@ -268,9 +272,14 @@ function createEniRelatedResource({description, interfaceType, requesterId, awsR
 function getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, subnetIds) {
     const {availabilityZones, vpcId} = subnetIds.reduce((acc, subnetId) => {
         const id = resourceIdentifierToIdMap.get(createResourceIdKey({resourceId: subnetId, resourceType: AWS_EC2_SUBNET, accountId, awsRegion}));
-        const {configuration: {vpcId}, availabilityZone} = resourceMap.get(id);
-        if(acc.vpcId == null) acc.vpcId = vpcId;
-        acc.availabilityZones.add(availabilityZone);
+
+        // we may not have ingested the subnets
+        if(resourceMap.has(id)) {
+            const {configuration: {vpcId}, availabilityZone} = resourceMap.get(id);
+            if(acc.vpcId == null) acc.vpcId = vpcId;
+            acc.availabilityZones.add(availabilityZone);
+        }
+
         return acc;
     }, {availabilityZones: new Set()});
 
@@ -313,9 +322,11 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             if(!R.isEmpty(vpczoneIdentifier)) {
                 const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, vpczoneIdentifier.split(','));
 
-                asg.availabilityZone = R.sort((a, b) => a - b, availabilityZones).join(',');
+                if(vpcId != null) {
+                    asg.availabilityZone = R.sort((a, b) => a - b, availabilityZones).join(',');
 
-                relationships.push(createContainedInVpcRelationship(vpcId));
+                    relationships.push(createContainedInVpcRelationship(vpcId));
+                }
             }
 
             if(launchTemplate != null) {
@@ -358,7 +369,7 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
                 const {vpcId, subnets, securityGroupIds} = vpcConfig;
 
                 const {availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, subnets);
-                project.availabilityZone = R.sort((a, b) => a - b, availabilityZones).join(',');
+                if(!R.isEmpty(availabilityZones)) project.availabilityZone = R.sort((a, b) => a - b, availabilityZones).join(',');
 
                 relationships.push(
                     createContainedInVpcRelationship(vpcId),
@@ -429,11 +440,14 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
 
             if(!R.isEmpty(subnetIds)) {
                 const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, subnetIds);
-                service.availabilityZone = availabilityZones.join(',');
-                relationships.push(
-                    ...subnetIds.map(createContainedInSubnetRelationship),
-                    createContainedInVpcRelationship(vpcId)
-                );
+
+                if(vpcId != null) {
+                    service.availabilityZone = availabilityZones.join(',');
+                    relationships.push(
+                        ...subnetIds.map(createContainedInSubnetRelationship),
+                        createContainedInVpcRelationship(vpcId)
+                    );
+                }
             }
         },
         [AWS_ECS_TASK]: async task => {
@@ -490,12 +504,11 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
                 return details.forEach(({name, value}) => {
                     if(name === SUBNET_ID) {
                         const subnetArn = resourceIdentifierToIdMap.get(createResourceIdKey({resourceId: value, resourceType: AWS_EC2_SUBNET, accountId, awsRegion}));
-                        const {configuration: {vpcId}} = resourceMap.get(subnetArn);
+                        const vpcId = resourceMap.get(subnetArn)?.configuration?.vpcId; // we may not have discovered the subnet
 
-                        task.relationships.push(
-                            createContainedInVpcRelationship(vpcId),
-                            createContainedInSubnetRelationship(value)
-                        );
+                        if(vpcId != null) task.relationships.push(createContainedInVpcRelationship(vpcId));
+
+                        task.relationships.push(createContainedInSubnetRelationship(value));
                     } else if (name === NETWORK_INTERFACE_ID) {
                         const networkInterfaceId = resourceIdentifierToIdMap.get(createResourceIdKey({resourceId: value, resourceType: AWS_EC2_NETWORK_INTERFACE, accountId, awsRegion}));
                         // occasionally network interface information is stale so we need to do null checks here
@@ -542,10 +555,12 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             const {ResourcesVpcConfig: {SubnetIds, SecurityGroupIds}, RoleArn} = configuration;
             const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, SubnetIds);
 
-            cluster.availabilityZone = availabilityZones.join(',');
+            if(vpcId != null) {
+                cluster.availabilityZone = availabilityZones.join(',');
+                relationships.push(createContainedInVpcRelationship(vpcId));
+            }
 
             relationships.push(
-                createContainedInVpcRelationship(vpcId),
                 ...SubnetIds.map(createContainedInSubnetRelationship),
                 ...SecurityGroupIds.map(createAssociatedSecurityGroupRelationship),
                 createAssociatedRelationship(AWS_IAM_ROLE, {arn: RoleArn})
@@ -556,13 +571,15 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             const {subnets, remoteAccess = {}, resources, nodeRole, launchTemplate = {}} = configuration;
             const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, subnets);
 
-            nodeGroup.availabilityZone = availabilityZones.join(',');
+            if(vpcId != null) {
+                nodeGroup.availabilityZone = availabilityZones.join(',');
+                relationships.push(createContainedInVpcRelationship(vpcId))
+            }
 
             const {autoScalingGroups = [], remoteAccessSecurityGroup = []} = resources;
             const sourceSecurityGroups = remoteAccess.sourceSecurityGroups ?? [];
 
             relationships.push(
-                createContainedInVpcRelationship(vpcId),
                 ...subnets.map(createContainedInSubnetRelationship),
                 ...remoteAccessSecurityGroup.map(createAssociatedSecurityGroupRelationship),
                 ...sourceSecurityGroups.map(createAssociatedSecurityGroupRelationship),
@@ -671,8 +688,10 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             if(!R.isEmpty(subnetIds)) {
                 const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, subnetIds);
 
-                lambda.availabilityZone = availabilityZones.join(',');
-                lambda.relationships.push(createContainedInVpcRelationship(vpcId));
+                if(vpcId != null) {
+                    lambda.availabilityZone = availabilityZones.join(',');
+                    lambda.relationships.push(createContainedInVpcRelationship(vpcId));
+                }
             }
 
             lambda.relationships.push(...fileSystemConfigs.map(({arn: accessPointArn}) => {
@@ -682,9 +701,13 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
         [AWS_MSK_CLUSTER]: async cluster => {
             const {accountId, awsRegion, configuration: {BrokerNodeGroupInfo: {ClientSubnets, SecurityGroups}}} = cluster;
             const {vpcId, availabilityZones} = getSubnetInfo(resourceMap, resourceIdentifierToIdMap, accountId, awsRegion, ClientSubnets);
-            cluster.availabilityZone = availabilityZones.join(',');
+
+            if(vpcId != null) {
+                cluster.availabilityZone = availabilityZones.join(',');
+                cluster.relationships.push(createContainedInVpcRelationship(vpcId));
+            }
+
             cluster.relationships.push(
-                createContainedInVpcRelationship(vpcId),
                 ...ClientSubnets.map(createContainedInSubnetRelationship),
                 ...SecurityGroups.map(createAssociatedSecurityGroupRelationship)
             );
@@ -711,10 +734,10 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             );
         },
         [AWS_RDS_DB_INSTANCE]: async db => {
-            const {dBSubnetGroup} = db.configuration;
+            const {dBSubnetGroup, availabilityZone} = db.configuration;
 
             if(dBSubnetGroup != null) {
-                const {subnetIdentifier} = R.find(({subnetAvailabilityZone}) => subnetAvailabilityZone.name === db.availabilityZone,
+                const {subnetIdentifier} = R.find(({subnetAvailabilityZone}) => subnetAvailabilityZone.name === availabilityZone,
                     dBSubnetGroup.subnets);
 
                 db.relationships.push(...[
@@ -759,7 +782,7 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
             const lambdaClient = awsClient.createLambdaClient(credentials, region);
             const eventSourceMappings = await lambdaClient.listEventSourceMappings();
 
-            eventSourceMappings.forEach(({EventSourceArn, FunctionArn}) => {
+            const {errors} = safeForEach(({EventSourceArn, FunctionArn}) => {
                 if(resourceMap.has(EventSourceArn) && resourceMap.has(FunctionArn)) {
                     const {resourceType} = resourceMap.get(EventSourceArn);
                     const lambda = resourceMap.get(FunctionArn);
@@ -768,32 +791,42 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                         arn: EventSourceArn
                     }));
                 }
-            });
+            }, eventSourceMappings);
+
+            logger.error(`There were ${errors.length} errors when adding lambda event source relationships.`);
+            logger.debug('Errors: ', {errors});
         },
         functions: async (credentials, accountId, region) => {
             const lambdaClient = awsClient.createLambdaClient(credentials, region);
 
             const lambdas = await lambdaClient.getAllFunctions();
 
-            lambdas.forEach(({FunctionArn, Environment = {}}) => {
+            const {errors} = safeForEach(({FunctionArn, Environment = {}}) => {
                 const lambda = resourceMap.get(FunctionArn);
                 // a lambda may have been created between the time we got the data from config
                 // and made our api request
                 if(lambda != null && !R.isEmpty(Environment)) {
-                    //TODO: add env var name as a property of the edge
-                    lambda.relationships.push(...createEnvironmentVariableRelationships(
-                        {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
-                        {accountId, awsRegion: region},
-                        Environment.Variables));
+                    // The lambda API returns an error object if there are encrypted environment variables
+                    // that the discovery process does not have permissions to decrypt
+                    if(R.isNil(Environment.Error)) {
+                        //TODO: add env var name as a property of the edge
+                        lambda.relationships.push(...createEnvironmentVariableRelationships(
+                            {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
+                            {accountId, awsRegion: region},
+                            Environment.Variables));
+                    }
                 }
-            });
+            }, lambdas);
+
+            logger.error(`There were ${errors.length} errors when adding lambda environment variable relationships.`);
+            logger.debug('Errors: ', {errors});
         },
         snsSubscriptions: async (credentials, accountId, region) => {
             const snsClient = awsClient.createSnsClient(credentials, region);
 
             const subscriptions = await snsClient.getAllSubscriptions();
 
-            subscriptions.forEach(({Endpoint, TopicArn}) => {
+            const {errors} = safeForEach(({Endpoint, TopicArn}) => {
                 // an SNS topic may have been created between the time we got the data from config
                 // and made our api request or the endpoint may have been created in a region that
                 // has not been imported
@@ -802,11 +835,14 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                     const {resourceType} = resourceMap.get(Endpoint);
                     snsTopic.relationships.push(createAssociatedRelationship(resourceType, {arn: Endpoint}));
                 }
-            });
+            }, subscriptions);
+
+            logger.error(`There were ${errors.length} errors when adding SNS subscriber relationships.`);
+            logger.debug('Errors: ', {errors});
         },
         transitGatewayVpcAttachments: async (credentials, accountId, region) => {
             // Whilst AWS Config supports the AWS::EC2::TransitGatewayAttachment resource type,
-            // it is  missing information on the account that VPCs referred to by the attachment
+            // it is missing information on the account that VPCs referred to by the attachment
             // are deployed in. Therefore we need to supplement this with info from the EC2 API.
             const ec2Client = awsClient.createEc2Client(credentials, region);
 
@@ -814,7 +850,7 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                 {Name: 'resource-type', Values: [VPC.toLowerCase()]}
             ]);
 
-            tgwAttachments.forEach(tgwAttachment => {
+            const {errors} = safeForEach(tgwAttachment => {
                 const {
                     TransitGatewayAttachmentId, ResourceOwnerId, TransitGatewayOwnerId, TransitGatewayId
                 } = tgwAttachment;
@@ -832,7 +868,10 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                         ...SubnetIds.map(subnetId => createAssociatedRelationship(AWS_EC2_SUBNET, {relNameSuffix: SUBNET, accountId: ResourceOwnerId, awsRegion: region, resourceId: subnetId}))
                     );
                 }
-            });
+            }, tgwAttachments);
+
+            logger.error(`There were ${errors.length} errors when adding transit gateway relationships.`);
+            logger.debug('Errors: ', {errors});
         }
     }
 }

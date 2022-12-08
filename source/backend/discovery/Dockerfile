@@ -6,9 +6,9 @@ RUN mkdir /code
 
 WORKDIR /code
 
-COPY package.json .
+COPY package.json package-lock.json ./
 
-RUN npm install --production
+RUN npm ci --omit=dev
 
 COPY src/ src/
 

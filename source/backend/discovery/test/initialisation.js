@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const {assert} = require('chai');
 const sinon = require('sinon');
 const {ACCESS_DENIED} = require('../src/lib/constants')
@@ -64,7 +67,8 @@ describe('initialisation', () => {
         it('should throw when no accounts to scan', async () => {
             const mockAppSync = () => {
                 return {
-                    getAccounts: async () => []
+                    getAccounts: async () => [],
+                    createPaginator: async () => {}
                 }
             };
 
@@ -95,7 +99,8 @@ describe('initialisation', () => {
                     getAccounts: async () => [
                         {accountId: ACCOUNT_X, regions: [{name: EU_WEST_1}]},
                         {accountId: ACCOUNT_Y, regions: [{name: EU_WEST_1}]}
-                    ]
+                    ],
+                    createPaginator: async () => {}
                 }
             };
 

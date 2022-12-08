@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import { parseCustomerManagedPolicyStatement } from './NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser.js';
 import { parseEC2Instance } from './NodeParsers/EC2Instance/EC2InstanceParser.js';
 import { parseDatabaseInstance } from './NodeParsers/DatabaseInstance/DatabaseInstanceParser.js';

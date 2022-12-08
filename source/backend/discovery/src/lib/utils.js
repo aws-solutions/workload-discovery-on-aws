@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const R = require('ramda');
 const {build: buildArn} = require('@aws-sdk/util-arn-parser');
 
@@ -117,6 +120,23 @@ function isDate(date) {
     return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
 }
 
+function safeForEach(f, xs) {
+    const errors = [];
+
+    xs.forEach(item => {
+        try {
+            f(item);
+        } catch(error) {
+            errors.push({
+                error,
+                item
+            })
+        }
+    });
+
+    return {errors};
+}
+
 module.exports = {
     createContainsRelationship: createRelationship(CONTAINS),
     createAssociatedRelationship: createRelationship(IS_ASSOCIATED_WITH),
@@ -132,5 +152,6 @@ module.exports = {
     isDate,
     isString,
     isObject,
-    objToKeyNameArray
+    objToKeyNameArray,
+    safeForEach: R.curry(safeForEach)
 }

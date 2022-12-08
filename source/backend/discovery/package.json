@@ -8,7 +8,7 @@
     "test": "nyc --reporter=nyc-report-lcov-absolute mocha --recursive test",
     "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
     "clean": "rm -rf dist && rm -rf node_modules",
-    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json discovery.zip .",
+    "build:zip": "zip -rq --exclude=*tests* discovery.zip .",
     "build:dist": "mkdir dist && mv discovery.zip dist/",
     "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"

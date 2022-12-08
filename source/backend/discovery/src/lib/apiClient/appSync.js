@@ -1,9 +1,12 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const R = require('ramda');
 const {request} = require('undici');
 const retry = require('async-retry');
 const aws4 = require('aws4');
 const logger = require('../logger');
-const {CONNECTION_CLOSED_PREMATURELY} = require("../constants");
+const {CONNECTION_CLOSED_PREMATURELY, FUNCTION_RESPONSE_SIZE_TOO_LARGE} = require("../constants");
 
 async function sendQuery(opts, name, {query, variables = {}}) {
     const sigOptions = {
@@ -33,11 +36,14 @@ async function sendQuery(opts, name, {query, variables = {}}) {
                 const {errors} = body;
                 if (errors != null) {
                     if(errors.length === 1) {
-                        const {message} = R.head(errors);
+                        const {errorType, message} = R.head(errors);
                         // this transient error can happen due to a bug in the Gremlin client library
                         // that the appSync lambda uses, 1 retry is normally sufficient
                         if(message === CONNECTION_CLOSED_PREMATURELY) {
                             throw new Error(message);
+                        }
+                        if(errorType === FUNCTION_RESPONSE_SIZE_TOO_LARGE) {
+                            return bail(new Error(errorType));
                         }
                     }
                     logger.error('Error executing gql request', {errors: body.errors})
@@ -51,6 +57,33 @@ async function sendQuery(opts, name, {query, variables = {}}) {
             logger.error(`Retry attempt for ${name} no ${count}: ${err.message}`);
         }
     });
+}
+
+function createPaginator(operation, PAGE_SIZE) {
+    return async function*(args) {
+        let pageSize = PAGE_SIZE;
+        let start = 0;
+        let end = pageSize;
+        let resources = null;
+
+        while(!R.isEmpty(resources)) {
+            try {
+                resources = await operation({pagination: {start, end}, ...args});
+                yield resources
+                start = start + pageSize;
+                pageSize = PAGE_SIZE;
+                end = end + pageSize;
+            } catch(err) {
+                if(err.message === FUNCTION_RESPONSE_SIZE_TOO_LARGE) {
+                    pageSize = Math.floor(pageSize / 2);
+                    logger.debug(`Lambda response size too large, reducing page size to ${pageSize}`);
+                    end = start + pageSize;
+                } else {
+                    throw err;
+                }
+            }
+        }
+    }
 }
 
 const getAccounts = opts => async () => {
@@ -268,6 +301,7 @@ module.exports = function(config) {
         deleteIndexedResources: deleteIndexedResources(opts),
         updateIndexedResources: updateIndexedResources(opts),
         getResources: getResources(opts),
-        getRelationships: getRelationships(opts)
+        getRelationships: getRelationships(opts),
+        createPaginator
     };
 };

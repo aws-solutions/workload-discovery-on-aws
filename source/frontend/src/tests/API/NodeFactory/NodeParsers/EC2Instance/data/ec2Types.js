@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 export const t2 = '{"architecture":"x64","imageId":"1234556789","instanceType":"t2.micro","privateDnsName":"test","privateIpAddress":"192.168.1.1","publicDnsName":"test","publicIpAddress":"192.168.0.1","monitoring": {"state": "available"},"platform":"linux","cpuOptions": {"coreCount": 2, "threadsPerCore": 4},"launchTime":"01-01-2020 01:00:00"}'
 export const a1 = '{"architecture":"x64","imageId":"1234556789","instanceType":"a1.micro","privateDnsName":"test","privateIpAddress":"192.168.1.1","publicDnsName":"test","publicIpAddress":"192.168.0.1","monitoring": {"state": "available"},"platform":"linux","cpuOptions": {"coreCount": 2, "threadsPerCore": 4},"launchTime":"01-01-2020 01:00:00"}'
 export const c4 = '{"architecture":"x64","imageId":"1234556789","instanceType":"c4.micro","privateDnsName":"test","privateIpAddress":"192.168.1.1","publicDnsName":"test","publicIpAddress":"192.168.0.1","monitoring": {"state": "available"},"platform":"linux","cpuOptions": {"coreCount": 2, "threadsPerCore": 4},"launchTime":"01-01-2020 01:00:00"}'

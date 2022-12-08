@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const pThrottle = require('p-throttle');
 const {customUserAgent} = require('./config');
 const {APIGateway, APIGatewayClient, paginateGetResources} = require("@aws-sdk/client-api-gateway");
@@ -133,6 +136,15 @@ function createConfigServiceClient(credentials, region) {
         pageSize: 100
     };
 
+    const batchGetAggregateResourceConfigThrottler = pThrottle({
+        limit: 15,
+        interval: 1000
+    });
+
+    const batchGetAggregateResourceConfig = batchGetAggregateResourceConfigThrottler((ConfigurationAggregatorName, ResourceIdentifiers) => {
+        return configClient.batchGetAggregateResourceConfig({ConfigurationAggregatorName, ResourceIdentifiers})
+    })
+
     return {
         async getAllAggregatorResources(aggregatorName, {excludes}) {
             const excludesResourceTypesWhere = excludes.resourceTypes == null ?
@@ -168,11 +180,8 @@ function createConfigServiceClient(credentials, region) {
 
             for await (const {ResourceIdentifiers} of paginator) {
                 if(!R.isEmpty(ResourceIdentifiers)) {
-                    const results = await configClient.batchGetAggregateResourceConfig({
-                        ConfigurationAggregatorName: aggregatorName,
-                        ResourceIdentifiers
-                    });
-                    resources.push(...results.BaseConfigurationItems);
+                    const {BaseConfigurationItems} = await batchGetAggregateResourceConfig(aggregatorName, ResourceIdentifiers);
+                    resources.push(...BaseConfigurationItems);
                 }
             }
 
@@ -256,6 +265,15 @@ function createEcsClient(credentials, region) {
         pageSize: 100
     };
 
+    const describeContainerInstancesThrottler = pThrottle({
+        limit: 20,
+        interval: 1000
+    });
+
+    const describeContainerInstances = describeContainerInstancesThrottler((cluster, containerInstances) => {
+        return ecsClient.describeContainerInstances({cluster, containerInstances})
+    })
+
     return {
         async getAllClusterInstances(clusterArn) {
             const listContainerInstancesPaginator = paginateListContainerInstances(ecsPaginatorConfig, {
@@ -266,10 +284,7 @@ function createEcsClient(credentials, region) {
 
             for await (const {containerInstanceArns} of listContainerInstancesPaginator) {
                 if(!R.isEmpty(containerInstanceArns)) {
-                    const {containerInstances} = await ecsClient.describeContainerInstances({
-                        cluster: clusterArn,
-                        containerInstances: containerInstanceArns
-                    });
+                    const {containerInstances} = await describeContainerInstances(clusterArn, containerInstanceArns);
                     instances.push(...containerInstances.map(x => x.ec2InstanceId))
                 }
             }

@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import { processEdges } from './Processors/EdgeProcessors';
 import { processChildNodes } from './Processors/NodeProcessors';
 import * as R  from 'ramda';

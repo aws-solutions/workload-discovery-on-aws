@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const {assert} = require('chai');
 const {
     AWS_API_GATEWAY_METHOD,
@@ -53,12 +56,13 @@ const {
     AWS_MSK_CLUSTER,
     AWS_SNS_TOPIC,
     AWS_SQS_QUEUE,
-    SECURITY_GROUP, AWS_IAM_INLINE_POLICY
+    SECURITY_GROUP,
+    AWS_IAM_INLINE_POLICY,
+    MULTIPLE_AVAILABILITY_ZONES
 } = require('../src/lib/constants');
 
 const {generate} = require('./generator');
 const additionalRelationships = require('../src/lib/additionalRelationships');
-const schema = require("./fixtures/relationships/iam/inlinePolicy/multipleStatement.json");
 
 const ROLE = 'Role';
 const INSTANCE = 'Instance';
@@ -179,12 +183,28 @@ describe('additionalRelationships', () => {
                 const actualVpcRel = actualAsg.relationships.find(x => x.resourceId === vpc.resourceId);
 
                 assert.strictEqual(actualAsg.vpcId, vpc.resourceId);
+                assert.strictEqual(actualAsg.availabilityZone, 'eu-west-2a,eu-west-2b');
 
                 assert.deepEqual(actualVpcRel, {
                     resourceId: vpc.resourceId,
                     relationshipName: IS_CONTAINED_IN + VPC,
                     resourceType: AWS_EC2_VPC
                 });
+            });
+
+            it('should handle networking relationship when subnet has not been ingested', async () => {
+                const schema = require('./fixtures/relationships/asg/networking.json');
+                const {vpc, asg} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [asg]);
+
+                const actualAsg = rels.find(r => r.resourceId === asg.resourceId);
+                const actualVpcRel = actualAsg.relationships.find(x => x.resourceId === vpc.resourceId);
+
+                assert.notExists(actualAsg.vpcId);
+                assert.strictEqual(actualAsg.availabilityZone, MULTIPLE_AVAILABILITY_ZONES);
+
+                assert.deepEqual(actualVpcRel);
             });
 
         });
@@ -644,6 +664,20 @@ describe('additionalRelationships', () => {
                 });
             });
 
+            it('should handle VPC relationships for Lambda functions when subnets have not been ingested', async () => {
+                const schema = require('./fixtures/relationships/lambda/vpc.json');
+                const {vpc, lambda} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [lambda]);
+
+                const actual = rels.find(r => r.resourceId === lambda.resourceId);
+                const actualVpcRel = actual.relationships.find(r => r.resourceId === vpc.resourceId);
+
+                assert.strictEqual(actual.availabilityZone, 'Not Applicable');
+
+                assert.notExists(actualVpcRel);
+            });
+
             it('should add VPC relationships for Lambda functions with efs', async () => {
                 const schema = require('./fixtures/relationships/lambda/efs.json');
                 const {subnet1, subnet2, lambda, efs} = generate(schema);
@@ -687,6 +721,40 @@ describe('additionalRelationships', () => {
                     arn: kinesis.arn,
                     resourceType: AWS_KINESIS_STREAM
                 }]);
+            });
+
+            it.only('should handle errors when encrypted environment variables are present', async () => {
+                const schema = require('./fixtures/relationships/lambda/encryptedEnvVar.json');
+                const {lambda} = generate(schema);
+
+                const mockAwsClient = {
+                    ...defaultMockAwsClient,
+                    createLambdaClient(_, region) {
+                        return {
+                            getAllFunctions: async arn => {
+                                if(region === lambda.awsRegion) {
+                                    return [{
+                                        FunctionArn: lambda.arn,
+                                        Environment: {
+                                            Error: {
+                                                ErrorCode: 'AccessDeniedException',
+                                                Message: 'Error'
+                                            }
+                                        }
+                                    }]
+                                }
+                                return [];
+                            },
+                            listEventSourceMappings: async arn => []
+                        }
+                    }
+                };
+
+                const rels = await createAdditionalRelationships(mockAwsClient, [lambda]);
+
+                const {relationships} = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
+
+                assert.lengthOf(relationships, 0);
             });
 
             it('should return additional non-db relationships for Lambda functions with environment variables', async () => {
@@ -940,6 +1008,24 @@ describe('additionalRelationships', () => {
                     resourceId: securityGroup.resourceId,
                     resourceType: AWS_EC2_SECURITY_GROUP
                 });
+            });
+
+            it('should add networking relationships for ECS service when subnets have not been discovered', async () => {
+                const schema = require('./fixtures/relationships/ecs/service/vpc.json');
+                const {vpc, securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                    securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition
+                ]);
+
+                const {relationships, ...service} = rels.find(r => r.resourceType === AWS_ECS_SERVICE);
+
+                const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
+
+                assert.notExists(service.vpcId);
+                assert.strictEqual(service.availabilityZone, 'Regional');
+
+                assert.notExists(actualVpcRel);
             });
 
         });
@@ -1377,7 +1463,9 @@ describe('additionalRelationships', () => {
                     subnet1, subnet2, cluster, clusterRole
                 ]);
 
-                const {relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+
+                assert.strictEqual(availabilityZone, 'eu-west-2a,eu-west-2b');
 
                 const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
                 const actualSubnet1Rel = relationships.find(r => r.resourceId === subnet1.resourceId);
@@ -1398,6 +1486,22 @@ describe('additionalRelationships', () => {
                     resourceId: subnet2.resourceId,
                     resourceType: AWS_EC2_SUBNET
                 });
+            });
+
+            it('should add relationships for networking when subnets have not been discovered', async () => {
+                const schema = require('./fixtures/relationships/eks/cluster/networking.json');
+                const {vpc, cluster, clusterRole} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                    cluster, clusterRole
+                ]);
+
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+                assert.strictEqual(availabilityZone, 'Regional');
+
+                const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
+
+                assert.notExists(actualVpcRel);
             });
 
             it('should add relationships for security groups', async () => {
@@ -1450,11 +1554,13 @@ describe('additionalRelationships', () => {
                     subnet1, subnet2, nodeRole, nodeGroup
                 ]);
 
-                const {relationships} = rels.find(r => r.resourceId === nodeGroup.resourceId);
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === nodeGroup.resourceId);
 
                 const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
                 const actualSubnet1Rel = relationships.find(r => r.resourceId === subnet1.resourceId);
                 const actualSubnet2Rel = relationships.find(r => r.resourceId === subnet2.resourceId);
+
+                assert.strictEqual(availabilityZone, 'eu-west-2a,eu-west-2b');
 
                 assert.deepEqual(actualVpcRel, {
                     relationshipName: IS_CONTAINED_IN + VPC,
@@ -1471,6 +1577,20 @@ describe('additionalRelationships', () => {
                     resourceId: subnet2.resourceId,
                     resourceType: AWS_EC2_SUBNET
                 });
+            });
+
+            it('should add relationships for networking when subnets have not been discovered', async () => {
+                const schema = require('./fixtures/relationships/eks/nodeGroup/networking.json');
+                const {vpc, nodeRole, nodeGroup} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [nodeRole, nodeGroup]);
+
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === nodeGroup.resourceId);
+                assert.strictEqual(availabilityZone, 'Regional');
+
+                const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
+
+                assert.notExists(actualVpcRel);
             });
 
             it('should add relationships for security groups with launch template', async () => {
@@ -1567,7 +1687,9 @@ describe('additionalRelationships', () => {
                     subnet1, subnet2, cluster
                 ]);
 
-                const {relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+
+                assert.strictEqual(availabilityZone, 'eu-west-2a,eu-west-2b')
 
                 const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
                 const actualSubnet1Rel = relationships.find(r => r.resourceId === subnet1.resourceId);
@@ -1595,6 +1717,22 @@ describe('additionalRelationships', () => {
                     resourceType: AWS_EC2_SECURITY_GROUP
                 });
             });
+
+            it('should handle relationships for networking when subnets have not been discovered', async () => {
+                const schema = require('./fixtures/relationships/msk/serverful.json');
+                const {vpc, cluster} = generate(schema);
+
+                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cluster]);
+
+                const {availabilityZone, relationships} = rels.find(r => r.resourceId === cluster.resourceId);
+                assert.strictEqual(availabilityZone, 'Regional')
+
+                const actualVpcRel = relationships.find(r => r.resourceId === vpc.resourceId);
+
+                assert.notExists(actualVpcRel);
+
+            });
+
         });
 
         describe(AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER, () => {

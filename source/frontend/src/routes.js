@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import Homepage from './components/Homepage/Homepage';
 import DiscoverableAccountsPage from './components/RegionManagement/DiscoverableRegions/DiscoverableAccountsPage';
 import ImportContent from './components/RegionManagement/SinglePageImport/ImportContent';

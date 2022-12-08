@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const most = require('most');
 const readline = require('readline');
 const AWS = require('aws-sdk');
@@ -128,7 +131,7 @@ const getResultCount = async (query) => {
         .fromEvent('line', rl)
         .until(most.fromEvent('close', rl))
         .skip(1)
-        .reduce((acc, item) => (acc++, acc), 0)
+        .reduce((acc, _) => acc + 1, 0)
     );
 };
 
@@ -158,7 +161,10 @@ const buildItems = async (query) => {
         .until(most.fromEvent('close', rl))
         .skip(1)
         .slice(query.pagination.start, query.pagination.end)
-        .reduce((acc, item) => (acc.push(item), acc), [])
+        .reduce((acc, item) => {
+            acc.push(item);
+            return acc;
+        }, [])
     );
 };
 

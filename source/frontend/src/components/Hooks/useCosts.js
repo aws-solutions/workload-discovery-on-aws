@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import useQueryErrorHandler from "./useQueryErrorHandler";
 import {useQuery} from "react-query";
 import {handleResponse} from "../../API/Handlers/ResourceGraphQLHandler";

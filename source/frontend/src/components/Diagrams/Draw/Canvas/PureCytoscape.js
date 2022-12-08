@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React, {useCallback, useEffect, useState} from 'react';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';

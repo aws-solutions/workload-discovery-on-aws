@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const AWS = require('aws-sdk');
 const {Client} = require('@opensearch-project/opensearch');
 const createAwsOpensearchConnector = require('aws-opensearch-connector');

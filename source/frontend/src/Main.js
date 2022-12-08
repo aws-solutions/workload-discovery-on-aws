@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import { ResourceProvider } from './components/Contexts/ResourceContext';
 import { resourceReducer } from './components/Contexts/Reducers/ResourceReducer';

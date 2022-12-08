@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const nodeToBuild = require('./data/node-to-build.json')
 const nodeThatWasBuilt = require('./data/node-that-was-built.json');
 const nodeThatWasBuiltClicked = require('./data/node-that-was-built-clicked.json');

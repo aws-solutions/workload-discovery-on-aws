@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import {useMutation, useQuery, useQueryClient} from 'react-query';
 import useQueryErrorHandler from "./useQueryErrorHandler";
 import {getObject, listObjects, removeObject, uploadObject} from "../../API/Storage/S3Store";

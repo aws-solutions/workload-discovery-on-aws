@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 export const nodeWithCost = {
   id: 'ebc5cd4c047867d5ab6154d07ff468f9',
   perspectiveBirthDate: '2020-02-25T14:50:10.708Z',

@@ -1,27 +1,31 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const R = require("ramda");
+const {FUNCTION_RESPONSE_SIZE_TOO_LARGE} = require('../constants');
 const {PromisePool} = require("@supercharge/promise-pool");
 const logger = require("../logger");
 
 function getDbResourcesMap(appSync) {
-    const pageSize = 500;
-    function getDbResources(pagination, resourcesMap = new Map()) {
-        return appSync.getResources({pagination})
-            .then(resources => {
-                if(R.isEmpty(resources)) return resourcesMap;
-                resources.forEach(r => resourcesMap.set(r.id, {
-                    id: r.id,
-                    label: r.label,
-                    md5Hash: r.md5Hash,
-                    // gql will return `null` for missing properties which will break the hashing
-                    // comparison for sdk discovered resources
-                    properties: R.reject(R.isNil, r.properties)
-                }));
-                const {start, end} = pagination;
-                return getDbResources({start: start + pageSize, end: end + pageSize}, resourcesMap);
-            })
-    }
+    const {createPaginator, getResources} = appSync;
+    const getResourcesPaginator = createPaginator(getResources, 1000);
 
-    return async () => getDbResources({start: 0, end: pageSize});
+    return async () => {
+        const resourcesMap = new Map();
+
+        for await (resources of getResourcesPaginator({})) {
+            resources.forEach(r => resourcesMap.set(r.id, {
+                id: r.id,
+                label: r.label,
+                md5Hash: r.md5Hash,
+                // gql will return `null` for missing properties which will break the hashing
+                // comparison for sdk discovered resources
+                properties: R.reject(R.isNil, r.properties)
+            }));
+        }
+
+        return resourcesMap;
+    };
 }
 
 function getDbRelationshipsMap(appSync) {
@@ -56,7 +60,7 @@ function process(processor) {
 function updateAccountsCrawledTime(appSync) {
     return async accountIds => {
         const {errors, results} = await PromisePool
-            .withConcurrency(25)
+            .withConcurrency(10) // the reserved concurrency of the settings lambda is 10
             .for(accountIds)
             .process(async accountId => {
                 const res = await appSync.updateAccount(accountId, new Date().toISOString());

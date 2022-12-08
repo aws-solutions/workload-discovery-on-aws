@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const R = require('ramda');
 const dynoexpr = require('@tuplo/dynoexpr');
 const AWSXRay = require('aws-xray-sdk-core');

@@ -1,17 +1,7 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import * as R  from 'ramda';
-// export const getRegions = (selectedRegions, selectedAccounts, accounts) => {
-//   return R.isEmpty(selectedRegions)
-//     ? R.isEmpty(selectedAccounts)
-//       ? R.chain(
-//           (account) => R.chain((region) => region.label, account.regions),
-//           accounts
-//         )
-//       : R.chain(
-//           (account) => R.chain((region) => region.label, account.regions),
-//           selectedAccounts
-//         )
-//     : R.chain((region) => region.label, selectedRegions);
-// };
 
 export const getAllRegions = (accounts) =>
   R.chain(

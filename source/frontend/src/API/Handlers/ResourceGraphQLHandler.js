@@ -1,4 +1,8 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import { retryAttempts } from '../../config/api-retry';
+import {delay} from "../../Utils/AsyncUtils";
 import { Auth, API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
 import * as R  from 'ramda';
@@ -37,11 +41,6 @@ export const searchResources = (params) => {
 export const exportToDrawIo = (params) => {
   return API.graphql(graphqlOperation(queries.exportToDrawIo, params));
 };
-
-const delay = (retryCount) =>
-  new Promise((resolve) =>
-    setTimeout(resolve, Math.max((retryCount *= 2), 1) * 1000)
-  );
 
 const processError = (retryCount, retryAttempts, response) =>
   response.error && retryCount < retryAttempts;

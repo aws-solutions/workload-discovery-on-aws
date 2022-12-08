@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * This module parses a list of linear nodes (example in testHierarchy) to 
  * split them into a parent child hierarchy based on account, region, vpc and type.
