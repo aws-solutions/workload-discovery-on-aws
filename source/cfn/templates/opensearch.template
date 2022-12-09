@@ -73,11 +73,13 @@ Resources:
         InstanceCount: !If [ZoneAwarenessEnabled, 2, 1]
         InstanceType: !Ref InstanceType
         ZoneAwarenessEnabled: !If [ZoneAwarenessEnabled, true, false]
-        ZoneAwarenessConfig: !If 
+        ZoneAwarenessConfig: !If
           - ZoneAwarenessEnabled
           - AvailabilityZoneCount: 2
           - !Ref AWS::NoValue
         DedicatedMasterEnabled: false
+      DomainEndpointOptions:
+        EnforceHTTPS: true
       EBSOptions:
         EBSEnabled: true
         VolumeType: gp2
@@ -115,7 +117,7 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet0
-          - !If 
+          - !If
             - ZoneAwarenessEnabled
             - !Ref PrivateSubnet1
             - !Ref AWS::NoValue
