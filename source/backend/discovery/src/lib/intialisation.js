@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const {createArn} = require('./utils');
 const {ECS, AWS, PERSPECTIVE, WORKLOAD_DISCOVERY_TASKGROUP, TASK_DEFINITION, DISCOVERY_ROLE_NAME, ACCESS_DENIED} = require('./constants')
 const logger = require('./logger');

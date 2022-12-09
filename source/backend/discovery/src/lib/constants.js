@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 module.exports = {
     IS_ASSOCIATED_WITH: 'Is associated with ',
     CONTAINS: 'Contains ',
@@ -130,5 +133,6 @@ module.exports = {
     AWS_AMAZON_COM: 'aws.amazon.com',
     S3: 's3',
     HOME: 'home',
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE: 'Function.ResponseSizeTooLarge',
     WORKLOAD_DISCOVERY_TASKGROUP: 'workload-discovery-taskgroup'
 }

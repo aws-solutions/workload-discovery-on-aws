@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import { fetchImage } from '../../Utils/ImageSelector.js';
 import { getAccountColour, getRegionColour } from '../../Utils/ColorCreator.js';
 import { getCostData } from '../../Utils/Resources/CostCalculator.js';

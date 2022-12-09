@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React, {useEffect} from 'react';
 import PropTypes from "prop-types";
 import {FormField, Select, SpaceBetween} from '@awsui/components-react';

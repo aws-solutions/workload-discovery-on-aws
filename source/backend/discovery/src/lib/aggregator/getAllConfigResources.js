@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const {PromisePool} = require('@supercharge/promise-pool');
 const R = require('ramda');
 const logger = require("../logger");

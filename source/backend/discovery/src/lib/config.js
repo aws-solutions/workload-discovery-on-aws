@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const config = {
     rootAccountId: process.env.AWS_ACCOUNT_ID,
     region: process.env.AWS_REGION,

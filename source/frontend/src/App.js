@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import {Authenticator, Heading, Image, ThemeProvider} from '@aws-amplify/ui-react';
 import "@awsui/global-styles/index.css";

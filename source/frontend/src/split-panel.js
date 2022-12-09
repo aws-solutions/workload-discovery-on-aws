@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import ResourcesSplitPanel from './components/Explore/Resources/Utils/ResourcesSplitPanel';
 import React from 'react';
 import DrawingSplitPanel from './components/Diagrams/Draw/Utils/DrawingSplitPanel';

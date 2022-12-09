@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import ResourcesHelper from './components/Explore/Resources/Utils/ResourcesHelper';
 import ImportRegionHelper from './components/RegionManagement/SinglePageImport/ImportRegionHelper';
 import React from 'react';

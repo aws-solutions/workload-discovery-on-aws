@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React from 'react';
 import Table from '@awsui/components-react/table';
 import Box from '@awsui/components-react/box';

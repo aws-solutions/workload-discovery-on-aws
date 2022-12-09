@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2022-12-09
+
+### Fixed
+
+- Pagination size in discovery process could lead to maximum allowed payload errors [331](https://github.com/awslabs/workload-discovery-on-aws/issues/331)
+- AWS Config throttling stopped resources not supported by advanced query being discovered [332](https://github.com/awslabs/workload-discovery-on-aws/issues/332)
+- Null errors when adding relationships for `AWS::Lambda::Function`, `AWS::ECS::Task`, `AWS::AutoScaling::AutoScalingGroup` and 
+`AWS::RDS::DBInstance` resource types [333](https://github.com/awslabs/workload-discovery-on-aws/issues/333)
+- Permission errors when decrypting encrypted lambda functions broke batch lambda relationship discovery [334](https://github.com/awslabs/workload-discovery-on-aws/issues/334)
+
 ## [2.0.1] - 2022-11-23
 
 ### Fixed
@@ -12,34 +22,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removing last account caused an AWS Config error and stopped account being removed [315](https://github.com/awslabs/workload-discovery-on-aws/issues/315)
 - Pagination size in discovery process could lead to maximum allowed payload errors [316](https://github.com/awslabs/workload-discovery-on-aws/issues/316)
 - Specifying `neptune1` family parameter group broke Neptune stack deployment scripts [320](https://github.com/awslabs/workload-discovery-on-aws/issues/320)
-- Inconsistent return type from AWS Config for tags broke tag creation 
+- Inconsistent return type from AWS Config for tags broke tag creation
 
 ## [2.0.0] - 2022-10-25
 
 ### Added
 
 - Solution now ingests all resource types [supported](https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html), as well as the  following resource types
-  - `AWS::APIGateway::Resource` 
-  - `AWS::APIGateway::Method`
-  - `AWS::APIGateway::Authorizer`
-  - `AWS::IAM::InlinePolicy` 
-  - `AWS::IAM::ManagedPolicy` 
-  - `AWS::ECS::Task` 
-  - `AWS::EKS:::NodeGroup` 
-  - `AWS::ElasticLoadBalancingV2::TargetGroup` 
-  - `AWS::Cognito::UserPool` 
-  - `AWS::EC2::Spot`
-  - `AWS::EC2::SpotFleet`
+    - `AWS::APIGateway::Resource`
+    - `AWS::APIGateway::Method`
+    - `AWS::APIGateway::Authorizer`
+    - `AWS::IAM::InlinePolicy`
+    - `AWS::IAM::ManagedPolicy`
+    - `AWS::ECS::Task`
+    - `AWS::EKS:::NodeGroup`
+    - `AWS::ElasticLoadBalancingV2::TargetGroup`
+    - `AWS::Cognito::UserPool`
+    - `AWS::EC2::Spot`
+    - `AWS::EC2::SpotFleet`
 - Large increase in number of relationships not captured by AWS Config, including, but not limited to:
-  - Lambda -> SNS/SQS/Kinesis/MSK/EFS 
-  - AWS::APIGateway::Authorizer -> Cognito User Pool 
-  - CloudFront -> ELB/ELBv2 
-  - SecurityGroup -> SecurityGroup 
-  - ELBv2 -> ELBv2 Listener -> ELBv2 Target Group -> ASG 
-  - ECS Task -> EFS 
-  - EKS Cluster -> NodeGroup/VPC/Subnet/SecurityGroup/IAM Role 
-  - EKS NodeGroup -> ASG/VPC/Subnet/SecurityGroup/IAM Role/Launch Template 
-  - Transit Gateway -> VPC/Subnet
+    - Lambda -> SNS/SQS/Kinesis/MSK/EFS
+    - AWS::APIGateway::Authorizer -> Cognito User Pool
+    - CloudFront -> ELB/ELBv2
+    - SecurityGroup -> SecurityGroup
+    - ELBv2 -> ELBv2 Listener -> ELBv2 Target Group -> ASG
+    - ECS Task -> EFS
+    - EKS Cluster -> NodeGroup/VPC/Subnet/SecurityGroup/IAM Role
+    - EKS NodeGroup -> ASG/VPC/Subnet/SecurityGroup/IAM Role/Launch Template
+    - Transit Gateway -> VPC/Subnet
 - New UI:
     - Uses [Cloudscape Design](https://cloudscape.design/) System to make look and feel more consistent
     - Migrated from modal dialogs to React router for page management
@@ -58,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Use official node.js Docker container for Discovery process ECS task 
+- Use official node.js Docker container for Discovery process ECS task
 
 ### Fixed
 
@@ -69,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Missing icons for EC2 types and a few [others](https://github.com/awslabs/aws-perspective/issues/232)
-  
+
 ### Changed
 
 ### Fixed
@@ -78,13 +88,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drawio export bug that was causing diagrams with collapsed nodes to cause an error. https://github.com/awslabs/aws-perspective/issues/219
 - Hover over box when hovering over a resource it was going outside the screen. https://github.com/awslabs/aws-perspective/issues/220
 - Slow deployment step that uploads files to S3. Increase **maxSockets** in HTTPS agent within the Lambda.
-  
+
 ## [1.1.2] - 2021-11-03
 
 ### Added
 
 - Amazon OpenSearch Service to discovery process Config queries.
-  
+
 ### Changed
 
 - Limiting the date pickers to select dates in the past. To limit confusion around the cost data Perspective displays.
@@ -93,7 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed permissions errors preventing in-place upgrades.
 - Fixed a bug causing Amazon Elasticsearch Service costs to be missed out when calculating estimated workload costs (https://github.com/awslabs/aws-perspective/issues/216).
-- Fixed a bug causing cost query date not to update in the overview component. 
+- Fixed a bug causing cost query date not to update in the overview component.
 
 ## [1.1.1] - 2021-09-28
 
@@ -156,7 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug leading to RestApi icons not being displayed in Firefox.
 - Added support for Amazon QLDB Ledgers.
 - Updated README.
-  
+
 ## [1.0.0] - 2020-09-21
 
 - Initial release

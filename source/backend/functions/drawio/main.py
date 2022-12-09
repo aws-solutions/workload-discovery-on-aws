@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 import urllib.parse
 from xml.etree.ElementTree import Element, SubElement, tostring
 from type_definitions import get_type_definitions

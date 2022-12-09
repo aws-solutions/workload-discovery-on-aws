@@ -45,6 +45,7 @@
     "resourceId": "testLambdaFunc",
     "accountId": "${$constants.accountId}",
     "awsRegion": "${$constants.region}",
+    "availabilityZone": "Not Applicable",
     "resourceType": "${$constants.lambda.resourceType}",
     "relationships": [
       {

@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const gremlin = require('gremlin');
 const R = require('ramda');
 const {lambdaRequestTracker} = require('pino-lambda');

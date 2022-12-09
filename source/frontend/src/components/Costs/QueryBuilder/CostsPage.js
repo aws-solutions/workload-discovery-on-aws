@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React, {useEffect, useState} from 'react';
 import CostAccountsAndRegionsSelector from './CostAccountsAndRegionsSelector';
 import CostQueryTypeSelector from './CostQueryTypeSelector';

@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 import React, {useCallback, useEffect} from 'react';
 import {Container, ExpandableSection, Header, SpaceBetween} from '@awsui/components-react';
 import Breadcrumbs from '../../../../../Utils/Breadcrumbs';
