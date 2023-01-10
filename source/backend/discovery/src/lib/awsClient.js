@@ -281,7 +281,7 @@ function createEcsClient(credentials, region) {
         return ecsClient.describeContainerInstances({cluster, containerInstances});
     })
 
-    const describeTasks = describeContainerInstancesThrottler((cluster, tasks) => {
+    const describeTasks = describeTasksThrottler((cluster, tasks) => {
         return ecsClient.describeTasks({cluster, tasks});
     })
 
