@@ -923,7 +923,7 @@ describe('importAdditionalResources', () => {
 
         describe(AWS_API_GATEWAY_AUTHORIZER, () => {
 
-            it('should discover API Gateway authorizers ith no providers', async () => {
+            it('should discover API Gateway authorizers with no providers', async () => {
                 const schema = require('./fixtures/additionalResources/apigateway/authorizerNoProvider.json');
                 const {restApi, apiGwAuthorizer} = generate(schema);
 
