@@ -723,7 +723,7 @@ describe('additionalRelationships', () => {
                 }]);
             });
 
-            it.only('should handle errors when encrypted environment variables are present', async () => {
+            it('should handle errors when encrypted environment variables are present', async () => {
                 const schema = require('./fixtures/relationships/lambda/encryptedEnvVar.json');
                 const {lambda} = generate(schema);
 
