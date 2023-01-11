@@ -167,7 +167,7 @@ function getResourceChanges(configResources, dbResourcesMap) {
     }
 }
 
-function createResourceAndRelationshipDeltas(dbLinksMap, dbResourcesMap, resources) {
+function createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap, resources) {
     const {resourceIdentifierToIdMap, resourceMap} = createLookUpMaps(resources);
 
     const links = resources.flatMap(createLinksFromRelationships(resourceIdentifierToIdMap, resourceMap));

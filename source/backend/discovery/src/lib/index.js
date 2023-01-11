@@ -29,7 +29,7 @@ async function discoverResources(appSync, awsClient, config) {
 
     return Promise.resolve(resources)
         .then(R.map(createSaveObject))
-        .then(createResourceAndRelationshipDeltas(dbLinksMap, dbResourcesMap))
+        .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
         .then(writeResourcesAndRelationships(apiClient))
         .then(() => apiClient.updateAccountsCrawledTime(Array.from(accountsMap.keys())));
 }
