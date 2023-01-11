@@ -34,7 +34,7 @@ const {
     AWS_OPENSEARCH_DOMAIN
 } = require('../src/lib/constants');
 
-const additionalResources = require('../src/lib/additionalResources');
+const sdkResources = require('../src/lib/sdkResources');
 const {generate} = require("./generator");
 
 const EU_WEST_2 = 'eu-west-2';
@@ -47,7 +47,7 @@ const ACCESS_KEY_Z = 'accessKeyIdz';
 const ACCOUNT_X = 'xxxxxxxxxxxx';
 const ACCOUNT_Z = 'zzzzzzzzzzzz';
 
-describe('importAdditionalResources', () => {
+describe('getAllSdkResources', () => {
 
     const credentialsX = {accessKeyId: ACCESS_KEY_X, secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
     const credentialsZ = {accessKeyId: ACCESS_KEY_Z, secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
@@ -96,7 +96,7 @@ describe('importAdditionalResources', () => {
 
     describe('getAdditionalResources', () => {
 
-        const createAdditionalResources = additionalResources.createAdditionalResources(new Map(
+        const getAllSdkResources = sdkResources.getAllSdkResources(new Map(
             [[
                 ACCOUNT_X,
                 {
@@ -138,7 +138,7 @@ describe('importAdditionalResources', () => {
                 const arn1 = 'managedPolicyArn1'
                 const arn2 = 'managedPolicyArn2'
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockIamClient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockIamClient}, []);
 
                 const actualRole1 = actual.find(x => x.arn === arn1);
                 const actualRole2 = actual.find(x => x.arn === arn2);
@@ -199,7 +199,7 @@ describe('importAdditionalResources', () => {
 
                 const arn1 = 'managedPolicyArn1'
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockIamClient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockIamClient}, []);
 
                 const actualRole1 = actual.find(x => x.arn === arn1);
 
@@ -248,7 +248,7 @@ describe('importAdditionalResources', () => {
                 const arn1 = 'cognitoArn1'
                 const arn2 = 'cognitoArn2'
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockCognitoClient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockCognitoClient}, []);
 
                 const actualPool1 = actual.find(x => x.arn === arn1);
                 const actualPool2 = actual.find(x => x.arn === arn2);
@@ -308,7 +308,7 @@ describe('importAdditionalResources', () => {
 
                 const arn1 = 'cognitoArn1'
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockCognitoClient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockCognitoClient}, []);
 
                 const actualPool1 = actual.find(x => x.arn === arn1);
 
@@ -357,7 +357,7 @@ describe('importAdditionalResources', () => {
                 const arn1 = 'targetGroupArn1';
                 const arn2 = 'targetGroupArn2';
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockElbV2Client}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockElbV2Client}, []);
 
                 const actualTg1 = actual.find(x => x.arn === arn1);
                 const actualTg2 = actual.find(x => x.arn === arn2);
@@ -418,7 +418,7 @@ describe('importAdditionalResources', () => {
 
                 const arn1 = 'targetGroupArn1';
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockElbV2Client}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockElbV2Client}, []);
 
                 const actualTg1 = actual.find(x => x.arn === arn1);
 
@@ -475,7 +475,7 @@ describe('importAdditionalResources', () => {
                 const instanceId1 = "instanceId1";
                 const instanceId2 = "instanceId2";
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualSpotFleet2 = actual.find(x => x.arn === arn2);
@@ -558,7 +558,7 @@ describe('importAdditionalResources', () => {
 
                 const instanceId1 = "instanceId1";
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
 
@@ -620,7 +620,7 @@ describe('importAdditionalResources', () => {
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-fleet-request/spotFleetRequestId1`;
                 const arn2 = `arn:aws:ec2:${US_WEST_2}:${ACCOUNT_Z}:spot-fleet-request/spotFleetRequestId2`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualSpotFleet2 = actual.find(x => x.arn === arn2);
@@ -705,7 +705,7 @@ describe('importAdditionalResources', () => {
 
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-fleet-request/spotFleetRequestId1`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
 
@@ -765,7 +765,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
 
                 const actualApiGwResource = actual.find(x => x.arn === arn);
 
@@ -823,7 +823,7 @@ describe('importAdditionalResources', () => {
                     }
                 }
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
 
                 assert.deepEqual(actual.filter(x => x.resourceType === AWS_API_GATEWAY_METHOD), []);
             });
@@ -862,7 +862,7 @@ describe('importAdditionalResources', () => {
                 const arn1 = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}/methods/${GET}`;
                 const arn2 = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}/methods/${POST}`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
 
                 const actualGetMethod = actual.find(x => x.arn === arn1);
                 const actualPostMethod = actual.find(x => x.arn === arn2);
@@ -942,7 +942,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
 
                 const actualApiGwResource = actual.find(x => x.arn === arn);
 
@@ -991,7 +991,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
 
                 const actualApiGwResource = actual.find(x => x.arn === arn);
 
@@ -1051,7 +1051,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = ecsTask.taskArn;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEcsClientClient}, [ecsService]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEcsClientClient}, [ecsService]);
 
                 const actualEcsTask = actual.find(x => x.arn === arn);
 
@@ -1103,7 +1103,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = nodeGroup.nodegroupArn;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
 
                 const actualEksNodeGroup = actual.find(x => x.arn === arn);
 
@@ -1155,7 +1155,7 @@ describe('importAdditionalResources', () => {
 
                 const arn = domain.ARN;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockOpenSearchClientClient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockOpenSearchClientClient}, []);
 
                 const actualDomain = actual.find(x => x.arn === arn);
 
@@ -1187,7 +1187,7 @@ describe('importAdditionalResources', () => {
                 const schema = require('./fixtures/additionalResources/iam/inlinePolicy/role.json');
                 const {inlinePolicy1, inlinePolicy2, role} = generate(schema);
 
-                const actual = await createAdditionalResources(mockAwsClient, [role]);
+                const actual = await getAllSdkResources(mockAwsClient, [role]);
 
                 const arn1 = `${role.arn}/inlinePolicy/${inlinePolicy1.policyName}`;
                 const arn2 = `${role.arn}/inlinePolicy/${inlinePolicy2.policyName}`;
@@ -1247,7 +1247,7 @@ describe('importAdditionalResources', () => {
                 const schema = require('./fixtures/additionalResources/iam/inlinePolicy/user.json');
                 const {inlinePolicy, user} = generate(schema);
 
-                const actual = await createAdditionalResources(mockAwsClient, [user]);
+                const actual = await getAllSdkResources(mockAwsClient, [user]);
 
                 const arn = `${user.arn}/inlinePolicy/${inlinePolicy.policyName}`;
 
@@ -1285,7 +1285,7 @@ describe('importAdditionalResources', () => {
                 const schema = require('./fixtures/additionalResources/tags/tag.json');
                 const {tagInfo, ec2Instance, sqsQueue, forecast} = generate(schema);
 
-                const actual = await createAdditionalResources(mockAwsClient, [ec2Instance, sqsQueue, forecast]);
+                const actual = await getAllSdkResources(mockAwsClient, [ec2Instance, sqsQueue, forecast]);
 
                 const arn1 = `arn:aws:tags::${ACCOUNT_X}:tag/${tagInfo.applicationName}=${tagInfo.applicationValue}`;
                 const arn2 = `arn:aws:tags::${ACCOUNT_X}:tag/${tagInfo.sqsName}=${tagInfo.sqsValue}`;
@@ -1367,7 +1367,7 @@ describe('importAdditionalResources', () => {
                 const tagArn1 = `arn:aws:tags::${ACCOUNT_X}:tag/tag1=value1`;
                 const tagArn2 = `arn:aws:tags::${ACCOUNT_X}:tag/tag2=value2`;
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
 
                 const actualEksNodeGroup = actual.find(x => x.arn === arn);
                 const actualTag1 = actual.find(x => x.arn === tagArn1);
@@ -1484,7 +1484,7 @@ describe('importAdditionalResources', () => {
 
                 const instanceId1 = "instanceId1";
 
-                const actual = await createAdditionalResources({...mockAwsClient, ...mockEc2Client}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2Client}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualTag = actual.find(x => x.arn === tagArn);

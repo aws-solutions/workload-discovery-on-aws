@@ -5,7 +5,7 @@ const R = require('ramda')
 const logger = require('./logger');
 const {initialise} = require('./intialisation');
 const getAllConfigResources = require('./aggregator/getAllConfigResources');
-const {createAdditionalResources} = require('./additionalResources');
+const {getAllSdkResources} = require('./sdkResources');
 const {createAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
 const {createSaveObject} = require('./persistence/transformers');
@@ -13,7 +13,7 @@ const {writeResourcesAndRelationships} = require('./persistence');
 
 function getAllResources(configServiceClient, awsClient, accountsMap, configAggregator) {
     return getAllConfigResources(configServiceClient, accountsMap, configAggregator)
-        .then(createAdditionalResources(accountsMap, awsClient))
+        .then(getAllSdkResources(accountsMap, awsClient))
         .then(createAdditionalRelationships(accountsMap, awsClient))
 }
 

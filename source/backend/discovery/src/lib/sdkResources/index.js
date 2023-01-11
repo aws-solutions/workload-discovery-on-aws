@@ -5,7 +5,7 @@ const R = require("ramda");
 const {PromisePool} = require("@supercharge/promise-pool");
 const {
     createArn,
-    createConfigObject,
+    createConfigObject
 } = require('../utils');
 const {
     AWS_TAGS_TAG,
@@ -67,7 +67,8 @@ function createTags(resources) {
     return Array.from(resourceMap.values());
 }
 
-async function createAdditionalResources(accountsMap, awsClient, resources) {
+async function getAllSdkResources(accountsMap, awsClient, resources) {
+    logger.profile('Time to get all resources from AWS SDK');
     const resourcesCopy = [...resources];
 
     const credentialsTuples = Array.from(accountsMap.entries());
@@ -90,7 +91,7 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
             return handler(resource);
         });
 
-    logger.error(`There were ${firstErrors.length} errors when adding first order additional resources.`);
+    logger.error(`There were ${firstErrors.length} errors when adding first order SDK resources.`);
     logger.debug('Errors: ', {firstErrors});
 
     firstResults.flat().forEach(resource => resourcesCopy.push(resource));
@@ -105,7 +106,7 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
             return handler(resource);
         });
 
-    logger.error(`There were ${secondErrors.length} errors when adding second order additional resources.`);
+    logger.error(`There were ${secondErrors.length} errors when adding second order SDK resources.`);
     logger.debug('Errors: ', {secondErrors});
 
     secondResults.flat().forEach(resource => resourcesCopy.push(resource));
@@ -114,9 +115,11 @@ async function createAdditionalResources(accountsMap, awsClient, resources) {
 
     tags.forEach(tag => resourcesCopy.push(tag))
 
+    logger.profile('Time to get all resources from AWS SDK');
+
     return resourcesCopy;
 }
 
 module.exports = {
-    createAdditionalResources: R.curry(createAdditionalResources)
+    getAllSdkResources: R.curry(getAllSdkResources)
 };
