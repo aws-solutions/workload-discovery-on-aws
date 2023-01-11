@@ -168,7 +168,6 @@ function getResourceChanges(configResources, dbResourcesMap) {
 }
 
 function createResourceAndRelationshipDeltas(dbLinksMap, dbResourcesMap, resources) {
-    logger.profile('Deltas calculated');
     const {resourceIdentifierToIdMap, resourceMap} = createLookUpMaps(resources);
 
     const links = resources.flatMap(createLinksFromRelationships(resourceIdentifierToIdMap, resourceMap));
@@ -177,7 +176,6 @@ function createResourceAndRelationshipDeltas(dbLinksMap, dbResourcesMap, resourc
     const {linksToAdd, linksToDelete} = getLinkChanges(configLinksMap, dbLinksMap);
 
     const {resourceIdsToDelete, resourcesToStore, resourcesToUpdate} = getResourceChanges(resourceMap, dbResourcesMap);
-    logger.profile('Deltas calculated');
 
     return {
         resourceIdsToDelete, resourcesToStore, resourcesToUpdate,
