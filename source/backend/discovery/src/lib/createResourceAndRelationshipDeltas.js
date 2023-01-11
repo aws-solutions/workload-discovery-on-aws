@@ -3,7 +3,9 @@
 
 const R = require("ramda");
 const {iterate} = require('iterare');
-const {GLOBAL,
+const logger = require('./logger');
+const {
+    GLOBAL,
     AWS_IAM_AWS_MANAGED_POLICY,
     AWS,
     AWS_IAM_INLINE_POLICY,
@@ -20,8 +22,9 @@ const {GLOBAL,
     AWS_EC2_SPOT,
     AWS_EC2_SPOT_FLEET,
     AWS_COGNITO_USER_POOL,
+    AWS_OPENSEARCH_DOMAIN,
     AWS_TAGS_TAG,
-    UNKNOWN, AWS_OPENSEARCH_DOMAIN
+    UNKNOWN
 } = require("./constants");
 
 function createLookUpMaps(resources) {
@@ -164,17 +167,17 @@ function getResourceChanges(configResources, dbResourcesMap) {
     }
 }
 
-async function createResourceAndRelationshipDeltas(apiClient, resources) {
+function createResourceAndRelationshipDeltas(dbLinksMap, dbResourcesMap, resources) {
+    logger.profile('Deltas calculated');
     const {resourceIdentifierToIdMap, resourceMap} = createLookUpMaps(resources);
 
     const links = resources.flatMap(createLinksFromRelationships(resourceIdentifierToIdMap, resourceMap));
     const configLinksMap = new Map(links.map(x => [`${x.source}_${x.label}_${x.target}`, x]));
-    const dbLinksMap = await apiClient.getDbRelationshipsMap();
 
     const {linksToAdd, linksToDelete} = getLinkChanges(configLinksMap, dbLinksMap);
 
-    const dbResourcesMap = await apiClient.getDbResourcesMap();
     const {resourceIdsToDelete, resourcesToStore, resourcesToUpdate} = getResourceChanges(resourceMap, dbResourcesMap);
+    logger.profile('Deltas calculated');
 
     return {
         resourceIdsToDelete, resourcesToStore, resourcesToUpdate,
