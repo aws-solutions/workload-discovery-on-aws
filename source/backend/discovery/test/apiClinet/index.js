@@ -68,6 +68,39 @@ describe('persistence/index.js', () => {
             }]]));
         });
 
+<<<<<<< HEAD:source/backend/discovery/test/apiClinet/index.js
+=======
+        it('should handle resource to large errors', async () => {
+            const resources = [1,2].map(i => {
+                const properties = generateBaseResource(AWS_LAMBDA_FUNCTION, i);
+                return {id: properties.id, label: 'label', md5Hash: '', properties};
+            })
+
+            const appSync = createAppSync({graphgQlUrl: 'https://www.workload-discovery/graphql'});
+            const mockGetResources = sinon.stub();
+
+            mockGetResources
+                .withArgs({pagination: {start: 0, end: 1000}})
+                .rejects(new Error(FUNCTION_RESPONSE_SIZE_TOO_LARGE))
+                .withArgs({pagination: {start: 0, end: 500}})
+                .rejects(new Error(FUNCTION_RESPONSE_SIZE_TOO_LARGE))
+                .withArgs({pagination: {start: 0, end: 250}})
+                .resolves([resources[0]])
+                .withArgs({pagination: {start: 250, end: 1250}})
+                .rejects(new Error(FUNCTION_RESPONSE_SIZE_TOO_LARGE))
+                .withArgs({pagination: {start: 250, end: 750}})
+                .resolves([resources[1]])
+                .withArgs({pagination: {start: 750, end: 1750}})
+                .resolves([]);
+
+            const apiClient = createApiClient({...appSync, getResources: mockGetResources});
+
+            const actual = await apiClient.getDbResourcesMap();
+
+            assert.deepEqual(actual, new Map(resources.map(resource => [resource.id, resource])));
+        });
+
+>>>>>>> 4f520ec5 (split createAdditionalRelationships function into modules):source/backend/discovery/test/apiClient/index.js
     });
 
     describe('getDbRelationshipsMap', () => {
