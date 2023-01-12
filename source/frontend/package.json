@@ -63,7 +63,7 @@
     "serve": "vite preview",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest --coverage --passWithNoTests",
-    "build:zip": "cd dist && zip -rq ../ui.zip . && cd ..",
+    "build:zip": "cd dist && zip -rq --exclude=settings.js ../ui.zip . && cd ..",
     "clean": "rm -rf build",
     "build:dist": "mv ui.zip dist/",
     "graphql-gen": "npm i -save-dev amplify-graphql-docs-generator && amplify-graphql-docs-generator --schema ../backend/graphql/schema/perspective-api.graphql --output src/API/GraphQL/ --language javascript --separateFiles true"
