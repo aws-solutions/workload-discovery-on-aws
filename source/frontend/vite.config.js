@@ -32,5 +32,12 @@ export default defineConfig({
         alias: {
             './runtimeConfig': './runtimeConfig.browser',
         },
+    },
+    test: {
+        // Vitest will have projectRoot functionality like Jest soon:
+        // https://github.com/vitest-dev/vitest/issues/1902
+        coverage: {
+            reporter: ['lcov', "html"]
+        }
     }
 });
