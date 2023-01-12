@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import { parseLoadBalancer } from '../../../../../API/NodeFactory/NodeParsers/LoadBalancers/LoadBalancerParser';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
@@ -14,20 +15,11 @@ import {
 } from './data/loadbalancers';
 import LoadBalancerItem from '../../../../../API/NodeFactory/NodeParsers/LoadBalancers/LoadBalancerDetails/LoadBalancerItem'
 
-const PUBLIC_URL = process.env;
-
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node is a load balancer of scheme internal and type application that is in warning state', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -65,8 +57,6 @@ test('when node is a load balancer of scheme internal and type application that 
 });
 
 test('when node is a load balancer of scheme internet-facing and type application that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -104,8 +94,6 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
 });
 
 test('when node is a load balancer of scheme internal and type network that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -142,8 +130,6 @@ test('when node is a load balancer of scheme internal and type network that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type network that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -181,8 +167,6 @@ test('when node is a load balancer of scheme internet-facing and type network th
 });
 
 test('when node is a load balancer of scheme internal and type classic that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -218,8 +202,6 @@ test('when node is a load balancer of scheme internal and type classic that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type classic that is in warning health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -257,8 +239,6 @@ test('when node is a load balancer of scheme internet-facing and type classic th
 
 
 test('when node is a load balancer of scheme internal and type application that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -296,8 +276,6 @@ test('when node is a load balancer of scheme internal and type application that 
 });
 
 test('when node is a load balancer of scheme internet-facing and type application that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -335,8 +313,6 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
 });
 
 test('when node is a load balancer of scheme internal and type network that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -373,8 +349,6 @@ test('when node is a load balancer of scheme internal and type network that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type network that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -412,8 +386,6 @@ test('when node is a load balancer of scheme internet-facing and type network th
 });
 
 test('when node is a load balancer of scheme internal and type classic that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -449,8 +421,6 @@ test('when node is a load balancer of scheme internal and type classic that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type classic that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -487,8 +457,6 @@ test('when node is a load balancer of scheme internet-facing and type classic th
 });
 
 test('when node is a load balancer of scheme internal and type application that is in error state', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -526,8 +494,6 @@ test('when node is a load balancer of scheme internal and type application that 
 });
 
 test('when node is a load balancer of scheme internet-facing and type application that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -565,8 +531,6 @@ test('when node is a load balancer of scheme internet-facing and type applicatio
 });
 
 test('when node is a load balancer of scheme internal and type network that is in bad health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -603,8 +567,6 @@ test('when node is a load balancer of scheme internal and type network that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type network that is in bad health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -642,8 +604,6 @@ test('when node is a load balancer of scheme internet-facing and type network th
 });
 
 test('when node is a load balancer of scheme internal and type classic that is in good health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -679,8 +639,6 @@ test('when node is a load balancer of scheme internal and type classic that is i
   expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
 });
 test('when node is a load balancer of scheme internet-facing and type classic that is in bad health with state in name as json', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -717,8 +675,6 @@ test('when node is a load balancer of scheme internet-facing and type classic th
 });
 
 test('when node is a load balancer of scheme internet-facing and type classic that is in bad health', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {
@@ -755,8 +711,6 @@ test('when node is a load balancer of scheme internet-facing and type classic th
 });
 
 test('when node is a load balancer of scheme internet-facing and type application with undefined state', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aLoadBalancerInstance',
     properties: {

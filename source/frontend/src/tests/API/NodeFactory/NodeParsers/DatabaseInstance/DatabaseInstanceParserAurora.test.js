@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import DatabaseInstanceItem from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
 import { parseDatabaseInstance } from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
@@ -10,16 +11,10 @@ import { aurora } from './data/dbTypes';
 const PUBLIC_URL = process.env;
 
 beforeEach(() => {
-  // jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node is an aurora rds instance with status as warning provisioning', () => {
-  process.env.PUBLIC_URL = '';
   let auroraProvisioning = JSON.parse(aurora);
   auroraProvisioning.dBInstanceStatus = 'provisioning'
   const node = {
@@ -54,7 +49,6 @@ test('when node is an aurora rds instance with status as warning provisioning', 
 });
 
 test('when node is an aurora rds instance with status as warning pending', () => {
-  process.env.PUBLIC_URL = '';
   let auroraPending = JSON.parse(aurora);
   auroraPending.dBInstanceStatus = 'pending'
   const node = {
@@ -89,7 +83,6 @@ test('when node is an aurora rds instance with status as warning pending', () =>
 });
 
 test('when node is an aurora rds instance with status as available', () => {
-  process.env.PUBLIC_URL = '';
   let auroraAvailable = JSON.parse(aurora);
   auroraAvailable.dBInstanceStatus = 'available'
   const node = {
@@ -124,7 +117,6 @@ test('when node is an aurora rds instance with status as available', () => {
 });
 
 test('when node is an aurora rds instance with status as good active', () => {
-  process.env.PUBLIC_URL = '';
   let auroraActive = JSON.parse(aurora);
   auroraActive.dBInstanceStatus = 'active'
   const node = {
@@ -159,7 +151,6 @@ test('when node is an aurora rds instance with status as good active', () => {
 });
 
 test('when node is an aurora rds instance with status as error stopped', () => {
-  process.env.PUBLIC_URL = '';
   let auroraStopped = JSON.parse(aurora);
   auroraStopped.dBInstanceStatus = 'stopped'
   const node = {
@@ -194,7 +185,6 @@ test('when node is an aurora rds instance with status as error stopped', () => {
 });
 
 test('when node is an aurora rds instance with status as error failed', () => {
-  process.env.PUBLIC_URL = '';
   let auroraFailed = JSON.parse(aurora);
   auroraFailed.dBInstanceStatus = 'failed'
 

@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import StatementItem from '../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/Statement/StatementItem';
 import { parseCustomerManagedPolicyStatement } from '../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser';
@@ -18,20 +19,11 @@ import {
   okActionsOKResourcesArray
 } from './data/statement.js';
 
-const PUBLIC_URL = process.env;
-
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node that is customer managed policy statement with at risk actions and at risk resources is parsed', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aPolicyStatement',
     properties: {
@@ -68,8 +60,6 @@ test('when node that is customer managed policy statement with at risk actions a
 });
 
 test('when node that is customer managed policy statement with at risk actions and needs attention resources is parsed', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aPolicyStatement',
     properties: {
@@ -106,8 +96,6 @@ test('when node that is customer managed policy statement with at risk actions a
 });
 
 test('when node that is customer managed policy statement with needs attention actions and needs attention resources is parsed', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aPolicyStatement',
     properties: {
@@ -144,8 +132,6 @@ test('when node that is customer managed policy statement with needs attention a
 });
 
 test('when node that is customer managed policy statement with ok actions and at risk resources is parsed', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'aPolicyStatement',
     properties: {
@@ -183,8 +169,6 @@ test('when node that is customer managed policy statement with ok actions and at
 });
 
 test('when node that is customer managed policy statement with at risk actions and ok resources is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {
@@ -221,8 +205,6 @@ test('when node that is customer managed policy statement with at risk actions a
   });
 
   test('when node that is customer managed policy statement with needs attention actions and ok resources is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {
@@ -259,8 +241,6 @@ test('when node that is customer managed policy statement with at risk actions a
   });
 
   test('when node that is customer managed policy statement with ok actions and needs attention resources is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {
@@ -297,8 +277,6 @@ test('when node that is customer managed policy statement with at risk actions a
   });
 
   test('when node that is customer managed policy statement with ok actions and ok resources is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {
@@ -335,8 +313,6 @@ test('when node that is customer managed policy statement with at risk actions a
   });
 
   test('when node that is customer managed policy statement with ok actions not array and ok resources is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {
@@ -373,8 +349,6 @@ test('when node that is customer managed policy statement with at risk actions a
   });
 
   test('when node that is customer managed policy statement with ok actions and ok resources in array is parsed', () => {
-    process.env.PUBLIC_URL = '';
-  
     const node = {
       name: 'aPolicyStatement',
       properties: {

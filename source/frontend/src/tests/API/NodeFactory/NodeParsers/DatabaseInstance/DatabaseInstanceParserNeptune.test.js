@@ -1,25 +1,18 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import DatabaseInstanceItem from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
 import { parseDatabaseInstance } from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 import { neptune } from './data/dbTypes';
 
-const PUBLIC_URL = process.env;
-
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node is an neptune rds instance with status as provisioning', () => {
-  process.env.PUBLIC_URL = '';
   let neptuneProv = JSON.parse(neptune);
   neptuneProv.dBInstanceStatus = 'provisioning'
   const node = {
@@ -57,7 +50,6 @@ test('when node is an neptune rds instance with status as provisioning', () => {
 });
 
 test('when node is an neptune rds instance with status as warning', () => {
-    process.env.PUBLIC_URL = '';
     let neptunePending = JSON.parse(neptune);
     neptunePending.dBInstanceStatus = 'pending'
     const node = {
@@ -95,7 +87,6 @@ test('when node is an neptune rds instance with status as warning', () => {
   });
 
   test('when node is an neptune rds instance with status as available', () => {
-    process.env.PUBLIC_URL = '';
     let neptuneAvailable = JSON.parse(neptune);
     neptuneAvailable.dBInstanceStatus = 'available'
     const node = {
@@ -133,7 +124,6 @@ test('when node is an neptune rds instance with status as warning', () => {
   });
 
   test('when node is an neptune rds instance with status as active', () => {
-    process.env.PUBLIC_URL = '';
     let neptuneActive = JSON.parse(neptune);
     neptuneActive.dBInstanceStatus = 'active'
     const node = {
@@ -171,7 +161,6 @@ test('when node is an neptune rds instance with status as warning', () => {
   });
 
   test('when node is an neptune rds instance with status as stopped', () => {
-    process.env.PUBLIC_URL = '';
     let neptuneStopped = JSON.parse(neptune);
     neptuneStopped.dBInstanceStatus = 'stopped'
     const node = {
@@ -209,7 +198,6 @@ test('when node is an neptune rds instance with status as warning', () => {
   });
 
   test('when node is an neptune rds instance with status as failed', () => {
-    process.env.PUBLIC_URL = '';
     let neptuneFailed = JSON.parse(neptune);
     neptuneFailed.dBInstanceStatus = 'failed'
     const node = {

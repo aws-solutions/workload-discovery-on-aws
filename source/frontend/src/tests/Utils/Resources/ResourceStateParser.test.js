@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { test, expect } from 'vitest'
 import { getStateInformation } from '../../../Utils/Resources/ResourceStateParser';
 
 test('node comes through with Available state uppercase', () => {

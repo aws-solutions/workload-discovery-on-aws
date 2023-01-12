@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { test, expect, vi } from 'vitest'
 import React from 'react';
 import { parseAPIGatewayEndpoint } from '../../../../../../API/NodeFactory/NodeParsers/APIGateway/Endpoint/APIGatewayEndpointParser';
 import { fetchImage } from '../../../../../../Utils/ImageSelector';

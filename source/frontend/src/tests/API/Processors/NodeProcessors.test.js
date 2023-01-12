@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import {
   handleSelectedResource,
   processChildNodes,
@@ -11,15 +12,8 @@ import selectedNode from './data/selected-node.json';
 import processChildNodeResult from './data/process-child-final-array.json';
 import rootNode from './data/process-child-root-node.json';
 
-const PUBLIC_URL = process.env;
-
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when we pass node to handleSelectedResource it will build the correct data structure to add the nodes to graph', () => {
@@ -47,7 +41,6 @@ test('when we pass undefined to handleSelectedResource a undefined response it w
 });
 
 test('when we pass processChildNodes a node it will return an array of the boundingboxes and nodes that are its children', () => {
-  process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
     Promise.resolve(rootNode),
     [],
@@ -63,7 +56,6 @@ test('when we pass processChildNodes a node it will return an array of the bound
 });
 
 test('when we pass processChildNodes undefined node it will return empty []', () => {
-  process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
     Promise.resolve(undefined),
     [],
@@ -75,7 +67,6 @@ test('when we pass processChildNodes undefined node it will return empty []', ()
 });
 
 test('when we pass processChildNodes undefined nodes it will return empty []', () => {
-  process.env.PUBLIC_URL = '';
   const newGraph = processChildNodes(
     Promise.resolve(undefined),
     undefined,

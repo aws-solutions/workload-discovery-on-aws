@@ -1,25 +1,18 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import DatabaseInstanceItem from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
 import { parseDatabaseInstance } from '../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
 import { unknown } from './data/dbTypes';
 
-const PUBLIC_URL = process.env;
-
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node is an unknown rds instance with status as warning', () => {
-  process.env.PUBLIC_URL = '';
   let unknownProv = JSON.parse(unknown);
   unknownProv.dBInstanceStatus = 'provisioning';
   const node = {
@@ -57,7 +50,6 @@ test('when node is an unknown rds instance with status as warning', () => {
 });
 
 test('when node is an unknown rds instance with status as warning', () => {
-  process.env.PUBLIC_URL = '';
   let unknownPending = JSON.parse(unknown);
   unknownPending.dBInstanceStatus = 'pending';
   const node = {
@@ -95,7 +87,6 @@ test('when node is an unknown rds instance with status as warning', () => {
 });
 
 test('when node is an unknown rds instance with status as available', () => {
-  process.env.PUBLIC_URL = '';
   let unknownAvailable = JSON.parse(unknown);
   unknownAvailable.dBInstanceStatus = 'available';
   const node = {
@@ -135,7 +126,6 @@ test('when node is an unknown rds instance with status as available', () => {
 });
 
 test('when node is an unknown rds instance with status as active', () => {
-  process.env.PUBLIC_URL = '';
   let unknownActive = JSON.parse(unknown);
   unknownActive.dBInstanceStatus = 'active';
   const node = {
@@ -173,7 +163,6 @@ test('when node is an unknown rds instance with status as active', () => {
 });
 
 test('when node is an unknown rds instance with status as stopped', () => {
-  process.env.PUBLIC_URL = '';
   let unknownStopped = JSON.parse(unknown);
   unknownStopped.dBInstanceStatus = 'stopped';
   const node = {
@@ -211,7 +200,6 @@ test('when node is an unknown rds instance with status as stopped', () => {
 });
 
 test('when node is an unknown rds instance with status as failed', () => {
-  process.env.PUBLIC_URL = '';
   let unknownFailed = JSON.parse(unknown);
   unknownFailed.dBInstanceStatus = 'failed';
   const node = {

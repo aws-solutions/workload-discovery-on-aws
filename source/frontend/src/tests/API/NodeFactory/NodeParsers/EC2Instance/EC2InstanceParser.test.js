@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { beforeEach, test, expect, vi } from 'vitest'
 import React from 'react';
 import { parseEC2Instance } from '../../../../../API/NodeFactory/NodeParsers/EC2Instance/EC2InstanceParser';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
@@ -33,17 +34,10 @@ import InstanceItem from '../../../../../API/NodeFactory/NodeParsers/EC2Instance
 const PUBLIC_URL = process.env;
 
 beforeEach(() => {
-  jest.resetModules(); // this is important - it clears the cache
-  process.env = { ...PUBLIC_URL };
-});
-
-afterEach(() => {
-  delete process.env.PUBLIC_URL;
+  vi.resetModules(); // this is important - it clears the cache
 });
 
 test('when node is an ec2 instance with type z1d that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -80,8 +74,6 @@ test('when node is an ec2 instance with type z1d that is in healthy state it ret
 });
 
 test('when node is an ec2 instance with type z1d that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -118,8 +110,6 @@ test('when node is an ec2 instance with type z1d that is in warning state it ret
 });
 
 test('when node is an ec2 instance with type z1d that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -155,8 +145,6 @@ test('when node is an ec2 instance with type z1d that is in error state it retur
 });
 
 test('when node is an ec2 instance with type x1e that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -193,8 +181,6 @@ test('when node is an ec2 instance with type x1e that is in healthy state it ret
 });
 
 test('when node is an ec2 instance with type x1e that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -231,8 +217,6 @@ test('when node is an ec2 instance with type x1e that is in warning state it ret
 });
 
 test('when node is an ec2 instance with type x1e that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -268,8 +252,6 @@ test('when node is an ec2 instance with type x1e that is in error state it retur
 });
 
 test('when node is an ec2 instance with type x1 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -306,8 +288,6 @@ test('when node is an ec2 instance with type x1 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type x1 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -344,8 +324,6 @@ test('when node is an ec2 instance with type x1 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type x1 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -381,8 +359,6 @@ test('when node is an ec2 instance with type x1 that is in error state it return
 });
 
 test('when node is an ec2 instance with type t3a that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -419,8 +395,6 @@ test('when node is an ec2 instance with type t3a that is in healthy state it ret
 });
 
 test('when node is an ec2 instance with type t3a that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -457,8 +431,6 @@ test('when node is an ec2 instance with type t3a that is in warning state it ret
 });
 
 test('when node is an ec2 instance with type t3a that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -494,8 +466,6 @@ test('when node is an ec2 instance with type t3a that is in error state it retur
 });
 
 test('when node is an ec2 instance with type t3 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -532,8 +502,6 @@ test('when node is an ec2 instance with type t3 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type t3 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -570,8 +538,6 @@ test('when node is an ec2 instance with type t3 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type t3 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -607,8 +573,6 @@ test('when node is an ec2 instance with type t3 that is in error state it return
 });
 
 test('when node is an ec2 instance with type r5 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -645,8 +609,6 @@ test('when node is an ec2 instance with type r5 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type r5 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -683,8 +645,6 @@ test('when node is an ec2 instance with type r5 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type r5 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -720,8 +680,6 @@ test('when node is an ec2 instance with type r5 that is in error state it return
 });
 
 test('when node is an ec2 instance with type r4 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -758,8 +716,6 @@ test('when node is an ec2 instance with type r4 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type r4 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -796,8 +752,6 @@ test('when node is an ec2 instance with type r4 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type r4 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -833,8 +787,6 @@ test('when node is an ec2 instance with type r4 that is in error state it return
 });
 
 test('when node is an ec2 instance with type p3 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -871,8 +823,6 @@ test('when node is an ec2 instance with type p3 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type p3 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -909,8 +859,6 @@ test('when node is an ec2 instance with type p3 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type p3 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -946,7 +894,6 @@ test('when node is an ec2 instance with type p3 that is in error state it return
 });
 
 test('when node is an ec2 instance with type p2 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
 
   const node = {
     name: 'anEC2Instance',
@@ -984,8 +931,6 @@ test('when node is an ec2 instance with type p2 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type p2 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1022,8 +967,6 @@ test('when node is an ec2 instance with type p2 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type p2 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1059,9 +1002,7 @@ test('when node is an ec2 instance with type p2 that is in error state it return
 });
 
 test('when node is an ec2 instance with type m5a that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
-  const node = {
+const node = {
     name: 'anEC2Instance',
     properties: {
       resourceType: 'AWS::EC2::Instance',
@@ -1097,8 +1038,6 @@ test('when node is an ec2 instance with type m5a that is in healthy state it ret
 });
 
 test('when node is an ec2 instance with type m5a that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1135,8 +1074,6 @@ test('when node is an ec2 instance with type m5a that is in warning state it ret
 });
 
 test('when node is an ec2 instance with type m5a that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1172,8 +1109,6 @@ test('when node is an ec2 instance with type m5a that is in error state it retur
 });
 
 test('when node is an ec2 instance with type m5 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1210,8 +1145,6 @@ test('when node is an ec2 instance with type m5 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type m5 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1248,8 +1181,6 @@ test('when node is an ec2 instance with type m5 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type m5 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1285,8 +1216,6 @@ test('when node is an ec2 instance with type m5 that is in error state it return
 });
 
 test('when node is an ec2 instance with type m4 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1323,8 +1252,6 @@ test('when node is an ec2 instance with type m4 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type m4 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1361,8 +1288,6 @@ test('when node is an ec2 instance with type m4 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type m4 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1398,8 +1323,6 @@ test('when node is an ec2 instance with type m4 that is in error state it return
 });
 
 test('when node is an ec2 instance with type i3 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1436,8 +1359,6 @@ test('when node is an ec2 instance with type i3 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type i3 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1474,8 +1395,6 @@ test('when node is an ec2 instance with type i3 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type i3 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1511,8 +1430,6 @@ test('when node is an ec2 instance with type i3 that is in error state it return
 });
 
 test('when node is an ec2 instance with type h1 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1549,8 +1466,6 @@ test('when node is an ec2 instance with type h1 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type h1 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1587,8 +1502,6 @@ test('when node is an ec2 instance with type h1 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type h1 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1624,8 +1537,6 @@ test('when node is an ec2 instance with type h1 that is in error state it return
 });
 
 test('when node is an ec2 instance with type g3 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1662,8 +1573,6 @@ test('when node is an ec2 instance with type g3 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type g3 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1700,8 +1609,6 @@ test('when node is an ec2 instance with type g3 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type g3 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1737,8 +1644,6 @@ test('when node is an ec2 instance with type g3 that is in error state it return
 });
 
 test('when node is an ec2 instance with type f1 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1813,8 +1718,6 @@ test('when node is an ec2 instance with type f1 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type f1 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1850,8 +1753,6 @@ test('when node is an ec2 instance with type f1 that is in error state it return
 });
 
 test('when node is an ec2 instance with type d2 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1888,8 +1789,6 @@ test('when node is an ec2 instance with type d2 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type d2 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1926,8 +1825,6 @@ test('when node is an ec2 instance with type d2 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type d2 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -1963,8 +1860,6 @@ test('when node is an ec2 instance with type d2 that is in error state it return
 });
 
 test('when node is an ec2 instance with type c5n that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2001,8 +1896,6 @@ test('when node is an ec2 instance with type c5n that is in healthy state it ret
 });
 
 test('when node is an ec2 instance with type c5n that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2039,8 +1932,6 @@ test('when node is an ec2 instance with type c5n that is in warning state it ret
 });
 
 test('when node is an ec2 instance with type c5n that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2076,8 +1967,6 @@ test('when node is an ec2 instance with type c5n that is in error state it retur
 });
 
 test('when node is an ec2 instance with type c5 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2114,8 +2003,6 @@ test('when node is an ec2 instance with type c5 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type c5 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2152,8 +2039,6 @@ test('when node is an ec2 instance with type c5 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type c5 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2189,8 +2074,6 @@ test('when node is an ec2 instance with type c5 that is in error state it return
 });
 
 test('when node is an ec2 instance with type c4 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2227,8 +2110,6 @@ test('when node is an ec2 instance with type c4 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type c4 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2265,8 +2146,6 @@ test('when node is an ec2 instance with type c4 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type c4 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2303,8 +2182,6 @@ test('when node is an ec2 instance with type c4 that is in error state it return
 });
 
 test('when node is an ec2 instance with type a1 that is in healthy state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2341,8 +2218,6 @@ test('when node is an ec2 instance with type a1 that is in healthy state it retu
 });
 
 test('when node is an ec2 instance with type a1 that is in warning state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2379,8 +2254,6 @@ test('when node is an ec2 instance with type a1 that is in warning state it retu
 });
 
 test('when node is an ec2 instance with type a1 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2417,8 +2290,6 @@ test('when node is an ec2 instance with type a1 that is in error state it return
 });
 
 test('when node is an ec2 instance with type t2 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
@@ -2493,8 +2364,6 @@ test('when node is an ec2 instance with type t2 that is in error state it return
 });
 
 test('when node is an ec2 instance with type t2 that is in error state it returns correct icon and components', () => {
-  process.env.PUBLIC_URL = '';
-
   const node = {
     name: 'anEC2Instance',
     properties: {
