@@ -9,7 +9,7 @@ import {
 } from '@awsui/components-react';
 import {GLOBAL_TEMPLATE, REGIONAL_TEMPLATE, useTemplate} from "../../Hooks/useTemplate";
 
-const fileDownload = require('js-file-download');
+import fileDownload from 'js-file-download';
 
 const TemplateProvider = () => {
   const {data: globalTemplate, isLoading: isLoadingGlobal} = useTemplate(GLOBAL_TEMPLATE);

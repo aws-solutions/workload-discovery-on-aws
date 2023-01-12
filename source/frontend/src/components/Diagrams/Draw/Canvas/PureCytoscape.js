@@ -13,7 +13,7 @@ import { fetchResources } from './Commands/CanvasCommands';
 import { getExpandCollapseGraphLayout } from './Layout/ExpandCollapseLayout';
 import { getGridLayout } from './Layout/GridGraphLayout';
 import { useResourceState } from '../../../Contexts/ResourceContext';
-const expandCollapse = require('cytoscape-expand-collapse');
+import expandCollapse from 'cytoscape-expand-collapse'
 import * as R  from 'ramda';
 import {useWindowSize} from "react-use";
 

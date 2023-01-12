@@ -550,11 +550,11 @@ export const fetchImage = (type, state) => {
 };
 
 const buildURL = (image) => {
-  return `${process.env.PUBLIC_URL}/icons/${image}.svg`;
+  return `/icons/${image}.svg`;
 };
 
 export const fetchLogo = (transparent) => {
   return transparent
-    ? `${process.env.PUBLIC_URL}/icons/${icons.get('logo-transparent')}.svg`
-    : `${process.env.PUBLIC_URL}/icons/${icons.get('logo')}.svg`;
+    ? `/icons/${icons.get('logo-transparent')}.svg`
+    : `/icons/${icons.get('logo')}.svg`;
 };
