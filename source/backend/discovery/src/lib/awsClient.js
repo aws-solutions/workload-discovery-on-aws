@@ -146,9 +146,10 @@ function createConfigServiceClient(credentials, region) {
     })
 
     return {
-        async getAllAggregatorResources(aggregatorName, {excludes}) {
-            const excludesResourceTypesWhere = excludes.resourceTypes == null ?
-                '' : `WHERE resourceType NOT IN (${excludes.resourceTypes.map(rt => `'${rt}'`).join(',')})`;
+        async getAllAggregatorResources(aggregatorName, {excludes: {resourceTypes: excludedResourceTypes = []}}) {
+            const quotedExcludedResourceTypes = excludedResourceTypes.map(rt => `'${rt}'`);
+            const excludesResourceTypesWhere = R.isEmpty(excludedResourceTypes) ?
+                '' : `WHERE resourceType NOT IN (${quotedExcludedResourceTypes.join(',')})`;
 
             const Expression = `SELECT
               *,
