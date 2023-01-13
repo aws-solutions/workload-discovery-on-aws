@@ -29,6 +29,7 @@ export default defineConfig({
         }
     ],
     resolve: {
+        // this is required for Amplify
         alias: {
             './runtimeConfig': './runtimeConfig.browser',
         },
