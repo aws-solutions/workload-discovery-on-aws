@@ -147,9 +147,9 @@ function createConfigServiceClient(credentials, region) {
 
     return {
         async getAllAggregatorResources(aggregatorName, {excludes: {resourceTypes: excludedResourceTypes = []}}) {
-            const quotedExcludedResourceTypes = excludedResourceTypes.map(rt => `'${rt}'`);
+            const excludedResourceTypesSqlList = excludedResourceTypes.map(rt => `'${rt}'`).join(',');
             const excludesResourceTypesWhere = R.isEmpty(excludedResourceTypes) ?
-                '' : `WHERE resourceType NOT IN (${quotedExcludedResourceTypes.join(',')})`;
+                '' : `WHERE resourceType NOT IN (${excludedResourceTypesSqlList})`;
 
             const Expression = `SELECT
               *,
