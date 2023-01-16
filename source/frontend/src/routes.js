@@ -14,7 +14,6 @@ import OpenDiagramPage from './components/Diagrams/Draw/DrawDiagram/OpenDiagram/
 import CreateDiagramPage from './components/Diagrams/Draw/DrawDiagram/CreateDiagram/CreateDiagramPage';
 import CostOverview from './components/Costs/Report/CostOverview';
 import ExportDiagram from './components/Diagrams/Draw/Canvas/Export/ExportDiagram';
-
 export const HOMEPAGE_PATH = '/';
 export const RESOURCES = '/resources';
 export const ACCOUNTS = '/accounts';

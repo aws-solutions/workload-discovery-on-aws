@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import eslint from 'vite-plugin-eslint'
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
 import react from '@vitejs/plugin-react';
@@ -14,6 +15,7 @@ export default defineConfig({
         },
     },
     plugins: [
+        eslint(),
         react(),
         svgrPlugin(),
         {
@@ -32,6 +34,12 @@ export default defineConfig({
         // this is required for Amplify
         alias: {
             './runtimeConfig': './runtimeConfig.browser',
+        },
+    },
+    'import/resolver': {
+        node: {
+            paths: ['src'],
+            extensions: ['.js', '.jsx'],
         },
     },
     test: {
