@@ -69,6 +69,8 @@ const {
     createResourceNameKey,
     createResourceIdKey
 } = require("../utils");
+const {PromisePool} = require("@supercharge/promise-pool");
+const logger = require("../logger");
 
 function createEcsEfsRelationships(volumes) {
     return volumes.reduce((acc, {EfsVolumeConfiguration}) => {
@@ -630,4 +632,19 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
     }
 }
 
-module.exports = createIndividualHandlers;
+async function addIndividualRelationships(lookUpMaps, awsClient, resources) {
+    const handlers = createIndividualHandlers(lookUpMaps, awsClient);
+
+    const {errors} = await PromisePool
+        .withConcurrency(30)
+        .for(resources)
+        .process(async resource => {
+            const handler = handlers[resource.resourceType];
+            if(handler != null) return handler(resource);
+        });
+
+    logger.error(`There were ${errors.length} errors when adding additional relationships.`);
+    logger.debug('Errors: ', {errors});
+}
+
+module.exports = addIndividualRelationships;

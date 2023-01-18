@@ -1,7 +1,6 @@
 const R = require("ramda");
-const {PromisePool} = require("@supercharge/promise-pool");
 const addBatchedRelationships = require('./addBatchedRelationships');
-const createIndividualHandlers = require('./createIndividualHandlers');
+const addIndividualRelationships = require('./addIndividualRelationships');
 const createLookUpMaps = require('./createLookUpMaps');
 const logger = require("../logger");
 const {
@@ -82,20 +81,9 @@ module.exports = {
 
         await addBatchedRelationships(lookUpMaps, awsClient);
 
-        const handlers = createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap);
+        await addIndividualRelationships(lookUpMaps, awsClient, resources)
 
-        const {errors} = await PromisePool
-            .withConcurrency(30)
-            .for(resources)
-            .process(async resource => {
-                const handler = handlers[resource.resourceType];
-                if(handler != null) return handler(resource);
-            });
-
-        logger.error(`There were ${errors.length} errors when adding additional relationships.`);
-        logger.debug('Errors: ', {errors});
-
-        return Array.from(resourceMap.values())
+        return resources
             .map(R.compose(addVpcInfo, normaliseRelationshipNames));
     })
 }
