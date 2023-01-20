@@ -1,0 +1,43 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+      python: 3.8
+    commands:
+      - pip install --upgrade pip
+  pre_build:
+    commands:
+      - node -v
+      - npm -v
+      - echo "Installing dependencies and executing unit tests - `pwd`"
+      - cd deployment && chmod +x ./run-unit-tests.sh && ./run-unit-tests.sh
+      - echo "Installing dependencies and executing unit tests completed `date`"      
+  build:
+    commands:
+      - echo "Starting build `date` in `pwd`"
+      - echo $SOLUTION_NAME-$CODEBUILD_BUILD_NUMBER
+      - chmod +x ./build-s3-dist.sh && ./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION $SOLUTION_NAME-$CODEBUILD_BUILD_NUMBER
+      - echo "Build completed `date`"
+      - echo "Starting open-source-dist `date` in `pwd`"
+      - chmod +x ./build-open-source-dist.sh && ./build-open-source-dist.sh $SOLUTION_NAME
+      - echo "Open Source Dist completed `date`"
+      - ls -al
+
+  post_build:
+    commands:
+      - echo "current dir `pwd`"
+      - ls -al
+      - echo "Retrieving next stage buildspec `date` in `pwd`"
+      - aws s3 cp s3://solutions-build-assets/changelog-spec.yml ../buildspec.yml
+      - echo "Retrieving next stage buildspec complete"
+      - echo "Post build completed on `date`"
+
+artifacts:
+  files:
+      - deployment/**/*
+      - CHANGELOG.md
+      - buildspec.yml
+      - source/**/*
+      - sonar-project.properties
+      - .gitignore
