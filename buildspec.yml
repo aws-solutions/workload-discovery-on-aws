@@ -2,8 +2,8 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 14
-      python: 3.8
+      nodejs: 16
+      python: 3.9
     commands:
       - pip install --upgrade pip
   pre_build:
