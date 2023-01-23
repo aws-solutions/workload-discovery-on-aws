@@ -6,6 +6,13 @@ import react from '@vitejs/plugin-react';
 import svgrPlugin from 'vite-plugin-svgr';
 
 export default defineConfig({
+    build: {
+        rollupOptions: {
+            external: [
+                '/settings.js'
+            ],
+        }
+    },
     optimizeDeps: {
         esbuildOptions: {
             // Node.js global to browser globalThis
