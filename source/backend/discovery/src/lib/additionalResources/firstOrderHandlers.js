@@ -95,7 +95,7 @@ module.exports = {
                         resourceName: arn,
                         relationships: [
                             createContainedInRelationship(AWS_API_GATEWAY_REST_API, {resourceId}),
-                            ...authorizer.providerARNs.map(resourceId => createAssociatedRelationship(AWS_COGNITO_USER_POOL, {resourceId}))
+                            ...(authorizer.providerARNs ?? []).map(resourceId => createAssociatedRelationship(AWS_COGNITO_USER_POOL, {resourceId}))
                         ]
                     }, {RestApiId, ...authorizer});
                 }));

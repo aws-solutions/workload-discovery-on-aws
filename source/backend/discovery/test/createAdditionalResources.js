@@ -923,7 +923,56 @@ describe('importAdditionalResources', () => {
 
         describe(AWS_API_GATEWAY_AUTHORIZER, () => {
 
-            it('should discover API Gateway authorizers', async () => {
+            it('should discover API Gateway authorizers with no providers', async () => {
+                const schema = require('./fixtures/additionalResources/apigateway/authorizerNoProvider.json');
+                const {restApi, apiGwAuthorizer} = generate(schema);
+
+                const mockApiGatewayClient = {
+                    createApiGatewayClient(accountId, credentials, region) {
+                        return {
+                            getResources: async restApi => [],
+                            async getAuthorizers(restApi) {
+                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                    return [apiGwAuthorizer];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
+
+                const actual = await createAdditionalResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+
+                const actualApiGwResource = actual.find(x => x.arn === arn);
+
+                assert.deepEqual(actualApiGwResource, {
+                    id: arn,
+                    accountId: ACCOUNT_X,
+                    arn: arn,
+                    availabilityZone: NOT_APPLICABLE,
+                    awsRegion: EU_WEST_2,
+                    configuration: {
+                        RestApiId: restApi.configuration.id,
+                        id: apiGwAuthorizer.id
+                    },
+                    configurationItemStatus: RESOURCE_DISCOVERED,
+                    resourceId: arn,
+                    resourceName: arn,
+                    resourceType: AWS_API_GATEWAY_AUTHORIZER,
+                    tags: [],
+                    relationships: [
+                        {
+                            relationshipName: IS_CONTAINED_IN,
+                            resourceId: restApi.configuration.id,
+                            resourceType: AWS_API_GATEWAY_REST_API
+                        }
+                    ]
+                });
+
+            });
+
+            it('should discover API Gateway Cognito authorizers', async () => {
                 const schema = require('./fixtures/additionalResources/apigateway/authorizer.json');
                 const {restApi, cognito, apiGwAuthorizer} = generate(schema);
 
