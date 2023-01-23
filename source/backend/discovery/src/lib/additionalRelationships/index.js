@@ -1,6 +1,6 @@
 const R = require("ramda");
 const {PromisePool} = require("@supercharge/promise-pool");
-const createBatchedHandlers = require('./createBatchedHandlers');
+const addBatchedRelationships = require('./addBatchedRelationships');
 const createIndividualHandlers = require('./createIndividualHandlers');
 const createLookUpMaps = require('./createLookUpMaps');
 const logger = require("../logger");
@@ -80,20 +80,7 @@ module.exports = {
             ...createLookUpMaps(resources)
         };
 
-        const credentialsTuples = Array.from(accountsMap.entries());
-
-        const batchedHandlers = createBatchedHandlers(lookUpMaps, awsClient, resourceMap);
-
-        const batchResults = await Promise.allSettled(Object.values(batchedHandlers).flatMap(handler => {
-            return credentialsTuples
-                .flatMap(([accountId, {regions, credentials}]) =>
-                    regions.map(region => handler(credentials, accountId, region))
-                );
-        }));
-
-        const batchErrors = batchResults.filter(x => x.status === 'rejected').map(({reason}) => ({error: reason.message}));
-        logger.error(`There were ${batchErrors.length} errors when adding batch additional relationships.`);
-        logger.debug('Errors: ', {errors: batchErrors});
+        await addBatchedRelationships(lookUpMaps, awsClient);
 
         const handlers = createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap);
 

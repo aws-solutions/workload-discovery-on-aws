@@ -13,6 +13,7 @@ const {
     AWS_EC2_TRANSIT_GATEWAY,
     AWS_EC2_VPC,
     AWS_EC2_SUBNET,
+    FULFILLED,
     SUBNET
 } = require("../constants");
 
@@ -27,7 +28,7 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
             const lambdaClient = awsClient.createLambdaClient(credentials, region);
             const eventSourceMappings = await lambdaClient.listEventSourceMappings();
 
-            const {errors} = safeForEach(({EventSourceArn, FunctionArn}) => {
+            return safeForEach(({EventSourceArn, FunctionArn}) => {
                 if(resourceMap.has(EventSourceArn) && resourceMap.has(FunctionArn)) {
                     const {resourceType} = resourceMap.get(EventSourceArn);
                     const lambda = resourceMap.get(FunctionArn);
@@ -37,16 +38,13 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                     }));
                 }
             }, eventSourceMappings);
-
-            logger.error(`There were ${errors.length} errors when adding lambda event source relationships in region ${region} of account ${accountId}.`);
-            logger.debug('Errors: ', {errors});
         },
         functions: async (credentials, accountId, region) => {
             const lambdaClient = awsClient.createLambdaClient(credentials, region);
 
             const lambdas = await lambdaClient.getAllFunctions();
 
-            const {errors} = safeForEach(({FunctionArn, Environment = {}}) => {
+            return safeForEach(({FunctionArn, Environment = {}}) => {
                 const lambda = resourceMap.get(FunctionArn);
                 // a lambda may have been created between the time we got the data from config
                 // and made our api request
@@ -62,16 +60,13 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                     }
                 }
             }, lambdas);
-
-            logger.error(`There were ${errors.length} errors when adding lambda environment variable relationships in region ${region} of account ${accountId}.`);
-            logger.debug('Errors: ', {errors});
         },
         snsSubscriptions: async (credentials, accountId, region) => {
             const snsClient = awsClient.createSnsClient(credentials, region);
 
             const subscriptions = await snsClient.getAllSubscriptions();
 
-            const {errors} = safeForEach(({Endpoint, TopicArn}) => {
+            return safeForEach(({Endpoint, TopicArn}) => {
                 // an SNS topic may have been created between the time we got the data from config
                 // and made our api request or the endpoint may have been created in a region that
                 // has not been imported
@@ -81,9 +76,6 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                     snsTopic.relationships.push(createAssociatedRelationship(resourceType, {arn: Endpoint}));
                 }
             }, subscriptions);
-
-            logger.error(`There were ${errors.length} errors when adding SNS subscriber relationships in region ${region} of account ${accountId}.`);
-            logger.debug('Errors: ', {errors});
         },
         transitGatewayVpcAttachments: async (credentials, accountId, region) => {
             // Whilst AWS Config supports the AWS::EC2::TransitGatewayAttachment resource type,
@@ -95,7 +87,7 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                 {Name: 'resource-type', Values: [VPC.toLowerCase()]}
             ]);
 
-            const {errors} = safeForEach(tgwAttachment => {
+            return safeForEach(tgwAttachment => {
                 const {
                     TransitGatewayAttachmentId, ResourceOwnerId, TransitGatewayOwnerId, TransitGatewayId
                 } = tgwAttachment;
@@ -114,11 +106,36 @@ function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
                     );
                 }
             }, tgwAttachments);
-
-            logger.error(`There were ${errors.length} errors when adding transit gateway relationships in region ${region} of account ${accountId}.`);
-            logger.debug('Errors: ', {errors});
         }
     }
 }
 
-module.exports = createBatchedHandlers
+function logErrors(results) {
+    const errors = results.flatMap(({status, value, reason}) => {
+        if(status === FULFILLED) {
+            return value.errors;
+        } else {
+            return [{error: reason}]
+        }
+    });
+
+    logger.error(`There were ${errors.length} errors when adding batch additional relationships.`);
+    logger.debug('Errors: ', {errors: errors});
+}
+
+async function addBatchedRelationships(lookUpMaps, awsClient) {
+    const credentialsTuples = Array.from(lookUpMaps.accountsMap.entries());
+
+    const batchedHandlers = createBatchedHandlers(lookUpMaps, awsClient);
+
+    const results = await Promise.allSettled(Object.values(batchedHandlers).flatMap(handler => {
+        return credentialsTuples
+            .flatMap( ([accountId, {regions, credentials}]) =>
+                regions.map(region => handler(credentials, accountId, region))
+            );
+    }));
+
+    logErrors(results);
+}
+
+module.exports = addBatchedRelationships

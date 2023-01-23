@@ -133,6 +133,7 @@ module.exports = {
     AWS_AMAZON_COM: 'aws.amazon.com',
     S3: 's3',
     HOME: 'home',
+    FULFILLED: 'fulfilled',
     FUNCTION_RESPONSE_SIZE_TOO_LARGE: 'Function.ResponseSizeTooLarge',
     WORKLOAD_DISCOVERY_TASKGROUP: 'workload-discovery-taskgroup'
 }
