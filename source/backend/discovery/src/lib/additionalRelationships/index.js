@@ -76,7 +76,8 @@ module.exports = {
 
         const lookUpMaps = {
             accountsMap,
-            ...createLookUpMaps(resources)
+            ...createLookUpMaps(resources),
+            resourceMap
         };
 
         await addBatchedRelationships(lookUpMaps, awsClient);

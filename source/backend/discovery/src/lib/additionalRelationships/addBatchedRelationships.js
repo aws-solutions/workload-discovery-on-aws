@@ -17,10 +17,11 @@ const {
     SUBNET
 } = require("../constants");
 
-function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
+function createBatchedHandlers(lookUpMaps, awsClient) {
     const {
         envVarResourceIdentifierToIdMap,
-        dbUrlToIdMap
+        dbUrlToIdMap,
+        resourceMap
     } = lookUpMaps;
 
     return {
