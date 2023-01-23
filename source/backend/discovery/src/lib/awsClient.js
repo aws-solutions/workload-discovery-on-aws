@@ -265,13 +265,24 @@ function createEcsClient(credentials, region) {
         pageSize: 100
     };
 
+    // describeContainerInstances and describeTasks share the same throttling bucket,
+    // the refill rate is 20 so we split it evenly between them
     const describeContainerInstancesThrottler = pThrottle({
-        limit: 20,
+        limit: 10,
+        interval: 1000
+    });
+
+    const describeTasksThrottler = pThrottle({
+        limit: 10,
         interval: 1000
     });
 
     const describeContainerInstances = describeContainerInstancesThrottler((cluster, containerInstances) => {
-        return ecsClient.describeContainerInstances({cluster, containerInstances})
+        return ecsClient.describeContainerInstances({cluster, containerInstances});
+    })
+
+    const describeTasks = describeTasksThrottler((cluster, tasks) => {
+        return ecsClient.describeTasks({cluster, tasks});
     })
 
     return {
@@ -291,38 +302,30 @@ function createEcsClient(credentials, region) {
             return instances;
         },
         async getAllServiceTasks(cluster, serviceName) {
-            const tasks = []
+            const serviceTasks = []
             const listTaskPaginator = paginateListTasks(ecsPaginatorConfig, {cluster, serviceName});
 
             for await (const {taskArns} of listTaskPaginator) {
                 if(!R.isEmpty(taskArns)) {
-                    const result = await ecsClient.describeTasks({
-                        cluster,
-                        tasks: taskArns
-                    });
-
-                    tasks.push(...result.tasks);
+                    const {tasks} = await describeTasks(cluster, taskArns);
+                    serviceTasks.push(...tasks);
                 }
             }
 
-            return tasks;
+            return serviceTasks;
         },
         async getAllClusterTasks(cluster) {
-            const tasks = []
+            const clusterTasks = []
             const listTaskPaginator = paginateListTasks(ecsPaginatorConfig, {cluster});
 
             for await (const {taskArns} of listTaskPaginator) {
                 if(!R.isEmpty(taskArns)) {
-                    const result = await ecsClient.describeTasks({
-                        cluster,
-                        tasks: taskArns
-                    });
-
-                    tasks.push(...result.tasks);
+                    const {tasks} = await describeTasks(cluster, taskArns);
+                    clusterTasks.push(...tasks);
                 }
             }
 
-            return tasks;
+            return clusterTasks;
         }
     };
 }
