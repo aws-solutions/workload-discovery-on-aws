@@ -6,7 +6,7 @@ const logger = require('./logger');
 const {initialise} = require('./intialisation');
 const getAllConfigResources = require('./aggregator/getAllConfigResources');
 const {getAllSdkResources} = require('./sdkResources');
-const {createAdditionalRelationships} = require('./additionalRelationships');
+const {addAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
 const {createSaveObject} = require('./persistence/transformers');
 const {writeResourcesAndRelationships} = require('./persistence');
@@ -14,7 +14,7 @@ const {writeResourcesAndRelationships} = require('./persistence');
 function getAllResources(configServiceClient, awsClient, accountsMap, configAggregator) {
     return getAllConfigResources(configServiceClient, accountsMap, configAggregator)
         .then(getAllSdkResources(accountsMap, awsClient))
-        .then(createAdditionalRelationships(accountsMap, awsClient))
+        .then(addAdditionalRelationships(accountsMap, awsClient))
 }
 
 async function discoverResources(appSync, awsClient, config) {

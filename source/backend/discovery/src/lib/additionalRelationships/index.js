@@ -71,7 +71,7 @@ function addVpcInfo(resource) {
 
 module.exports = {
     // for performance reasons, each handler mutates the items in `resources`
-    createAdditionalRelationships: R.curry(async (accountsMap, awsClient, resources) =>  {
+    addAdditionalRelationships: R.curry(async (accountsMap, awsClient, resources) =>  {
         const resourceMap = new Map(resources.map(resource => ([resource.id, resource])));
 
         const lookUpMaps = {
