@@ -21,7 +21,7 @@ import { exportJSON } from './JSON/CreateJSONExport';
 import * as R  from 'ramda';
 import {diagramsPrefix, useObject} from "../../../../Hooks/useS3Objects";
 import {useDrawIoUrl} from "../../../../Hooks/useDrawIoUrl";
-const validFilename = require('valid-filename');
+import validFilename from 'valid-filename';
 
 const ExportDiagram = () => {
   const [error, setError] = React.useState(false);

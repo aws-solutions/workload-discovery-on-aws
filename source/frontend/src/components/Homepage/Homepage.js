@@ -164,7 +164,7 @@ const Homepage = () => {
               <Container>
                 <img
                   style={{ width: '100%', height: '100%' }}
-                  src={`${process.env.PUBLIC_URL}/icons/architecture-diagram.png`}
+                  src={`/icons/architecture-diagram.png`}
                 />
               </Container>
             </div>

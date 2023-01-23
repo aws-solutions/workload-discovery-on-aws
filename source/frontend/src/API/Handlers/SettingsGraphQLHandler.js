@@ -6,8 +6,8 @@ import {delay} from "../../Utils/AsyncUtils";
 import { Auth, API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
 import * as mutations from '../GraphQL/mutations';
-const forOwn = require('lodash.forown');
-const isObject = require('lodash.isobject');
+import forOwn from 'lodash.forown';
+import isObject from 'lodash.isobject';
 
 import * as R  from 'ramda';
 

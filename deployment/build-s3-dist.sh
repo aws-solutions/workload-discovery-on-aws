@@ -194,4 +194,4 @@ cd "${source_dir}/frontend"
 auditDeps
 #npm run test
 npm run build
-cp ./build/ui.zip "${build_dist_dir}/ui.zip"
+cp ./dist/ui.zip "${build_dist_dir}/ui.zip"
