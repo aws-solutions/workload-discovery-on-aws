@@ -1,4 +1,8 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 const {assert} = require('chai');
+const sinon = require('sinon');
 const createAppSync = require('../../src/lib/apiClient/appSync');
 const {createApiClient} = require('../../src/lib/apiClient');
 const {setGlobalDispatcher, getGlobalDispatcher} = require('undici');
@@ -8,8 +12,11 @@ const GetDbResourcesMapPagination = require('../mocks/agents/GetDbResourcesMapPa
 const GetDbRelationshipsMapPagination = require('../mocks/agents/GetDbRelationshipsMapPagination');
 const GenericError = require('../mocks/agents/GenericError');
 const {
-    CONTAINS
+    CONTAINS,
+    AWS_LAMBDA_FUNCTION,
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE
 } = require("../../src/lib/constants");
+const {generateBaseResource} = require("../generator");
 
 describe('persistence/index.js', () => {
 
@@ -68,8 +75,6 @@ describe('persistence/index.js', () => {
             }]]));
         });
 
-<<<<<<< HEAD:source/backend/discovery/test/apiClinet/index.js
-=======
         it('should handle resource to large errors', async () => {
             const resources = [1,2].map(i => {
                 const properties = generateBaseResource(AWS_LAMBDA_FUNCTION, i);
@@ -100,7 +105,6 @@ describe('persistence/index.js', () => {
             assert.deepEqual(actual, new Map(resources.map(resource => [resource.id, resource])));
         });
 
->>>>>>> 4f520ec5 (split createAdditionalRelationships function into modules):source/backend/discovery/test/apiClient/index.js
     });
 
     describe('getDbRelationshipsMap', () => {
