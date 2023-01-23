@@ -1,216 +1,74 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
-
 const R = require("ramda");
-const {PromisePool} = require("@supercharge/promise-pool");
-const {parse: parseArn} = require('@aws-sdk/util-arn-parser');
-
-const logger = require("./logger");
+const {parse: parseArn} = require("@aws-sdk/util-arn-parser");
+const createEnvironmentVariableRelationships = require('./createEnvironmentVariableRelationships');
 const {
-    AWS_AUTOSCALING_AUTOSCALING_GROUP,
     AWS_API_GATEWAY_METHOD,
+    AWS_LAMBDA_FUNCTION,
+    AWS_AUTOSCALING_AUTOSCALING_GROUP,
+    AWS_EC2_LAUNCH_TEMPLATE,
+    AWS_CLOUDFRONT_DISTRIBUTION,
+    AWS_S3_BUCKET,
+    AWS_CLOUDFRONT_STREAMING_DISTRIBUTION,
     AWS_CODEBUILD_PROJECT,
-    AWS_CONFIG_RESOURCE_COMPLIANCE,
-    AWS_EC2_INSTANCE,
-    AWS_EC2_INTERNET_GATEWAY,
-    AWS_EC2_NAT_GATEWAY,
-    AWS_EC2_NETWORK_INTERFACE,
+    AWS_IAM_ROLE,
     AWS_EC2_SECURITY_GROUP,
     AWS_EC2_SUBNET,
+    AWS_EC2_ROUTE_TABLE,
     AWS_EC2_TRANSIT_GATEWAY,
     AWS_EC2_TRANSIT_GATEWAY_ROUTE_TABLE,
-    AWS_EC2_VOLUME,
-    AWS_EC2_VPC,
-    AWS_EC2_VPC_ENDPOINT,
     AWS_ECS_CLUSTER,
+    AWS_EC2_INSTANCE,
     AWS_ECS_SERVICE,
-    AWS_ECS_TASK,
     AWS_ECS_TASK_DEFINITION,
-    AWS_ELASTICSEARCH_DOMAIN,
-    AWS_OPENSEARCH_DOMAIN,
-    AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER,
-    AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER,
-    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
     AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
-    AWS_LAMBDA_FUNCTION,
-    AWS_IAM_AWS_MANAGED_POLICY,
-    AWS_IAM_ROLE,
-    AWS_IAM_INLINE_POLICY,
-    AWS_IAM_USER,
-    AWS_KMS_KEY,
-    AWS_RDS_DB_CLUSTER,
-    AWS_RDS_DB_INSTANCE,
-    AWS_S3_ACCOUNT_PUBLIC_ACCESS_BLOCK,
-    NETWORK_INTERFACE_ID,
+    AWS_ECS_TASK,
     SUBNET_ID,
-    AWS_EC2_ROUTE_TABLE,
-    AWS_REDSHIFT_CLUSTER,
-    AWS,
+    NETWORK_INTERFACE_ID,
+    AWS_EC2_NETWORK_INTERFACE,
     AWS_EFS_ACCESS_POINT,
     AWS_EFS_FILE_SYSTEM,
-    AWS_CLOUDFRONT_DISTRIBUTION,
-    AWS_CLOUDFRONT_STREAMING_DISTRIBUTION,
+    AWS_KMS_KEY,
     AWS_EKS_CLUSTER,
     AWS_EKS_NODE_GROUP,
-    AWS_TAGS_TAG,
-    EC2,
+    AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER,
+    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
+    AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER,
+    AWS_COGNITO_USER_POOL,
+    AWS_IAM_INLINE_POLICY,
+    AWS_IAM_USER,
+    AWS_MSK_CLUSTER,
+    UNKNOWN,
+    AWS_OPENSEARCH_DOMAIN,
+    AWS_RDS_DB_INSTANCE,
+    AWS_EC2_NAT_GATEWAY,
+    AWS_EC2_VPC_ENDPOINT,
+    AWS_EC2_INTERNET_GATEWAY,
+    AWS_EC2_SPOT_FLEET,
     ENI_NAT_GATEWAY_INTERFACE_TYPE,
-    ENI_SEARCH_DESCRIPTION_PREFIX,
-    ENI_SEARCH_REQUESTER_ID,
-    ENI_VPC_ENDPOINT_INTERFACE_TYPE,
     ENI_ALB_DESCRIPTION_PREFIX,
     ENI_ELB_DESCRIPTION_PREFIX,
     ELASTIC_LOAD_BALANCING,
     LOAD_BALANCER,
-    CONTAINS,
+    ENI_VPC_ENDPOINT_INTERFACE_TYPE,
+    ENI_SEARCH_REQUESTER_ID,
+    ENI_SEARCH_DESCRIPTION_PREFIX,
+    AWS_ELASTICSEARCH_DOMAIN,
     LAMBDA,
-    SUBNET,
-    AWS_S3_BUCKET,
-    AWS_EC2_SPOT_FLEET,
-    AWS_COGNITO_USER_POOL,
-    AWS_EC2_LAUNCH_TEMPLATE,
-    AWS_MSK_CLUSTER,
-    TRANSIT_GATEWAY_ATTACHMENT,
-    UNKNOWN,
-    VPC
-} = require('./constants');
-
+    AWS,
+    AWS_IAM_AWS_MANAGED_POLICY
+} = require("../constants");
 const {
-    createArn,
-    createContainedInRelationship,
-    createAssociatedSecurityGroupRelationship,
-    createContainedInSubnetRelationship,
-    createContainedInVpcRelationship,
-    createContainsRelationship,
     createAssociatedRelationship,
+    createContainedInVpcRelationship,
+    createContainedInSubnetRelationship,
+    createAssociatedSecurityGroupRelationship,
+    createContainedInRelationship,
+    createContainsRelationship,
     createAttachedRelationship,
-    safeForEach
-} = require('./utils');
-
-function createResourceNameKey({resourceName, resourceType, accountId, awsRegion}) {
-    const first = resourceType == null ? '' : `${resourceType}_`;
-    return `${first}${resourceName}_${accountId}_${awsRegion}`;
-}
-
-function createResourceIdKey({resourceId, resourceType, accountId, awsRegion}) {
-    const first = resourceType == null ? '' : `${resourceType}_`;
-    return `${first}${resourceId}_${accountId}_${awsRegion}`;
-}
-
-function createLookUpMaps(resources) {
-    const targetGroupToAsgMap = new Map();
-    const resourceIdentifierToIdMap = new Map();
-    // we can't reuse resourceIdentifierToIdMap because we don't know the resource type for env vars
-    const envVarResourceIdentifierToIdMap = new Map();
-    const dbUrlToIdMap = new Map();
-    const elbDnsToResourceIdMap = new Map();
-    const asgResourceNameToResourceIdMap = new Map();
-    const s3ResourceIdToRegionMap = new Map();
-
-    for(let resource of resources) {
-        const {id, resourceType, resourceId, resourceName, accountId, awsRegion, arn, configuration} = resource;
-
-        if(resourceName != null) {
-            envVarResourceIdentifierToIdMap.set(createResourceNameKey({resourceName, accountId, awsRegion}), id);
-            resourceIdentifierToIdMap.set(
-                createResourceNameKey({resourceName, resourceType, accountId, awsRegion}),
-                id);
-        }
-
-        resourceIdentifierToIdMap.set(
-            createResourceIdKey({resourceId, resourceType, accountId, awsRegion}),
-            id);
-        envVarResourceIdentifierToIdMap.set(createResourceIdKey({resourceId, accountId, awsRegion}), id);
-
-        switch (resourceType) {
-            case AWS_AUTOSCALING_AUTOSCALING_GROUP:
-                configuration.targetGroupARNs.forEach(tg =>
-                    targetGroupToAsgMap.set(tg, {
-                        arn,
-                        instances: new Set(configuration.instances.map(R.prop('instanceId')))
-                    }));
-                asgResourceNameToResourceIdMap.set(
-                    createResourceNameKey(
-                        {resourceName, accountId, awsRegion}),
-                    resourceId);
-                break;
-            case AWS_ELASTICSEARCH_DOMAIN:
-                if(configuration.endpoint != null) dbUrlToIdMap.set(configuration.endpoint, id)
-                Object.values(configuration.endpoints ?? []).forEach(endpoint => dbUrlToIdMap.set(endpoint, id));
-                break;
-            case AWS_OPENSEARCH_DOMAIN:
-                if(configuration.Endpoint != null) dbUrlToIdMap.set(configuration.Endpoint, id)
-                Object.values(configuration.Endpoints ?? []).forEach(endpoint => dbUrlToIdMap.set(endpoint, id));
-                break;
-            case AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER:
-                elbDnsToResourceIdMap.set(configuration.dnsname, {resourceId, resourceType, awsRegion});
-                break;
-            case AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER:
-                elbDnsToResourceIdMap.set(configuration.dNSName, {resourceId, resourceType, awsRegion});
-                break;
-            // databases in the 'creating' phase don't have an endpoint field
-            case AWS_RDS_DB_CLUSTER:
-                if(configuration.endpoint != null) dbUrlToIdMap.set(configuration.endpoint.value, id);
-                if(configuration.readerEndpoint != null) dbUrlToIdMap.set(configuration.readerEndpoint, id);
-                break;
-            case AWS_RDS_DB_INSTANCE:
-                if(configuration.endpoint != null) dbUrlToIdMap.set(configuration.endpoint.address, id);
-                break;
-            case AWS_REDSHIFT_CLUSTER:
-                if(configuration.endpoint != null) dbUrlToIdMap.set(configuration.endpoint.address, id);
-                break;
-            case AWS_S3_BUCKET:
-                s3ResourceIdToRegionMap.set(resourceId, awsRegion);
-                break
-            default:
-                break;
-        }
-    }
-
-    return {
-        dbUrlToIdMap,
-        resourceIdentifierToIdMap,
-        targetGroupToAsgMap,
-        elbDnsToResourceIdMap,
-        asgResourceNameToResourceIdMap,
-        s3ResourceIdToRegionMap,
-        envVarResourceIdentifierToIdMap
-    }
-}
-
-function createEnvironmentVariableRelationships(
-    {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
-    {accountId, awsRegion},
-    variables
-) {
-    //TODO: add env var name as a property of the edge
-    return Object.values(variables).reduce((acc, val) => {
-        if (resourceMap.has(val)) {
-            const {resourceType, arn} = resourceMap.get(val);
-            acc.push(createAssociatedRelationship(resourceType, {arn}));
-        } else {
-            // this branch assumes all resources are in the same region
-            const resourceIdKey = createResourceIdKey({resourceId: val, accountId, awsRegion});
-            const resourceNameKey = createResourceNameKey({resourceName: val, accountId, awsRegion});
-
-            const id = envVarResourceIdentifierToIdMap.get(resourceIdKey)
-                ?? envVarResourceIdentifierToIdMap.get(resourceNameKey)
-                ?? dbUrlToIdMap.get(val);
-
-            if(resourceMap.has(id)) {
-                const {resourceType, resourceId} = resourceMap.get(id);
-
-                // The resourceId of the AWS::S3::AccountPublicAccessBlock resource type is the accountId where it resides.
-                // We need to filter out environment variables that have AWS account IDs because otherwise we will create
-                // an erroneous relationship between the resource and the AWS::S3::AccountPublicAccessBlock
-                if(resourceId !== accountId && resourceType !== AWS_S3_ACCOUNT_PUBLIC_ACCESS_BLOCK) {
-                    acc.push(createAssociatedRelationship(resourceType, {arn: id}));
-                }
-            }
-        }
-        return acc;
-    }, []);
-}
+    createArn,
+    createResourceNameKey,
+    createResourceIdKey
+} = require("../utils");
 
 function createEcsEfsRelationships(volumes) {
     return volumes.reduce((acc, {EfsVolumeConfiguration}) => {
@@ -296,7 +154,7 @@ function createManagedPolicyRelationships(resourceMap, policies) {
     }, []);
 }
 
-function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap) {
+function createIndividualHandlers(lookUpMaps, awsClient) {
 
     const {
         accountsMap,
@@ -306,7 +164,8 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
         elbDnsToResourceIdMap,
         asgResourceNameToResourceIdMap,
         s3ResourceIdToRegionMap,
-        envVarResourceIdentifierToIdMap
+        envVarResourceIdentifierToIdMap,
+        resourceMap
     } = lookUpMaps;
 
     return {
@@ -511,7 +370,7 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
                         task.relationships.push(createContainedInSubnetRelationship(value));
                     } else if (name === NETWORK_INTERFACE_ID) {
                         const networkInterfaceId = resourceIdentifierToIdMap.get(createResourceIdKey({resourceId: value, resourceType: AWS_EC2_NETWORK_INTERFACE, accountId, awsRegion}));
-                        // occasionally network interface information is stale so we need to do null checks here
+                        // occasionally network interface information is stale, so we need to do null checks here
                         resourceMap.get(networkInterfaceId)?.relationships?.push(createAttachedRelationship(AWS_ECS_TASK, {resourceId: task.resourceId}));
                     }
                 });
@@ -634,16 +493,16 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
             //TODO: use TargetHealth to label the link as to whether it's healthy or not
             relationships.push(createContainedInVpcRelationship(VpcId),
                 ...targetHealthDescriptions.reduce((acc, {Target: {Id}, TargetHealth}) => {
-                // We don't want to include instances from ASGs as the direct link should be to the
-                // ASG not the instances therein
-                if(Id.startsWith('i-') && !asgInstances.has(Id)) {
-                    acc.push(createAssociatedRelationship(AWS_EC2_INSTANCE, {resourceId:Id}));
-                } else if(Id.startsWith('arn:')) {
-                    const {resourceId, resourceType} = resourceMap.get(Id);
-                    acc.push(createAssociatedRelationship(resourceType, {resourceId}));
-                }
-                return acc;
-            }, []));
+                    // We don't want to include instances from ASGs as the direct link should be to the
+                    // ASG not the instances therein
+                    if(Id.startsWith('i-') && !asgInstances.has(Id)) {
+                        acc.push(createAssociatedRelationship(AWS_EC2_INSTANCE, {resourceId:Id}));
+                    } else if(Id.startsWith('arn:')) {
+                        const {resourceId, resourceType} = resourceMap.get(Id);
+                        acc.push(createAssociatedRelationship(resourceType, {resourceId}));
+                    }
+                    return acc;
+                }, []));
 
             if(asgArn != null) {
                 relationships.push(createAssociatedRelationship(AWS_AUTOSCALING_AUTOSCALING_GROUP, {resourceId: asgArn}));
@@ -664,7 +523,7 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
                 return resources.reduce((acc, resourceArn) => {
                     // Remove the trailing /* from ARNs to increase chance of finding
                     // a relationship, especially for S3 buckets. This will lead to
-                    // duplicates but they get deduped later on in the discovery
+                    // duplicates, but they get deduped later on in the discovery
                     // process
                     const resource = resourceMap.get(resourceArn.replace(/\/?\*$/, ''));
                     if(resource != null) {
@@ -771,203 +630,4 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
     }
 }
 
-function createBatchedHandlers(lookUpMaps, awsClient, resourceMap) {
-    const {
-        envVarResourceIdentifierToIdMap,
-        dbUrlToIdMap
-    } = lookUpMaps;
-
-    return {
-        eventSources: async (credentials, accountId, region) => {
-            const lambdaClient = awsClient.createLambdaClient(credentials, region);
-            const eventSourceMappings = await lambdaClient.listEventSourceMappings();
-
-            const {errors} = safeForEach(({EventSourceArn, FunctionArn}) => {
-                if(resourceMap.has(EventSourceArn) && resourceMap.has(FunctionArn)) {
-                    const {resourceType} = resourceMap.get(EventSourceArn);
-                    const lambda = resourceMap.get(FunctionArn);
-
-                    lambda.relationships.push(createAssociatedRelationship(resourceType, {
-                        arn: EventSourceArn
-                    }));
-                }
-            }, eventSourceMappings);
-
-            logger.error(`There were ${errors.length} errors when adding lambda event source relationships.`);
-            logger.debug('Errors: ', {errors});
-        },
-        functions: async (credentials, accountId, region) => {
-            const lambdaClient = awsClient.createLambdaClient(credentials, region);
-
-            const lambdas = await lambdaClient.getAllFunctions();
-
-            const {errors} = safeForEach(({FunctionArn, Environment = {}}) => {
-                const lambda = resourceMap.get(FunctionArn);
-                // a lambda may have been created between the time we got the data from config
-                // and made our api request
-                if(lambda != null && !R.isEmpty(Environment)) {
-                    // The lambda API returns an error object if there are encrypted environment variables
-                    // that the discovery process does not have permissions to decrypt
-                    if(R.isNil(Environment.Error)) {
-                        //TODO: add env var name as a property of the edge
-                        lambda.relationships.push(...createEnvironmentVariableRelationships(
-                            {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
-                            {accountId, awsRegion: region},
-                            Environment.Variables));
-                    }
-                }
-            }, lambdas);
-
-            logger.error(`There were ${errors.length} errors when adding lambda environment variable relationships.`);
-            logger.debug('Errors: ', {errors});
-        },
-        snsSubscriptions: async (credentials, accountId, region) => {
-            const snsClient = awsClient.createSnsClient(credentials, region);
-
-            const subscriptions = await snsClient.getAllSubscriptions();
-
-            const {errors} = safeForEach(({Endpoint, TopicArn}) => {
-                // an SNS topic may have been created between the time we got the data from config
-                // and made our api request or the endpoint may have been created in a region that
-                // has not been imported
-                if(resourceMap.has(TopicArn) && resourceMap.has(Endpoint)) {
-                    const snsTopic = resourceMap.get(TopicArn);
-                    const {resourceType} = resourceMap.get(Endpoint);
-                    snsTopic.relationships.push(createAssociatedRelationship(resourceType, {arn: Endpoint}));
-                }
-            }, subscriptions);
-
-            logger.error(`There were ${errors.length} errors when adding SNS subscriber relationships.`);
-            logger.debug('Errors: ', {errors});
-        },
-        transitGatewayVpcAttachments: async (credentials, accountId, region) => {
-            // Whilst AWS Config supports the AWS::EC2::TransitGatewayAttachment resource type,
-            // it is missing information on the account that VPCs referred to by the attachment
-            // are deployed in. Therefore we need to supplement this with info from the EC2 API.
-            const ec2Client = awsClient.createEc2Client(credentials, region);
-
-            const tgwAttachments = await ec2Client.getAllTransitGatewayAttachments([
-                {Name: 'resource-type', Values: [VPC.toLowerCase()]}
-            ]);
-
-            const {errors} = safeForEach(tgwAttachment => {
-                const {
-                    TransitGatewayAttachmentId, ResourceOwnerId, TransitGatewayOwnerId, TransitGatewayId
-                } = tgwAttachment;
-                const tgwAttachmentArn = createArn({
-                    service: EC2, region, accountId, resource: `${TRANSIT_GATEWAY_ATTACHMENT}/${TransitGatewayAttachmentId}`}
-                );
-
-                if(resourceMap.has(tgwAttachmentArn)) {
-                    const tgwAttachmentFromConfig = resourceMap.get(tgwAttachmentArn);
-                    const {relationships, configuration: {SubnetIds, VpcId}} =  tgwAttachmentFromConfig;
-
-                    relationships.push(
-                        createAttachedRelationship(AWS_EC2_TRANSIT_GATEWAY, {accountId: TransitGatewayOwnerId, awsRegion: region, resourceId: TransitGatewayId}),
-                        createAssociatedRelationship(AWS_EC2_VPC, {relNameSuffix: VPC, accountId: ResourceOwnerId, awsRegion: region, resourceId: VpcId}),
-                        ...SubnetIds.map(subnetId => createAssociatedRelationship(AWS_EC2_SUBNET, {relNameSuffix: SUBNET, accountId: ResourceOwnerId, awsRegion: region, resourceId: subnetId}))
-                    );
-                }
-            }, tgwAttachments);
-
-            logger.error(`There were ${errors.length} errors when adding transit gateway relationships.`);
-            logger.debug('Errors: ', {errors});
-        }
-    }
-}
-
-/**
- * Config appends the resource type to relationship names for these types but does not do so
- * consistently
- **/
-const resourceTypesToNormalize = new Set([
-    AWS_EC2_INSTANCE,
-    AWS_EC2_NETWORK_INTERFACE,
-    AWS_EC2_SUBNET,
-    AWS_EC2_VOLUME,
-    AWS_IAM_ROLE
-])
-
-function normaliseRelationshipNames(resource) {
-    if (resource.resourceType !== AWS_TAGS_TAG && resource.resourceType !== AWS_CONFIG_RESOURCE_COMPLIANCE) {
-        const {relationships} = resource;
-        relationships.forEach(rel => {
-            const {resourceType, relationshipName} = rel;
-            if(resourceTypesToNormalize.has(resourceType)) {
-                const [,, relSuffix] = resourceType.split('::');
-                // VPC is in camelcase
-                if(resourceType === AWS_EC2_VPC && !relationshipName.includes(VPC)) {
-                    rel.relationshipName = relationshipName + VPC;
-                } else if(!relationshipName.includes(relSuffix)){
-                    rel.relationshipName = relationshipName + relSuffix;
-                }
-            }
-        });
-    }
-    return resource;
-}
-
-function addVpcInfo(resource) {
-    if (resource.resourceType !== AWS_TAGS_TAG && resource.resourceType !== AWS_CONFIG_RESOURCE_COMPLIANCE) {
-        const {relationships} = resource;
-
-        const [vpcId] = relationships
-            .filter(x => x.resourceType === AWS_EC2_VPC)
-            .map(x => x.resourceId);
-
-        if (vpcId != null) resource.vpcId = vpcId;
-
-        const subnetIds = relationships
-            .filter(x => x.resourceType === AWS_EC2_SUBNET && !x.relationshipName.includes(CONTAINS))
-            .map(x => x.resourceId)
-            .sort();
-
-        if (subnetIds.length === 1) {
-            resource.subnetId = R.head(subnetIds);
-        }
-    }
-    return resource;
-}
-
-module.exports = {
-    // for performance reasons, each handler mutates the items in `resources`
-    createAdditionalRelationships: R.curry(async (accountsMap, awsClient, resources) =>  {
-        const resourceMap = new Map(resources.map(resource => ([resource.id, resource])));
-
-        const lookUpMaps = {
-            accountsMap,
-            ...createLookUpMaps(resources)
-        };
-
-        const credentialsTuples = Array.from(accountsMap.entries());
-
-        const batchedHandlers = createBatchedHandlers(lookUpMaps, awsClient, resourceMap);
-
-        const batchResults = await Promise.allSettled(Object.values(batchedHandlers).flatMap(handler => {
-            return credentialsTuples
-                .flatMap(([accountId, {regions, credentials}]) =>
-                    regions.map(region => handler(credentials, accountId, region))
-                );
-        }));
-
-        const batchErrors = batchResults.filter(x => x.status === 'rejected').map(({reason}) => ({error: reason.message}));
-        logger.error(`There were ${batchErrors.length} errors when adding batch additional relationships.`);
-        logger.debug('Errors: ', {errors: batchErrors});
-
-        const handlers = createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap);
-
-        const {errors} = await PromisePool
-            .withConcurrency(30)
-            .for(resources)
-            .process(async resource => {
-                const handler = handlers[resource.resourceType];
-                if(handler != null) return handler(resource);
-            });
-
-        logger.error(`There were ${errors.length} errors when adding additional relationships.`);
-        logger.debug('Errors: ', {errors});
-
-        return Array.from(resourceMap.values())
-            .map(R.compose(addVpcInfo, normaliseRelationshipNames));
-    })
-}
+module.exports = createIndividualHandlers;

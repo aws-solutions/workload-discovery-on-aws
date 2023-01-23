@@ -121,6 +121,16 @@ function isDate(date) {
     return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
 }
 
+function createResourceNameKey({resourceName, resourceType, accountId, awsRegion}) {
+    const first = resourceType == null ? '' : `${resourceType}_`;
+    return `${first}${resourceName}_${accountId}_${awsRegion}`;
+}
+
+function createResourceIdKey({resourceId, resourceType, accountId, awsRegion}) {
+    const first = resourceType == null ? '' : `${resourceType}_`;
+    return `${first}${resourceId}_${accountId}_${awsRegion}`;
+}
+
 function safeForEach(f, xs) {
     const errors = [];
 
@@ -163,6 +173,8 @@ module.exports = {
     isString,
     isObject,
     objToKeyNameArray,
+    createResourceNameKey,
+    createResourceIdKey,
     safeForEach: R.curry(safeForEach),
     profileAsync: R.curry(profileAsync)
 }
