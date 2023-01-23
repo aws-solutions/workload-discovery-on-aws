@@ -19,6 +19,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
       - name: Viperlight
         run: |
           wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
