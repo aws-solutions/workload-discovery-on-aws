@@ -3,6 +3,7 @@
 
 const R = require('ramda');
 const {build: buildArn} = require('@aws-sdk/util-arn-parser');
+const logger = require('./logger');
 
 const {
     AWS,
@@ -137,6 +138,15 @@ function safeForEach(f, xs) {
     return {errors};
 }
 
+function profileAsync(message, f) {
+    return async (...args) => {
+        logger.profile(message);
+        const result = await f(...args);
+        logger.profile(message);
+        return result;
+    }
+}
+
 module.exports = {
     createContainsRelationship: createRelationship(CONTAINS),
     createAssociatedRelationship: createRelationship(IS_ASSOCIATED_WITH),
@@ -153,5 +163,6 @@ module.exports = {
     isString,
     isObject,
     objToKeyNameArray,
-    safeForEach: R.curry(safeForEach)
+    safeForEach: R.curry(safeForEach),
+    profileAsync: R.curry(profileAsync)
 }

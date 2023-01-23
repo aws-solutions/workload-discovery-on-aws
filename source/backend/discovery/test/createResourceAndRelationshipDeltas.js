@@ -26,25 +26,25 @@ const {
 } = require('../src/lib/constants');
 const {generate} = require('./generator');
 const createResourceAndRelationshipDeltas = require('../src/lib/createResourceAndRelationshipDeltas');
+const {dbResources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/sdkResources.json");
+const {resources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/deletedResources.json");
 
-describe('createResourceAndRelationshipDeltas',  () => {
+describe.only('createResourceAndRelationshipDeltas',  () => {
 
     describe('resources', () => {
 
         it('should calculate sdk discovered resource updates and ignore unchanged resources', async () => {
             const {dbResources, resources} = require('./fixtures/createResourceAndRelationshipDeltas/resources/sdkResources.json');
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 resourceIdsToDelete, resourcesToStore, resourcesToUpdate
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(resourceIdsToDelete, 0);
             assert.lengthOf(resourcesToStore, 0);
@@ -83,17 +83,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
         it('should calculate resources to store for config discovered resources', async () => {
             const {dbResources, resources} = require('./fixtures/createResourceAndRelationshipDeltas/resources/storedResources.json');
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 resourcesToStore
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(resourcesToStore, 3);
 
@@ -125,17 +123,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
         it('should calculate deleted resources', async () => {
             const {dbResources, resources} = require('./fixtures/createResourceAndRelationshipDeltas/resources/deletedResources.json');
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 resourceIdsToDelete
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(resourceIdsToDelete, 3);
 
@@ -147,17 +143,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
         it('should calculate resources from Config to update', async () => {
             const {dbResources, resources} = require('./fixtures/createResourceAndRelationshipDeltas/resources/configUpdated.json');
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 resourcesToUpdate
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(resourcesToUpdate, 2);
 
@@ -179,17 +173,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
         it('should not calculate updates for tags', async () => {
             const {dbResources, resources} = require('./fixtures/createResourceAndRelationshipDeltas/resources/tags.json');
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 resourcesToUpdate
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(resourcesToUpdate, 0);
         });
@@ -201,17 +193,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/stored.json');
             const {dbResources, resources} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 linksToAdd
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             const actualVpcRelationship = linksToAdd.find(x => x.source === resources[AWS_EC2_VPC].id);
             assert.deepEqual(actualVpcRelationship, {
@@ -234,17 +224,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/crossRegion.json');
             const {dbResources, resources} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 linksToAdd
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             const actualSqsRelationship = linksToAdd.find(x => x.source === resources[AWS_SNS_TOPIC].id);
             assert.deepEqual(actualSqsRelationship, {
@@ -259,17 +247,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/unknownRelationships.json');
             const {dbResources, resources, eni} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 linksToAdd
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             assert.lengthOf(linksToAdd, 2);
             const unknownRelationship = linksToAdd.find(x => x.target === eni.resourceId);
@@ -280,17 +266,15 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/resourceName.json');
             const {dbResources, resources} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => new Map(),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
             const {
                 linksToAdd
-            } = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, new Map(), Object.values(resources));
 
             const actualRoleRelationship = linksToAdd.find(x => x.source === resources[AWS_LAMBDA_FUNCTION].id);
             assert.deepEqual(actualRoleRelationship, {
@@ -311,18 +295,20 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/unchanged.json');
             const {dbResources, dbRelationships, resources} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => Object.values(dbRelationships).reduce((acc,item) => {
-                    acc.set(`${item.source}_${item.label}_${item.target}`, item);
-                    return acc;
-                }, new Map()),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbRelationshipsMap = Object.values(dbRelationships).reduce((acc,item) => {
+                acc.set(`${item.source}_${item.label}_${item.target}`, item);
+                return acc;
+            }, new Map());
+
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
-            const {linksToAdd, linksToDelete} = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            const {
+                linksToAdd, linksToDelete
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, dbRelationshipsMap, Object.values(resources));
 
             assert.lengthOf(linksToAdd, 0)
             assert.lengthOf(linksToDelete, 0);;
@@ -332,18 +318,20 @@ describe('createResourceAndRelationshipDeltas',  () => {
             const schema = require('./fixtures/createResourceAndRelationshipDeltas/relationships/deleted.json');
             const {dbResources, dbRelationships, resources} = generate(schema);
 
-            const mockApiClient = {
-                getDbRelationshipsMap: async () => Object.values(dbRelationships).reduce((acc,item) => {
-                    acc.set(`${item.source}_${item.label}_${item.target}`, item);
-                    return acc;
-                }, new Map()),
-                getDbResourcesMap: async () => Object.values(dbResources).reduce((acc,item) => {
+            const dbRelationshipsMap = Object.values(dbRelationships).reduce((acc,item) => {
+                acc.set(`${item.source}_${item.label}_${item.target}`, item);
+                return acc;
+            }, new Map());
+
+            const dbResourcesMap = Object.values(dbResources)
+                .reduce((acc, item) => {
                     acc.set(item.id, item);
                     return acc;
-                }, new Map())
-            };
+                }, new Map());
 
-            const {linksToDelete} = await createResourceAndRelationshipDeltas(mockApiClient, Object.values(resources));
+            const {
+                linksToDelete
+            } = createResourceAndRelationshipDeltas(dbResourcesMap, dbRelationshipsMap, Object.values(resources));
 
             assert.include(linksToDelete, dbRelationships[AWS_EC2_INSTANCE].id);
             assert.include(linksToDelete, dbRelationships[AWS_EC2_VPC].id);;

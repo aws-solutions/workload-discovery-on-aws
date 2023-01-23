@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const R = require("ramda");
-const {FUNCTION_RESPONSE_SIZE_TOO_LARGE} = require('../constants');
 const {PromisePool} = require("@supercharge/promise-pool");
+const {profileAsync} = require('../utils');
 const logger = require("../logger");
 
 function getDbResourcesMap(appSync) {
@@ -57,6 +57,8 @@ function process(processor) {
         .for(R.splitEvery(batchSize, resources))
         .process(processor);
 }
+
+
 function updateAccountsCrawledTime(appSync) {
     return async accountIds => {
         const {errors, results} = await PromisePool
@@ -77,8 +79,8 @@ function updateAccountsCrawledTime(appSync) {
 module.exports = {
     createApiClient(appSync) {
         return {
-            getDbResourcesMap: getDbResourcesMap(appSync),
-            getDbRelationshipsMap: getDbRelationshipsMap(appSync),
+            getDbResourcesMap: profileAsync('Time to download resources from Neptune', getDbResourcesMap(appSync)),
+            getDbRelationshipsMap: profileAsync('Time to download relationships from Neptune', getDbRelationshipsMap(appSync)),
             storeResources: process(async resources => {
                 await appSync.indexResources(resources);
                 await appSync.addResources(resources);
