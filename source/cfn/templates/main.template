@@ -181,12 +181,14 @@ Parameters:
 Mappings:
   Solution:
     Constants:
+      SolutionId: SO0075
       AppName: workload-discovery
+      SolutionName: Workload Discovery On AWS
+      ApplicationType: AWS-Solutions
       DeploymentBucketNamePrefix: <BUCKET_NAME>
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
-      CustomUserAgent: AwsSolution/SO0075/<VERSION>
 
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
@@ -198,8 +200,8 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W89
-            reason: 'Not applicable'
-    Type: "AWS::Serverless::Function"
+            reason: Not applicable
+    Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
       Runtime: python3.9
@@ -218,11 +220,11 @@ Resources:
            )
 
   Variables:
-    Type: "Custom::Variables"
+    Type: Custom::Variables
     Properties:
       ServiceToken: !GetAtt EchoFunction.Arn
       DeploymentBucket: !Sub
-        - "https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}"
+        - https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}
         - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
           DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
@@ -230,6 +232,10 @@ Resources:
         - ${DeploymentBucketNamePrefix}-${Region}
         - DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
+      CustomUserAgent: !Sub
+        - AwsSolution/${SolutionId}/${Version}
+        - SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
+          Version: !FindInMap [ Solution, Constants, SolutionVersion ]
 
   LayerStack:
     Type: AWS::CloudFormation::Stack
@@ -239,8 +245,8 @@ Resources:
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
       TemplateURL:
         !Sub
-          - "${DeploymentBucket}/layers.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - "${DeploymentBucket}/layers.template"
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
 
   S3Buckets:
@@ -253,8 +259,8 @@ Resources:
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
       TemplateURL:
         !Sub
-          - "${DeploymentBucket}/buckets.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - "${DeploymentBucket}/buckets.template"
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
 
   VpcStack:
@@ -262,8 +268,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-         - "${DeploymentBucket}/vpc.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - "${DeploymentBucket}/vpc.template"
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
 
   NeptuneStack:
@@ -271,8 +277,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-         - "${DeploymentBucket}/neptune.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - "${DeploymentBucket}/neptune.template"
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
@@ -291,8 +297,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/config-aggregator.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/config-aggregator.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
@@ -315,8 +321,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/opensearch-roles.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/opensearch-roles.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
@@ -326,8 +332,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/opensearch.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/opensearch.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
@@ -344,8 +350,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/discovery-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/discovery-crawler.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
@@ -364,7 +370,7 @@ Resources:
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
@@ -373,8 +379,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/codebuild.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/codebuild.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         CloudfrontDistributionId: !GetAtt WebUiStack.Outputs.DistributionId
@@ -391,8 +397,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/cognito.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/cognito.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         AdminUserEmailAddress: !Ref AdminUserEmailAddress
@@ -404,11 +410,11 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/gremlin-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/gremlin-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
         NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
         NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
@@ -426,11 +432,11 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/search-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/search-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         OpenSearchDomainEndpoint: !GetAtt OpenSearchStack.Outputs.DomainEndpoint
         OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
         OpenSearchLambdaRoleArn: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
@@ -448,8 +454,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/draw-io-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/draw-io-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -461,8 +467,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/account-import-templates-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/account-import-templates-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -474,8 +480,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/appsync-api.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/appsync-api.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
@@ -487,11 +493,11 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/cost-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/cost-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -503,11 +509,11 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/settings-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/settings-resolvers.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
@@ -518,8 +524,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/athena-glue-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/athena-glue-crawler.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
@@ -531,8 +537,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/webui.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/webui.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         AccessLogsBucket: !GetAtt S3Buckets.Outputs.AccessLogsBucket
@@ -544,8 +550,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - ${DeploymentBucket}/webui-settings.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+        - ${DeploymentBucket}/webui-settings.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
@@ -558,6 +564,41 @@ Resources:
         CollectAnonymousMetrics: !Ref OptOutOfSendingAnonymousUsageMetrics
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+
+  AppRegistryStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${DeploymentBucket}/app-registry.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !FindInMap [Solution, Constants, AppName]
+        ApplicationType: !FindInMap [Solution, Constants, ApplicationType]
+        SolutionId: !FindInMap [Solution, Constants, SolutionId]
+        SolutionName: !FindInMap [Solution, Constants, SolutionName]
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        MainStack: !Ref AWS::StackId
+        LayerStack: !Ref LayerStack
+        S3BucketsStack: !Ref S3Buckets
+        VpcStack: !Ref VpcStack
+        NeptuneStack: !Ref NeptuneStack
+        ConfigAggregatorStack: !Ref ConfigAggregator
+        OpenSearchRoleStack: !Ref OpenSearchRoleStack
+        OpenSearchStack: !Ref OpenSearchStack
+        TaskStack: !Ref TaskStack
+        CodebuildStack: !Ref CodebuildStack
+        GremlinResolversStack: !Ref GremlinResolversStack
+        SearchResolversStack: !Ref SearchResolversStack
+        DrawIoExportResolversStack: !Ref DrawIoExportResolversStack
+        AccountImportTemplatesResolversStack: !Ref AccountImportTemplatesResolversStack
+        AppSyncApiStack: !Ref AppSyncApiStack
+        CostResolversStack: !Ref CostResolversStack
+        SettingsResolversStack: !Ref SettingsResolversStack
+        AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
+        WebUiStack: !Ref WebUiStack
+        WebUiSettingsStack: !Ref WebUiSettingsStack
 
 Outputs:
 
