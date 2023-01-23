@@ -12,11 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Set up Nodejs 16
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: Viperlight
