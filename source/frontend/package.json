@@ -62,6 +62,7 @@
     "start": "vite",
     "build": "npm run clean && npm i && NODE_OPTIONS=--max_old_space_size=4096 vite build && npm run build:zip && npm run build:dist",
     "serve": "vite preview",
+    "pretest": "npm i",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest --coverage --passWithNoTests",
     "build:zip": "cd dist && zip -rq --exclude=settings.js ../ui.zip . && cd ..",
