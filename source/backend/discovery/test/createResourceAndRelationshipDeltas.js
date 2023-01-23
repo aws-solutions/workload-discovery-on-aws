@@ -29,7 +29,7 @@ const createResourceAndRelationshipDeltas = require('../src/lib/createResourceAn
 const {dbResources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/sdkResources.json");
 const {resources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/deletedResources.json");
 
-describe.only('createResourceAndRelationshipDeltas',  () => {
+describe('createResourceAndRelationshipDeltas',  () => {
 
     describe('resources', () => {
 
