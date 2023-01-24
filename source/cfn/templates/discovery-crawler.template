@@ -172,7 +172,6 @@ Resources:
       LogLevel: !Ref LogLevel
       Repository: !Ref PerspectiveContainerRepo
 
-
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -181,6 +180,19 @@ Resources:
       ClusterSettings:
         - Name: containerInsights
           Value: enabled
+
+  ClusterCPAssociation:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      Cluster: !Ref Cluster
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - Weight: 1
+          CapacityProvider: FARGATE
+        - Weight: 1
+          CapacityProvider: FARGATE_SPOT
 
   EcsTaskExecutionRole:
     Type: AWS::IAM::Role
@@ -321,40 +333,32 @@ Resources:
         Fn::Sub: /ecs/${AppName}-task
       RetentionInDays: 30
 
-  ZoomCrawlerTaskSchedule:
+  DiscoveryTaskRule:
     Type: AWS::Events::Rule
     Properties:
       Description: Workload Discovery on AWS Discovery service
-      Name:
-        Fn::Sub: ${AppName}-rule
-      RoleArn:
-        Fn::GetAtt:
-          - EcsTaskExecutionRole
-          - Arn
+      RoleArn: !GetAtt EcsTaskExecutionRole.Arn
       ScheduleExpression: cron(0/15 * * * ? *)
       State: ENABLED
       Targets:
-        - Arn:
-            Fn::GetAtt:
-              - Cluster
-              - Arn
-          RoleArn:
-            Fn::GetAtt:
-              - EcsTaskExecutionRole
-              - Arn
+        - Arn: !GetAtt Cluster.Arn
+          RoleArn: !GetAtt EcsTaskExecutionRole.Arn
           Id: apiScheduledTask
           EcsParameters:
-            TaskDefinitionArn:
-              Ref: TaskDefinition
+            TaskDefinitionArn: !Ref TaskDefinition
             LaunchType: FARGATE
+            CapacityProviderStrategy:
+              - CapacityProvider: FARGATE_SPOT
+                Base: 1
+                Weight: 1
             PlatformVersion: LATEST
             NetworkConfiguration:
               AwsVpcConfiguration:
                 SecurityGroups:
-                  - Ref: TaskSg
+                  - !Ref TaskSg
                 Subnets:
-                  - Ref: PrivateSubnet0
-                  - Ref: PrivateSubnet1
+                  - !Ref PrivateSubnet0
+                  - !Ref PrivateSubnet1
 
 Outputs:
   Endpoint:
