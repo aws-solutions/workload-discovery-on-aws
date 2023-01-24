@@ -154,7 +154,6 @@ const getResources = opts => async ({pagination, resourceTypes, accounts}) => {
         loggedInURL
         loginURL
         private
-        relationships
         resourceCreationTime
         resourceName
         resourceId

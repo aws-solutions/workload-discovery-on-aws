@@ -26,8 +26,6 @@ const {
 } = require('../src/lib/constants');
 const {generate} = require('./generator');
 const createResourceAndRelationshipDeltas = require('../src/lib/createResourceAndRelationshipDeltas');
-const {dbResources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/sdkResources.json");
-const {resources} = require("./fixtures/createResourceAndRelationshipDeltas/resources/deletedResources.json");
 
 describe('createResourceAndRelationshipDeltas',  () => {
 

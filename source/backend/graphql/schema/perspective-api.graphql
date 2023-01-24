@@ -50,7 +50,6 @@ input ResourcePropertiesInput {
     configurationItemCaptureTime: String
     configurationItemStatus: String
     configurationStateId: String
-    relationships: String
     resourceCreationTime: String
     resourceId: String
     resourceName: String
@@ -420,7 +419,6 @@ type ResourceProperties @aws_cognito_user_pools @aws_iam {
   configurationItemCaptureTime: String
   configurationItemStatus: String
   configurationStateId: String
-  relationships: AWSJSON
   resourceCreationTime: String
   resourceId: String
   resourceName: String
