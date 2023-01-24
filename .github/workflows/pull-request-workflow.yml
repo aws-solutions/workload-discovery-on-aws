@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set up ruby 2.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
@@ -31,6 +35,10 @@ jobs:
           echo "Starting content scanning `date` in `pwd`"
           ../viperlight/bin/viperlight scan -m files-contents -m files-aws -m files-binary -m files-entropy -m files-secrets
           echo "Completed content scanning `date`"
+      - name: cfn-nag
+        run: |
+          gem install cfn-nag
+          cfn_nag ./source/cfn/templates/*.template
       - name: Backend unit tests
         run: ./run-unit-tests.sh
         working-directory: ./deployment
