@@ -54,6 +54,7 @@ const {
     ENI_SEARCH_DESCRIPTION_PREFIX,
     AWS_ELASTICSEARCH_DOMAIN,
     LAMBDA,
+    S3,
     AWS,
     AWS_IAM_AWS_MANAGED_POLICY
 } = require("../constants");
@@ -160,12 +161,11 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
 
     const {
         accountsMap,
-        dbUrlToIdMap,
+        endpointToIdMap,
         resourceIdentifierToIdMap,
         targetGroupToAsgMap,
         elbDnsToResourceIdMap,
         asgResourceNameToResourceIdMap,
-        s3ResourceIdToRegionMap,
         envVarResourceIdentifierToIdMap,
         resourceMap
     } = lookUpMaps;
@@ -197,8 +197,8 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
         [AWS_CLOUDFRONT_DISTRIBUTION]: async ({configuration: {distributionConfig}, relationships}) => {
             relationships.forEach(relationship => {
                 const {resourceId, resourceType} = relationship;
-                if(resourceType === AWS_S3_BUCKET && s3ResourceIdToRegionMap.has(resourceId)) {
-                    relationship.awsRegion = s3ResourceIdToRegionMap.get(resourceId);
+                if(resourceType === AWS_S3_BUCKET) {
+                    relationship.arn = createArn({service: S3, resource: resourceId});
                 }
             });
 
@@ -215,8 +215,8 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
         [AWS_CLOUDFRONT_STREAMING_DISTRIBUTION]: async ({relationships}) => {
             relationships.forEach(relationship => {
                 const {resourceId, resourceType} = relationship;
-                if(resourceType === AWS_S3_BUCKET && s3ResourceIdToRegionMap.has(resourceId)) {
-                    relationship.awsRegion = s3ResourceIdToRegionMap.get(resourceId);
+                if(resourceType === AWS_S3_BUCKET) {
+                    relationship.arn = createArn({service: S3, resource: resourceId});
                 }
             });
         },
@@ -354,7 +354,7 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
 
             environmentVariables.forEach( variables => {
                 task.relationships.push(...createEnvironmentVariableRelationships(
-                    {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
+                    {resourceMap, envVarResourceIdentifierToIdMap, endpointToIdMap},
                     {accountId, awsRegion},
                     variables));
             });
@@ -398,7 +398,7 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
                     return acc
                 }, {});
                 relationships.push(...createEnvironmentVariableRelationships(
-                    {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
+                    {resourceMap, envVarResourceIdentifierToIdMap, endpointToIdMap},
                     {accountId, awsRegion},
                     variables));
             });

@@ -223,7 +223,7 @@ describe('additionalRelationships', () => {
                         relationshipName: IS_ASSOCIATED_WITH,
                         resourceId: s3.resourceId,
                         resourceType: AWS_S3_BUCKET,
-                        awsRegion: s3.awsRegion
+                        arn: s3.arn
                     }
                 ]);
             });
@@ -266,7 +266,7 @@ describe('additionalRelationships', () => {
 
         describe(AWS_CLOUDFRONT_STREAMING_DISTRIBUTION, () => {
 
-            it('should add regiun for s3 buckets', async () => {
+            it('should add region for s3 buckets', async () => {
                 const schema = require('./fixtures/relationships/cloudfrontStreamingDistribution/s3.json');
                 const {cfStreamingDistro, s3} = generate(schema);
 
@@ -278,7 +278,7 @@ describe('additionalRelationships', () => {
                         relationshipName: IS_ASSOCIATED_WITH,
                         resourceId: s3.resourceId,
                         resourceType: AWS_S3_BUCKET,
-                        awsRegion: s3.awsRegion
+                        arn: s3.arn
                     }
                 ]);
             });

@@ -20,7 +20,7 @@ const {
 function createBatchedHandlers(lookUpMaps, awsClient) {
     const {
         envVarResourceIdentifierToIdMap,
-        dbUrlToIdMap,
+        endpointToIdMap,
         resourceMap
     } = lookUpMaps;
 
@@ -55,7 +55,7 @@ function createBatchedHandlers(lookUpMaps, awsClient) {
                     if(R.isNil(Environment.Error)) {
                         //TODO: add env var name as a property of the edge
                         lambda.relationships.push(...createEnvironmentVariableRelationships(
-                            {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
+                            {resourceMap, envVarResourceIdentifierToIdMap, endpointToIdMap},
                             {accountId, awsRegion: region},
                             Environment.Variables));
                     }
