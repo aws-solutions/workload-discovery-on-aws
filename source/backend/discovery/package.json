@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=nyc-report-lcov-absolute mocha --recursive test",
+    "test": "nyc --reporter=html --reporter=text mocha --recursive test",
     "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only --recursive test",
     "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
     "clean": "rm -rf dist",
