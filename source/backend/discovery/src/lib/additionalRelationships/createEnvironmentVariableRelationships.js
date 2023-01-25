@@ -2,7 +2,7 @@ const {createAssociatedRelationship, createResourceIdKey, createResourceNameKey}
 const {AWS_S3_ACCOUNT_PUBLIC_ACCESS_BLOCK} = require("../constants");
 
 function createEnvironmentVariableRelationships(
-    {resourceMap, envVarResourceIdentifierToIdMap, dbUrlToIdMap},
+    {resourceMap, envVarResourceIdentifierToIdMap, endpointToIdMap},
     {accountId, awsRegion},
     variables
 ) {
@@ -18,7 +18,7 @@ function createEnvironmentVariableRelationships(
 
             const id = envVarResourceIdentifierToIdMap.get(resourceIdKey)
                 ?? envVarResourceIdentifierToIdMap.get(resourceNameKey)
-                ?? dbUrlToIdMap.get(val);
+                ?? endpointToIdMap.get(val);
 
             if(resourceMap.has(id)) {
                 const {resourceType, resourceId} = resourceMap.get(id);
