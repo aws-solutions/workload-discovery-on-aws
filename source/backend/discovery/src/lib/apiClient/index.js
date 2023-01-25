@@ -13,7 +13,7 @@ function getDbResourcesMap(appSync) {
     return async () => {
         const resourcesMap = new Map();
 
-        for await (resources of getResourcesPaginator({})) {
+        for await (const resources of getResourcesPaginator({})) {
             resources.forEach(r => resourcesMap.set(r.id, {
                 id: r.id,
                 label: r.label,
