@@ -64,6 +64,7 @@
     "serve": "vite preview",
     "pretest": "npm i",
     "test": "vitest run --coverage --passWithNoTests",
+    "test:ci": "vitest run --coverage --allowOnly=false --passWithNoTests",
     "test:watch": "vitest --coverage --passWithNoTests",
     "build:zip": "cd dist && zip -rq --exclude=settings.js ../ui.zip . && cd ..",
     "lint": "eslint",

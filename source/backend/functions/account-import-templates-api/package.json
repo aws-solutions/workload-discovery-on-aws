@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
-    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
-    "clean": "rm -rf dist && rm -rf node_modules",
+    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test",
+    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
+    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist",
     "build:zip": "zip -urj account-import-templates-api.zip src/",
     "build:dist": "mkdir dist && mv account-import-templates-api.zip dist/",
     "build": "npm run clean && npm run build:zip && npm run build:dist",

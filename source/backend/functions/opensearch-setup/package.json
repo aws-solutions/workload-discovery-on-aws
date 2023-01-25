@@ -6,10 +6,10 @@
   "scripts": {
     "pretest": "npm i",
     "test": "mocha test/*.js",
-    "clean": "rm -rf dist && rm -rf node_modules",
+    "clean": "rm -rf dist",
     "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json opensearch-setup.zip node_modules/ && zip -urj opensearch-setup.zip src/",
     "build:dist": "mkdir dist && mv opensearch-setup.zip dist/",
-    "build": "npm run clean && npm i --legacy-peer-deps --production && npm run build:zip && npm run build:dist"
+    "build": "npm run clean && npm ci --legacy-peer-deps --omit=dev && npm run build:zip && npm run build:dist"
   },
   "author": "svozza",
   "license": "ISC",

@@ -5,12 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
-    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
-    "clean": "rm -rf dist && rm -rf node_modules",
+    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test",
+    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
+    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist",
     "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json search-api.zip node_modules/ && zip -urj search-api.zip src/",
     "build:dist": "mkdir dist && mv search-api.zip dist/",
-    "build": "npm run clean && npm i --legacy-peer-deps --production && npm run build:zip && npm run build:dist",
+    "build": "npm run clean && npm ci --legacy-peer-deps --omit=dev && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"
   },
   "author": "ballmat",
