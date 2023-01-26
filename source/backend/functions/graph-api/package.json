@@ -5,12 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
-    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
-    "clean": "rm -rf dist && rm -rf node_modules",
-    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json graph-api.zip node_modules/ && zip -urj graph-api.zip src/",
+    "test": "nyc --reporter=html --reporter=text mocha test",
+    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
+    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist",
+    "build:zip": "zip -rq --exclude=test/* --exclude=package-lock.json graph-api.zip node_modules/ && zip -urj graph-api.zip src/",
     "build:dist": "mkdir dist && mv graph-api.zip dist/",
-    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"
   },
   "author": "svozza",
