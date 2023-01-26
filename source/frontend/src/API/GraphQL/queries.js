@@ -27,7 +27,6 @@ export const getResources = /* GraphQL */ `
         configurationItemCaptureTime
         configurationItemStatus
         configurationStateId
-        relationships
         resourceCreationTime
         resourceId
         resourceName

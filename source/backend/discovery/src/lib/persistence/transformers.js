@@ -153,14 +153,14 @@ function createTitle({resourceId, resourceName, arn, resourceType, tags}) {
 
 const propertiesToKeep = new Set([
     'accountId', 'arn', 'availabilityZone', 'awsRegion', 'configuration', 'configurationItemCaptureTime',
-    'configurationItemStatus', 'configurationStateId', 'relationships', 'resourceCreationTime', 'resourceId',
+    'configurationItemStatus', 'configurationStateId', 'resourceCreationTime', 'resourceId',
     'resourceName', 'resourceType', 'supplementaryConfiguration', 'tags', 'version', 'vpcId', 'subnetId', 'subnetIds',
     'resourceValue', 'state', 'private', 'dBInstanceStatus', 'statement', 'instanceType']);
 
-const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfiguration', 'tags', 'relationships', 'state'])
+const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfiguration', 'tags', 'state'])
 
 /**
- * Neptune cannot store nested properties. Therefore this function extracts the
+ * Neptune cannot store nested properties. Therefore, this function extracts the
  * specified and adds them to the main object. It also converts nested fields
  * into JSON.
  * @param {*} node
