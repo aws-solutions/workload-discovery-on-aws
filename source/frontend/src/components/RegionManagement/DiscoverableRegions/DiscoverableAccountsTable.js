@@ -133,7 +133,7 @@ const DiscoverableAccountsTable = ({ selectedAccounts, onSelect }) => {
           <Header
             actions={
               isUsingOrganizations()
-                  ? null
+                  ? void 0
                   : <SpaceBetween direction='horizontal' size='xs'>
                       <Button
                           disabled={R.isEmpty(selectedAccounts)}

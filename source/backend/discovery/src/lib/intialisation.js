@@ -76,7 +76,7 @@ async function createAccountsMap({stsClient}, {rootAccountId, accounts}) {
                     if (err.Code === ACCESS_DENIED) {
                         const errorMessage = `Access denied assuming role: ${role}.`;
                         if(isManagementAccount) {
-                            logger.error(`${errorMessage} This is the Management account, discovering this account is currently not supported.`);
+                            logger.error(`${errorMessage} This is the management account, discovering this account is currently not supported.`);
                         } else {
                             logger.error(`${errorMessage} Ensure it has been deployed to account: ${accountId}. The discovery for this account will be skipped.`);
                         }

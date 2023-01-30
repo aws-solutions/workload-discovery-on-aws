@@ -170,7 +170,7 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
             description='AWS Regions that have been imported into Workload Discovery on AWS.'
             actions={
                 isUsingOrganizations()
-                    ? null
+                    ? void 0
                     : <SpaceBetween direction='horizontal' size='l'>
                         <Button
                             loadingText='Removing'

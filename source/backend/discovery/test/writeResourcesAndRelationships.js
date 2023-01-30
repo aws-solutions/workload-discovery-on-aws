@@ -3,7 +3,7 @@
 
 const {assert} = require('chai');
 const sinon = require('sinon');
-const {writeResourcesAndRelationships} = require('../src/lib/persistence');
+const {persistResourcesAndRelationships} = require('../src/lib/persistence');
 
 describe('persistence/index.js', () => {
 
@@ -17,7 +17,7 @@ describe('persistence/index.js', () => {
         };
 
         it('should batch requests to the backend', async () => {
-            await writeResourcesAndRelationships(mockApiClient, {
+            await persistResourcesAndRelationships(mockApiClient, {
                 resourceIdsToDelete: [], resourcesToStore: [], resourcesToUpdate: [],
                 linksToAdd: [], linksToDelete: []
             });
