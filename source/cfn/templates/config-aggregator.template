@@ -19,7 +19,8 @@ Parameters:
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
   IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
-  CreateOrganizationConfigAggregator: !And [!Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS], !Equals [!Ref ConfigAggregatorName, '']]
+  CreateOrganizationConfigAggregator: !And [!Condition IsUsingOrganizations, !Equals [!Ref ConfigAggregatorName, '']]
+  CreateAggregator: !Or [!Condition CreateOrganizationConfigAggregator, !Not [!Condition IsUsingOrganizations]]
 
 Resources:
 
@@ -42,6 +43,7 @@ Resources:
 
   ConfigurationAggregator:
     Type: AWS::Config::ConfigurationAggregator
+    Condition: CreateAggregator
     Properties:
       ConfigurationAggregatorName: !Sub aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
       OrganizationAggregationSource:
@@ -121,4 +123,4 @@ Outputs:
 
   PerspectiveConfigurationAggregator:
     Description: AWS Config aggregator
-    Value: !If [CreateOrganizationConfigAggregator, !Ref ConfigurationAggregator, !Ref ConfigAggregatorName]
+    Value: !If [CreateAggregator, !Ref ConfigurationAggregator, !Ref ConfigAggregatorName]
