@@ -7,25 +7,60 @@ Parameters:
   ExistingConfigInstallation:
     Type: String
 
+  CrossAccountDiscovery:
+    Type: String
+
   ConfigBucket:
+    Type: String
+
+  ConfigAggregatorName:
     Type: String
 
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
+  IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+  CreateOrganizationConfigAggregator: !And [!Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS], !Equals [!Ref ConfigAggregatorName, '']]
 
 Resources:
 
+  ConfigOrganizationsRole:
+    Type: AWS::IAM::Role
+    Condition: CreateOrganizationConfigAggregator
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations
+      Path: '/service-role/'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - config.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
   ConfigurationAggregator:
     Type: AWS::Config::ConfigurationAggregator
+    Condition: CreateOrganizationConfigAggregator
     Properties:
+      ConfigurationAggregatorName: !Sub aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
+      OrganizationAggregationSource:
+        !If
+          - IsUsingOrganizations
+          - RoleArn: !GetAtt ConfigOrganizationsRole.Arn
+            AllAwsRegions: true
+          - !Ref AWS::NoValue
       AccountAggregationSources:
-        - AccountIds:
-            - !Ref AWS::AccountId
-          AwsRegions:
-            - !Ref 'AWS::Region'
-          AllAwsRegions: false
-      ConfigurationAggregatorName:
-        Fn::Sub: aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
+        !If
+          - IsUsingOrganizations
+          - !Ref AWS::NoValue
+          - AccountAggregationSources:
+              - AccountIds:
+                  - !Ref AWS::AccountId
+                AwsRegions:
+                  - !Ref 'AWS::Region'
+                AllAwsRegions: false
 
   ConfigRecorder:
     Type: AWS::Config::ConfigurationRecorder
@@ -87,6 +122,4 @@ Outputs:
 
   PerspectiveConfigurationAggregator:
     Description: AWS Config aggregator
-    Value:
-      Ref: ConfigurationAggregator
-
+    Value: !If [CreateOrganizationConfigAggregator, !Ref ConfigurationAggregator, !Ref ConfigAggregatorName]
