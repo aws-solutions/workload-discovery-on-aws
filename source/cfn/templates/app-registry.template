@@ -73,11 +73,17 @@ Parameters:
   AthenaGlueCrawlerStack:
     Type: String
 
+  OrganizationsGlobalResourcesStack:
+    Type: String
+
   WebUiStack:
     Type: String
 
   WebUiSettingsStack:
     Type: String
+
+Conditions:
+  IsOrgStackDeployed: !Not [!Equals [!Ref OrganizationsGlobalResourcesStack, '']]
 
 Resources:
 
@@ -233,6 +239,14 @@ Resources:
     Properties:
       Application: !GetAtt Application.Id
       Resource: !Ref AthenaGlueCrawlerStack
+      ResourceType: CFN_STACK
+
+  OrganizationsGlobalResourcesStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Condition: IsOrgStackDeployed
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref OrganizationsGlobalResourcesStack
       ResourceType: CFN_STACK
 
   WebUiStackAppRegistryApplicationStackAssociation:

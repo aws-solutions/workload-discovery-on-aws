@@ -597,6 +597,7 @@ Resources:
         CostResolversStack: !Ref CostResolversStack
         SettingsResolversStack: !Ref SettingsResolversStack
         AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
+        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, '']
         WebUiStack: !Ref WebUiStack
         WebUiSettingsStack: !Ref WebUiSettingsStack
 
