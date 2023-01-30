@@ -13,8 +13,15 @@ export default defineConfig({
             ],
         }
     },
+    esbuild: {
+        loader: 'jsx',
+    },
     optimizeDeps: {
         esbuildOptions: {
+            loader: {
+                '.js': 'jsx',
+                '.ts': 'tsx',
+            },
             // Node.js global to browser globalThis
             define: {
                 global: "globalThis", //<-- AWS SDK

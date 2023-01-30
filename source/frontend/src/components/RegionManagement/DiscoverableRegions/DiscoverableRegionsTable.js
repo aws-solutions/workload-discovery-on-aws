@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
+import * as R  from 'ramda';
+import dayjs  from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import {
   Table,
   Box,
@@ -17,9 +20,8 @@ import { isEmpty } from 'ramda';
 import PropTypes from 'prop-types';
 import {useAccounts, useRemoveAccountRegion} from "../../Hooks/useAccounts";
 import {useResourcesRegionMetadata} from "../../Hooks/useResourcesMetadata";
-import * as R  from 'ramda';
-import dayjs  from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import {isUsingOrganizations} from "../../../Utils/AccountUtils";
+
 dayjs.extend(relativeTime);
 
 const columns = [
@@ -167,15 +169,17 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
             variant='h2'
             description='AWS Regions that have been imported into Workload Discovery on AWS.'
             actions={
-              <SpaceBetween direction='horizontal' size='l'>
-                <Button
-                  loadingText='Removing'
-                  variant='primary'
-                  disabled={isEmpty(selectedRegions)}
-                  onClick={() => setShowDeleteConfirm(true)}>
-                  Remove
-                </Button>
-              </SpaceBetween>
+                isUsingOrganizations()
+                    ? null
+                    : <SpaceBetween direction='horizontal' size='l'>
+                        <Button
+                            loadingText='Removing'
+                            variant='primary'
+                            disabled={isEmpty(selectedRegions)}
+                            onClick={() => setShowDeleteConfirm(true)}>
+                            Remove
+                        </Button>
+                    </SpaceBetween>
             }>
             Regions
           </Header>
@@ -189,6 +193,7 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
         selectedItems={selectedRegions}
         selectionType='multi'
         onSelectionChange={(evt) => setSelectedRegions(evt.detail.selectedItems)}
+        isItemDisabled={isUsingOrganizations}
         loadingText='Loading Regions'
         filter={
           <TextFilter {...filterProps} filteringPlaceholder='Find a Region...' />

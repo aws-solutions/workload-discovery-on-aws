@@ -21,6 +21,7 @@ import localizedFormat  from 'dayjs/plugin/localizedFormat';
 import relativeTime  from 'dayjs/plugin/relativeTime';
 import * as R  from 'ramda';
 import {useDeepCompareEffect} from "react-use";
+import {isUsingOrganizations} from "../../../Utils/AccountUtils";
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
@@ -131,22 +132,24 @@ const DiscoverableAccountsTable = ({ selectedAccounts, onSelect }) => {
         header={
           <Header
             actions={
-              <SpaceBetween direction='horizontal' size='xs'>
-                <Button
-                  disabled={R.isEmpty(selectedAccounts)}
-                  onClick={() => setShowDeleteConfirm(true)}>
-                  Remove
-                </Button>
-                <Button
-                  loadingText='Removing'
-                  variant='primary'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    history.push(IMPORT);
-                  }}>
-                  Import
-                </Button>
-              </SpaceBetween>
+              isUsingOrganizations()
+                  ? null
+                  : <SpaceBetween direction='horizontal' size='xs'>
+                      <Button
+                          disabled={R.isEmpty(selectedAccounts)}
+                          onClick={() => setShowDeleteConfirm(true)}>
+                          Remove
+                      </Button>
+                      <Button
+                          loadingText='Removing'
+                          variant='primary'
+                          onClick={(e) => {
+                              e.preventDefault();
+                              history.push(IMPORT);
+                          }}>
+                          Import
+                      </Button>
+                  </SpaceBetween>
             }
             variant='h2'
             description='AWS accounts that contain Regions imported into Workload Discovery on AWS'>
