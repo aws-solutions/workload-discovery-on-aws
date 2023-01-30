@@ -42,7 +42,6 @@ Resources:
 
   ConfigurationAggregator:
     Type: AWS::Config::ConfigurationAggregator
-    Condition: CreateOrganizationConfigAggregator
     Properties:
       ConfigurationAggregatorName: !Sub aws-perspective-${AWS::Region}-${AWS::AccountId}-aggregator
       OrganizationAggregationSource:
@@ -55,12 +54,12 @@ Resources:
         !If
           - IsUsingOrganizations
           - !Ref AWS::NoValue
-          - AccountAggregationSources:
-              - AccountIds:
-                  - !Ref AWS::AccountId
-                AwsRegions:
-                  - !Ref 'AWS::Region'
-                AllAwsRegions: false
+          - - AccountIds:
+                - !Ref AWS::AccountId
+              AwsRegions:
+                - !Ref 'AWS::Region'
+              AllAwsRegions: false
+
 
   ConfigRecorder:
     Type: AWS::Config::ConfigurationRecorder
