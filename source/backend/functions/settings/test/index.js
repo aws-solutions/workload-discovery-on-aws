@@ -268,6 +268,93 @@ describe('index.js', () => {
                 ]);
             });
 
+            it('should add account in AWS Organizations mode', async () => {
+                const mockConfig = {
+                    putConfigurationAggregator: sinon.stub().rejects(new Error(
+                        'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
+                    ))
+                };
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    },
+                                    {
+                                        name: 'us-east-2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    },
+                    {
+                        SK: '222222222222',
+                        name: 'test',
+                        accountId: '222222222222',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'us-east-1'
+                            },
+                            {
+                                name: 'us-east-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
             it('should remove duplicate regions before adding account', async () => {
                 const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
                     arguments: {
@@ -1076,6 +1163,56 @@ describe('index.js', () => {
                             ]
                         }
                     ]
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account'
+                    }
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK:'111111111111',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1'
+                            },
+                            {
+                                name: 'eu-west-2'
+                            }
+                        ],
+                        type: 'account'
+                    }
+                ]);
+            });
+
+            it('should delete account in AWS Organizations mode', async () => {
+                const mockConfig = {
+                    putConfigurationAggregator: sinon.stub().rejects(new Error(
+                        'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
+                    ))
+                };
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {
+                    ACCOUNT_ID,
+                    AWS_REGION,
+                    DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'
+                })({
+                    arguments: {
+                        accountIds: ['222222222222']
+                    },
+                    info: {
+                        fieldName: 'deleteAccounts'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: []
                 });
 
                 const {Items: actualDb} = await docClient.query({

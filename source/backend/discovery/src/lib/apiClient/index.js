@@ -76,11 +76,27 @@ function updateAccountsCrawledTime(appSync) {
     }
 }
 
+function addCrawledAccounts(appSync) {
+    return async accounts => {
+        const crawledAccounts = accounts.map(({accountId, name, regions}) => {
+            return {
+                accountId,
+                name,
+                regions: regions.map(name => ({name})),
+                lastCrawled: new Date().toISOString()
+            }
+        });
+
+        return appSync.addAccounts(crawledAccounts);
+    }
+}
+
 module.exports = {
     createApiClient(appSync) {
         return {
             getDbResourcesMap: profileAsync('Time to download resources from Neptune', getDbResourcesMap(appSync)),
             getDbRelationshipsMap: profileAsync('Time to download relationships from Neptune', getDbRelationshipsMap(appSync)),
+            addCrawledAccounts: addCrawledAccounts(appSync),
             storeResources: process(async resources => {
                 await appSync.indexResources(resources);
                 await appSync.addResources(resources);

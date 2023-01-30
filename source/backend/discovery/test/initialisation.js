@@ -10,6 +10,7 @@ describe('initialisation', () => {
     const ACCOUNT_X = 'xxxxxxxxxxxx';
     const ACCOUNT_Y = 'yyyyyyyyyyyy';
     const EU_WEST_1= 'eu-west-1';
+    const US_EAST_1= 'us-east-1';
 
     describe('initialise', () => {
 
@@ -21,8 +22,27 @@ describe('initialisation', () => {
                     ]
                 }
             },
+            createEc2Client() {
+                return {
+                    async getAllRegions() {
+                        return []
+                    }
+                };
+            },
             createConfigServiceClient() {
                 return {}
+            },
+            createOrganizationsClient() {
+                return {
+                    async getAllAccounts() {
+                        return []
+                    },
+                    async getRootAccount() {
+                        return {
+                            Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
+                        }
+                    }
+                }
             },
             createStsClient() {
                 return {
@@ -73,6 +93,44 @@ describe('initialisation', () => {
             };
 
             return initialise(defaultMockAwsClient, mockAppSync, defaultConfig)
+                .then(() => {
+                    throw new Error('Expected promise to be rejected but was fullfilled.')
+                })
+                .catch(err => assert.strictEqual(err.message, 'No accounts to scan') );
+
+        });
+
+        it('should throw when no accounts because IAM role not installed', async () => {
+            const mockAwsClient = {
+                createStsClient() {
+                    const accessError = new Error();
+                    accessError.Code = ACCESS_DENIED;
+
+                    return {
+                        getCurrentCredentials: async () => {
+                            return {accessKeyId: 'accessKeyId', secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
+                        },
+                        getCredentials: sinon.stub()
+                            .onFirstCall().rejects(accessError)
+                            .onSecondCall().rejects(accessError)
+                    }
+                }
+            };
+
+            const mockAppSync = () => {
+                return {
+                    getAccounts: async () => [
+                        {accountId: ACCOUNT_X, regions: [{name: EU_WEST_1}]},
+                        {accountId: ACCOUNT_Y, regions: [{name: EU_WEST_1}]}
+                    ],
+                    createPaginator: async () => {}
+                }
+            };
+
+            return initialise({...defaultMockAwsClient, ...mockAwsClient}, mockAppSync, defaultConfig)
+                .then(() => {
+                    throw new Error('Expected promise to be rejected but was fullfilled.')
+                })
                 .catch(err => assert.strictEqual(err.message, 'No accounts to scan') );
 
         });
@@ -106,6 +164,92 @@ describe('initialisation', () => {
 
             const {accountsMap} = await initialise({...defaultMockAwsClient, ...mockAwsClient}, mockAppSync, defaultConfig);
             assert.strictEqual(accountsMap.size, 1)
+        });
+
+        it('should retrieve accounts from AWS Organizations', async () => {
+            const mockAwsClient = {
+                createStsClient() {
+                    return {
+                        getCurrentCredentials: async () => {
+                            return {accessKeyId: 'accessKeyId', secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
+                        },
+                        getCredentials: sinon.stub()
+                            .onFirstCall().resolves({accessKeyId: 'accessKeyIdX', secretAccessKey: 'secretAccessKeyX', sessionToken: 'sessionTokenX'})
+                            .onSecondCall().resolves({accessKeyId: 'accessKeyIdY', secretAccessKey: 'secretAccessKeyY', sessionToken: 'sessionTokenY'})
+                    }
+                },
+                createConfigServiceClient() {
+                    return {
+                        async getConfigAggregator() {
+                            return {
+                                OrganizationAggregationSource: {
+                                    AllAwsRegions: true
+                                }
+                            };
+                        }
+                    }
+                },
+                createEc2Client() {
+                    return {
+                        async getAllRegions() {
+                            return [{name: EU_WEST_1}, {name: US_EAST_1}]
+                        }
+                    };
+                },
+                createOrganizationsClient() {
+                    return {
+                        async getAllAccounts() {
+                            return [
+                                {Id: ACCOUNT_X, Name: 'Account X', Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
+                                {Id: ACCOUNT_Y, Name: 'Account Y', Arn: `arn:aws:organizations:::${ACCOUNT_Y}:account/o-exampleorgid/:${ACCOUNT_Y}`}
+                            ]
+                        },
+                        async getRootAccount() {
+                            return {
+                                Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
+                            }
+                        }
+                    }
+                }
+            };
+
+            const mockAppSync = () => {
+                return {
+                    createPaginator: async () => {}
+                }
+            };
+
+            const {accountsMap} = await initialise({...defaultMockAwsClient, ...mockAwsClient}, mockAppSync, {
+                ...defaultConfig, crossAccountDiscovery: 'AWS_ORGANIZATIONS'});
+            assert.deepEqual(accountsMap.get(ACCOUNT_X), {
+                accountId: ACCOUNT_X,
+                credentials: {
+                    accessKeyId: 'accessKeyIdX',
+                    secretAccessKey: 'secretAccessKeyX',
+                    sessionToken: 'sessionTokenX',
+                },
+                name: 'Account X',
+                organizationId: 'o-exampleorgid',
+                regions: [
+                    EU_WEST_1,
+                    US_EAST_1
+                ]
+            });
+            assert.deepEqual(accountsMap.get(ACCOUNT_Y), {
+                accountId: ACCOUNT_Y,
+                credentials: {
+                    accessKeyId: 'accessKeyIdY',
+                    secretAccessKey: 'secretAccessKeyY',
+                    sessionToken: 'sessionTokenY',
+                },
+                name: 'Account Y',
+                organizationId: 'o-exampleorgid',
+                regions: [
+                    EU_WEST_1,
+                    US_EAST_1
+                ]
+            });
+
         });
 
     });

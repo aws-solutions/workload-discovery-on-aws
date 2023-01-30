@@ -18,6 +18,19 @@ const ec2Client = new EC2({customUserAgent});
 const dbClient = AWSXRay.captureAWSv3Client(new DynamoDB({customUserAgent}));
 const docClient = DynamoDBDocument.from(dbClient);
 
+const ORG_AGGREGATOR_ERROR = 'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
+const DUPLICATE_ACCOUNTS_ERROR =
+    'Your configuration aggregator contains duplicate accounts. Delete the duplicate accounts and try again.';
+
+function handleAwsConfigErrors(err) {
+    // when using AWS Organizations, we do not want to update the the aggregator
+    if ([DUPLICATE_ACCOUNTS_ERROR, ORG_AGGREGATOR_ERROR].includes(err.message)) {
+        console.log(err);
+    } else {
+        throw err;
+    }
+}
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const all = (ps) => Promise.all(ps);
 
@@ -66,9 +79,6 @@ function getAccountsFromDb(docClient, TableName) {
         .then(R.prop('Items'))
 }
 
-const DUPLICATE_ACCOUNTS_ERROR =
-    'Your configuration aggregator contains duplicate accounts. Delete the duplicate accounts and try again.';
-
 function deleteAccounts(
     docClient,
     configService,
@@ -101,13 +111,7 @@ function deleteAccounts(
                     ],
                 })
         })
-        .catch((err) => {
-            if (err.message === DUPLICATE_ACCOUNTS_ERROR) {
-                console.log(err);
-            } else {
-                throw err;
-            }
-        })
+        .catch(handleAwsConfigErrors)
         .then(() => accountIds.map(id => ({PK: 'Account', SK: id})))
         .then(R.map(createDeleteRequest))
         .then(R.splitEvery(25))
@@ -243,6 +247,7 @@ function addAccounts(
                     }]
                 });
         })
+        .catch(handleAwsConfigErrors)
         .then(() => depudedAccounts)
         .then(R.map(account => ({
             PK: 'Account',
