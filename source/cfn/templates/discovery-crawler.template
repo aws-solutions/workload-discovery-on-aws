@@ -71,6 +71,9 @@ Parameters:
       - DEBUG
       - NOTSET
 
+  CrossAccountDiscovery:
+    Type: String
+
   AppSyncApiUrl:
     Type: String
 
@@ -89,7 +92,6 @@ Parameters:
 
   CustomUserAgent:
     Type: String
-    Default: 'AwsSolution/SO0075/1.1.0'
 
 Resources:
   PerspectiveContainerRepo:
@@ -222,7 +224,7 @@ Resources:
           - id: W28
             reason: 'Role is with ECS task. It defines the roles that are to be assumed and also read-only actions required for Task Definition'
           - id: W11
-            reason: 'We have locked down resources as far as we can. It is read only access. The actions we define require wildcard resources'
+            reason: 'The config:*, organizations:List* and ec2:DescribeRegions APIs used in this role do not allow resource level permissions.'
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -254,12 +256,30 @@ Resources:
                 Action:
                   - sts:AssumeRole
                 Resource: !Sub arn:aws:iam::*:role/WorkloadDiscoveryRole-${AWS::AccountId}
-        - PolicyName: list-aggregate-discovery-resources
+        - PolicyName: list-account-policy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
+                  - organizations:ListAccounts
+                  - organizations:ListRoots
+                Resource: '*'
+        - PolicyName: ec2-policies
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeRegions
+                Resource: '*'
+        - PolicyName: config-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - config:DescribeConfigurationAggregators
                   - config:BatchGetAggregateResourceConfig
                   - config:ListAggregateDiscoveredResources
                   - config:SelectAggregateResourceConfig
@@ -306,6 +326,8 @@ Resources:
               Value: !Ref AWS::Region
             - Name: CLUSTER
               Value: !Ref Cluster
+            - Name: CROSS_ACCOUNT_DISCOVERY
+              Value: !Ref CrossAccountDiscovery
             - Name: GRAPHQL_API_URL
               Value: !Ref AppSyncApiUrl
             - Name: CONFIG_AGGREGATOR

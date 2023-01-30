@@ -74,6 +74,7 @@ module.exports = {
     AWS_SNS_TOPIC: 'AWS::SNS::Topic',
     AWS_SQS_QUEUE: 'AWS::SQS::Queue',
     AWS_TAGS_TAG: 'AWS::Tags::Tag',
+    AWS_ORGANIZATIONS: 'AWS_ORGANIZATIONS',
     DISCOVERY_ROLE_NAME: 'WorkloadDiscoveryRole',
     ECS: 'ecs',
     ELASTIC_LOAD_BALANCING: 'elasticloadbalancing',

@@ -3,8 +3,9 @@
 
 const R = require('ramda');
 const logger = require("../logger");
+const {AWS_ORGANIZATIONS} = require("../constants");
 
-async function writeResourcesAndRelationships(apiClient, deltas) {
+async function persistResourcesAndRelationships(apiClient, deltas) {
     const {
         resourceIdsToDelete, resourcesToStore, resourcesToUpdate,
         linksToAdd, linksToDelete
@@ -29,6 +30,15 @@ async function writeResourcesAndRelationships(apiClient, deltas) {
     logger.profile('Total time to upload');
 }
 
+async function persistAccountData(config, apiClient, accountsMap) {
+    if(config.crossAccountDiscovery === AWS_ORGANIZATIONS) {
+        return apiClient.addCrawledAccounts(Array.from(accountsMap.values()));
+    } else {
+        return apiClient.updateAccountsCrawledTime(Array.from(accountsMap.keys()));
+    }
+}
+
 module.exports = {
-    writeResourcesAndRelationships: R.curry(writeResourcesAndRelationships)
+    persistResourcesAndRelationships: R.curry(persistResourcesAndRelationships),
+    persistAccountData
 }

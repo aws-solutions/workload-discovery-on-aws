@@ -9,9 +9,9 @@ const {getAllSdkResources} = require('./sdkResources');
 const {addAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
 const {createSaveObject} = require('./persistence/transformers');
-const {writeResourcesAndRelationships} = require('./persistence');
+const {persistResourcesAndRelationships, persistAccountData} = require('./persistence');
 
-function getAllResources(configServiceClient, awsClient, accountsMap, configAggregator) {
+async function getAllResources(configServiceClient, awsClient, accountsMap, configAggregator) {
     return getAllConfigResources(configServiceClient, accountsMap, configAggregator)
         .then(getAllSdkResources(accountsMap, awsClient))
         .then(addAdditionalRelationships(accountsMap, awsClient))
@@ -30,8 +30,8 @@ async function discoverResources(appSync, awsClient, config) {
     return Promise.resolve(resources)
         .then(R.map(createSaveObject))
         .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
-        .then(writeResourcesAndRelationships(apiClient))
-        .then(() => apiClient.updateAccountsCrawledTime(Array.from(accountsMap.keys())));
+        .then(persistResourcesAndRelationships(apiClient))
+        .then(() => persistAccountData(config, apiClient, accountsMap));
 }
 
 module.exports = {

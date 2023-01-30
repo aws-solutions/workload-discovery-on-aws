@@ -5,6 +5,7 @@ Description: Workload Discovery on AWS Main Template (SO0075a) - Solution - Main
 Transform: "AWS::Serverless-2016-10-31"
 
 Parameters:
+
   AdminUserEmailAddress:
     Type: String
     AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
@@ -18,6 +19,36 @@ Parameters:
       - 'No'
       - 'Yes'
     ConstraintDescription: 'Please specify if this Region has AWS Config set-up (Yes / No)'
+  CrossAccountDiscovery:
+    Type: String
+    Default: SELF_MANAGED
+    Description: | 
+      Manage account discovery automatically using AWS Organizations or manually by importing accounts through the 
+      Workload Discovery UI.
+    AllowedValues:
+      - SELF_MANAGED
+      - AWS_ORGANIZATIONS
+  OrganizationUnitId:
+    Type: String
+    Description: | 
+      The organization unit you wish Workload Discovery discover, this will typically be the root organization unit ID.
+      Parameter only used when CrossAccountDiscovery is set to AWS_ORGANIZATIONS.
+  AccountType:
+    Type: String
+    Default: DELEGATED_ADMIN
+    Description: | 
+      The type of AWS Organizations account to install Workload Discovery in. Parameter only used when CrossAccountDiscovery 
+      is set to AWS_ORGANIZATIONS.
+    AllowedValues:
+      - MANAGEMENT
+      - DELEGATED_ADMIN
+  ConfigAggregatorName:
+    Type: String
+    Default: ''
+    Description: |
+      The AWS Organization wide Config aggregator to use. You must install the solution in the same account and 
+      region as this aggregator. If left blank, a new aggregator will be created. Parameter only used when CrossAccountDiscovery 
+      is set to AWS_ORGANIZATIONS.
   OptOutOfSendingAnonymousUsageMetrics:
     Type: String
     Default: 'No'
@@ -159,6 +190,7 @@ Mappings:
 
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
+  IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
 
 Resources:
   EchoFunction:
@@ -198,7 +230,6 @@ Resources:
         - ${DeploymentBucketNamePrefix}-${Region}
         - DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
-
 
   LayerStack:
     Type: AWS::CloudFormation::Stack
@@ -264,8 +295,20 @@ Resources:
           - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         ExistingConfigInstallation: !Ref AlreadyHaveConfigSetup
         ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
+        ConfigAggregatorName: !Ref ConfigAggregatorName
+
+  OrganizationsGlobalResourcesStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: IsUsingOrganizations
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/org-global-resources.template
+      Parameters:
+        OrganizationUnitId: !Ref OrganizationUnitId
+        AccountType: !Ref AccountType
+        DeploymentBucket: !GetAtt Variables.DeploymentBucket
 
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -312,6 +355,7 @@ Resources:
         VpcId: !GetAtt VpcStack.Outputs.VPCId
         VpcEndpointsSg: !GetAtt VpcStack.Outputs.VpcEndpointsSg
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
         AppSyncApiUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
@@ -320,6 +364,7 @@ Resources:
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
@@ -504,6 +549,7 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         AmplifyBucketName: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         AppSyncEndpoint: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
         CognitoIdentityPoolId: !GetAtt CognitoStack.Outputs.IdentityPoolId

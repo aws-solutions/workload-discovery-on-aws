@@ -11,6 +11,8 @@ type Account @aws_cognito_user_pools @aws_iam {
   # The AWS account number
   accountId: String!
   name: String
+  # The AWS organization the account belongs to
+  organizationId: String
   # The regions AWS Perspective is enabled on
   regions: [Region]!
   lastCrawled: AWSDateTime
@@ -34,11 +36,14 @@ input RegionInput {
 input AccountInput {
   # The AWS account number
   accountId: String!
-  # A friendly name the user can provide for an account.
+  # A friendly name the user can provide for an account
   name: String
+  # The AWS organization the account belongs to
+  organizationId: String
   # The regions AWS Perspective is enabled on. For queries, if region is absent
   # then all regions will be returned
   regions: [RegionInput]
+  lastCrawled: AWSDateTime
 }
 
 input ResourcePropertiesInput {
@@ -159,7 +164,7 @@ input drawIoEdgeInput {
 
 type Mutation {
   # Adds accounts to be scanned
-  addAccounts(accounts: [AccountInput]!): UnprocessedAccounts
+  addAccounts(accounts: [AccountInput]!): UnprocessedAccounts @aws_cognito_user_pools @aws_iam
   # Deletes the relationship specified by id in the relationshipIds variable
   deleteRelationships(relationshipIds: [String]!): [String] @aws_iam
   # Deletes the resources specified by id in the resources variable

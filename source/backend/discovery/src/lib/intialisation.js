@@ -1,11 +1,19 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-const {createArn} = require('./utils');
-const {ECS, AWS, PERSPECTIVE, WORKLOAD_DISCOVERY_TASKGROUP, TASK_DEFINITION, DISCOVERY_ROLE_NAME, ACCESS_DENIED} = require('./constants')
-const logger = require('./logger');
 const R = require("ramda");
+const logger = require('./logger');
 const {createApiClient} = require("./apiClient");
+const {parse: parseArn} = require("@aws-sdk/util-arn-parser");
+const {
+    AWS_ORGANIZATIONS,
+    ECS,
+    WORKLOAD_DISCOVERY_TASKGROUP,
+    TASK_DEFINITION,
+    DISCOVERY_ROLE_NAME,
+    ACCESS_DENIED
+} = require('./constants')
+const {createArn} = require('./utils');
 
 async function isDiscoveryEcsTaskRunning (ecsClient, taskDefinitionArn, {cluster}) {
     const tasks = await ecsClient.getAllClusterTasks(cluster)
@@ -21,23 +29,57 @@ async function isDiscoveryEcsTaskRunning (ecsClient, taskDefinitionArn, {cluster
     return tasks.length > 1;
 }
 
-async function createAccountsMap(awsClient, rootAccountId, accounts) {
-    const {getCredentials} = awsClient.createStsClient();
+async function getAccounts(
+    {ec2Client, organizationsClient, configClient}, appSyncClient, {credentials, region}, {configAggregator, isUsingOrganizations}
+) {
+    if(!isUsingOrganizations) {
+        return appSyncClient.getAccounts();
+    }
 
+    const [{Arn: managementAccountArn}, orgAccounts, {OrganizationAggregationSource}, regions] = await Promise.all([
+        organizationsClient.getRootAccount(),
+        organizationsClient.getAllAccounts(),
+        configClient.getConfigAggregator(configAggregator),
+        ec2Client.getAllRegions()
+    ]);
+
+    const managementAccountId = parseArn(managementAccountArn).accountId;
+
+    return orgAccounts.map(({Id, Name: name, Arn}) => {
+        const [, organizationId] = parseArn(Arn).resource.split('/');
+        return {
+            accountId: Id,
+            organizationId,
+            isManagementAccount: managementAccountId === Id,
+            name,
+            regions: OrganizationAggregationSource.AllAwsRegions
+                ? regions : OrganizationAggregationSource.AwsRegions
+        }
+    });
+}
+
+async function createAccountsMap({stsClient}, {rootAccountId, accounts}) {
     return Promise.resolve(accounts)
-        .then(R.map(async ({accountId, regions}) => {
+        .then(R.map(async ({accountId, name, organizationId, isManagementAccount, regions}) => {
             const role = `arn:aws:iam::${accountId}:role/${DISCOVERY_ROLE_NAME}-${rootAccountId}`;
-            return getCredentials(role)
+            return stsClient.getCredentials(role)
                 .then(credentials => {
                     return {
                         accountId,
+                        name,
+                        ...({organizationId} ?? {}),
                         regions: regions.map(x => x.name),
                         credentials
                     }
                 })
                 .catch(err => {
                     if (err.Code === ACCESS_DENIED) {
-                        logger.error(`Access denied assuming role: ${role}. Ensure it has been deployed to account: ${accountId}.`);
+                        const errorMessage = `Access denied assuming role: ${role}.`;
+                        if(isManagementAccount) {
+                            logger.error(`${errorMessage} This is the management account, discovering this account is currently not supported.`);
+                        } else {
+                            logger.error(`${errorMessage} Ensure it has been deployed to account: ${accountId}. The discovery for this account will be skipped.`);
+                        }
                         return {};
                     }
                     throw err;
@@ -52,13 +94,19 @@ module.exports = {
     async initialise(awsClient, appSync, config) {
         logger.info('Initialising discovery process');
         logger.profile('Time to initialise');
-        const {region, rootAccountId} = config;
+        const {region, rootAccountId, crossAccountDiscovery, configAggregator} = config;
+        const isUsingOrganizations = crossAccountDiscovery === AWS_ORGANIZATIONS;
+
         const stsClient = awsClient.createStsClient();
 
         const credentials = await stsClient.getCurrentCredentials();
 
         const ecsClient = awsClient.createEcsClient(credentials, region);
         const taskDefinitionArn = createArn({service: ECS, region, accountId: rootAccountId, resource: `${TASK_DEFINITION}/${WORKLOAD_DISCOVERY_TASKGROUP}`});
+
+        const ec2Client = awsClient.createEc2Client(credentials, region);
+        const organizationsClient = awsClient.createOrganizationsClient(credentials, region);
+        const configClient = awsClient.createConfigServiceClient(credentials, region);
 
         if (await isDiscoveryEcsTaskRunning(ecsClient, taskDefinitionArn, config)) {
             throw new Error('Discovery process ECS task is already running in cluster.');
@@ -69,12 +117,13 @@ module.exports = {
         const appSyncClient = appSync({...config, creds: credentials});
         const apiClient = createApiClient(appSyncClient);
 
-        const {getAccounts} = appSyncClient;
-        const accounts = await getAccounts();
+        const accounts = await getAccounts({
+            ec2Client, organizationsClient, configClient}, appSyncClient, credentials, {isUsingOrganizations, configAggregator}
+        );
 
-        if(R.isEmpty(accounts)) throw new Error('No accounts to scan');
+        const accountsMap = await createAccountsMap({stsClient}, {rootAccountId, accounts});
 
-        const accountsMap = await createAccountsMap(awsClient, rootAccountId, accounts);
+        if(accountsMap.size === 0) throw new Error('No accounts to scan');
 
         logger.profile('Time to initialise');
         return {

@@ -148,6 +148,7 @@ async function createOpenSearchDomains(awsClient, credentials, accountId, region
     });
 }
 
+// TODO: Handle errors in same way as in addBatchedRelationships
 async function createRegionalResources(credentialsTuples, awsClient, createFunction) {
     return Promise.all(credentialsTuples
         .flatMap(([accountId, {regions, credentials}]) =>
@@ -162,6 +163,7 @@ async function createRegionalResources(credentialsTuples, awsClient, createFunct
     );
 }
 
+// TODO: Handle errors in same way as in addBatchedRelationships
 async function createGlobalResources(credentialsTuples, awsClient, createFunction) {
     return Promise.all(credentialsTuples
         .flatMap(([accountId, {credentials}]) => {

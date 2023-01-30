@@ -64,6 +64,12 @@ cd "$build_dist_dir"
 sedi "s|<BUCKET_NAME>|${1}|g; s|<SOLUTION_NAME>|${2}|g; s|<VERSION>|${3}|g; s|<IMAGE_VERSION>|${4}|g" main.template
 
 echo "------------------------------------------------------------------------------"
+echo "[Packing] Global resources for Organizations Template"
+echo "------------------------------------------------------------------------------"
+
+cp "${source_dir}/backend/functions/account-import-templates-api/src/global-resources.template" "$build_dist_dir"
+
+echo "------------------------------------------------------------------------------"
 echo "[Packing] Main Distribution Template"
 echo "------------------------------------------------------------------------------"
 
@@ -120,7 +126,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Account Import Template API"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/account-import-templates-api"
-
 auditDeps
 npm run build
 cp ./dist/account-import-templates-api.zip "${build_dist_dir}/account-import-templates-api.zip"

@@ -6,6 +6,9 @@ Transform: AWS::Serverless-2016-10-31
 
 Parameters:
 
+  CrossAccountDiscovery:
+    Type: String
+
   AmplifyBucketName:
     Type: String
 
@@ -126,7 +129,7 @@ Resources:
           "AWSPinpoint": {"appId": "81a5891dfce54202ad80c5a3308dd61c", "region": "eu-west-1"}
         }
         };
-        window.perspectiveMetadata = {"rootAccount": "${AWS::AccountId}", "rootRegion": "${AWS::Region}", "version": "${SolutionVersion}"};
+        window.perspectiveMetadata = {"crossAccountDiscovery": "${CrossAccountDiscovery}", "rootAccount": "${AWS::AccountId}", "rootRegion": "${AWS::Region}", "version": "${SolutionVersion}"};
         window.collectAnonymousMetrics = {"optOut": "${CollectAnonymousMetrics}" === "Yes"};
       ContentType: text/javascript
       ObjectKey: !Ref SettingsObjectKey

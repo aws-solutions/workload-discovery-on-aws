@@ -94,7 +94,6 @@ const getAccounts = opts => async () => {
           accountId
           regions {
             name
-            lastCrawled
           }
         }
       }`;
@@ -266,6 +265,19 @@ const updateIndexedResources = opts => async resources => {
     return sendQuery(opts, name, {query, variables});
 };
 
+const addAccounts = opts => async accounts => {
+    const name = 'addAccounts';
+    const query = `
+      mutation ${name}($accounts: [AccountInput]!) {
+        addAccounts(accounts: $accounts) {
+          unprocessedAccounts
+        }
+      }
+`
+    const variables = {accounts};
+    return sendQuery(opts, name, {query, variables});
+}
+
 const updateAccount = opts => async (accountId, lastCrawled) => {
     const name = 'updateAccount';
     const query = `
@@ -294,6 +306,7 @@ module.exports = function(config) {
         deleteRelationships: deleteRelationships(opts),
         deleteResources: deleteResources(opts),
         indexResources: indexResources(opts),
+        addAccounts: addAccounts(opts),
         getAccounts: getAccounts(opts),
         updateAccount: updateAccount(opts),
         updateResources: updateResources(opts),

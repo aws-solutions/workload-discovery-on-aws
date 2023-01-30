@@ -28,6 +28,7 @@
     "@aws-sdk/client-iam": "3.188.0",
     "@aws-sdk/client-lambda": "3.188.0",
     "@aws-sdk/client-opensearch": "3.188.0",
+    "@aws-sdk/client-organizations": "3.258.0",
     "@aws-sdk/client-sns": "3.188.0",
     "@aws-sdk/client-sts": "3.188.0",
     "@aws-sdk/credential-providers": "3.188.0",

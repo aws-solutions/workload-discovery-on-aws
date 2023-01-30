@@ -3,6 +3,11 @@
 
 const pThrottle = require('p-throttle');
 const {customUserAgent} = require('./config');
+const {
+    Organizations,
+    OrganizationsClient,
+    paginateListAccounts
+} = require("@aws-sdk/client-organizations");
 const {APIGateway, APIGatewayClient, paginateGetResources} = require("@aws-sdk/client-api-gateway");
 const {
     CognitoIdentityProviderClient,
@@ -18,6 +23,7 @@ const {
 } = require("@aws-sdk/client-ecs");
 const {EKSClient, EKS, paginateListNodegroups} = require("@aws-sdk/client-eks");
 const {
+    EC2,
     EC2Client,
     paginateDescribeSpotInstanceRequests,
     paginateDescribeSpotFleetRequests,
@@ -56,6 +62,33 @@ const apiGatewayThrottlers = {
 // throttlers outside the ELB and ELBv2 factory functions
 const elbThrottlers = {
     describeThrottlers: new Map()
+}
+
+function createOrganizationsClient(credentials, region) {
+    const organizationsClient = new Organizations({customUserAgent, region, credentials});
+
+    const paginatorConfig = {
+        pageSize: 20,
+        client: new OrganizationsClient({customUserAgent, region, credentials})
+    };
+
+    return {
+        async getRootAccount() {
+            const {Roots} = await organizationsClient.listRoots({});
+            return Roots[0];
+        },
+        async getAllAccounts() {
+            const listAccountsPaginator = paginateListAccounts(paginatorConfig, {});
+
+            const accounts = []
+
+            for await (const {Accounts} of listAccountsPaginator) {
+                accounts.push(...Accounts);
+            }
+
+            return accounts;
+        }
+    };
 }
 
 function createOpenSearchClient(credentials, region) {
@@ -146,6 +179,12 @@ function createConfigServiceClient(credentials, region) {
     })
 
     return {
+        async getConfigAggregator(aggregatorName) {
+            const {ConfigurationAggregators} = await configClient.describeConfigurationAggregators({
+                ConfigurationAggregatorNames: [aggregatorName]
+            });
+            return ConfigurationAggregators[0];
+        },
         async getAllAggregatorResources(aggregatorName, {excludes: {resourceTypes: excludedResourceTypes = []}}) {
             const excludedResourceTypesSqlList = excludedResourceTypes.map(rt => `'${rt}'`).join(',');
             const excludesResourceTypesWhere = R.isEmpty(excludedResourceTypes) ?
@@ -222,12 +261,18 @@ function createLambdaClient(credentials, region) {
 }
 
 function createEc2Client(credentials, region) {
+    const ec2Client = new EC2({customUserAgent, credentials, region});
+
     const ec2PaginatorConfig = {
         client: new EC2Client({customUserAgent, region, credentials}),
         pageSize: 100
     };
 
     return {
+        async getAllRegions() {
+            const { Regions } = await ec2Client.describeRegions({});
+            return Regions.map(x => ({name: x.RegionName}));
+        },
         async getAllSpotInstanceRequests() {
             const siPaginator = paginateDescribeSpotInstanceRequests(ec2PaginatorConfig, {});
 
@@ -529,6 +574,7 @@ function createCognitoClient(credentials, region) {
 }
 
 module.exports = {
+    createOrganizationsClient,
     createApiGatewayClient,
     createConfigServiceClient,
     createEc2Client,
