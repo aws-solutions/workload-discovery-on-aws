@@ -181,12 +181,14 @@ Parameters:
 Mappings:
   Solution:
     Constants:
+      SolutionId: SO0075
       AppName: workload-discovery
+      SolutionName: Workload Discovery On AWS
+      ApplicationType: AWS-Solutions
       DeploymentBucketNamePrefix: <BUCKET_NAME>
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
-      CustomUserAgent: AwsSolution/SO0075/<VERSION>
 
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
@@ -198,8 +200,8 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W89
-            reason: 'Not applicable'
-    Type: "AWS::Serverless::Function"
+            reason: Not applicable
+    Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
       Runtime: python3.9
@@ -218,11 +220,11 @@ Resources:
            )
 
   Variables:
-    Type: "Custom::Variables"
+    Type: Custom::Variables
     Properties:
       ServiceToken: !GetAtt EchoFunction.Arn
       DeploymentBucket: !Sub
-        - "https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}"
+        - https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}
         - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
           DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
@@ -230,6 +232,10 @@ Resources:
         - ${DeploymentBucketNamePrefix}-${Region}
         - DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
+      CustomUserAgent: !Sub
+        - AwsSolution/${SolutionId}/${Version}
+        - SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
+          Version: !FindInMap [ Solution, Constants, SolutionVersion ]
 
   LayerStack:
     Type: AWS::CloudFormation::Stack
@@ -364,7 +370,7 @@ Resources:
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
@@ -408,7 +414,7 @@ Resources:
           - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
         NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
         NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
@@ -430,7 +436,7 @@ Resources:
           - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         OpenSearchDomainEndpoint: !GetAtt OpenSearchStack.Outputs.DomainEndpoint
         OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
         OpenSearchLambdaRoleArn: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
@@ -491,7 +497,7 @@ Resources:
           - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -507,7 +513,7 @@ Resources:
           - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
@@ -558,6 +564,42 @@ Resources:
         CollectAnonymousMetrics: !Ref OptOutOfSendingAnonymousUsageMetrics
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+
+  AppRegistryStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${DeploymentBucket}/app-registry.template
+        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !FindInMap [Solution, Constants, AppName]
+        ApplicationType: !FindInMap [Solution, Constants, ApplicationType]
+        SolutionId: !FindInMap [Solution, Constants, SolutionId]
+        SolutionName: !FindInMap [Solution, Constants, SolutionName]
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        MainStack: !Ref AWS::StackId
+        LayerStack: !Ref LayerStack
+        S3BucketsStack: !Ref S3Buckets
+        VpcStack: !Ref VpcStack
+        NeptuneStack: !Ref NeptuneStack
+        ConfigAggregatorStack: !Ref ConfigAggregator
+        OpenSearchRoleStack: !Ref OpenSearchRoleStack
+        OpenSearchStack: !Ref OpenSearchStack
+        TaskStack: !Ref TaskStack
+        CodebuildStack: !Ref CodebuildStack
+        GremlinResolversStack: !Ref GremlinResolversStack
+        SearchResolversStack: !Ref SearchResolversStack
+        DrawIoExportResolversStack: !Ref DrawIoExportResolversStack
+        AccountImportTemplatesResolversStack: !Ref AccountImportTemplatesResolversStack
+        AppSyncApiStack: !Ref AppSyncApiStack
+        CostResolversStack: !Ref CostResolversStack
+        SettingsResolversStack: !Ref SettingsResolversStack
+        AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
+        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, '']
+        WebUiStack: !Ref WebUiStack
+        WebUiSettingsStack: !Ref WebUiSettingsStack
 
 Outputs:
 
