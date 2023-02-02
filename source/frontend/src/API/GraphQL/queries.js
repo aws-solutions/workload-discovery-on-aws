@@ -244,6 +244,8 @@ export const getAccount = /* GraphQL */ `
     getAccount(accountId: $accountId) {
       accountId
       name
+      isIamRoleDeployed
+      isManagementAccount
       regions {
         name
         lastCrawled
@@ -257,6 +259,8 @@ export const getAccounts = /* GraphQL */ `
     getAccounts {
       accountId
       name
+      isIamRoleDeployed
+      isManagementAccount
       regions {
         name
         lastCrawled
