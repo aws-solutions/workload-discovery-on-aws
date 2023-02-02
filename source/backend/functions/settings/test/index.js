@@ -281,6 +281,10 @@ describe('index.js', () => {
                             {
                                 accountId: '111111111111',
                                 name: 'test',
+                                isManagementAccount: true,
+                                isIamRoleDeployed: true,
+                                organizationId: 'test-org',
+                                lastCrawled: new Date('2011-06-21').toISOString(),
                                 regions: [
                                     {
                                         name: 'eu-west-1'
@@ -293,6 +297,10 @@ describe('index.js', () => {
                             {
                                 accountId: '222222222222',
                                 name: 'test',
+                                isManagementAccount: false,
+                                isIamRoleDeployed: true,
+                                organizationId: 'test-org',
+                                lastCrawled: new Date('2014-04-09').toISOString(),
                                 regions: [
                                     {
                                         name: 'us-east-1'
@@ -327,6 +335,10 @@ describe('index.js', () => {
                         name: 'test',
                         accountId: '111111111111',
                         PK: 'Account',
+                        isManagementAccount: true,
+                        isIamRoleDeployed: true,
+                        organizationId: 'test-org',
+                        lastCrawled: '2011-06-21T00:00:00.000Z',
                         regions: [
                             {
                                 name: 'eu-west-1'
@@ -342,6 +354,10 @@ describe('index.js', () => {
                         name: 'test',
                         accountId: '222222222222',
                         PK: 'Account',
+                        isManagementAccount: false,
+                        isIamRoleDeployed: true,
+                        organizationId: 'test-org',
+                        lastCrawled: '2014-04-09T00:00:00.000Z',
                         regions: [
                             {
                                 name: 'us-east-1'

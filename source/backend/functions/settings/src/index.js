@@ -64,10 +64,13 @@ const createBatchWriteRequest = (TableName) => (writes) => ({
 const getUnprocessedItems = (TableName) =>
     R.pathOr([], ['UnprocessedItems', TableName]);
 
+const accountProjectionExpression =
+    'accountId, #name, regions, isIamRoleDeployed, organizationId, isManagementAccount, lastCrawled';
+
 function getAccountsFromDb(docClient, TableName) {
     return Promise.resolve({
         KeyConditionExpression: 'PK = :PK',
-        ProjectionExpression: 'accountId, #name, regions',
+        ProjectionExpression: accountProjectionExpression,
         ExpressionAttributeNames:{
             '#name': 'name'
         },
@@ -192,7 +195,7 @@ function updateRegions(docClient, TableName, { accountId, regions }) {
 function getAccount(docClient, TableName, {accountId}) {
     return Promise.resolve({
         KeyConditionExpression: 'PK = :PK AND SK = :SK',
-        ProjectionExpression: 'accountId, #name, regions',
+        ProjectionExpression: accountProjectionExpression,
         ExpressionAttributeNames:{
             '#name': 'name'
         },
