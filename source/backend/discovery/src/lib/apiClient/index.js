@@ -59,14 +59,15 @@ function process(processor) {
 }
 
 
-function updateAccountsCrawledTime(appSync) {
-    return async accountIds => {
+function updateCrawledAccounts(appSync) {
+    return async accounts => {
         const {errors, results} = await PromisePool
             .withConcurrency(10) // the reserved concurrency of the settings lambda is 10
-            .for(accountIds)
-            .process(async accountId => {
-                const res = await appSync.updateAccount(accountId, new Date().toISOString());
-                return res;
+            .for(accounts)
+            .process(async ({accountId, name, isIamRoleDeployed, lastCrawled}) => {
+                return appSync.updateAccount(
+                    accountId, name, isIamRoleDeployed, isIamRoleDeployed ? new Date().toISOString() : lastCrawled
+                );
             });
 
         logger.error(`There were ${errors.length} errors when updating last crawled time for accounts.`);
@@ -78,12 +79,12 @@ function updateAccountsCrawledTime(appSync) {
 
 function addCrawledAccounts(appSync) {
     return async accounts => {
-        const crawledAccounts = accounts.map(({accountId, name, regions}) => {
+        const crawledAccounts = accounts.map(({regions, isIamRoleDeployed, lastCrawled, credentials, ...props}) => {
             return {
-                accountId,
-                name,
+                ...props,
+                isIamRoleDeployed,
                 regions: regions.map(name => ({name})),
-                lastCrawled: new Date().toISOString()
+                lastCrawled: isIamRoleDeployed ? new Date().toISOString() : lastCrawled
             }
         });
 
@@ -115,7 +116,7 @@ module.exports = {
             storeRelationships: process(async relationships => {
                 return appSync.addRelationships(relationships);
             }),
-            updateAccountsCrawledTime: updateAccountsCrawledTime(appSync)
+            updateCrawledAccounts: updateCrawledAccounts(appSync)
         };
     }
 }

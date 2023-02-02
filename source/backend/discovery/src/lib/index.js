@@ -11,7 +11,8 @@ const createResourceAndRelationshipDeltas = require('./createResourceAndRelation
 const {createSaveObject} = require('./persistence/transformers');
 const {persistResourcesAndRelationships, persistAccountData} = require('./persistence');
 
-async function getAllResources(configServiceClient, awsClient, accountsMap, configAggregator) {
+async function getAllResources(configServiceClient, awsClient, accounts, configAggregator) {
+    const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed).map(x => [x.accountId, x]));
     return getAllConfigResources(configServiceClient, accountsMap, configAggregator)
         .then(getAllSdkResources(accountsMap, awsClient))
         .then(addAdditionalRelationships(accountsMap, awsClient))
@@ -19,19 +20,19 @@ async function getAllResources(configServiceClient, awsClient, accountsMap, conf
 
 async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
-    const {accountsMap, apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
+    const {accounts, apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
 
     const [dbLinksMap, dbResourcesMap, resources] = await Promise.all([
         apiClient.getDbRelationshipsMap(),
         apiClient.getDbResourcesMap(),
-        getAllResources(configServiceClient, awsClient, accountsMap, config.configAggregator)
+        getAllResources(configServiceClient, awsClient, accounts, config.configAggregator)
     ]);
 
     return Promise.resolve(resources)
         .then(R.map(createSaveObject))
         .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
         .then(persistResourcesAndRelationships(apiClient))
-        .then(() => persistAccountData(config, apiClient, accountsMap));
+        .then(() => persistAccountData(config, apiClient, accounts));
 }
 
 module.exports = {
