@@ -92,6 +92,7 @@ const getAccounts = opts => async () => {
       query ${name} {
         getAccounts {
           accountId
+          lastCrawled
           regions {
             name
           }
@@ -278,16 +279,16 @@ const addAccounts = opts => async accounts => {
     return sendQuery(opts, name, {query, variables});
 }
 
-const updateAccount = opts => async (accountId, lastCrawled) => {
+const updateAccount = opts => async (accountId, accountName, isIamRoleDeployed, lastCrawled) => {
     const name = 'updateAccount';
     const query = `
-    mutation ${name}($accountId: String!, $lastCrawled: AWSDateTime) {
-      ${name}(accountId: $accountId, lastCrawled: $lastCrawled) {
+    mutation ${name}($accountId: String!, $name: String, $isIamRoleDeployed: Boolean, $lastCrawled: AWSDateTime) {
+      ${name}(accountId: $accountId, name: $name, isIamRoleDeployed: $isIamRoleDeployed, lastCrawled: $lastCrawled) {
         accountId
         lastCrawled
       }
     }`;
-    const variables = {accountId, lastCrawled};
+    const variables = {accountId, name: accountName, lastCrawled, isIamRoleDeployed};
     return sendQuery(opts, name, {query, variables});
 };
 

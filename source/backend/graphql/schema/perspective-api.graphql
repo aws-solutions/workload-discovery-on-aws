@@ -13,6 +13,8 @@ type Account @aws_cognito_user_pools @aws_iam {
   name: String
   # The AWS organization the account belongs to
   organizationId: String
+  isIamRoleDeployed: Boolean
+  isManagementAccount: Boolean
   # The regions AWS Perspective is enabled on
   regions: [Region]!
   lastCrawled: AWSDateTime
@@ -40,6 +42,8 @@ input AccountInput {
   name: String
   # The AWS organization the account belongs to
   organizationId: String
+  isIamRoleDeployed: Boolean
+  isManagementAccount: Boolean
   # The regions AWS Perspective is enabled on. For queries, if region is absent
   # then all regions will be returned
   regions: [RegionInput]
@@ -174,6 +178,7 @@ type Mutation {
     accountId: String!
     lastCrawled: AWSDateTime
     name: String
+    isIamRoleDeployed: Boolean
   ): AccountMetadata @aws_cognito_user_pools @aws_iam
   # Updates one or more regions to be scanned
   updateRegions(accountId: String!, regions: [RegionInput]!): Account

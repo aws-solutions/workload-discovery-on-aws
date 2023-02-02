@@ -86,6 +86,7 @@ module.exports = {
     ENI_SEARCH_DESCRIPTION_PREFIX: 'ES ', // this value is the same for both Opensearch and ES ENIs
     ENI_SEARCH_REQUESTER_ID: 'amazon-elasticsearch', // this value is the same for both Opensearch and ES ENIs
     IAM: 'iam',
+    ROLE: 'role',
     LAMBDA: 'lambda',
     GLOBAL: 'global',
     REGION: 'region',

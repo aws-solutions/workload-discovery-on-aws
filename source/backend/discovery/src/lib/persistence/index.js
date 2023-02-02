@@ -3,7 +3,7 @@
 
 const R = require('ramda');
 const logger = require("../logger");
-const {AWS_ORGANIZATIONS} = require("../constants");
+const {isUsingOrganizations} = require("../config");
 
 async function persistResourcesAndRelationships(apiClient, deltas) {
     const {
@@ -30,11 +30,15 @@ async function persistResourcesAndRelationships(apiClient, deltas) {
     logger.profile('Total time to upload');
 }
 
-async function persistAccountData(config, apiClient, accountsMap) {
-    if(config.crossAccountDiscovery === AWS_ORGANIZATIONS) {
-        return apiClient.addCrawledAccounts(Array.from(accountsMap.values()));
+async function persistAccountData(config, apiClient, accounts) {
+    if(isUsingOrganizations) {
+        const [accountsToStore, accountsToUpdate] = R.partition(account => account.lastCrawled == null, accounts);
+        return Promise.all([
+            apiClient.addCrawledAccounts(accountsToStore),
+            apiClient.updateCrawledAccounts(accountsToUpdate)
+        ]);
     } else {
-        return apiClient.updateAccountsCrawledTime(Array.from(accountsMap.keys()));
+        return apiClient.updateCrawledAccounts(accounts);
     }
 }
 
