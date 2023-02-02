@@ -24,6 +24,7 @@ import * as R  from 'ramda';
 import {useDeepCompareEffect} from "react-use";
 import {isUsingOrganizations} from "../../../Utils/AccountUtils";
 import fileDownload from "js-file-download";
+import {GLOBAL_RESOURCES_TEMPLATE_FILENAME} from "../../../config/constants";
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
@@ -107,7 +108,7 @@ function DownloadButton({globalTemplate}) {
         <Button iconName='download' onClick={async () =>
             fileDownload(
                 globalTemplate,
-                'global-resources.template'
+                GLOBAL_RESOURCES_TEMPLATE_FILENAME
             )
         }>Download global resources template</Button>
     );

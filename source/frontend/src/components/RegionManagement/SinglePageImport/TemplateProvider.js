@@ -10,6 +10,7 @@ import {
 import {GLOBAL_TEMPLATE, REGIONAL_TEMPLATE, useTemplate} from "../../Hooks/useTemplate";
 
 import fileDownload from 'js-file-download';
+import {GLOBAL_RESOURCES_TEMPLATE_FILENAME} from "../../../config/constants";
 
 const TemplateProvider = () => {
   const {data: globalTemplate, isLoading: isLoadingGlobal} = useTemplate(GLOBAL_TEMPLATE);
@@ -34,7 +35,7 @@ const TemplateProvider = () => {
               onClick={async () =>
                 fileDownload(
                   globalTemplate,
-                  'global-resources.template'
+                    GLOBAL_RESOURCES_TEMPLATE_FILENAME
                 )
               }>
               Global Resources
