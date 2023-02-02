@@ -102,9 +102,9 @@ function matchesRoleStatus(item, selectedRoleStatus) {
     }
 }
 
-function downloadButton({globalTemplate}) {
+function DownloadButton({globalTemplate}) {
     return (
-        <Button onClick={async () =>
+        <Button iconName='download' onClick={async () =>
             fileDownload(
                 globalTemplate,
                 'global-resources.template'
@@ -118,7 +118,7 @@ function SelfManagedAccountsAlert({globalTemplate}) {
         <Alert
             type="warning"
             statusIconAriaLabel="Warning"
-            action={downloadButton({globalTemplate})}
+            action={DownloadButton({globalTemplate})}
             header="Undiscovered Accounts"
         >
             The global resources CloudFormation templates have not been deployed to one or more accounts. You must
@@ -154,7 +154,7 @@ function OrganizationsManagedAccounts({globalTemplate, accounts}) {
                 : <Alert
                     type="warning"
                     statusIconAriaLabel="Warning"
-                    action={downloadButton({globalTemplate})}
+                    action={DownloadButton({globalTemplate})}
                     header="Management Account Undiscovered"
                 >
                     The global resources CloudFormation template has not been deployed to the AWS Organizations management
