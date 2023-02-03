@@ -187,12 +187,6 @@ Parameters:
     Description: VPC CIDR
     Type: String
 
-  AvailabilityZone0:
-    Type: String
-
-  AvailabilityZone1:
-    Type: String
-
   PrivateSubnet0:
     Description: Private Subnet
     Type: String
@@ -282,7 +276,6 @@ Resources:
   NeptuneDBInstance:
     Type: AWS::Neptune::DBInstance
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone0
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:
@@ -322,7 +315,6 @@ Resources:
     Type: AWS::Neptune::DBInstance
     Condition: CreateInstanceReplica
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone1
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:
