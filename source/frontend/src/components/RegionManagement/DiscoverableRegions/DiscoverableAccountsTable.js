@@ -197,7 +197,7 @@ const DiscoverableAccountsTable = ({ selectedAccounts, onSelect }) => {
     data
   )
 
-  const noIamDeployedAccounts = accounts.filter(x => !x.isIamRoleDeployed);
+  const noIamDeployedAccounts = accounts.filter(x => x.isIamRoleDeployed === false);
 
   const onSelectionChange = (items) => {
     onSelect(items);
