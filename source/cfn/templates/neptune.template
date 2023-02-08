@@ -187,6 +187,14 @@ Parameters:
     Description: VPC CIDR
     Type: String
 
+  AvailabilityZone0:
+    Type: String
+    Default: ''
+
+  AvailabilityZone1:
+    Type: String
+    Default: ''
+
   PrivateSubnet0:
     Description: Private Subnet
     Type: String
@@ -205,6 +213,8 @@ Parameters:
     Default: 'No'
 
 Conditions:
+  IsAvailabilityZone0ParameterEmpty: !Equals [!Ref AvailabilityZone0, '']
+  IsAvailabilityZone1ParameterEmpty: !Equals [!Ref AvailabilityZone1, '']
   EnableAuditLogUpload:
     Fn::Equals:
       - Ref: UploadAuditLogs
@@ -276,6 +286,7 @@ Resources:
   NeptuneDBInstance:
     Type: AWS::Neptune::DBInstance
     Properties:
+      AvailabilityZone: !If [IsAvailabilityZone0ParameterEmpty, !Ref AWS::NoValue, !Ref AvailabilityZone0]
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:
@@ -315,6 +326,7 @@ Resources:
     Type: AWS::Neptune::DBInstance
     Condition: CreateInstanceReplica
     Properties:
+      AvailabilityZone: !If [IsAvailabilityZone1ParameterEmpty, !Ref AWS::NoValue, !Ref AvailabilityZone1]
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:

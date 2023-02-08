@@ -371,7 +371,7 @@ Resources:
         PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
         PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
         PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId ]
-        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcCidrBlock ]
+        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         Port: 6174
         CreateNeptuneReplica: !Ref CreateNeptuneReplica
         DBInstanceClass: !Ref NeptuneInstanceClass
