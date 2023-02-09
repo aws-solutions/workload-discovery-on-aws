@@ -368,6 +368,8 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
+        AvailabilityZone0: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone0, !Ref AWS::NoValue]
+        AvailabilityZone1: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone1, !Ref AWS::NoValue]
         PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
         PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
         PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId ]

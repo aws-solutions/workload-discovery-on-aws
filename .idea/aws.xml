@@ -2,7 +2,7 @@
 <project version="4">
   <component name="accountSettings">
     <option name="activeProfile" value="profile:perspective-svozza" />
-    <option name="activeRegion" value="us-east-1" />
+    <option name="activeRegion" value="eu-west-1" />
     <option name="recentlyUsedProfiles">
       <list>
         <option value="profile:perspective-svozza" />
@@ -10,6 +10,7 @@
     </option>
     <option name="recentlyUsedRegions">
       <list>
+        <option value="eu-west-1" />
         <option value="us-east-1" />
       </list>
     </option>
