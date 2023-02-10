@@ -88,10 +88,14 @@ Parameters:
     Type: AWS::EC2::VPC::Id
 
   VpcEndpointsSg:
-    Type: AWS::EC2::SecurityGroup::Id
+    Type: String
+    Default: ''
 
   CustomUserAgent:
     Type: String
+
+Conditions:
+  UseVpcEndpointsSg: !Not [!Equals [!Ref VpcEndpointsSg, '']]
 
 Resources:
   PerspectiveContainerRepo:
@@ -128,6 +132,7 @@ Resources:
 
   VpcEndpointsSgIngressRule:
     Type: AWS::EC2::SecurityGroupIngress
+    Condition: UseVpcEndpointsSg
     Properties:
       Description: Ingress Security Group for ECR Vpc Endpoint
       FromPort: 443
@@ -368,7 +373,6 @@ Resources:
           Id: apiScheduledTask
           EcsParameters:
             TaskDefinitionArn: !Ref TaskDefinition
-            LaunchType: FARGATE
             CapacityProviderStrategy:
               - CapacityProvider: FARGATE_SPOT
                 Base: 1

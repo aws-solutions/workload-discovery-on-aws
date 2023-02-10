@@ -173,10 +173,94 @@ Parameters:
     AllowedValues:
       - 'Yes'
       - 'No'
+  VpcId:
+    Description: The ID of the VPC you wish to use. If left blank, a new VPC will be provisioned.
+    Type: String
+    Default: ''
+  VpcCidrBlock:
+    Description: The VPC CIDR block of the VPC referenced by the VpcId parameter. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
+  PrivateSubnet0:
+    Description: The private subnet you wish to use. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
+  PrivateSubnet1:
+    Description: The private subnet you wish to use. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
   AthenaWorkgroup:
     Type: String
     Default: "primary"
     Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: User Configuration
+        Parameters:
+          - AdminUserEmailAddress
+      - Label:
+          default: AWS Config Configuration
+        Parameters:
+          - AlreadyHaveConfigSetup
+      - Label:
+          default: Neptune Configuration
+        Parameters:
+          - NeptuneInstanceClass
+          - CreateNeptuneReplica
+      - Label:
+          default: OpenSearch Configuration
+        Parameters:
+          - CreateOpensearchServiceRole
+          - OpensearchInstanceType
+          - OpensearchMultiAz
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VpcId
+          - VpcCidrBlock
+          - PrivateSubnet0
+          - PrivateSubnet1
+      - Label:
+          default: AWS Organizations Configuration
+        Parameters:
+          - CrossAccountDiscovery
+          - OrganizationUnitId
+          - AccountType
+          - ConfigAggregatorName
+      - Label:
+          default: Amazon Athena Configuration
+        Parameters:
+          - AthenaWorkgroup
+      - Label:
+          default: Application Metrics Configuration
+        Parameters:
+          - OptOutOfSendingAnonymousUsageMetrics
+
+Rules:
+  OrganizationsRule:
+    RuleCondition: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref OrganizationUnitId, '']]
+        AssertDescription: | 
+          Organization ID parameter cannot be blank when cross account discovery is managed by AWS
+          Organizations:
+  OrganizationsAggregatorRule:
+    RuleCondition: !Not [!Equals [!Ref ConfigAggregatorName, '']]
+    Assertions:
+      - Assert: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+        AssertDescription: | 
+          A config aggregator can only be specified when cross account discovery is managed by AWS
+          Organizations
+  VpcRule:
+    RuleCondition: !Not [!Equals [!Ref VpcId, '']]
+    Assertions:
+      - Assert: !Not [!And [!Equals [ !Ref PrivateSubnet0, '' ], !Equals [ !Ref PrivateSubnet1, '' ]]]
+        AssertDescription: You must provide two private subnets when using an existing VPC
+      - Assert: !Not [ !Equals [ !Ref VpcCidrBlock, '' ]]
+        AssertDescription: You must provide a CIDR block when using an existing VPC
 
 Mappings:
   Solution:
@@ -193,6 +277,7 @@ Mappings:
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
   IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+  CreateVpc: !Equals [!Ref VpcId, '']
 
 Resources:
   EchoFunction:
@@ -265,6 +350,7 @@ Resources:
 
   VpcStack:
     Type: AWS::CloudFormation::Stack
+    Condition: CreateVpc
     Properties:
       TemplateURL:
         !Sub
@@ -282,12 +368,12 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
-        AvailabilityZone0: !GetAtt VpcStack.Outputs.AvailabilityZone0
-        AvailabilityZone1: !GetAtt VpcStack.Outputs.AvailabilityZone1
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
-        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        AvailabilityZone0: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone0, !Ref AWS::NoValue]
+        AvailabilityZone1: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone1, !Ref AWS::NoValue]
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
+        PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId ]
+        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         Port: 6174
         CreateNeptuneReplica: !Ref CreateNeptuneReplica
         DBInstanceClass: !Ref NeptuneInstanceClass
@@ -339,10 +425,10 @@ Resources:
         AppName: !FindInMap [Solution, Constants, AppName]
         InstanceType: !Ref OpensearchInstanceType
         ZoneAwarenessEnabled: !Ref OpensearchMultiAz
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
-        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
+        PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         SearchLambdaIAMRoleARN: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
 
   TaskStack:
@@ -356,10 +442,10 @@ Resources:
       Parameters:
         DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
         AppName: !FindInMap [Solution, Constants, AppName]
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VpcEndpointsSg: !GetAtt VpcStack.Outputs.VpcEndpointsSg
+        PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]
+        PrivateSubnet1: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1 ]
+        VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        VpcEndpointsSg: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VpcEndpointsSg, !Ref AWS::NoValue ]
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
@@ -420,10 +506,10 @@ Resources:
         NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
         NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        VPCCidrBlock: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
+        PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]
+        PrivateSubnet1: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1 ]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
@@ -441,10 +527,10 @@ Resources:
         OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
         OpenSearchLambdaRoleArn: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId]
+        VPCCidrBlock: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
@@ -582,7 +668,7 @@ Resources:
         MainStack: !Ref AWS::StackId
         LayerStack: !Ref LayerStack
         S3BucketsStack: !Ref S3Buckets
-        VpcStack: !Ref VpcStack
+        VpcStack: !If [CreateVpc, !Ref VpcStack, !Ref AWS::NoValue]
         NeptuneStack: !Ref NeptuneStack
         ConfigAggregatorStack: !Ref ConfigAggregator
         OpenSearchRoleStack: !Ref OpenSearchRoleStack
@@ -597,7 +683,7 @@ Resources:
         CostResolversStack: !Ref CostResolversStack
         SettingsResolversStack: !Ref SettingsResolversStack
         AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
-        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, '']
+        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, !Ref AWS::NoValue]
         WebUiStack: !Ref WebUiStack
         WebUiSettingsStack: !Ref WebUiSettingsStack
 

@@ -30,6 +30,7 @@ Parameters:
 
   VpcStack:
     Type: String
+    Default: ''
 
   NeptuneStack:
     Type: String
@@ -75,6 +76,7 @@ Parameters:
 
   OrganizationsGlobalResourcesStack:
     Type: String
+    Default: ''
 
   WebUiStack:
     Type: String
@@ -84,6 +86,7 @@ Parameters:
 
 Conditions:
   IsOrgStackDeployed: !Not [!Equals [!Ref OrganizationsGlobalResourcesStack, '']]
+  IsVpcCreated: !Not [!Equals [!Ref VpcStack, '']]
 
 Resources:
 
@@ -138,6 +141,7 @@ Resources:
 
   VpcStackAppRegistryApplicationStackAssociation:
     Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Condition: IsVpcCreated
     Properties:
       Application: !GetAtt Application.Id
       Resource: !Ref VpcStack
