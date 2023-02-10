@@ -26,6 +26,10 @@
 **/.vscode/settings.json
 **/setenv.sh
 
+#IntelliJ
+.idea
+*.iml
+
 # System Files
 **/.DS_Store
 *.DS_Store
@@ -58,6 +62,3 @@ source/backend/functions/cost-parser/test/local-deploy.sh
 source/backend/functions/cost-parser/test/local-invoke-read-s3.sh
 source/backend/functions/cost-parser/test/local-invoke-service-cost.sh
 source/backend/functions/cost-parser/test/local-invoke.sh
-
-#IntelliJ
-.idea
