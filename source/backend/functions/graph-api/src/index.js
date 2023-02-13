@@ -38,6 +38,40 @@ function getNodes(query, vId) {
     });
 }
 
+function getResourceGraph({query}, ids) {
+    return query(async g => {
+        return g.with_('Neptune#enableResultCacheWithTTL', 30)
+            .V(...ids).aggregate('nodes')
+            .bothE().aggregate('edges').otherV().aggregate('nodes')
+            .outE('IS_CONTAINED_IN_VPC', 'IS_ASSOCIATED_WITH_VPC', 'IS_CONTAINED_IN_SUBNET', 'IS_ASSOCIATED_WITH_SUBNET').aggregate('edges').inV().aggregate('nodes')
+            .fold()
+            .select('nodes', 'edges')
+            .by(__.unfold().dedup().elementMap().fold())
+            .by(__.unfold().dedup()
+                .project('id', 'label', 'target','source')
+                    .by(t.id)
+                    .by(t.label)
+                    .by(__.inV())
+                    .by(__.outV())
+                .fold())
+            .next()
+            .then(x => x.value)
+            .then(({nodes, edges}) => {
+                return {
+                    edges,
+                    nodes: nodes.map(({id, label, md5Hash, ...properties}) => {
+                        return {
+                            id,
+                            label,
+                            md5Hash,
+                            properties
+                        };
+                    })
+                };
+            });
+    });
+}
+
 function getLinkedNodesHierarchy({query}, args) {
     return getNodes(query, args).then(createHierarchy).then(R.head);
 }
@@ -311,6 +345,8 @@ function handler(gremlinClient) {
                 const resourceTypes = args.resourceTypes ?? [];
                 const accounts = args.accounts ?? []
                 return getResources(gremlinClient, {pagination, resourceTypes, accounts});
+            case 'getResourceGraph':
+                return getResourceGraph(gremlinClient, args.ids);
             case 'getResourcesMetadata':
                 return getResourcesMetadata(gremlinClient);
             case 'getResourcesAccountMetadata':

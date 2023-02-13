@@ -93,12 +93,12 @@ input RelationshipInput {
     target: String
 }
 
-type ResourceIdentifier @aws_iam {
+type ResourceIdentifier @aws_cognito_user_pools @aws_iam {
     id: String
     label: String
 }
 
-type Relationship @aws_iam {
+type Relationship @aws_cognito_user_pools @aws_iam {
     id: String
     label: String
     source: ResourceIdentifier
@@ -219,6 +219,8 @@ type Query {
   # defined in the lambda function rather than the schema as AppSync does not
   # support default parameters yet.
   getRelationships(pagination: Pagination): [Relationship] @aws_iam
+  # Gets a list of related nodes and a list of the edges between them from the supplied ids
+  getResourceGraph(ids: [String]!, pagination: Pagination): getResourceGraphResponse
   # Gets the children of the node with the supplied id
   getLinkedNodesHierarchy(id: String!): Hierarchy
   # For each supplied id, gets the children of the node with that id
@@ -270,6 +272,11 @@ type Query {
 type ResourcesResponse @aws_cognito_user_pools @aws_iam {
     count: Int
     resources: [Resource]
+}
+
+type getResourceGraphResponse {
+    nodes: [Resource]!
+    edges: [Relationship]!
 }
 
 type BatchHierarchy {

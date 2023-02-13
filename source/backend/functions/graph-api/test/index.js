@@ -25,9 +25,11 @@ describe('index.js', () => {
                 addE: sinon.stub().returnsThis(),
                 by: sinon.stub().returnsThis(),
                 both: sinon.stub().returnsThis(),
+                bothE: sinon.stub().returnsThis(),
                 or: sinon.stub().returnsThis(),
                 outE: sinon.stub().returnsThis(),
                 inV: sinon.stub().returnsThis(),
+                otherV: sinon.stub().returnsThis(),
                 to: sinon.stub().returnsThis(),
                 has: sinon.stub().returnsThis(),
                 hasLabel: sinon.stub().returnsThis(),
@@ -466,27 +468,112 @@ describe('index.js', () => {
 
         });
 
-        describe('deleteResources', () => {
+        describe('getResourceGraph', () => {
 
-            it('should return ids of deleted resources', async () => {
-                const mockGremlinClient = createMockGremlinClient({nextValue: {}});
+            it('should return nodes and edges related to the supplied ids', async () => {
+                const mockGremlinClient = createMockGremlinClient({
+                    nextValue: {
+                        nodes: [{
+                            id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                            label: 'AWS_LAMBDA_FUNCTION',
+                            md5Hash: '',
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }, {
+                            id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
+                            label: 'AWS_LAMBDA_FUNCTION',
+                            md5Hash: '',
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }, {
+                            id: 'iamRoleArn',
+                            label: 'AWS_IAM_ROLE',
+                            md5Hash: '',
+                            prop1: 'prop1IamVal',
+                            prop2: 'prop2IamVal'
+                        }
+                        ],
+                        edges: [{
+                            id: 'edgeId1',
+                            label: 'CONTAINED_IN',
+                            source: {
+                                id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                                label: 'AWS_LAMBDA_FUNCTION'
+                            },
+                            target: {id: 'vpcArn', label: 'AWS_EC2_VPC'}
+                        }, {
+                            id: 'edgeId2',
+                            label: 'IS_ASSOCIATED_WITH',
+                            source: {
+                                id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                                label: 'AWS_LAMBDA_FUNCTION'
+                            },
+                            target: {id: 'iamRoleArn', label: 'AWS_IAM_ROLE'}
+                        }]
+                    }
+                });
 
                 const ids = [
                     'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
-                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
-                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function3'
+                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function2'
                 ];
 
                 const actual = await handler(mockGremlinClient)({
                     info: {
-                        fieldName: 'deleteResources',
+                        fieldName: 'getResourceGraph',
                     },
                     arguments: {
-                        resourceIds: ids
+                        ids
                     }
                 }, {});
 
-                assert.deepEqual(actual, ids);
+                assert.deepEqual(actual.edges, [{
+                    id: 'edgeId1',
+                    label: 'CONTAINED_IN',
+                    source: {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION'
+                    },
+                    target: {id: 'vpcArn', label: 'AWS_EC2_VPC'}
+                }, {
+                    id: 'edgeId2',
+                    label: 'IS_ASSOCIATED_WITH',
+                    source: {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION'
+                    },
+                    target: {id: 'iamRoleArn', label: 'AWS_IAM_ROLE'}
+                }]);
+
+                assert.deepEqual(actual.nodes, [
+                    {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }
+                    },
+                    {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
+                        label: 'AWS_LAMBDA_FUNCTION',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }
+                    },
+                    {
+                        id: 'iamRoleArn',
+                        label: 'AWS_IAM_ROLE',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1IamVal',
+                            prop2: 'prop2IamVal'
+                        }
+                    }
+                ])
 
             });
 
