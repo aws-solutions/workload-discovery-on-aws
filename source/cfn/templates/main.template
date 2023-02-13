@@ -1,8 +1,8 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 
 Description: Workload Discovery on AWS Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:<VERSION>)
 
-Transform: "AWS::Serverless-2016-10-31"
+Transform: AWS::Serverless-2016-10-31
 
 Parameters:
 
@@ -10,15 +10,15 @@ Parameters:
     Type: String
     AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
     ConstraintDescription: Must be an email address
-    Description: 'A user will be created in the UI. This email address will be used to send your username and password.'
+    Description: A user will be created in the UI. This email address will be used to send your username and password.
   AlreadyHaveConfigSetup:
     Type: String
     Default: 'No'
-    Description: 'Is AWS Config set-up within this Region?'
+    Description: Is AWS Config set-up within this Region?
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this Region has AWS Config set-up (Yes / No)'
+    ConstraintDescription: Please specify if this Region has AWS Config set-up (Yes / No)
   CrossAccountDiscovery:
     Type: String
     Default: SELF_MANAGED
@@ -52,19 +52,20 @@ Parameters:
   OptOutOfSendingAnonymousUsageMetrics:
     Type: String
     Default: 'No'
-    Description: 'Opt out of sending any anonymous usage metrics to AWS Perspective'
+    Description: Opt out of sending any anonymous usage metrics to AWS Perspective
     AllowedValues:
       - 'No'
       - 'Yes'
   CreateOpensearchServiceRole:
     Type: String
     Default: 'Yes'
-    Description: 'Do you need an OpenSearch Service Role to be created?
-    You can check for a Role called AWSServiceRoleForAmazonElasticsearchService in your account. If it exists then you do NOT need one creating'
+    Description: | 
+      Do you need an OpenSearch Service Role to be created? You can check for a Role called AWSServiceRoleForAmazonElasticsearchService 
+      in your account. If it exists then you do NOT need one creating
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this account has AWS Config set-up (Yes / No)'
+    ConstraintDescription: Please specify if this account has the OpenSearch service role created (Yes / No)
   NeptuneInstanceClass:
     Type: String
     Description: Neptune DB instance class that will be used for primary and all replicas. Changing this will affect the cost of running this solution.
@@ -99,7 +100,9 @@ Parameters:
       - 'No'
       - 'Yes'
     Default: 'No'
-    Description: If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of running the solution.
+    Description: | 
+      If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of 
+      running the solution.
   OpensearchInstanceType:
     Description: The instance type for OpenSearch data nodes
     Type: String
@@ -169,7 +172,7 @@ Parameters:
     Description: Deploys the OpenSearch cluster across two Availability Zones (AZs) in the same region to prevent
       data loss and minimize downtime in the event of node or data center failure. This will increase the cost of running the solution
     Type: String
-    Default: "No"
+    Default: 'No'
     AllowedValues:
       - 'Yes'
       - 'No'
@@ -191,7 +194,7 @@ Parameters:
     Default: ''
   AthenaWorkgroup:
     Type: String
-    Default: "primary"
+    Default: primary
     Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
 
 Metadata:
@@ -328,10 +331,7 @@ Resources:
       Parameters:
         LayerBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
-      TemplateURL:
-        !Sub
-          - "${DeploymentBucket}/layers.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/layers.template
       TimeoutInMinutes: 60
 
   S3Buckets:
@@ -342,29 +342,20 @@ Resources:
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
         CreateConfigBucket: !If [SetUpConfig, 'true', 'false']
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
-      TemplateURL:
-        !Sub
-          - "${DeploymentBucket}/buckets.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/buckets.template
       TimeoutInMinutes: 60
 
   VpcStack:
     Type: AWS::CloudFormation::Stack
     Condition: CreateVpc
     Properties:
-      TemplateURL:
-        !Sub
-         - "${DeploymentBucket}/vpc.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/vpc.template
       TimeoutInMinutes: 60
 
   NeptuneStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-         - "${DeploymentBucket}/neptune.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/neptune.template
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
@@ -381,10 +372,7 @@ Resources:
   ConfigAggregator:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/config-aggregator.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/config-aggregator.template
       TimeoutInMinutes: 60
       Parameters:
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
@@ -405,10 +393,7 @@ Resources:
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/opensearch-roles.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/opensearch-roles.template
       TimeoutInMinutes: 60
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
@@ -416,10 +401,7 @@ Resources:
   OpenSearchStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/opensearch.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/opensearch.template
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
@@ -434,10 +416,7 @@ Resources:
   TaskStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/discovery-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/discovery-crawler.template
       TimeoutInMinutes: 60
       Parameters:
         DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
@@ -463,10 +442,7 @@ Resources:
   CodebuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/codebuild.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/codebuild.template
       TimeoutInMinutes: 60
       Parameters:
         CloudfrontDistributionId: !GetAtt WebUiStack.Outputs.DistributionId
@@ -481,10 +457,7 @@ Resources:
   CognitoStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/cognito.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/cognito.template
       TimeoutInMinutes: 60
       Parameters:
         AdminUserEmailAddress: !Ref AdminUserEmailAddress
@@ -494,10 +467,7 @@ Resources:
   GremlinResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/gremlin-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/gremlin-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
@@ -516,10 +486,7 @@ Resources:
   SearchResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/search-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/search-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
@@ -538,10 +505,7 @@ Resources:
   DrawIoExportResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/draw-io-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/draw-io-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -551,10 +515,7 @@ Resources:
   AccountImportTemplatesResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/account-import-templates-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/account-import-templates-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -564,10 +525,7 @@ Resources:
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/appsync-api.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/appsync-api.template
       TimeoutInMinutes: 60
       Parameters:
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
@@ -577,10 +535,7 @@ Resources:
   CostResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/cost-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/cost-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
@@ -593,10 +548,7 @@ Resources:
   SettingsResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/settings-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/settings-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
@@ -608,10 +560,7 @@ Resources:
   AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/athena-glue-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/athena-glue-crawler.template
       TimeoutInMinutes: 60
       Parameters:
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
@@ -621,10 +570,7 @@ Resources:
   WebUiStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/webui.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/webui.template
       TimeoutInMinutes: 60
       Parameters:
         AccessLogsBucket: !GetAtt S3Buckets.Outputs.AccessLogsBucket
@@ -634,10 +580,7 @@ Resources:
   WebUiSettingsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/webui-settings.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/webui-settings.template
       TimeoutInMinutes: 60
       Parameters:
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
@@ -654,10 +597,7 @@ Resources:
   AppRegistryStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-        - ${DeploymentBucket}/app-registry.template
-        - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/app-registry.template
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
