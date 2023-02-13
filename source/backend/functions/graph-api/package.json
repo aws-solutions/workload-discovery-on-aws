@@ -26,12 +26,12 @@
   },
   "devDependencies": {
     "aws-sdk": "latest",
-    "chai": "^4.2.0",
-    "mocha": "^9.2.2",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "nyc-report-lcov-absolute": "^1.0.0",
     "rewire": "^6.0.0",
-    "sinon": "^7.5.0",
-    "socks5-https-client": "^1.2.0"
+    "sinon": "^15.0.1",
+    "socks5-https-client": "^1.2.1"
   }
 }

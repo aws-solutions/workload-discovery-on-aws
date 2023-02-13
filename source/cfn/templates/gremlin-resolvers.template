@@ -173,6 +173,14 @@ Resources:
       FieldName: getLinkedNodesHierarchy
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
 
+  GetResourceGraphResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getResourceGraph
+      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
+
   PerspectiveAppSyncBatchGetLinkedNodesHierarchyResolver:
     Type: AWS::AppSync::Resolver
     Properties:
