@@ -57,11 +57,11 @@ async function getAccounts(
             accountId: Id,
             organizationId,
             name,
-            ...(managementAccountId === Id ? {managementAccountId: true} : {}),
+            ...(managementAccountId === Id ? {isManagementAccount: true} : {}),
             ...(lastCrawled != null ? {lastCrawled} : {}),
             regions: OrganizationAggregationSource.AllAwsRegions
                 ? regions : OrganizationAggregationSource.AwsRegions
-        }
+        };
     });
 }
 
@@ -73,7 +73,7 @@ const addAccountCredentials = R.curry(async ({stsClient}, rootAccountId, account
     const {errors, results} = await PromisePool
         .withConcurrency(30)
         .for(accounts)
-        .process(async ({accountId, organizationId, isManagementAccount, ...props}) => {
+        .process(async ({accountId, organizationId, ...props}) => {
             const roleArn = createDiscoveryRoleArn(accountId, rootAccountId);
             const credentials = await stsClient.getCredentials(roleArn);
             return {
@@ -81,7 +81,6 @@ const addAccountCredentials = R.curry(async ({stsClient}, rootAccountId, account
                 accountId,
                 isIamRoleDeployed: true,
                 ...(organizationId != null ? {organizationId} : {}),
-                ...(isManagementAccount != null ? {isManagementAccount} : {}),
                 credentials
             };
         });
