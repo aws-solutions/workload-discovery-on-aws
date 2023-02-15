@@ -148,33 +148,13 @@ async function createOpenSearchDomains(awsClient, credentials, accountId, region
     });
 }
 
-// TODO: Handle errors in same way as in addBatchedRelationships
-async function createRegionalResources(credentialsTuples, awsClient, createFunction) {
-    return Promise.all(credentialsTuples
-        .flatMap(([accountId, {regions, credentials}]) =>
-            regions.map(region => {
-                return createFunction(awsClient, credentials, accountId, region)
-                    .catch(err => {
-                        logger.error(`There was an error running ${createFunction.name} in account ${accountId} in region ${region}: ${err.message}`);
-                        return [];
-                    });
-            })
-        )
-    );
-}
-
-// TODO: Handle errors in same way as in addBatchedRelationships
-async function createGlobalResources(credentialsTuples, awsClient, createFunction) {
-    return Promise.all(credentialsTuples
-        .flatMap(([accountId, {credentials}]) => {
-            return createFunction(awsClient, credentials, accountId, GLOBAL)
-                .catch(err => {
-                    logger.error(`There was an error running ${createFunction.name} in account ${accountId}: ${err.message}`);
-                    return [];
-                });
-        })
-    );
-}
+const handleError = R.curry((handlerName, accountId, region, error) => {
+    return {
+        item: {handlerName, accountId, region},
+        raw: error,
+        message: error.message
+    }
+});
 
 async function createAllBatchResources(credentialsTuples, awsClient) {
     const handlers = [
@@ -185,16 +165,27 @@ async function createAllBatchResources(credentialsTuples, awsClient) {
         [REGIONAL, createSpotResources]
     ];
 
-    return Promise.resolve(handlers)
-        .then(R.map(([region, handler]) => {
-            if (region === GLOBAL) {
-                return createGlobalResources(credentialsTuples, awsClient, handler);
-            } else {
-                return createRegionalResources(credentialsTuples, awsClient, handler);
-            }
-        }))
-        .then(ps => Promise.all(ps))
-        .then(R.flatten)
+    const {results, errors} = await Promise.all(handlers.flatMap(([serviceRegion, handler]) => {
+        return credentialsTuples
+            .flatMap(([accountId, {regions, credentials}]) => {
+                const errorHandler = handleError(handler.name, accountId);
+                return serviceRegion === GLOBAL
+                    ? handler(awsClient, credentials, accountId, GLOBAL).catch(errorHandler(GLOBAL))
+                    : regions.map(region => handler(awsClient, credentials, accountId, region).catch(errorHandler(region)));
+            });
+    })).then(R.reduce((acc, item) => {
+        if (item.raw != null) {
+            acc.errors.push(item);
+        } else {
+            acc.results.push(...item);
+        }
+        return acc;
+    }, {results: [], errors: []}));
+
+    logger.error(`There were ${errors.length} errors when adding batch SDK resources.`);
+    logger.debug('Errors: ', {errors: errors});
+
+    return results;
 }
 
 module.exports = createAllBatchResources;
