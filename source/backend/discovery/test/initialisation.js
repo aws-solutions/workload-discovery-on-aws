@@ -334,7 +334,6 @@ describe('initialisation', () => {
                 name: 'Account Y',
                 organizationId: 'o-exampleorgid',
                 isIamRoleDeployed: true,
-                isManagementAccount: false,
                 regions: [
                     EU_WEST_1,
                     US_EAST_1
@@ -435,7 +434,6 @@ describe('initialisation', () => {
                 name: 'Account Y',
                 organizationId: 'o-exampleorgid',
                 isIamRoleDeployed: true,
-                isManagementAccount: false,
                 regions: [
                     EU_WEST_1,
                     US_EAST_1

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 #
 # This assumes all of the OS-level configuration has been completed and git repo has already been cloned
 #

@@ -19,12 +19,18 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+      - name: Install pipenv
+        run: pip install pipenv
       - name: Set up Nodejs 16
         uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: npm
           cache-dependency-path: '**/package-lock.json'
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v3.0.0
+        with:
+          port: 4567
       - name: Viperlight
         run: |
           wget -q https://viperlight-scanner.s3.amazonaws.com/latest/.viperlightrc
@@ -39,6 +45,6 @@ jobs:
         run: |
           gem install cfn-nag
           cfn_nag ./source/cfn/templates/*.template
-      - name: Backend unit tests
+      - name: Unit tests
         run: ./run-unit-tests.sh
         working-directory: ./deployment

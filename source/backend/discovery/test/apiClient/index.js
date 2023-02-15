@@ -197,7 +197,7 @@ describe('persistence/index.js', () => {
 
         it('should handle errors', async () => {
             setGlobalDispatcher(GenericError);
-            const actual = await apiClient.updateAccountsCrawledTime(['xxxxxxxxxxxx']);
+            const actual = await apiClient.updateCrawledAccounts(['xxxxxxxxxxxx']);
             assert.strictEqual(actual.errors[0].message, "[{\"message\":\"Validation error\"}]");
         });
 

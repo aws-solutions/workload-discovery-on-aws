@@ -34,17 +34,17 @@ describe('persistence/transformers', () => {
         describe('hashing', () => {
 
             [
-                [AWS_API_GATEWAY_METHOD, 'e875a3a684a049abf3933492efad0b38'],
-                [AWS_API_GATEWAY_RESOURCE, '41fd3cb04197699da0af314a76bfe7ac'],
-                [AWS_ECS_TASK, '133e71d53825a340bd8923129015fc9e'],
-                [AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER, '52409591c2d0415d8bf189f1b44990aa'],
-                [AWS_EKS_NODE_GROUP, '5dfb4b4d38e82c5788ffc0a0aaceee94'],
-                [AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP, 'a7c7eff80cac0518ade7e1c971bae94a'],
-                [AWS_IAM_AWS_MANAGED_POLICY, '1ba3c55d4831be2edb0c6f46d2562a19'],
-                [AWS_EC2_SPOT, 'd0d240a45a91f54a877c91e060b3ca0e'],
-                [AWS_EC2_SPOT_FLEET, '5c7ca1f2c95d981004d9635047b52d0f'],
-                [AWS_IAM_INLINE_POLICY, '45027638e2785cc2ee35617d20b7ca76'],
-                [AWS_OPENSEARCH_DOMAIN, 'a584d1faee706c0d0c5c20b9a97c93ac']
+                [AWS_API_GATEWAY_METHOD, 'e77a45b311fc1a9fa083d959fef13cf1'],
+                [AWS_API_GATEWAY_RESOURCE, '49e48e16ca5f6dc8205d6b4e5a28760d'],
+                [AWS_ECS_TASK, '24b51c39cf2f472cdb96bcd5bc4bb87a'],
+                [AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER, '0a6a70f85bdac8608bb4b3e0f917ce64'],
+                [AWS_EKS_NODE_GROUP, '288a15ee94f1278f5f50783b4521e810'],
+                [AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP, 'aeed86caaad0d80172a51d94c5547fe2'],
+                [AWS_IAM_AWS_MANAGED_POLICY, '1a18a8a6f9f4863fd603c4ce93491a37'],
+                [AWS_EC2_SPOT, 'ad454ecd37a904ba2b33ff07aac54106'],
+                [AWS_EC2_SPOT_FLEET, 'e5c1ab47ac15a1e6c39480bb2265a221'],
+                [AWS_IAM_INLINE_POLICY, '9be3badedb6f62a7a6e48f19dc1702c8'],
+                [AWS_OPENSEARCH_DOMAIN, '183f22ba18a821428718cd8c1db3d467']
             ].forEach(([resourceType, hash], i) => {
                 it(`should hash ${resourceType} resources`, () => {
                     const resource = generateBaseResource(resourceType, i);
