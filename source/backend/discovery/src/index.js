@@ -3,7 +3,7 @@
 
 const logger = require('./lib/logger');
 const config = require('./lib/config');
-const {NO_ACCOUNTS_TO_SCAN} = require('./lib/constants')
+const {NO_ACCOUNTS_TO_SCAN, DISCOVERY_PROCESS_RUNNING} = require('./lib/constants')
 const awsClient = require('./lib/awsClient');
 const appSync = require('./lib/apiClient/appSync');
 const {discoverResources} = require('./lib');
@@ -13,8 +13,8 @@ const discover = async () => {
 
   await discoverResources(appSync, awsClient, config)
       .catch(err => {
-          if(err.message === NO_ACCOUNTS_TO_SCAN) {
-              logger.info('No accounts have been added to discover');
+          if([NO_ACCOUNTS_TO_SCAN, DISCOVERY_PROCESS_RUNNING].includes(err.message)) {
+              logger.info(err.message);
           } else {
               throw err;
           }

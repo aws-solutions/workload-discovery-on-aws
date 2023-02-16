@@ -12,7 +12,9 @@ const {
     ROLE,
     WORKLOAD_DISCOVERY_TASKGROUP,
     TASK_DEFINITION,
+    DISCOVERY_PROCESS_RUNNING,
     DISCOVERY_ROLE_NAME,
+    NO_ACCOUNTS_TO_DISCOVER,
     ACCESS_DENIED
 } = require('./constants')
 const {createArn, profileAsync} = require('./utils');
@@ -121,7 +123,7 @@ async function initialise(awsClient, appSync, config) {
     const configClient = awsClient.createConfigServiceClient(credentials, region);
 
     if (await isDiscoveryEcsTaskRunning(ecsClient, taskDefinitionArn, config)) {
-        throw new Error('Discovery process ECS task is already running in cluster.');
+        throw new Error(DISCOVERY_PROCESS_RUNNING);
     }
 
     const configServiceClient = awsClient.createConfigServiceClient(credentials, region)
@@ -133,7 +135,7 @@ async function initialise(awsClient, appSync, config) {
         .then(R.map(R.evolve({regions: R.map(x => x.name)})))
         .then(addAccountCredentials({stsClient}, rootAccountId));
 
-    if(R.isEmpty(accounts.filter(x => x.isIamRoleDeployed))) throw new Error('No accounts to scan.');
+    if(R.isEmpty(accounts.filter(x => x.isIamRoleDeployed))) throw new Error(NO_ACCOUNTS_TO_DISCOVER);
 
     return {
         accounts,

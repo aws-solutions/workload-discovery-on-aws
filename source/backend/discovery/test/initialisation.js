@@ -3,7 +3,7 @@
 
 const {assert} = require('chai');
 const sinon = require('sinon');
-const {ACCESS_DENIED} = require('../src/lib/constants')
+const {ACCESS_DENIED, NO_ACCOUNTS_TO_DISCOVER} = require('../src/lib/constants')
 const {initialise} = require('../src/lib/intialisation');
 
 describe('initialisation', () => {
@@ -96,7 +96,7 @@ describe('initialisation', () => {
                 .then(() => {
                     throw new Error('Expected promise to be rejected but was fullfilled.')
                 })
-                .catch(err => assert.strictEqual(err.message, 'No accounts to scan.') );
+                .catch(err => assert.strictEqual(err.message, NO_ACCOUNTS_TO_DISCOVER) );
 
         });
 
@@ -131,7 +131,7 @@ describe('initialisation', () => {
                 .then(() => {
                     throw new Error('Expected promise to be rejected but was fullfilled.')
                 })
-                .catch(err => assert.strictEqual(err.message, 'No accounts to scan.') );
+                .catch(err => assert.strictEqual(err.message, NO_ACCOUNTS_TO_DISCOVER) );
 
         });
 
