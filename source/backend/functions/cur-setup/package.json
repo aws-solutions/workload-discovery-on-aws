@@ -1,6 +1,6 @@
 {
     "name": "perspective-cur-setup",
-    "version": "1.1.0",
+    "version": "2.1.0",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -12,7 +12,7 @@
         "coverage": "nyc npm test"
     },
     "author": "ballmat",
-    "license": "ISC",
+    "license": "Apache-2.0",
     "dependencies": {
         "ramda": "0.28.0"
     },

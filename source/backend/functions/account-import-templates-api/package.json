@@ -14,6 +14,7 @@
     "build": "npm run clean && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"
   },
+  "license": "Apache-2.0",
   "author": "svozza",
   "devDependencies": {
     "chai": "^4.3.6",

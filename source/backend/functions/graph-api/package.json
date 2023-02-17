@@ -15,7 +15,7 @@
     "coverage": "nyc npm test"
   },
   "author": "svozza",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@supercharge/promise-pool": "2.3.2",
     "gremlin": "3.5.2",

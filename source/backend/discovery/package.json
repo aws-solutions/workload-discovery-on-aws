@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "coverage": "nyc npm test"
   },
   "author": "svozza",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@aws-sdk/client-api-gateway": "3.188.0",
     "@aws-sdk/client-cognito-identity-provider": "3.188.0",

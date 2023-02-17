@@ -1,6 +1,6 @@
 {
   "name": "wd-cost",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "coverage": "nyc npm test"
   },
   "author": "svozza",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@most/core": "1.6.1",
     "athena-express": "6.0.4",
