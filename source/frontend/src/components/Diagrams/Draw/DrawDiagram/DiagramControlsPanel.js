@@ -47,7 +47,7 @@ const DiagramControlPanel = ({
   const [statusMessage, setStatusMessage] = useState();
   const [hasLoadedCosts, setHasLoadedCosts] = useState(false);
   const [loadingCosts, setLoadingCosts] = useState(false);
-  const { endDate=today, startDate=fiveDaysAgo } = settings?.costsInterval ?? {};
+  const { endDate=today, startDate=fiveDaysAgo } = settings?.costInterval ?? {};
   const {removeAsync} = useRemoveObject(diagramsPrefix);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const previousResources = usePrevious(resources);
