@@ -22,6 +22,7 @@ describe('index.js', () => {
                 V: sinon.stub().returnsThis(),
                 with_: sinon.stub().returnsThis(),
                 aggregate: sinon.stub().returnsThis(),
+                cap: sinon.stub().returnsThis(),
                 addE: sinon.stub().returnsThis(),
                 by: sinon.stub().returnsThis(),
                 both: sinon.stub().returnsThis(),

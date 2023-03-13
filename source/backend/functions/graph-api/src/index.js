@@ -8,6 +8,7 @@ const {PromisePool} = require('@supercharge/promise-pool')
 const __ = gremlin.process.statics;
 const c = gremlin.process.column
 const p = gremlin.process.P;
+const {local} = gremlin.process.scope;
 const {cardinality: {single}, t} = gremlin.process;
 const logger = require('./logger');
 const {createHierarchy} = require('./hierarchy');
@@ -38,16 +39,17 @@ function getNodes(query, vId) {
     });
 }
 
-function getResourceGraph({query}, ids) {
+function getResourceGraph({query}, {ids, pagination: {start, end}}) {
     return query(async g => {
         return g.with_('Neptune#enableResultCacheWithTTL', 30)
             .V(...ids).aggregate('nodes')
             .bothE().aggregate('edges').otherV().aggregate('nodes')
             .outE('IS_CONTAINED_IN_VPC', 'IS_ASSOCIATED_WITH_VPC', 'IS_CONTAINED_IN_SUBNET', 'IS_ASSOCIATED_WITH_SUBNET').aggregate('edges').inV().aggregate('nodes')
+            .cap('nodes', 'edges')
             .fold()
             .select('nodes', 'edges')
-            .by(__.unfold().dedup().elementMap().fold())
-            .by(__.unfold().dedup()
+            .by(__.range(local, start, end).unfold().dedup().elementMap().fold())
+            .by(__.range(local, start, end).unfold().dedup()
                 .project('id', 'label', 'target','source')
                     .by(t.id)
                     .by(t.label)
@@ -346,7 +348,7 @@ function handler(gremlinClient) {
                 const accounts = args.accounts ?? []
                 return getResources(gremlinClient, {pagination, resourceTypes, accounts});
             case 'getResourceGraph':
-                return getResourceGraph(gremlinClient, args.ids);
+                return getResourceGraph(gremlinClient, {ids: args.ids, pagination});
             case 'getResourcesMetadata':
                 return getResourcesMetadata(gremlinClient);
             case 'getResourcesAccountMetadata':
