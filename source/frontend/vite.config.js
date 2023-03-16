@@ -60,7 +60,11 @@ export default defineConfig({
         // Vitest will have projectRoot functionality like Jest soon:
         // https://github.com/vitest-dev/vitest/issues/1902
         coverage: {
-            reporter: ['lcov', "html"]
+            reporter: [
+                ['lcov', { 'projectRoot': '../..' }],
+                ['html'],
+                ['text']
+            ]
         }
     }
 });
