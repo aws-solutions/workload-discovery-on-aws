@@ -142,7 +142,7 @@ const ec2InstanceIds = await getResourceIds({resourceTypes: ['AWS::EC2::Instance
 
 const dbInstanceIds = await getResourceIds({resourceTypes: ['AWS::RDS::DBInstance']});
 
-// Operations createed with sendQuery that have no arguments must be provided with an empty parameters object
+// Operations created with sendQuery that have no arguments must be provided with an empty parameters object
 const allIds = await getResourceIds({});
 ```
 
