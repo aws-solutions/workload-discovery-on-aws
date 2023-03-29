@@ -629,6 +629,14 @@ Resources:
 
 Outputs:
 
+  AppSyncArn:
+    Value: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
+    Description: AppSync API ARN
+
+  AppSyncApiUrl:
+    Value: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
+    Description: AppSync API URL
+
   WebUiUrl:
     Value: !GetAtt WebUiStack.Outputs.WebUiUrl
     Description: WebUI URL

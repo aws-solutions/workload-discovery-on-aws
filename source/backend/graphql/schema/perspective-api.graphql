@@ -114,30 +114,30 @@ type UnprocessedResources @aws_iam {
     unprocessedResources: [String]
 }
 
-type ResourceCount {
+type ResourceCount @aws_cognito_user_pools @aws_iam {
   count: Int
   type: String
 }
 
-type ResourceRegionCount {
+type ResourceRegionCount @aws_cognito_user_pools @aws_iam {
     count: Int
     name: String
     resourceTypes: [ResourceCount]
 }
 
-type ResourcesMetadata {
+type ResourcesMetadata @aws_cognito_user_pools @aws_iam {
   count: Int
   accounts: [Account]
   resourceTypes: [ResourceCount]
 }
 
-type ResourcesAccountMetadata {
+type ResourcesAccountMetadata @aws_cognito_user_pools @aws_iam {
   accountId: String
   count: Int
   resourceTypes: [ResourceCount]
 }
 
-type ResourcesRegionMetadata {
+type ResourcesRegionMetadata  @aws_cognito_user_pools @aws_iam {
     accountId: String
     count: Int
     regions: [ResourceRegionCount]
@@ -220,22 +220,22 @@ type Query {
   # support default parameters yet.
   getRelationships(pagination: Pagination): [Relationship] @aws_iam
   # Gets a list of related nodes and a list of the edges between them from the supplied ids
-  getResourceGraph(ids: [String]!, pagination: Pagination): getResourceGraphResponse
+  getResourceGraph(ids: [String]!, pagination: Pagination): getResourceGraphResponse @aws_cognito_user_pools @aws_iam
   # Gets the children of the node with the supplied id
   getLinkedNodesHierarchy(id: String!): Hierarchy
   # For each supplied id, gets the children of the node with that id
   batchGetLinkedNodesHierarchy(ids: [String]!): BatchHierarchyResponse
   # Get resource counts broken down by resource type and a list of all accounts and
   # associated regions.
-  getResourcesMetadata: ResourcesMetadata
+  getResourcesMetadata: ResourcesMetadata @aws_cognito_user_pools @aws_iam
   # Get resource counts broken down by account. If accounts is absent then all
   # accounts will be returned
-  getResourcesAccountMetadata(accounts: [AccountInput]): [ResourcesAccountMetadata]
+  getResourcesAccountMetadata(accounts: [AccountInput]): [ResourcesAccountMetadata] @aws_cognito_user_pools @aws_iam
   # Get resource counts broken down by account and region. If accounts is absent then
   # all accounts will be returned
-  getResourcesRegionMetadata(accounts: [AccountInput]): [ResourcesRegionMetadata]
+  getResourcesRegionMetadata(accounts: [AccountInput]): [ResourcesRegionMetadata] @aws_cognito_user_pools @aws_iam
   # Gets a single account and the regions that are being scanned
-  getAccount(accountId: String!): Account
+  getAccount(accountId: String!): Account @aws_cognito_user_pools @aws_iam
   # Gets each account and its associated regions that are being scanned
   getAccounts: [Account] @aws_cognito_user_pools @aws_iam
   # Read another set of results from the S3 Athena results
@@ -257,14 +257,14 @@ type Query {
     costForResourceQueryByDay: CostForResourceQueryByDay
   ): Cost @aws_cognito_user_pools @aws_iam
   # Gets global template for account importing
-  getGlobalTemplate: String
+  getGlobalTemplate: String @aws_cognito_user_pools @aws_iam
   # Gets regional template for account importing
-  getRegionalTemplate: String
+  getRegionalTemplate: String @aws_cognito_user_pools @aws_iam
   # Gets resources based on string search text
   searchResources(text: String!
       pagination: Pagination
       resourceTypes: [String]
-      accounts: [AccountInput]): ResourcesResponse
+      accounts: [AccountInput]): ResourcesResponse @aws_cognito_user_pools @aws_iam
   # Export a diagram to draw.io
   exportToDrawIo(nodes: [drawIoNodeInput], edges: [drawIoEdgeInput]) : String
 }
@@ -274,7 +274,7 @@ type ResourcesResponse @aws_cognito_user_pools @aws_iam {
     resources: [Resource]
 }
 
-type getResourceGraphResponse {
+type getResourceGraphResponse @aws_cognito_user_pools @aws_iam {
     nodes: [Resource]!
     edges: [Relationship]!
 }
@@ -361,7 +361,7 @@ input Pagination {
   end: Int!
 }
 
-type PaginationType {
+type PaginationType @aws_cognito_user_pools @aws_iam {
   # The item number to start from in the Athena query results CSV
   start: Int!
   # The item number to end on in the Athena query results CSV
