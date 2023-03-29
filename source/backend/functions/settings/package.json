@@ -20,8 +20,9 @@
     "@aws-sdk/client-config-service": "3.188.0",
     "@aws-sdk/client-dynamodb": "3.188.0",
     "@aws-sdk/client-ec2": "3.188.0",
+    "@aws-sdk/client-organizations": "3.294.0",
     "@aws-sdk/lib-dynamodb": "3.188.0",
-    "@tuplo/dynoexpr": "2.9.0",
+    "@tuplo/dynoexpr": "3.4.0",
     "aws-xray-sdk-core": "3.3.8",
     "ramda": "0.28.0"
   },

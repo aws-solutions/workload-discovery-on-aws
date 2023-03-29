@@ -33,6 +33,12 @@ const unsupportedResourceTypes = [
     AWS_MSK_CLUSTER
 ];
 
+const resourceTypesToExclude = [
+    ...unsupportedResourceTypes,
+    // the configuration item that Config returns for OpenSearch is missing fields so we use the SDK instead
+    AWS_OPENSEARCH_DOMAIN
+]
+
 async function getAdvancedQueryUnsupportedResources(configServiceClient, aggregatorName) {
     const {results, errors} = await PromisePool
         .withConcurrency(5)
@@ -76,26 +82,20 @@ function normaliseConfigurationItem(resource) {
     return resource;
 }
 
-async function getAllConfigResources(configServiceClient, accountsMap, configAggregatorName) {
+async function getAllConfigResources(configServiceClient, configAggregatorName) {
     logger.profile('Time to download resources from Config');
 
     return Promise.all([
         getAdvancedQueryUnsupportedResources(configServiceClient, configAggregatorName),
         // We need to exclude the resources we get from querying the aggregator without the SQL
-        // API because it returns results in UpperCamelCase wheres the SQL API returns them in
+        // API because it returns results in UpperCamelCase whereas the SQL API returns them in
         // camelCase. If these resource types get added to the SQL API we would have duplicates
         // with different casing schemes that could break downstream processing.
         configServiceClient.getAllAggregatorResources(configAggregatorName,
-            {excludes: {resourceTypes: unsupportedResourceTypes}}
+            {excludes: {resourceTypes: resourceTypesToExclude}}
         )
-    ])
-        .then(R.chain(R.filter(({accountId, awsRegion, resourceType})=> {
-            // the configuration item Config returns for OpenSearch is missing crucial fields so we use the SDK instead
-            if(resourceType === AWS_OPENSEARCH_DOMAIN) return false;
-            // resources from removed regions can take a while to be deleted from the Config aggregator
-            return (accountsMap.has(accountId) && awsRegion === GLOBAL) || (accountsMap.get(accountId)?.regions ?? []).includes(awsRegion);
-        })))
-        .then(R.map(normaliseConfigurationItem))
+        ])
+        .then(R.chain(R.map(normaliseConfigurationItem)))
         .then(R.tap(() => logger.profile('Time to download resources from Config')))
 }
 

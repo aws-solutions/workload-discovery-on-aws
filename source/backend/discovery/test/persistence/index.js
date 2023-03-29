@@ -3,9 +3,11 @@
 
 const {assert} = require('chai');
 const sinon = require('sinon');
-const {persistResourcesAndRelationships} = require('../src/lib/persistence');
+const {
+    persistResourcesAndRelationships
+} = require('../../src/lib/persistence');
 
-describe('persistence/index.js', () => {
+describe('index.js', () => {
 
     describe('batching', () => {
         const mockApiClient = {
