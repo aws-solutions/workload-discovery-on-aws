@@ -19,6 +19,8 @@
     "@aws-sdk/client-api-gateway": "3.188.0",
     "@aws-sdk/client-cognito-identity-provider": "3.188.0",
     "@aws-sdk/client-config-service": "3.188.0",
+    "@aws-sdk/client-dynamodb": "3.188.0",
+    "@aws-sdk/client-dynamodb-streams": "3.188.0",
     "@aws-sdk/client-ec2": "3.188.0",
     "@aws-sdk/client-ecs": "3.188.0",
     "@aws-sdk/client-eks": "3.58.0",

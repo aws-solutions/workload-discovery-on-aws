@@ -16,6 +16,8 @@ module.exports = {
     AWS_CLOUDFRONT_STREAMING_DISTRIBUTION: 'AWS::CloudFront::StreamingDistribution',
     AWS_COGNITO_USER_POOL: 'AWS::Cognito::UserPool',
     AWS_CONFIG_RESOURCE_COMPLIANCE: 'AWS::Config::ResourceCompliance',
+    AWS_DYNAMODB_STREAM: 'AWS::DynamoDB::Stream',
+    AWS_DYNAMODB_TABLE: 'AWS::DynamoDB::Table',
     AWS_EC2_INSTANCE: 'AWS::EC2::Instance',
     AWS_EC2_INTERNET_GATEWAY: 'AWS::EC2::InternetGateway',
     AWS_EC2_LAUNCH_TEMPLATE: 'AWS::EC2::LaunchTemplate',

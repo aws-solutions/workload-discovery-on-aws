@@ -11,6 +11,8 @@ const {
     AWS_API_GATEWAY_METHOD,
     AWS_CODEBUILD_PROJECT,
     AWS_CONFIG_RESOURCE_COMPLIANCE,
+    AWS_DYNAMODB_STREAM,
+    AWS_DYNAMODB_TABLE,
     AWS_EC2_INSTANCE,
     AWS_EC2_INTERNET_GATEWAY,
     AWS_EC2_NAT_GATEWAY,
@@ -376,6 +378,20 @@ function createIndividualHandlers(lookUpMaps, awsClient, resources, resourceMap)
                     ...subnets.map(createContainedInSubnetRelationship),
                     ...securityGroupIds.map(resourceId => createAssociatedRelationship(AWS_EC2_SECURITY_GROUP, {resourceId}))
                 )
+            }
+        },
+        [AWS_DYNAMODB_TABLE]: async dbTable => {
+            //if streamArn exists create create relationship. Do I have access to the whole object?
+            const {arn, accountId, awsRegion, relationships} = dbTable;
+
+            const {credentials} = accountsMap.get(accountId);
+
+            const dynamoDBClient = awsClient.createDynamoDBClient(credentials, awsRegion);
+
+            const dbTableInfo = await dynamoDBClient.getTableInfo(dbTable);
+            
+            if (dbTableInfo.LatestStreamArn) {
+                relationships.push(createAssociatedRelationship(AWS_DYNAMODB_STREAM, {resourceId: dbTableInfo.LatestStreamArn}));
             }
         },
         [AWS_EC2_SECURITY_GROUP]: async ({configuration, relationships}) => {
