@@ -242,17 +242,12 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
             }
         },
         [AWS_DYNAMODB_TABLE]: async dbTable => {
-            //if streamArn exists create create relationship. Do I have access to the whole object?
-            const {arn, accountId, awsRegion, relationships} = dbTable;
+            const {arn, accountId, awsRegion, configuration, relationships} = dbTable;
 
             const {credentials} = accountsMap.get(accountId);
 
-            const dynamoDBClient = awsClient.createDynamoDBClient(credentials, awsRegion);
-
-            const dbTableInfo = await dynamoDBClient.getTableInfo(dbTable);
-
-            if (dbTableInfo.LatestStreamArn) {
-                relationships.push(createAssociatedRelationship(AWS_DYNAMODB_STREAM, {resourceId: dbTableInfo.LatestStreamArn}));
+            if (configuration.latestStreamArn) {
+                relationships.push(createAssociatedRelationship(AWS_DYNAMODB_STREAM, {arn: configuration.latestStreamArn}));
             }
         },
         [AWS_EC2_SECURITY_GROUP]: async ({configuration, relationships}) => {

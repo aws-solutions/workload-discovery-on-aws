@@ -94,13 +94,15 @@ async function getAllSdkResources(accountsMap, awsClient, resources) {
     logger.error(`There were ${firstErrors.length} errors when adding first order SDK resources.`);
     logger.debug('Errors: ', {firstErrors});
 
-    firstResults.flat().forEach(resource => resourcesCopy.push(resource));
+    firstResults.flat().forEach(resource => { if(resource != undefined) { resourcesCopy.push(resource) } });
 
     const secondOrderResourceTypes = new Set(R.keys(secondOrderHandlers));
 
+    let firstResultsFiltered = firstResults.filter(resource => resource != undefined)
+    
     const {results: secondResults, errors: secondErrors} = await PromisePool
         .withConcurrency(10)
-        .for(firstResults.flat().filter(({resourceType}) => secondOrderResourceTypes.has(resourceType)))
+        .for(firstResultsFiltered.flat().filter(({resourceType}) => secondOrderResourceTypes.has(resourceType)))
         .process(async resource => {
             const handler = secondOrderHandlers[resource.resourceType];
             return handler(resource);

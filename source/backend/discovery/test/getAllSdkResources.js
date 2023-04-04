@@ -19,6 +19,8 @@ const {
     IS_CONTAINED_IN,
     AWS_API_GATEWAY_REST_API,
     AWS_API_GATEWAY_AUTHORIZER,
+    AWS_DYNAMODB_STREAM,
+    AWS_DYNAMODB_TABLE,
     AWS_ECS_TASK, AWS_ECS_SERVICE,
     AWS_EKS_NODE_GROUP,
     AWS_EKS_CLUSTER,
@@ -1546,6 +1548,74 @@ describe('getAllSdkResources', () => {
                         }
                     ]
                 });
+            });
+            describe(AWS_DYNAMODB_STREAM, () => {
+
+                it('should discover DynamoDB Streams', async () => {
+                    const schema = require('./fixtures/additionalResources/dynamodb/stream.json');
+                    const {stream} = generate(schema);
+
+                    const mockDynamoDBStreamsClient = {
+                        createDynamoDBStreamsClient(accountId, credentials, region) {
+                            return {
+                                async getStreamInfo(streamArn) {
+                                    if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                        return [stream];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test/stream`;
+
+                    const actual = await getAllSdkResources({...mockAwsClient, ...mockDynamoDBStreamsClient}, [stream]);
+
+                    const actualDynamoDBStreamResource = actual.find(x => x.arn === arn);
+
+                    assert.deepEqual(actualDynamoDBStreamResource, {
+                        id: arn,
+                        accountId: ACCOUNT_X,
+                        awsRegion: EU_WEST_2,
+                        availabilityZone: NOT_APPLICABLE,
+                        arn: arn,
+                        resourceId: arn,
+                        resourceName: arn,
+                        resourceType: AWS_DYNAMODB_STREAM,
+                        relationships: [],
+                        configuration: {}
+                    });
+
+                });
+
+            });
+
+            describe(AWS_DYNAMODB_TABLE, () => {
+
+                it('should discover DynamoDB Tables without streams', async () => {
+                    const schema = require('./fixtures/additionalResources/dynamodb/table.json');
+                    const {tableNoStream} = generate(schema);
+
+                    const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test`;
+
+                    const actual = await getAllSdkResources({...mockAwsClient}, [tableNoStream]);
+
+                    const actualDynamoDBTableResource = actual.find(x => x.arn === arn);
+
+                    assert.deepEqual(actualDynamoDBTableResource, {
+                        id: arn,
+                        accountId: ACCOUNT_X,
+                        awsRegion: EU_WEST_2,
+                        availabilityZone: NOT_APPLICABLE,
+                        arn: arn,
+                        resourceId: arn,
+                        resourceName: arn,
+                        resourceType: AWS_DYNAMODB_TABLE,
+                        relationships: [],
+                        configuration: {}
+                    });
+
+                });
+
             });
 
         });

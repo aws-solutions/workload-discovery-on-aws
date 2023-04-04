@@ -104,19 +104,14 @@ module.exports = {
 
                 return apiGatewayResources;
             },
-            [AWS_DYNAMODB_TABLE]: async ({awsRegion, resourceId, resourceName, accountId, configuration: {dbTable}}) => {
-                // Do I have access to the whole config object here? 
-
+            [AWS_DYNAMODB_TABLE]: async ({awsRegion, resourceId, resourceName, accountId, configuration}) => {
                 const {credentials} = accountsMap.get(accountId);
-                const dynamoDBClient = awsClient.createDynamoDBClient(credentials, awsRegion);
-                //Check input values, should be tableName...
-                const tableInfo = await dynamoDBClient.getTableInfo(resourceName);
-                if (!tableInfo.LatestStreamArn) {
+                if (!configuration.latestStreamArn) {
                     return
                 }
                 const dynamoDBStreamsClient = awsClient.createDynamoDBStreamsClient(credentials, awsRegion);
 
-                const streamInfo = await dynamoDBStreamsClient.getStreamInfo(tableInfo.latestStreamArn);
+                const streamInfo = await dynamoDBStreamsClient.getStreamInfo(configuration.latestStreamArn);
 
                 return createConfigObject({
                         arn: streamInfo.StreamARN,

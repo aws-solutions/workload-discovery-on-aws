@@ -4,6 +4,8 @@
 const {assert} = require('chai');
 const {
     AWS_API_GATEWAY_METHOD,
+    AWS_DYNAMODB_TABLE,
+    AWS_DYNAMODB_STREAM,
     AWS_EC2_NETWORK_INTERFACE,
     AWS_EC2_VPC,
     AWS_ECS_CLUSTER,
@@ -63,6 +65,7 @@ const {
 
 const {generate} = require('./generator');
 const additionalRelationships = require('../src/lib/additionalRelationships');
+const schema = require("./fixtures/relationships/cloudfrontStreamingDistribution/s3.json");
 
 const ROLE = 'Role';
 const INSTANCE = 'Instance';
@@ -279,6 +282,25 @@ describe('additionalRelationships', () => {
                         resourceId: s3.resourceId,
                         resourceType: AWS_S3_BUCKET,
                         arn: s3.arn
+                    }
+                ]);
+            });
+
+        });
+
+        describe(AWS_DYNAMODB_TABLE, () => {
+
+            it('should add region for s3 buckets', async () => {
+                const schema = require('./fixtures/additionalResources/dynamodb/table.json');
+                const {table} = generate(schema);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [table]);
+                const actual = rels.find(r => r.resourceType === AWS_DYNAMODB_TABLE);
+
+                assert.deepEqual(actual.relationships, [
+                    {
+                        relationshipName: IS_ASSOCIATED_WITH,
+                        resourceType: AWS_DYNAMODB_STREAM,
+                        arn: table.configuration.latestStreamArn
                     }
                 ]);
             });
