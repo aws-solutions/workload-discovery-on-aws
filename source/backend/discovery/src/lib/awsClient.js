@@ -573,10 +573,44 @@ function createCognitoClient(credentials, region) {
 
 }
 
+function createDynamoDBClient(credentials, region) {
+    const dynamoDBClient = new DynamoDBStreams({customUserAgent, region, credentials});
+    // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
+    const describeTableThrottler = pThrottle({
+        limit: 8,
+        interval: 1000
+    });
+
+    return {
+        async getTableInfo(tableName) {
+            describeTableInfo = describeTableThrottler(tableName => dynamoDBClient.describeTable({Name: tableName}));
+            return describeTableInfo.Table;
+        }
+    }
+}
+
+function createDynamoDBStreamsClient(credentials, region) {
+    const dynamoDBStreamsClient = new DynamoDBStreams({customUserAgent, region, credentials});
+    // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
+    const describeStreamThrottler = pThrottle({
+        limit: 8,
+        interval: 1000
+    });
+
+    return {
+        async getStreamInfo(streamArn) {
+            describeStreamInfo = describeStreamThrottler(streamArn => dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
+            return describeStreamInfo.StreamDescription;
+        }
+    }
+}
+
 module.exports = {
     createOrganizationsClient,
     createApiGatewayClient,
     createConfigServiceClient,
+    createDynamoDBClient,
+    createDynamoDBStreamsClient,
     createEc2Client,
     createEcsClient,
     createEksClient,
