@@ -93,7 +93,12 @@ describe('getAllSdkResources', () => {
                 getResources: async () => [],
                 getAuthorizers: async () => []
             }
-        }
+        },
+        createDynamoDBStreamsClient(credentials, region) {
+            return {
+                describeStream: async (streamArn) => [],
+            }
+        },
     };
 
     describe('getAdditionalResources', () => {
