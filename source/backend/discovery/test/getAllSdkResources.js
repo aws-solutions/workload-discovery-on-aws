@@ -1553,10 +1553,10 @@ describe('getAllSdkResources', () => {
 
                 it('should discover DynamoDB Streams', async () => {
                     const schema = require('./fixtures/relationships/dynamodb/stream.json');
-                    const {stream} = generate(schema);
+                    const {table, stream} = generate(schema);
 
                     const mockDynamoDBStreamsClient = {
-                        createDynamoDBStreamsClient(accountId, credentials, region) {
+                        createDynamoDBStreamsClient(credentials, region) {
                             return {
                                 async describeStream(streamArn) {
                                     if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
@@ -1568,7 +1568,7 @@ describe('getAllSdkResources', () => {
                     }
                     const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test/stream`;
 
-                    const actual = await getAllSdkResources({...mockAwsClient, ...mockDynamoDBStreamsClient}, [stream]);
+                    const actual = await getAllSdkResources({...mockAwsClient, ...mockDynamoDBStreamsClient}, [table]);
 
                     const actualDynamoDBStreamResource = actual.find(x => x.arn === arn);
 

@@ -289,7 +289,7 @@ describe('additionalRelationships', () => {
 
         describe(AWS_DYNAMODB_TABLE, () => {
 
-            it('should add region for s3 buckets', async () => {
+            it('should add relationship from table to stream', async () => {
                 const schema = require('./fixtures/relationships/dynamodb/table.json');
                 const {table} = generate(schema);
                 const rels = await addAdditionalRelationships(defaultMockAwsClient, [table]);

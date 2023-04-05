@@ -3,6 +3,19 @@
     "accountId": "xxxxxxxxxxxx",
     "region": "eu-west-2"
   },
+  "table": {
+    "id": "${table.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
+    "resourceId": "${table.arn}",
+    "resourceName":  "test",
+    "resourceType": "AWS::DynamoDB::Table",
+    "relationships": [],
+    "configuration": {
+      "latestStreamArn":"arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test/stream"
+    }
+  },
   "stream": {
     "id": "${stream.arn}",
     "accountId": "${$constants.accountId}",
@@ -11,7 +24,7 @@
     "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test/stream",
     "resourceId": "${stream.arn}",
     "resourceName":  "${stream.arn}",
-    "resourceType": "AWS::DynamoDB::Stream",
+    "resourceType": "AWS::DynamoDB::Table",
     "relationships": [],
     "configuration": {
       "testField": "test"
