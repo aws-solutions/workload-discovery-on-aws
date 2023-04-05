@@ -242,9 +242,7 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
             }
         },
         [AWS_DYNAMODB_TABLE]: async dbTable => {
-            const {arn, accountId, awsRegion, configuration, relationships} = dbTable;
-
-            const {credentials} = accountsMap.get(accountId);
+            const {configuration, relationships} = dbTable;
 
             if (configuration.latestStreamArn) {
                 relationships.push(createAssociatedRelationship(AWS_DYNAMODB_STREAM, {arn: configuration.latestStreamArn}));

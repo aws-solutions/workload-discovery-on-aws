@@ -65,7 +65,6 @@ const {
 
 const {generate} = require('./generator');
 const additionalRelationships = require('../src/lib/additionalRelationships');
-const schema = require("./fixtures/relationships/cloudfrontStreamingDistribution/s3.json");
 
 const ROLE = 'Role';
 const INSTANCE = 'Instance';
@@ -291,7 +290,7 @@ describe('additionalRelationships', () => {
         describe(AWS_DYNAMODB_TABLE, () => {
 
             it('should add region for s3 buckets', async () => {
-                const schema = require('./fixtures/additionalResources/dynamodb/table.json');
+                const schema = require('./fixtures/relationships/dynamodb/table.json');
                 const {table} = generate(schema);
                 const rels = await addAdditionalRelationships(defaultMockAwsClient, [table]);
                 const actual = rels.find(r => r.resourceType === AWS_DYNAMODB_TABLE);

@@ -13,6 +13,8 @@
     "resourceName":  "${stream.arn}",
     "resourceType": "AWS::DynamoDB::Stream",
     "relationships": [],
-    "configuration": {}
+    "configuration": {
+      "testField": "test"
+    }
   }
 }

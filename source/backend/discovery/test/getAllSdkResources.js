@@ -1552,15 +1552,15 @@ describe('getAllSdkResources', () => {
             describe(AWS_DYNAMODB_STREAM, () => {
 
                 it('should discover DynamoDB Streams', async () => {
-                    const schema = require('./fixtures/additionalResources/dynamodb/stream.json');
+                    const schema = require('./fixtures/relationships/dynamodb/stream.json');
                     const {stream} = generate(schema);
 
                     const mockDynamoDBStreamsClient = {
                         createDynamoDBStreamsClient(accountId, credentials, region) {
                             return {
-                                async getStreamInfo(streamArn) {
+                                async describeStream(streamArn) {
                                     if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                        return [stream];
+                                        return stream;
                                     }
                                 }
                             }
@@ -1582,7 +1582,9 @@ describe('getAllSdkResources', () => {
                         resourceName: arn,
                         resourceType: AWS_DYNAMODB_STREAM,
                         relationships: [],
-                        configuration: {}
+                        configuration: {
+                            testField: "test"
+                        }
                     });
 
                 });
@@ -1592,7 +1594,7 @@ describe('getAllSdkResources', () => {
             describe(AWS_DYNAMODB_TABLE, () => {
 
                 it('should discover DynamoDB Tables without streams', async () => {
-                    const schema = require('./fixtures/additionalResources/dynamodb/table.json');
+                    const schema = require('./fixtures/relationships/dynamodb/table.json');
                     const {tableNoStream} = generate(schema);
 
                     const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test`;

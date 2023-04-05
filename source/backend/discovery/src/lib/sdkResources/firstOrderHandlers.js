@@ -105,13 +105,14 @@ module.exports = {
                 return apiGatewayResources;
             },
             [AWS_DYNAMODB_TABLE]: async ({awsRegion, resourceId, resourceName, accountId, configuration}) => {
-                const {credentials} = accountsMap.get(accountId);
-                if (!configuration.latestStreamArn) {
-                    return
+                if (configuration.latestStreamArn != null) {
+                    return []
                 }
+                const {credentials} = accountsMap.get(accountId);
+
                 const dynamoDBStreamsClient = awsClient.createDynamoDBStreamsClient(credentials, awsRegion);
 
-                const streamInfo = await dynamoDBStreamsClient.getStreamInfo(configuration.latestStreamArn);
+                const streamInfo = await dynamoDBStreamsClient.describeStream(configuration.latestStreamArn);
 
                 return createConfigObject({
                         arn: streamInfo.StreamARN,
