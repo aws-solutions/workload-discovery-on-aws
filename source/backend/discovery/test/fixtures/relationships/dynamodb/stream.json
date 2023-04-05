@@ -24,7 +24,7 @@
     "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test/stream",
     "resourceId": "${stream.arn}",
     "resourceName":  "${stream.arn}",
-    "resourceType": "AWS::DynamoDB::Table",
+    "resourceType": "AWS::DynamoDB::Stream",
     "relationships": [],
     "configuration": {
       "testField": "test"

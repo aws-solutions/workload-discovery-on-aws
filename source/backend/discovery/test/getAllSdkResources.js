@@ -1565,7 +1565,7 @@ describe('getAllSdkResources', () => {
                             return {
                                 async describeStream(streamArn) {
                                     if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                        return stream;
+                                        return { StreamARN: stream.arn }
                                     }
                                 }
                             }
@@ -1588,8 +1588,10 @@ describe('getAllSdkResources', () => {
                         resourceType: AWS_DYNAMODB_STREAM,
                         relationships: [],
                         configuration: {
-                            testField: "test"
-                        }
+                            StreamARN: "arn:aws:dynamodb:eu-west-2:xxxxxxxxxxxx:table/test/stream"
+                        },
+                        configurationItemStatus: "ResourceDiscovered",
+                        tags: []
                     });
 
                 });
@@ -1605,7 +1607,6 @@ describe('getAllSdkResources', () => {
                     const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test`;
 
                     const actual = await getAllSdkResources({...mockAwsClient}, [tableNoStream]);
-
                     const actualDynamoDBTableResource = actual.find(x => x.arn === arn);
 
                     assert.deepEqual(actualDynamoDBTableResource, {
