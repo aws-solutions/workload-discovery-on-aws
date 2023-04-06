@@ -45,7 +45,7 @@ async function createAttachedAwsManagedPolices(awsClient, credentials, accountId
 }
 
 async function createTargetGroups(awsClient, credentials, accountId, region) {
-    const elbV2Client = awsClient.createElbV2Client(accountId, credentials, region);
+    const elbV2Client = awsClient.createElbV2Client(credentials, region);
 
     const targetGroups = await elbV2Client.getAllTargetGroups();
 

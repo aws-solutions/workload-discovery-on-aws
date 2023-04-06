@@ -470,7 +470,7 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
         },
         [AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER]: async ({resourceId, accountId, awsRegion, relationships}) => {
             const {credentials} = accountsMap.get(accountId);
-            const elbClient = awsClient.createElbClient(accountId, credentials, awsRegion);
+            const elbClient = awsClient.createElbClient(credentials, awsRegion);
 
             const instanceIds = await elbClient.getLoadBalancerInstances(resourceId);
 
@@ -495,7 +495,7 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
         },
         [AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP]: async ({accountId, awsRegion, arn, configuration: {VpcId}, relationships}) => {
             const {credentials} = accountsMap.get(accountId);
-            const elbClientV2 = awsClient.createElbV2Client(accountId, credentials, awsRegion);
+            const elbClientV2 = awsClient.createElbV2Client(credentials, awsRegion);
 
             const {instances: asgInstances, arn: asgArn} = targetGroupToAsgMap.get(arn) ?? {instances: new Set()};
 

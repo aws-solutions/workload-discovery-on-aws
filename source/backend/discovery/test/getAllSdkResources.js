@@ -347,7 +347,7 @@ describe('getAllSdkResources', () => {
                 const {euWest2, usWest2} = require('./fixtures/additionalResources/alb/targetGroups.json');
 
                 const mockElbV2Client = {
-                    createElbV2Client(accountId, credentials, region) {
+                    createElbV2Client(credentials, region) {
                         return {
                             describeTargetHealth: async arn => [],
                             async getAllTargetGroups() {
@@ -406,10 +406,10 @@ describe('getAllSdkResources', () => {
             });
 
             it('should discover ALB target groups when some regions fail', async () => {
-                const {euWest2, usWest2} = require('./fixtures/additionalResources/alb/targetGroups.json');
+                const {euWest2} = require('./fixtures/additionalResources/alb/targetGroups.json');
 
                 const mockElbV2Client = {
-                    createElbV2Client(accountId, credentials, region) {
+                    createElbV2Client(credentials, region) {
                         return {
                             describeTargetHealth: async arn => [],
                             async getAllTargetGroups() {
@@ -456,7 +456,7 @@ describe('getAllSdkResources', () => {
             it('should discover spot instances', async () => {
                 const {instanceRequests} = require('./fixtures/additionalResources/spot/instance.json');
 
-                const mockEc2lient = {
+                const mockEc2Client = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
@@ -482,7 +482,7 @@ describe('getAllSdkResources', () => {
                 const instanceId1 = "instanceId1";
                 const instanceId2 = "instanceId2";
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2Client}, []);
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualSpotFleet2 = actual.find(x => x.arn === arn2);

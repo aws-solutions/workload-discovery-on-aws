@@ -53,19 +53,14 @@ const {
     DynamoDBStreams
 } = require('@aws-sdk/client-dynamodb-streams')
 const {SNSClient, paginateListSubscriptions} = require('@aws-sdk/client-sns');
+const {memoize} = require('./utils');
 
-// The API Gateway rate limits are _per account_ so we have to create any
-// throttlers outside the factory function
-const apiGatewayThrottlers = {
-    getResourcesThrottlers: new Map(),
-    totalOperationsThrottlers: new Map()
-}
-
-// The ELB rate limits are for all LB type so we have to create any
-// throttlers outside the ELB and ELBv2 factory functions
-const elbThrottlers = {
-    describeThrottlers: new Map()
-}
+// We want to share throttling limits across instances of clients so we memoize this
+// function that each factory function calls to create its throttlers during
+// instantiation.
+const createThrottler = memoize((name, credentials, region, throttleParams) => {
+    return pThrottle(throttleParams);
+});
 
 function createOrganizationsClient(credentials, region) {
     const organizationsClient = new Organizations({customUserAgent, region, credentials});
@@ -123,24 +118,16 @@ function createApiGatewayClient(accountId, credentials, region) {
         client: new APIGatewayClient({customUserAgent, region, credentials})
     }
 
-    const {getResourcesThrottlers, totalOperationsThrottlers} = apiGatewayThrottlers;
+    // The API Gateway rate limits are _per account_ so we set the region to global
+    const getResourcesThrottler = createThrottler('getResources', credentials, 'global', {
+        limit: 5,
+        interval: 2000
+    });
 
-    if (!getResourcesThrottlers.has(accountId)) {
-        getResourcesThrottlers.set(accountId, pThrottle({
-            limit: 5,
-            interval: 2000
-        }))
-    }
-
-    if (!totalOperationsThrottlers.has(accountId)) {
-        totalOperationsThrottlers.set(accountId, pThrottle({
-            limit: 10,
-            interval: 1000
-        }))
-    }
-
-    const getResourcesThrottler = getResourcesThrottlers.get(accountId);
-    const totalOperationsThrottler = totalOperationsThrottlers.get(accountId);
+    const totalOperationsThrottler = createThrottler('totalOperations', credentials, 'global', {
+        limit: 10,
+        interval: 1000
+    });
 
     return {
         getResources: totalOperationsThrottler(getResourcesThrottler(async restApiId => {
@@ -172,10 +159,12 @@ function createConfigServiceClient(credentials, region) {
         pageSize: 100
     };
 
-    const batchGetAggregateResourceConfigThrottler = pThrottle({
-        limit: 15,
-        interval: 1000
-    });
+    const batchGetAggregateResourceConfigThrottler = createThrottler(
+        'batchGetAggregateResourceConfig', credentials, region, {
+            limit: 15,
+            interval: 1000
+        }
+    );
 
     const batchGetAggregateResourceConfig = batchGetAggregateResourceConfigThrottler((ConfigurationAggregatorName, ResourceIdentifiers) => {
         return configClient.batchGetAggregateResourceConfig({ConfigurationAggregatorName, ResourceIdentifiers})
@@ -314,23 +303,17 @@ function createEcsClient(credentials, region) {
         pageSize: 100
     };
 
-    // describeContainerInstances and describeTasks share the same throttling bucket,
-    // the refill rate is 20 so we split it evenly between them
-    const describeContainerInstancesThrottler = pThrottle({
-        limit: 10,
+    // describeContainerInstances and describeTasks share the same throttling bucket
+    const ecsDescribeThrottler = createThrottler('ecsDescribe', credentials, region, {
+        limit: 20,
         interval: 1000
     });
 
-    const describeTasksThrottler = pThrottle({
-        limit: 10,
-        interval: 1000
-    });
-
-    const describeContainerInstances = describeContainerInstancesThrottler((cluster, containerInstances) => {
+    const describeContainerInstances = ecsDescribeThrottler((cluster, containerInstances) => {
         return ecsClient.describeContainerInstances({cluster, containerInstances});
     })
 
-    const describeTasks = describeTasksThrottler((cluster, tasks) => {
+    const describeTasks = ecsDescribeThrottler((cluster, tasks) => {
         return ecsClient.describeTasks({cluster, tasks});
     })
 
@@ -387,7 +370,7 @@ function createEksClient(credentials, region) {
         pageSize: 100
     };
     // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
-    const describeNodegroupThrottler = pThrottle({
+    const describeNodegroupThrottler = createThrottler('describeNodegroup', credentials, region, {
         limit: 5,
         interval: 1000
     });
@@ -415,30 +398,17 @@ function createEksClient(credentials, region) {
 
 }
 
-// this function mutates the elbThrottlers variable
-function getElbDescribeThrottler(elbThrottlers, accountId, region) {
-    if(!elbThrottlers.describeThrottlers.has(accountId)) {
-        elbThrottlers.describeThrottlers.set(accountId, new Map());
-    }
-
-    if(!elbThrottlers.describeThrottlers.get(accountId).has(region)) {
-        elbThrottlers.describeThrottlers.get(accountId).set(region, pThrottle({
-            limit: 10,
-            interval: 1000
-        }));
-    }
-
-    return elbThrottlers.describeThrottlers.get(accountId).get(region);
-}
-
-function createElbClient(accountId, credentials, region) {
+function createElbClient(credentials, region) {
     const elbClient = new ElasticLoadBalancing({credentials, region});
 
     // ELB rate limits for describe* calls are shared amongst all LB types
-    const describeThrottler = getElbDescribeThrottler(elbThrottlers, accountId, region);
+    const elbDescribeThrottler = createThrottler('elbDescribe', credentials, region, {
+        limit: 10,
+        interval: 1000
+    });
 
     return {
-        getLoadBalancerInstances: describeThrottler(async resourceId => {
+        getLoadBalancerInstances: elbDescribeThrottler(async resourceId => {
             const lb = await elbClient.describeLoadBalancers({
                 LoadBalancerNames: [resourceId],
             });
@@ -450,7 +420,7 @@ function createElbClient(accountId, credentials, region) {
     };
 }
 
-function createElbV2Client(accountId, credentials, region) {
+function createElbV2Client(credentials, region) {
     const elbClientV2 = new ElasticLoadBalancingV2({credentials, region});
     const elbV2PaginatorConfig = {
         client: new ElasticLoadBalancingV2Client({customUserAgent, region, credentials}),
@@ -458,16 +428,19 @@ function createElbV2Client(accountId, credentials, region) {
     };
 
     // ELB rate limits for describe* calls are shared amongst all LB types
-    const describeThrottler = getElbDescribeThrottler(elbThrottlers, accountId, region);
+    const elbDescribeThrottler = createThrottler('elbDescribe', credentials, region, {
+        limit: 10,
+        interval: 1000
+    });
 
     return {
-        describeTargetHealth: describeThrottler(async arn => {
+        describeTargetHealth: elbDescribeThrottler(async arn => {
             const {TargetHealthDescriptions = []} = await elbClientV2.describeTargetHealth({
                 TargetGroupArn: arn
             });
             return TargetHealthDescriptions;
         }),
-        getAllTargetGroups: describeThrottler(async () => {
+        getAllTargetGroups: elbDescribeThrottler(async () => {
             const tgPaginator = paginateDescribeTargetGroups(elbV2PaginatorConfig, {});
 
             const targetGroups = [];
@@ -553,7 +526,7 @@ function createCognitoClient(credentials, region) {
 
     // describeUserPool has an RPS of 15, we set this artificially low to avoid
     // being rate limited
-    const describeUserPoolThrottler = pThrottle({
+    const describeUserPoolThrottler = createThrottler('describeUserPool', credentials, region, {
         limit: 7,
         interval: 1000
     });

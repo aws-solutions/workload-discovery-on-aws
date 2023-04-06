@@ -157,6 +157,8 @@ function profileAsync(message, f) {
     }
 }
 
+const memoize = R.memoizeWith((...args) => JSON.stringify(args));
+
 module.exports = {
     createContainsRelationship: createRelationship(CONTAINS),
     createAssociatedRelationship: createRelationship(IS_ASSOCIATED_WITH),
@@ -176,5 +178,6 @@ module.exports = {
     createResourceNameKey,
     createResourceIdKey,
     safeForEach: R.curry(safeForEach),
-    profileAsync: R.curry(profileAsync)
+    profileAsync: R.curry(profileAsync),
+    memoize
 }

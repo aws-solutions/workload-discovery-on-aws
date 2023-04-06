@@ -126,7 +126,7 @@ async function initialise(awsClient, appSync, config) {
         throw new Error(DISCOVERY_PROCESS_RUNNING);
     }
 
-    const configServiceClient = awsClient.createConfigServiceClient(credentials, region)
+    const configServiceClient = awsClient.createConfigServiceClient(credentials, region);
 
     const appSyncClient = appSync({...config, creds: credentials});
     const apiClient = createApiClient(appSyncClient);
