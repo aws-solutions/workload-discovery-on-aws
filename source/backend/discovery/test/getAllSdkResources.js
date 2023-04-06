@@ -753,7 +753,7 @@ describe('getAllSdkResources', () => {
                 const {restApi, apiGwResource} = generate(schema);
 
                 const mockApiGatewayClient = {
-                    createApiGatewayClient(accountId, credentials, region) {
+                    createApiGatewayClient(credentials, region) {
                         return {
                             getAuthorizers: async restApi => [],
                             async getResources() {
@@ -840,7 +840,7 @@ describe('getAllSdkResources', () => {
                 const {restApi, apiGwResource, getMethod, postMethod} = generate(schema);
 
                 const mockApiGatewayClient = {
-                    createApiGatewayClient(accountId, credentials, region) {
+                    createApiGatewayClient(credentials, region) {
                         return {
                             getResources: async restApi => {
                                 if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
@@ -935,7 +935,7 @@ describe('getAllSdkResources', () => {
                 const {restApi, apiGwAuthorizer} = generate(schema);
 
                 const mockApiGatewayClient = {
-                    createApiGatewayClient(accountId, credentials, region) {
+                    createApiGatewayClient(credentials, region) {
                         return {
                             getResources: async restApi => [],
                             async getAuthorizers(restApi) {
@@ -984,7 +984,7 @@ describe('getAllSdkResources', () => {
                 const {restApi, cognito, apiGwAuthorizer} = generate(schema);
 
                 const mockApiGatewayClient = {
-                    createApiGatewayClient(accountId, credentials, region) {
+                    createApiGatewayClient(credentials, region) {
                         return {
                             getResources: async restApi => [],
                             async getAuthorizers(restApi) {

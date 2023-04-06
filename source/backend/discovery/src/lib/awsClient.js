@@ -39,7 +39,7 @@ const {
 const {IAMClient, paginateListPolicies}  = require("@aws-sdk/client-iam");
 const {STS} = require("@aws-sdk/client-sts");
 const { fromNodeProviderChain } = require("@aws-sdk/credential-providers");
-const {AWS, OPENSEARCH} = require("./constants");
+const {AWS, OPENSEARCH, GLOBAL} = require("./constants");
 const {
     ConfigServiceClient,
     ConfigService,
@@ -110,7 +110,7 @@ function createOpenSearchClient(credentials, region) {
     };
 }
 
-function createApiGatewayClient(accountId, credentials, region) {
+function createApiGatewayClient(credentials, region) {
     const apiGatewayClient = new APIGateway({customUserAgent, region, credentials});
 
     const apiGatewayPaginatorConfig = {
@@ -119,12 +119,12 @@ function createApiGatewayClient(accountId, credentials, region) {
     }
 
     // The API Gateway rate limits are _per account_ so we set the region to global
-    const getResourcesThrottler = createThrottler('getResources', credentials, 'global', {
+    const getResourcesThrottler = createThrottler('getResources', credentials, GLOBAL, {
         limit: 5,
         interval: 2000
     });
 
-    const totalOperationsThrottler = createThrottler('totalOperations', credentials, 'global', {
+    const totalOperationsThrottler = createThrottler('totalOperations', credentials, GLOBAL, {
         limit: 10,
         interval: 1000
     });
@@ -551,8 +551,9 @@ function createCognitoClient(credentials, region) {
 
 function createDynamoDBStreamsClient(credentials, region) {
     const dynamoDBStreamsClient = new DynamoDBStreams({customUserAgent, region, credentials});
+
     // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
-    const describeStreamThrottler = pThrottle({
+    const describeStreamThrottler = createThrottler('describeStream', credentials, region, {
         limit: 8,
         interval: 1000
     });

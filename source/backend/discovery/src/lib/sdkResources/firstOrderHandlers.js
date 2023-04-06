@@ -58,7 +58,7 @@ module.exports = {
                 const {id: RestApiId} = configuration;
                 const {credentials} = accountsMap.get(accountId);
 
-                const apiGatewayClient = awsClient.createApiGatewayClient(accountId, credentials, awsRegion);
+                const apiGatewayClient = awsClient.createApiGatewayClient(credentials, awsRegion);
 
                 const apiGatewayResources = []
 
@@ -104,7 +104,7 @@ module.exports = {
 
                 return apiGatewayResources;
             },
-            [AWS_DYNAMODB_TABLE]: async ({awsRegion, resourceId, resourceName, accountId, configuration}) => {
+            [AWS_DYNAMODB_TABLE]: async ({awsRegion, accountId, configuration}) => {
                 if (configuration.latestStreamArn == null) {
                     return []
                 }
@@ -125,7 +125,6 @@ module.exports = {
                         resourceName: streamInfo.StreamARN,
                         relationships: []
                     }, streamInfo)];
-                ;
             },
             [AWS_ECS_SERVICE]: async ({awsRegion, resourceId, resourceName, accountId, configuration: {Cluster}}) => {
                 const {credentials} = accountsMap.get(accountId);
