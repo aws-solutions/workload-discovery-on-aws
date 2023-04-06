@@ -11,6 +11,8 @@ const {
     AUTHORIZERS,
     AWS_API_GATEWAY_AUTHORIZER,
     AWS_COGNITO_USER_POOL,
+    AWS_DYNAMODB_STREAM,
+    AWS_DYNAMODB_TABLE,
     AWS_ECS_SERVICE,
     AWS_ECS_TASK,
     AWS_EKS_CLUSTER,
@@ -101,6 +103,29 @@ module.exports = {
                 }));
 
                 return apiGatewayResources;
+            },
+            [AWS_DYNAMODB_TABLE]: async ({awsRegion, resourceId, resourceName, accountId, configuration}) => {
+                if (configuration.latestStreamArn == null) {
+                    return []
+                }
+                
+                const {credentials} = accountsMap.get(accountId);
+
+                const dynamoDBStreamsClient = awsClient.createDynamoDBStreamsClient(credentials, awsRegion);
+                
+                const streamInfo = await dynamoDBStreamsClient.describeStream(configuration.latestStreamArn);
+
+                return [createConfigObject({
+                        arn: streamInfo.StreamARN,
+                        accountId,
+                        awsRegion,
+                        availabilityZone: NOT_APPLICABLE,
+                        resourceType: AWS_DYNAMODB_STREAM,
+                        resourceId: streamInfo.StreamARN,
+                        resourceName: streamInfo.StreamARN,
+                        relationships: []
+                    }, streamInfo)];
+                ;
             },
             [AWS_ECS_SERVICE]: async ({awsRegion, resourceId, resourceName, accountId, configuration: {Cluster}}) => {
                 const {credentials} = accountsMap.get(accountId);

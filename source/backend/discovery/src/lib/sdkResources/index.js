@@ -94,7 +94,7 @@ async function getAllSdkResources(accountsMap, awsClient, resources) {
     logger.error(`There were ${firstErrors.length} errors when adding first order SDK resources.`);
     logger.debug('Errors: ', {firstErrors});
 
-    firstResults.flat().forEach(resource => resourcesCopy.push(resource));
+    firstResults.flat().forEach(resource => resourcesCopy.push(resource) );
 
     const secondOrderResourceTypes = new Set(R.keys(secondOrderHandlers));
 

@@ -49,6 +49,9 @@ const {
 const {
     OpenSearch
 } = require('@aws-sdk/client-opensearch');
+const {
+    DynamoDBStreams
+} = require('@aws-sdk/client-dynamodb-streams')
 const {SNSClient, paginateListSubscriptions} = require('@aws-sdk/client-sns');
 
 // The API Gateway rate limits are _per account_ so we have to create any
@@ -573,10 +576,27 @@ function createCognitoClient(credentials, region) {
 
 }
 
+function createDynamoDBStreamsClient(credentials, region) {
+    const dynamoDBStreamsClient = new DynamoDBStreams({customUserAgent, region, credentials});
+    // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
+    const describeStreamThrottler = pThrottle({
+        limit: 8,
+        interval: 1000
+    });
+
+    return {
+        async describeStream(streamArn) {
+            const {StreamDescription} = await describeStreamThrottler(streamArn => dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
+            return StreamDescription;
+        }
+    }
+}
+
 module.exports = {
     createOrganizationsClient,
     createApiGatewayClient,
     createConfigServiceClient,
+    createDynamoDBStreamsClient,
     createEc2Client,
     createEcsClient,
     createEksClient,

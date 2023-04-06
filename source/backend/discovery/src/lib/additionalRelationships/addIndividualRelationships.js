@@ -10,6 +10,8 @@ const {
     AWS_S3_BUCKET,
     AWS_CLOUDFRONT_STREAMING_DISTRIBUTION,
     AWS_CODEBUILD_PROJECT,
+    AWS_DYNAMODB_STREAM,
+    AWS_DYNAMODB_TABLE,
     AWS_IAM_ROLE,
     AWS_EC2_SECURITY_GROUP,
     AWS_EC2_SUBNET,
@@ -237,6 +239,13 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
                     ...subnets.map(createContainedInSubnetRelationship),
                     ...securityGroupIds.map(resourceId => createAssociatedRelationship(AWS_EC2_SECURITY_GROUP, {resourceId}))
                 )
+            }
+        },
+        [AWS_DYNAMODB_TABLE]: async dbTable => {
+            const {configuration, relationships} = dbTable;
+
+            if (configuration.latestStreamArn) {
+                relationships.push(createAssociatedRelationship(AWS_DYNAMODB_STREAM, {arn: configuration.latestStreamArn}));
             }
         },
         [AWS_EC2_SECURITY_GROUP]: async ({configuration, relationships}) => {
