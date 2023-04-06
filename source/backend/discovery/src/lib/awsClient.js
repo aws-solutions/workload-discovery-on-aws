@@ -119,12 +119,12 @@ function createApiGatewayClient(credentials, region) {
     }
 
     // The API Gateway rate limits are _per account_ so we set the region to global
-    const getResourcesThrottler = createThrottler('getResources', credentials, GLOBAL, {
+    const getResourcesThrottler = createThrottler('apiGatewayGetResources', credentials, GLOBAL, {
         limit: 5,
         interval: 2000
     });
 
-    const totalOperationsThrottler = createThrottler('totalOperations', credentials, GLOBAL, {
+    const totalOperationsThrottler = createThrottler('apiGatewayTotalOperations', credentials, GLOBAL, {
         limit: 10,
         interval: 1000
     });
@@ -370,7 +370,7 @@ function createEksClient(credentials, region) {
         pageSize: 100
     };
     // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
-    const describeNodegroupThrottler = createThrottler('describeNodegroup', credentials, region, {
+    const describeNodegroupThrottler = createThrottler('eksDescribeNodegroup', credentials, region, {
         limit: 5,
         interval: 1000
     });
@@ -526,7 +526,7 @@ function createCognitoClient(credentials, region) {
 
     // describeUserPool has an RPS of 15, we set this artificially low to avoid
     // being rate limited
-    const describeUserPoolThrottler = createThrottler('describeUserPool', credentials, region, {
+    const describeUserPoolThrottler = createThrottler('cognitoDescribeUserPool', credentials, region, {
         limit: 7,
         interval: 1000
     });
@@ -553,14 +553,16 @@ function createDynamoDBStreamsClient(credentials, region) {
     const dynamoDBStreamsClient = new DynamoDBStreams({customUserAgent, region, credentials});
 
     // this API only has a TPS of 10 so we set it artificially low to avoid rate limiting
-    const describeStreamThrottler = createThrottler('describeStream', credentials, region, {
+    const describeStreamThrottler = createThrottler('dynamoDbDescribeStream', credentials, region, {
         limit: 8,
         interval: 1000
     });
 
+    const describeStream = describeStreamThrottler(streamArn => dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
+
     return {
         async describeStream(streamArn) {
-            const {StreamDescription} = await describeStreamThrottler(streamArn => dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
+            const {StreamDescription} = await describeStream(streamArn);
             return StreamDescription;
         }
     }
