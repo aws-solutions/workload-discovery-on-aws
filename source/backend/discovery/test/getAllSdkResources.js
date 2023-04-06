@@ -1557,7 +1557,7 @@ describe('getAllSdkResources', () => {
             describe(AWS_DYNAMODB_STREAM, () => {
 
                 it('should discover DynamoDB Streams', async () => {
-                    const schema = require('./fixtures/relationships/dynamodb/stream.json');
+                    const schema = require('./fixtures/additionalResources/dynamodb/stream.json');
                     const {table, stream} = generate(schema);
 
                     const mockDynamoDBStreamsClient = {
@@ -1608,6 +1608,8 @@ describe('getAllSdkResources', () => {
 
                     const actual = await getAllSdkResources({...mockAwsClient}, [tableNoStream]);
                     const actualDynamoDBTableResource = actual.find(x => x.arn === arn);
+
+                    assert.lengthOf(actual, 1);
 
                     assert.deepEqual(actualDynamoDBTableResource, {
                         id: arn,

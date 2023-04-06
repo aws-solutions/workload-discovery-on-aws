@@ -586,8 +586,8 @@ function createDynamoDBStreamsClient(credentials, region) {
 
     return {
         async describeStream(streamArn) {
-            const describeStreamInfo = describeStreamThrottler(async (streamArn) => await dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
-            return describeStreamInfo.StreamDescription;
+            const {StreamDescription} = await describeStreamThrottler(streamArn => dynamoDBStreamsClient.describeStream({StreamArn: streamArn}));
+            return StreamDescription;
         }
     }
 }
