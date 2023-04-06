@@ -28,7 +28,7 @@ module.exports = {
 
                 const {credentials} = accountsMap.get(accountId);
 
-                const apiGatewayClient = awsClient.createApiGatewayClient(accountId, credentials, awsRegion);
+                const apiGatewayClient = awsClient.createApiGatewayClient(credentials, awsRegion);
 
                 const results = await Promise.allSettled([
                     apiGatewayClient.getMethod(POST, ResourceId, RestApiId),
