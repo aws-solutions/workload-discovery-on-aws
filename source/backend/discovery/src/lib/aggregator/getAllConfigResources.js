@@ -23,8 +23,6 @@ const {createArnWithResourceType, isDate, isString, isObject, objToKeyNameArray}
 
 const unsupportedResourceTypes = [
     AWS_KINESIS_STREAM,
-    AWS_EFS_ACCESS_POINT,
-    AWS_EFS_FILE_SYSTEM,
     AWS_EC2_LAUNCH_TEMPLATE,
     AWS_EC2_TRANSIT_GATEWAY,
     AWS_EC2_TRANSIT_GATEWAY_ATTACHMENT,
