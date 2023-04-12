@@ -3,8 +3,15 @@
 
 const R = require("ramda");
 const {PromisePool} = require("@supercharge/promise-pool");
-const {profileAsync} = require('../utils');
+const {profileAsync, createArn} = require('../utils');
 const logger = require("../logger");
+const {parse: parseArn} = require("@aws-sdk/util-arn-parser");
+const {
+    ACCESS_DENIED,
+    IAM,
+    ROLE,
+    DISCOVERY_ROLE_NAME
+} = require("../constants");
 
 function getDbResourcesMap(appSync) {
     const {createPaginator, getResources} = appSync;
@@ -79,25 +86,124 @@ function updateCrawledAccounts(appSync) {
 
 function addCrawledAccounts(appSync) {
     return async accounts => {
-        const crawledAccounts = accounts.map(({regions, isIamRoleDeployed, lastCrawled, credentials, ...props}) => {
-            return {
-                ...props,
-                isIamRoleDeployed,
-                regions: regions.map(name => ({name})),
-                lastCrawled: isIamRoleDeployed ? new Date().toISOString() : lastCrawled
-            }
-        });
-
-        return appSync.addAccounts(crawledAccounts);
+        return Promise.resolve(accounts)
+            // we must ensure we do not persist any temporary credentials to the db
+            .then(R.map(R.omit(['credentials', 'toDelete'])))
+            .then(R.map(({regions, isIamRoleDeployed, lastCrawled, ...props}) => {
+                return {
+                    ...props,
+                    isIamRoleDeployed,
+                    regions: regions.map(name => ({name})),
+                    lastCrawled: isIamRoleDeployed ? new Date().toISOString() : lastCrawled
+                }
+            }))
+            .then(appSync.addAccounts);
     }
 }
 
+async function getOrgAccounts(
+    {ec2Client, organizationsClient, configClient}, appSyncClient, {configAggregator}
+) {
+    const [{Arn: managementAccountArn}, dbAccounts, orgAccounts, {OrganizationAggregationSource}, regions] = await Promise.all([
+        organizationsClient.getRootAccount(),
+        appSyncClient.getAccounts(),
+        organizationsClient.getAllAccounts(),
+        configClient.getConfigAggregator(configAggregator),
+        ec2Client.getAllRegions()
+    ]);
+
+    const dbAccountsMap = new Map(dbAccounts.map(x => [x.accountId, x]));
+    const orgAccountsMap = new Map(orgAccounts.map(x => [x.Id, x]));
+
+    const deletedAccounts = dbAccounts.reduce((acc, account) => {
+        const {accountId} = account;
+        if(dbAccountsMap.has(accountId) && !orgAccountsMap.has(accountId)) {
+            acc.push({...account, toDelete: true});
+        }
+        return acc;
+    }, []);
+
+    const managementAccountId = parseArn(managementAccountArn).accountId;
+
+    return orgAccounts
+        .map(({Id, Name: name, Arn}) => {
+            const [, organizationId] = parseArn(Arn).resource.split('/');
+            const lastCrawled = dbAccountsMap.get(Id)?.lastCrawled;
+            return {
+                accountId: Id,
+                organizationId,
+                name,
+                ...(managementAccountId === Id ? {isManagementAccount: true} : {}),
+                ...(lastCrawled != null ? {lastCrawled} : {}),
+                regions: OrganizationAggregationSource.AllAwsRegions
+                    ? regions : OrganizationAggregationSource.AwsRegions,
+                toDelete: dbAccountsMap.has(Id) && !orgAccountsMap.has(Id)
+            };
+        })
+        .concat(deletedAccounts);
+}
+
+function createDiscoveryRoleArn(accountId, rootAccountId) {
+    return createArn({service: IAM, accountId, resource: `${ROLE}/${DISCOVERY_ROLE_NAME}-${rootAccountId}`});
+}
+
+const addAccountCredentials = R.curry(async ({stsClient}, rootAccountId, accounts) => {
+    const {errors, results} = await PromisePool
+        .withConcurrency(30)
+        .for(accounts)
+        .process(async ({accountId, organizationId, ...props}) => {
+            const roleArn = createDiscoveryRoleArn(accountId, rootAccountId);
+            const credentials = await stsClient.getCredentials(roleArn);
+            return {
+                ...props,
+                accountId,
+                isIamRoleDeployed: true,
+                ...(organizationId != null ? {organizationId} : {}),
+                credentials
+            };
+        });
+
+    errors.forEach(({message, raw: error, item: {accountId, isManagementAccount}}) => {
+        const roleArn = createDiscoveryRoleArn(accountId, rootAccountId);
+        if (error.Code === ACCESS_DENIED) {
+            const errorMessage = `Access denied assuming role: ${roleArn}.`;
+            if(isManagementAccount) {
+                logger.error(`${errorMessage} This is the management account, ensure the global resources template has been deployed to the account.`);
+            } else {
+                logger.error(`${errorMessage} Ensure the global resources template has been deployed to account: ${accountId}. The discovery for this account will be skipped.`);
+            }
+        } else {
+            logger.error(`Error assuming role: ${roleArn}: ${message}`);
+        }
+    });
+
+    return [
+        ...errors.filter(({raw}) => raw.Code === ACCESS_DENIED).map(({item}) => ({...item, isIamRoleDeployed: false})),
+        ...results,
+    ];
+});
+
 module.exports = {
-    createApiClient(appSync) {
+    createApiClient(awsClient, appSync, config) {
+        const ec2Client = awsClient.createEc2Client();
+        const organizationsClient = awsClient.createOrganizationsClient();
+        const configClient = awsClient.createConfigServiceClient();
+        const stsClient = awsClient.createStsClient();
+
         return {
             getDbResourcesMap: profileAsync('Time to download resources from Neptune', getDbResourcesMap(appSync)),
             getDbRelationshipsMap: profileAsync('Time to download relationships from Neptune', getDbRelationshipsMap(appSync)),
+            getAccounts: profileAsync('Time to get accounts', () => {
+                const accountsP = config.isUsingOrganizations
+                    ? getOrgAccounts({ec2Client, organizationsClient, configClient}, appSync, config)
+                    : appSync.getAccounts();
+
+                return accountsP
+                    .then(R.map(R.evolve({regions: R.map(x => x.name)})))
+                    .then(addAccountCredentials({stsClient}, config.rootAccountId))
+            }),
             addCrawledAccounts: addCrawledAccounts(appSync),
+            deleteAccounts: appSync.deleteAccounts,
             storeResources: process(async resources => {
                 await appSync.indexResources(resources);
                 await appSync.addResources(resources);

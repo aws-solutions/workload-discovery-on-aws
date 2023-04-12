@@ -292,6 +292,18 @@ const updateAccount = opts => async (accountId, accountName, isIamRoleDeployed, 
     return sendQuery(opts, name, {query, variables});
 };
 
+const deleteAccounts = opts => async (accountIds) => {
+    const name = 'deleteAccounts';
+    const query = `
+    mutation ${name}($accountIds: [String]!) {
+        deleteAccounts(accountIds: $accountIds) {
+            unprocessedAccounts
+        }
+    }`;
+    const variables = {accountIds};
+    return sendQuery(opts, name, {query, variables});
+};
+
 module.exports = function(config) {
     const [host, path] = config.graphgQlUrl.replace('https://', '').split('/');
 
@@ -308,6 +320,7 @@ module.exports = function(config) {
         deleteResources: deleteResources(opts),
         indexResources: indexResources(opts),
         addAccounts: addAccounts(opts),
+        deleteAccounts: deleteAccounts(opts),
         getAccounts: getAccounts(opts),
         updateAccount: updateAccount(opts),
         updateResources: updateResources(opts),

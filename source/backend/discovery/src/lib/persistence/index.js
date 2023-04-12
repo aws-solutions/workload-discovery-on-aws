@@ -3,7 +3,6 @@
 
 const R = require('ramda');
 const logger = require("../logger");
-const {isUsingOrganizations} = require("../config");
 
 async function persistResourcesAndRelationships(apiClient, deltas) {
     const {
@@ -11,11 +10,11 @@ async function persistResourcesAndRelationships(apiClient, deltas) {
         linksToAdd, linksToDelete
     } = deltas;
 
-    logger.info(`Deleting ${resourceIdsToDelete.length} resources`);
+    logger.info(`Deleting ${resourceIdsToDelete.length} resources...`);
     logger.profile('Total time to upload');
     await apiClient.deleteResources({concurrency: 5, batchSize: 50}, resourceIdsToDelete);
 
-    logger.info(`Updating ${resourcesToUpdate.length} resources`);
+    logger.info(`Updating ${resourcesToUpdate.length} resources...`);
     await apiClient.updateResources({concurrency: 10, batchSize: 10}, resourcesToUpdate);
 
     logger.info(`Storing ${resourcesToStore.length} resources...`);
@@ -30,19 +29,27 @@ async function persistResourcesAndRelationships(apiClient, deltas) {
     logger.profile('Total time to upload');
 }
 
-async function persistAccountData(config, apiClient, accounts) {
+async function persistAccounts({isUsingOrganizations}, apiClient, accounts) {
     if(isUsingOrganizations) {
-        const [accountsToStore, accountsToUpdate] = R.partition(account => account.lastCrawled == null, accounts);
+        const [accountsToDelete, accountsToStore] = R.partition(account => account.toDelete, accounts);
+        const [accountsToAdd, accountsToUpdate] = R.partition(account => account.lastCrawled == null, accountsToStore);
+
+        logger.info(`Adding ${accountsToAdd.length} accounts...`);
+        logger.info(`Updating ${accountsToUpdate.length} accounts...`);
+        logger.info(`Deleting ${accountsToDelete.length} accounts...`);
+
         return Promise.all([
-            apiClient.addCrawledAccounts(accountsToStore),
-            apiClient.updateCrawledAccounts(accountsToUpdate)
+            apiClient.addCrawledAccounts(accountsToAdd),
+            apiClient.updateCrawledAccounts(accountsToUpdate),
+            apiClient.deleteAccounts(accountsToDelete.map(x => x.accountId))
         ]);
     } else {
+        logger.info(`Updating ${accounts.length} accounts...`);
         return apiClient.updateCrawledAccounts(accounts);
     }
 }
 
 module.exports = {
     persistResourcesAndRelationships: R.curry(persistResourcesAndRelationships),
-    persistAccountData
+    persistAccounts
 }

@@ -201,7 +201,7 @@ type Mutation {
   # Deletes one or more regions to be scanned
   deleteRegions(accountId: String!, regions: [RegionInput]!): Account
   # Deletes one or more accounts to be scanned
-  deleteAccounts(accountIds: [String]!): UnprocessedAccounts
+  deleteAccounts(accountIds: [String]!): UnprocessedAccounts @aws_cognito_user_pools @aws_iam
 }
 
 type Query {

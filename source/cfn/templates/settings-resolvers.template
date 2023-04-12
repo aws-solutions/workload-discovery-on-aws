@@ -61,7 +61,6 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       Policies:
         - PolicyName: !Sub ${AWS::StackName}-AppSyncLambdaRole
@@ -100,7 +99,7 @@ Resources:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/settings.zip
       Runtime: nodejs16.x
-      Description: Lambda for Appsync resolvers
+      Description: Lambda for Settings Appsync resolvers
       Timeout: 10
       MemorySize: 1024
       ReservedConcurrentExecutions: 10

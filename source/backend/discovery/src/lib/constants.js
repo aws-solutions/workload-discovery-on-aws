@@ -131,7 +131,6 @@ module.exports = {
     TASK_DEFINITION: 'task-definition',
     TRANSIT_GATEWAY_ATTACHMENT: 'transit-gateway-attachment',
     UNKNOWN: 'unknown',
-    NO_ACCOUNTS_TO_DISCOVER: 'No accounts have been added to discover.',
     DISCOVERY_PROCESS_RUNNING: 'Discovery process ECS task is already running in cluster.',
     CONSOLE: 'console',
     SIGN_IN: 'signin',

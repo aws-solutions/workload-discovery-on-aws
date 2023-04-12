@@ -9,30 +9,33 @@ const {getAllSdkResources} = require('./sdkResources');
 const {addAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
 const {createSaveObject} = require('./persistence/transformers');
-const {persistResourcesAndRelationships, persistAccountData} = require('./persistence');
-
-async function getAllResources(configServiceClient, awsClient, accounts, configAggregator) {
-    const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed).map(x => [x.accountId, x]));
-    return getAllConfigResources(configServiceClient, accountsMap, configAggregator)
-        .then(getAllSdkResources(accountsMap, awsClient))
-        .then(addAdditionalRelationships(accountsMap, awsClient))
-}
+const {persistResourcesAndRelationships, persistAccounts} = require('./persistence');
+const {GLOBAL} = require("./constants");
 
 async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
-    const {accounts, apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
+    const {apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
 
-    const [dbLinksMap, dbResourcesMap, resources] = await Promise.all([
+    const [accounts, dbLinksMap, dbResourcesMap, configResources] = await Promise.all([
+        apiClient.getAccounts(),
         apiClient.getDbRelationshipsMap(),
         apiClient.getDbResourcesMap(),
-        getAllResources(configServiceClient, awsClient, accounts, config.configAggregator)
+        getAllConfigResources(configServiceClient, config.configAggregator)
     ]);
 
-    return Promise.resolve(resources)
+    const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed && !x.toDelete).map(x => [x.accountId, x]));
+
+    return Promise.resolve(configResources)
+        .then(R.filter(({accountId, awsRegion}) => {
+            // resources from removed accounts/regions can take a while to be deleted from the Config aggregator
+            return (accountsMap.has(accountId) && awsRegion === GLOBAL) || (accountsMap.get(accountId)?.regions ?? []).includes(awsRegion);
+        }))
+        .then(getAllSdkResources(accountsMap, awsClient))
+        .then(addAdditionalRelationships(accountsMap, awsClient))
         .then(R.map(createSaveObject))
         .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
         .then(persistResourcesAndRelationships(apiClient))
-        .then(() => persistAccountData(config, apiClient, accounts));
+        .then(() => persistAccounts(config, apiClient, accounts));
 }
 
 module.exports = {
