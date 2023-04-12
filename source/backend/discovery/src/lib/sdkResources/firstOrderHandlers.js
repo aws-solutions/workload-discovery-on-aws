@@ -113,18 +113,18 @@ module.exports = {
 
                 const dynamoDBStreamsClient = awsClient.createDynamoDBStreamsClient(credentials, awsRegion);
                 
-                const streamInfo = await dynamoDBStreamsClient.describeStream(configuration.latestStreamArn);
+                const stream = await dynamoDBStreamsClient.describeStream(configuration.latestStreamArn);
 
                 return [createConfigObject({
-                        arn: streamInfo.StreamARN,
+                        arn: stream.StreamArn,
                         accountId,
                         awsRegion,
                         availabilityZone: NOT_APPLICABLE,
                         resourceType: AWS_DYNAMODB_STREAM,
-                        resourceId: streamInfo.StreamARN,
-                        resourceName: streamInfo.StreamARN,
+                        resourceId: stream.StreamArn,
+                        resourceName: stream.StreamArn,
                         relationships: []
-                    }, streamInfo)];
+                    }, stream)];
             },
             [AWS_ECS_SERVICE]: async ({awsRegion, resourceId, resourceName, accountId, configuration: {Cluster}}) => {
                 const {credentials} = accountsMap.get(accountId);

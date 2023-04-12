@@ -1565,7 +1565,7 @@ describe('getAllSdkResources', () => {
                             return {
                                 async describeStream(streamArn) {
                                     if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                        return { StreamARN: stream.arn }
+                                        return { StreamArn: stream.arn }
                                     }
                                 }
                             }
@@ -1588,7 +1588,7 @@ describe('getAllSdkResources', () => {
                         resourceType: AWS_DYNAMODB_STREAM,
                         relationships: [],
                         configuration: {
-                            StreamARN: "arn:aws:dynamodb:eu-west-2:xxxxxxxxxxxx:table/test/stream"
+                            StreamArn: "arn:aws:dynamodb:eu-west-2:xxxxxxxxxxxx:table/test/stream"
                         },
                         configurationItemStatus: "ResourceDiscovered",
                         tags: []
