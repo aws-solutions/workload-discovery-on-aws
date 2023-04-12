@@ -17,12 +17,11 @@
   "author": "svozza",
   "license": "Apache-2.0",
   "dependencies": {
-    "@opensearch-project/opensearch": "1.0.2",
-    "aws-opensearch-connector": "1.0.0",
+    "@opensearch-project/opensearch": "1.1.0",
+    "aws-opensearch-connector": "1.1.0",
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "aws-sdk": "latest",
     "chai": "^4.2.0",
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",
