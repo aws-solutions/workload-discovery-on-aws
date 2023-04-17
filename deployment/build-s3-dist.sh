@@ -106,11 +106,12 @@ echo "--------------------------------------------------------------------------
 cd "${source_dir}/backend/functions/cleanup-ecr"
 rm -rf dist && mkdir dist
 mkdir "python"
-cp "cleanup-ecr.py" "python"
+cp cleanup_ecr.py ./python
 pip install -r "requirements.txt" -t "python/"
-zip  -q  -r9 "cleanup-ecr.zip" ./python
-rm -rf "python"
-cp ./cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
+cd python
+zip -q -r9 dist/cleanup-ecr.zip *
+cd -
+cp ./dist/cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Drawio Lambda"
