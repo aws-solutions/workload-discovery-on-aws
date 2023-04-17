@@ -105,8 +105,12 @@ echo "[Rebuild] Cleanup ECR Lambda"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/cleanup-ecr"
 rm -rf dist && mkdir dist
-zip -q -r9 dist/cleanup-ecr.zip cleanup_ecr.py
-cp ./dist/cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
+mkdir "python"
+cp "cleanup-ecr.py" "python"
+pip install -r "requirements.txt" -t "python/"
+zip  -q  -r9 "cleanup-ecr.zip" ./python
+rm -rf "python"
+cp ./cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Drawio Lambda"
