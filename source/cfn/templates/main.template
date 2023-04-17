@@ -170,7 +170,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
-      Runtime: python3.10
+      Runtime: python3.9
       ReservedConcurrentExecutions: 1
       InlineCode: |
         import cfnresponse

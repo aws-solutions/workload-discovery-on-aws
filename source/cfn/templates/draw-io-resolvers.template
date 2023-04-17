@@ -40,7 +40,7 @@ Resources:
             reason: This Lambda does not connect to any resources in a VPC
     Properties:
       Description: Converts Worload Discovery diagram to a Draw IO URL
-      Runtime: python3.10
+      Runtime: python3.9
       Handler: main.handler
       CodeUri:
         Bucket: !Ref DeploymentBucket
