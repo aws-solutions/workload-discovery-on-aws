@@ -105,7 +105,7 @@ echo "[Rebuild] Cleanup ECR Lambda"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/cleanup-ecr"
 rm -rf dist && mkdir dist
-mkdir "python"
+rm -rf python && mkdir "python"
 cp cleanup_ecr.py ./python
 pip install -r "requirements.txt" -t "python/"
 cd python
