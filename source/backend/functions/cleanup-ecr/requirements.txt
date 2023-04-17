@@ -1,1 +1,1 @@
-importlib_resources==1.0.2
+importlib_resources==5.12.0
