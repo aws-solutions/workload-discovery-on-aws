@@ -165,6 +165,14 @@ Resources:
         Variables:
           CustomUserAgent: !Ref CustomUserAgent
 
+  CleanupECRRepository:
+    Type: Custom::Setup
+    Properties:
+      ServiceToken: !GetAtt CleanupRepositoryFunction.Arn
+      LogLevel: !Ref LogLevel
+      Repository: !Ref PerspectiveContainerRepo
+
+
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
