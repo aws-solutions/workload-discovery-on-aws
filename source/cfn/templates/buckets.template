@@ -135,9 +135,6 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref AccessLogsBucket
         LogFilePrefix: amplify-storage-bucket/
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: ObjectWriter
       VersioningConfiguration:
         Status: Enabled
 
@@ -300,9 +297,6 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref AccessLogsBucket
         LogFilePrefix: webui-bucket/
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: ObjectWriter
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
