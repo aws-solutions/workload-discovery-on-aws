@@ -3,7 +3,7 @@ phases:
   install:
     runtime-versions:
       nodejs: 16
-      python: 3.9
+      python: 3.10
     commands:
       - pip install --upgrade pip
   pre_build:

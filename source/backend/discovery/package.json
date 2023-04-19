@@ -37,7 +37,7 @@
     "iterare": "1.2.1",
     "p-throttle": "4.0.0",
     "ramda": "0.28.0",
-    "undici": "5.8.2",
+    "undici": "5.20.0",
     "winston": "3.3.3"
   },
   "devDependencies": {
