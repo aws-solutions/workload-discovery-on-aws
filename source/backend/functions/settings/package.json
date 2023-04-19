@@ -27,6 +27,7 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
+    "aws-sdk": "2.1354.0",
     "aws-sdk-client-mock": "^0.6.2",
     "chai": "^4.2.0",
     "dynamo-db-local": "^4.1.0",

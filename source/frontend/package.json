@@ -56,6 +56,8 @@
     "react-router-dom": "5.2.0",
     "react-use": "^17.4.0",
     "sass": "1.38.0",
+    "stream": "0.0.2",
+    "ua-parser-js": "0.7.33",
     "valid-filename": "3.1.0"
   },
   "scripts": {

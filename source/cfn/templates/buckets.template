@@ -59,6 +59,9 @@ Resources:
             Id: DeleteAfter45Days
             Prefix: ""
             Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true

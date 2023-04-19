@@ -1,15 +1,15 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "lambdaArn",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Lambda::Function",
-    "relationships": [],
-    "configuration": {}
+    "$constants": {
+      "accountId": "xxxxxxxxxxxx",
+      "awsRegion": "eu-west-2"
+    },
+    "lambda": {
+      "id": "${lambda.arn}",
+      "arn": "lambdaArn",
+      "accountId": "${$constants.accountId}",
+      "awsRegion": "${$constants.awsRegion}",
+      "resourceType": "AWS::Lambda::Function",
+      "relationships": [],
+      "configuration": {}
+    }
   }
-}
