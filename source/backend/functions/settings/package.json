@@ -16,9 +16,9 @@
   "author": "svozza",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-config-service": "3.188.0",
-    "@aws-sdk/client-dynamodb": "3.188.0",
-    "@aws-sdk/client-ec2": "3.188.0",
+    "@aws-sdk/client-config-service": "3.350.0",
+    "@aws-sdk/client-dynamodb": "3.351.0",
+    "@aws-sdk/client-ec2": "3.350.0",
     "@aws-sdk/lib-dynamodb": "3.188.0",
     "@tuplo/dynoexpr": "2.9.0",
     "aws-xray-sdk-core": "3.3.8",
