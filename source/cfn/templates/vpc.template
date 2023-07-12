@@ -124,60 +124,6 @@ Resources:
       ResourceType: 'VPC'
       TrafficType: !Ref TrafficType
 
-  PublicSubnet0:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      VpcId:
-        Ref: 'VPC'
-      AvailabilityZone:
-        Fn::Sub:
-          - '${AWS::Region}${AZ}'
-          - AZ: !Select [0, !FindInMap ['AZRegions', !Ref 'AWS::Region', 'AZs']]
-      CidrBlock:
-        Fn::FindInMap:
-          - 'SubnetConfig'
-          - 'Public0'
-          - 'CIDR'
-      Tags:
-        - Key: 'Application'
-          Value:
-            Ref: 'AWS::StackName'
-        - Key: 'Network'
-          Value: 'Public'
-        - Key: 'Name'
-          Value: !Join
-            - ''
-            - - !Ref 'VPC'
-              - '-public-'
-              - !Select [0, !FindInMap ['AZRegions', !Ref 'AWS::Region', 'AZs']]
-
-  PublicSubnet1:
-    Type: 'AWS::EC2::Subnet'
-    Properties:
-      VpcId:
-        Ref: 'VPC'
-      AvailabilityZone:
-        Fn::Sub:
-          - '${AWS::Region}${AZ}'
-          - AZ: !Select [1, !FindInMap ['AZRegions', !Ref 'AWS::Region', 'AZs']]
-      CidrBlock:
-        Fn::FindInMap:
-          - 'SubnetConfig'
-          - 'Public1'
-          - 'CIDR'
-      Tags:
-        - Key: 'Application'
-          Value:
-            Ref: 'AWS::StackName'
-        - Key: 'Network'
-          Value: 'Public'
-        - Key: 'Name'
-          Value: !Join
-            - ''
-            - - !Ref 'VPC'
-              - '-public-'
-              - !Select [1, !FindInMap ['AZRegions', !Ref 'AWS::Region', 'AZs']]
-
   PrivateSubnet0:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -232,73 +178,6 @@ Resources:
               - '-private-'
               - !Select [1, !FindInMap ['AZRegions', !Ref 'AWS::Region', 'AZs']]
 
-  InternetGateway:
-    Type: 'AWS::EC2::InternetGateway'
-    Properties:
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Sub ${VPC}-IGW
-
-  GatewayToInternet:
-    Type: 'AWS::EC2::VPCGatewayAttachment'
-    Properties:
-      VpcId:
-        Ref: 'VPC'
-      InternetGatewayId:
-        Ref: 'InternetGateway'
-
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Sub ${VPC}-public-route-table
-
-  PublicRoute:
-    Type: 'AWS::EC2::Route'
-    DependsOn: 'GatewayToInternet'
-    Properties:
-      RouteTableId:
-        Ref: 'PublicRouteTable'
-      DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId:
-        Ref: 'InternetGateway'
-
-  PublicSubnetRouteTableAssociation0:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId:
-        Ref: 'PublicSubnet0'
-      RouteTableId:
-        Ref: 'PublicRouteTable'
-
-  PublicSubnetRouteTableAssociation1:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
-    Properties:
-      SubnetId:
-        Ref: 'PublicSubnet1'
-      RouteTableId:
-        Ref: 'PublicRouteTable'
-
-  ElasticIP0:
-    Type: 'AWS::EC2::EIP'
-    Properties:
-      Domain: 'vpc'
-
-  ElasticIP1:
-    Type: 'AWS::EC2::EIP'
-    Properties:
-      Domain: 'vpc'
-
   NATGateway0:
     Type: 'AWS::EC2::NatGateway'
     Properties:
@@ -308,6 +187,8 @@ Resources:
           - 'AllocationId'
       SubnetId:
         Ref: 'PublicSubnet0'
+      ConnectivityType
+        private
 
   NATGateway1:
     Type: 'AWS::EC2::NatGateway'
@@ -318,6 +199,8 @@ Resources:
           - 'AllocationId'
       SubnetId:
         Ref: 'PublicSubnet1'
+      ConnectivityType
+        private
 
   PrivateRouteTable0:
     Type: AWS::EC2::RouteTable
