@@ -36,6 +36,14 @@ Parameters:
   CustomUserAgent: 
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Resources:
 
   PerspectiveCostLambdaRole:

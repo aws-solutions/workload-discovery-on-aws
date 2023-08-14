@@ -210,6 +210,14 @@ Parameters:
     Type: String
     Default: 'No'
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   EnableAuditLogUpload:
     Fn::Equals:

@@ -17,6 +17,12 @@ Parameters:
   DeploymentBucketKey:
     Type: String
     Description: "The key to the deployment code for Perspective"
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
 
 Resources:
   AWSCURDatabase:

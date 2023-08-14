@@ -10,6 +10,14 @@ Parameters:
   ConfigBucket:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
 

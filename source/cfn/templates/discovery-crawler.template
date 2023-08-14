@@ -91,6 +91,14 @@ Parameters:
     Type: String
     Default: 'AwsSolution/SO0075/1.1.0'
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Resources:
   PerspectiveContainerRepo:
     Type: AWS::ECR::Repository

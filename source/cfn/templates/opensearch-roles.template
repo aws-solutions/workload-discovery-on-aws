@@ -6,6 +6,14 @@ Parameters:
   CreateOpensearchServiceRole:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   DeployOpensearchServiceRole: !Equals [!Ref CreateOpensearchServiceRole, 'Yes']
 

@@ -29,6 +29,14 @@ Parameters:
   S3CleanupBucket:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   CreateConfigBucket: !Equals
     - Ref: CreateConfigBucket

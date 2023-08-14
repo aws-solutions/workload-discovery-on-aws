@@ -16,6 +16,12 @@ Parameters:
     - ACCEPT
     - REJECT
     - ALL
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
 
 Mappings:
   SubnetConfig:

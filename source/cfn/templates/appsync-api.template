@@ -15,6 +15,14 @@ Parameters:
   CognitoUserPoolId:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Resources:
 
   PerspectiveAppSyncLoggingRole:
