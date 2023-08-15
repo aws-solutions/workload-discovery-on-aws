@@ -62,6 +62,8 @@ Resources:
       Timeout: 5
       MemorySize: 256
       ReservedConcurrentExecutions: 5
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   DrawIoInvokeRole:
     Type: AWS::IAM::Role

@@ -196,6 +196,8 @@ Resources:
              physicalResourceId=event.get("LogicalResourceId"), 
              reason=None,
            )
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   Variables:
     Type: "Custom::Variables"

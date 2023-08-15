@@ -422,6 +422,8 @@ Resources:
                     - Ref: "AWS::NoValue"
       Runtime: python3.8
       Timeout: 60
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   CleanupAccessLogsBucket:
     Type: "Custom::S3BucketCleanup"
