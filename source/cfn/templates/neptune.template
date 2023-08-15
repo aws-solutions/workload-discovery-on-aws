@@ -227,6 +227,8 @@ Conditions:
     Fn::Equals:
       - Ref: CreateNeptuneReplica
       - 'Yes'
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
 

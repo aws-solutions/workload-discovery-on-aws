@@ -20,6 +20,8 @@ Parameters:
 
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
 

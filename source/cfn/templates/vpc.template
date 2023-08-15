@@ -70,6 +70,10 @@ Mappings:
     us-west-2:
       AZs: ['a', 'b']
 
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC

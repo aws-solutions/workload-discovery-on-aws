@@ -41,6 +41,8 @@ Conditions:
   CreateConfigBucket: !Equals
     - Ref: CreateConfigBucket
     - "true"
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
   # The custom resource disables access logging because otherwise logs will be

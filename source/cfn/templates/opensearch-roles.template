@@ -16,6 +16,8 @@ Parameters:
 
 Conditions:
   DeployOpensearchServiceRole: !Equals [!Ref CreateOpensearchServiceRole, 'Yes']
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
   # As this stack has no dependencies it should be created first giving sufficient time for

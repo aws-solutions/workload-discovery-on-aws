@@ -21,6 +21,10 @@ Parameters:
     Description: Name of optional Permissions Boundary
     Type: String
 
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
 
   CognitoAuthRole:
