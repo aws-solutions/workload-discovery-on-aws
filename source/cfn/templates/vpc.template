@@ -16,6 +16,12 @@ Parameters:
     - ACCEPT
     - REJECT
     - ALL
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
 
 Mappings:
   SubnetConfig:
@@ -64,6 +70,10 @@ Mappings:
     us-west-2:
       AZs: ['a', 'b']
 
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -104,6 +114,8 @@ Resources:
             - 'logs:CreateLogStream'
             - 'logs:PutLogEvents'
             Resource: !GetAtt 'FlowLogGroup.Arn'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   FlowLogGroup:
     Metadata:

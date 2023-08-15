@@ -13,6 +13,18 @@ Parameters:
   WebUiUrl:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
 
   CognitoAuthRole:
@@ -70,6 +82,8 @@ Resources:
               - Action: s3:ListBucket
                 Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}"
                 Effect: "Allow"
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   IdentityPoolRoleMap:
     Type: AWS::Cognito::IdentityPoolRoleAttachment

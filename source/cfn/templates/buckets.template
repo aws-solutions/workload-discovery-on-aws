@@ -29,10 +29,20 @@ Parameters:
   S3CleanupBucket:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   CreateConfigBucket: !Equals
     - Ref: CreateConfigBucket
     - "true"
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
   # The custom resource disables access logging because otherwise logs will be
@@ -412,6 +422,8 @@ Resources:
                     - Ref: "AWS::NoValue"
       Runtime: python3.8
       Timeout: 60
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   CleanupAccessLogsBucket:
     Type: "Custom::S3BucketCleanup"

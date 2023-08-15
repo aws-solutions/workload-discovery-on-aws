@@ -32,6 +32,18 @@ Parameters:
   SolutionVersion:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
 
   CodeBuildRole:
@@ -91,6 +103,8 @@ Resources:
                   - s3:PutObject
                 Resource:
                   - !Sub "arn:aws:s3:::${WebUIBucket}/*"
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -183,3 +197,5 @@ Resources:
       Runtime: python3.8
       ReservedConcurrentExecutions: 1
       Timeout: 900
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]

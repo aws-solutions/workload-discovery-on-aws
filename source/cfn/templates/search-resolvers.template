@@ -41,6 +41,18 @@ Parameters:
   SolutionVersion:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
 
   SearchLambdaSg:
@@ -154,6 +166,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt SearchApiAppSyncFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
                 
   PerspectiveAppSyncSearchLambdaDataSource:
     Type: AWS::AppSync::DataSource

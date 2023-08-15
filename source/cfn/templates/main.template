@@ -146,6 +146,18 @@ Parameters:
     Type: String
     Default: "primary"
     Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+    Default: "No"
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    ConstraintDescription: Please specify if Roles should have a Permissions Boundary set (Yes/No)
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 
 Mappings:
   Solution:
@@ -184,6 +196,8 @@ Resources:
              physicalResourceId=event.get("LogicalResourceId"), 
              reason=None,
            )
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   Variables:
     Type: "Custom::Variables"
@@ -220,6 +234,8 @@ Resources:
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
         CreateConfigBucket: !If [SetUpConfig, 'true', 'false']
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
       TemplateURL:
         !Sub
           - "${DeploymentBucket}/buckets.template"
@@ -234,6 +250,9 @@ Resources:
          - "${DeploymentBucket}/vpc.template"
          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
       TimeoutInMinutes: 60
+    Parameters:
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   NeptuneStack:
     Type: AWS::CloudFormation::Stack
@@ -254,6 +273,8 @@ Resources:
         Port: 6174
         CreateNeptuneReplica: !Ref CreateNeptuneReplica
         DBInstanceClass: !Ref NeptuneInstanceClass
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   ConfigAggregator:
     Type: AWS::CloudFormation::Stack
@@ -266,6 +287,8 @@ Resources:
       Parameters:
         ExistingConfigInstallation: !Ref AlreadyHaveConfigSetup
         ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -277,6 +300,8 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   OpenSearchStack:
     Type: AWS::CloudFormation::Stack
@@ -322,6 +347,8 @@ Resources:
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   CodebuildStack:
     Type: AWS::CloudFormation::Stack
@@ -340,6 +367,8 @@ Resources:
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   CognitoStack:
     Type: AWS::CloudFormation::Stack
@@ -353,6 +382,8 @@ Resources:
         AdminUserEmailAddress: !Ref AdminUserEmailAddress
         AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         WebUiUrl: !GetAtt WebUiStack.Outputs.WebUiUrl
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   GremlinResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -375,6 +406,8 @@ Resources:
         PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   SearchResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -397,6 +430,8 @@ Resources:
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   DrawIoExportResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -410,6 +445,8 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   AccountImportTemplatesResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -423,6 +460,8 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack
@@ -436,6 +475,8 @@ Resources:
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   CostResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -452,6 +493,8 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   SettingsResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -467,6 +510,8 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
@@ -480,6 +525,8 @@ Resources:
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
   WebUiStack:
     Type: AWS::CloudFormation::Stack
@@ -512,6 +559,8 @@ Resources:
         CollectAnonymousMetrics: !Ref OptOutOfSendingAnonymousUsageMetrics
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        PermissionsBoundaryName: !Sub "arn:aws:iam::${AWS::AccountId}:policy/${PermissionsBoundaryName}"
+        AttachPermissionsBoundary: !Ref AttachPermissionsBoundary
 
 Outputs:
 

@@ -10,8 +10,18 @@ Parameters:
   ConfigBucket:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
 Conditions:
   SetUpConfig: !Equals [!Ref ExistingConfigInstallation, 'No']
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
 
 Resources:
 
@@ -78,6 +88,8 @@ Resources:
                 Condition:
                   StringEquals:
                     s3:x-amz-acl: bucket-owner-full-control
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
 Outputs:
 

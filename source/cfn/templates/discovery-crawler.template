@@ -91,6 +91,18 @@ Parameters:
     Type: String
     Default: 'AwsSolution/SO0075/1.1.0'
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
   PerspectiveContainerRepo:
     Type: AWS::ECR::Repository
@@ -164,6 +176,8 @@ Resources:
       Environment:
         Variables:
           CustomUserAgent: !Ref CustomUserAgent
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   CleanupECRRepository:
     Type: Custom::Setup
@@ -197,6 +211,8 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveDiscoveryTaskRole:
     Type: AWS::IAM::Role
@@ -260,6 +276,8 @@ Resources:
                 Action:
                   - appsync:GraphQL
                 Resource: !Sub ${AppSyncArn}/*
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition

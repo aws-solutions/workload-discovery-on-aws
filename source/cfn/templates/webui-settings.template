@@ -33,6 +33,18 @@ Parameters:
   WebUIBucket:
     Type: String
 
+  AttachPermissionsBoundary:
+    Description: Attach Permissions Boundary
+    Type: String
+
+  PermissionsBoundaryName:
+    Description: Name of optional Permissions Boundary
+    Type: String
+
+Conditions:
+  AttachPermissionsBoundary:
+    !Equals [!Ref AttachPermissionsBoundary, 'Yes']
+
 Resources:
 
   UiSettingsResource:
@@ -90,6 +102,8 @@ Resources:
       Runtime: python3.9
       Timeout: 120
       ReservedConcurrentExecutions: 1
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   UiSettings:
     Type: Custom::UiSettings
