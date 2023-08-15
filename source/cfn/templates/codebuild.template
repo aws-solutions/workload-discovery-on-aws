@@ -103,6 +103,8 @@ Resources:
                   - s3:PutObject
                 Resource:
                   - !Sub "arn:aws:s3:::${WebUIBucket}/*"
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -195,3 +197,5 @@ Resources:
       Runtime: python3.8
       ReservedConcurrentExecutions: 1
       Timeout: 900
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]

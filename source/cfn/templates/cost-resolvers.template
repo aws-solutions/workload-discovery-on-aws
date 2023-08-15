@@ -123,6 +123,8 @@ Resources:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/${AthenaDatabaseName}
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/${AthenaDatabaseName}/${AthenaTableName}
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveCostFunction:
     Metadata:
@@ -173,6 +175,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt PerspectiveCostFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveAppSyncCostLambdaDataSource:
     Type: AWS::AppSync::DataSource

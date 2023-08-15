@@ -88,6 +88,8 @@ Resources:
                 Condition:
                   StringEquals:
                     s3:x-amz-acl: bucket-owner-full-control
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
 Outputs:
 

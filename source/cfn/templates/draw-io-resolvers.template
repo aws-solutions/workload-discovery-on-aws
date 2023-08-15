@@ -42,6 +42,8 @@ Resources:
               Service:
                 - lambda.amazonaws.com
             Action: sts:AssumeRole
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   DrawIoFunction:
     Type: AWS::Serverless::Function
@@ -82,6 +84,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt DrawIoFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   DrawIoExportLambdaDataSource:
     Type: AWS::AppSync::DataSource

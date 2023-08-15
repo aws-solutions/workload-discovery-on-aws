@@ -110,6 +110,8 @@ Resources:
                   - neptune-db:ReadDataViaQuery
                   - neptune-db:WriteDataViaQuery
                 Resource: !Sub arn:aws:neptune-db:${AWS::Region}:${AWS::AccountId}:${NeptuneClusterResourceId}/*
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   GremlinAppSyncFunction:
     Metadata:
@@ -165,6 +167,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt GremlinAppSyncFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveAppSyncGremlinLambdaDataSource:
     Type: AWS::AppSync::DataSource

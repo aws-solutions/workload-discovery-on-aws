@@ -80,6 +80,8 @@ Resources:
                   - 's3:GetObject'
                   - 's3:PutObject'
                 Resource: !Sub 'arn:${AWS::Partition}:s3:::${CostAndUsageBucket}/${CURCrawlerKey}/*'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   AWSCURCrawlerLambdaExecutor:
     Metadata:
@@ -123,6 +125,8 @@ Resources:
                 Action:
                   - 'glue:StartCrawler'
                 Resource: '*'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   AWSCURCrawler:
     Type: 'AWS::Glue::Crawler'
@@ -212,6 +216,8 @@ Resources:
                 Action:
                   - 's3:PutBucketNotification'
                 Resource: !Sub 'arn:${AWS::Partition}:s3:::${CostAndUsageBucket}'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   AWSS3CURNotification:
     Metadata:

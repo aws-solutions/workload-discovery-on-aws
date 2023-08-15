@@ -417,6 +417,8 @@ Resources:
       ManagedPolicyArns:
         - Ref: NeptuneCloudWatchPolicy
         - Ref: NeptuneS3Policy
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   NeptuneCloudWatchPolicy:
     Type: AWS::IAM::ManagedPolicy

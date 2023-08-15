@@ -209,6 +209,8 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceEventsRole
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveDiscoveryTaskRole:
     Type: AWS::IAM::Role
@@ -272,6 +274,8 @@ Resources:
                 Action:
                   - appsync:GraphQL
                 Resource: !Sub ${AppSyncArn}/*
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition

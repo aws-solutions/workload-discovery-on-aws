@@ -42,6 +42,8 @@ Resources:
               Service:
                 - lambda.amazonaws.com
             Action: sts:AssumeRole
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   AccountImportTemplatesApiFunction:
     Metadata:
@@ -89,6 +91,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt AccountImportTemplatesApiFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   AccountImportTemplatesApiLambdaDataSource:
     Type: AWS::AppSync::DataSource

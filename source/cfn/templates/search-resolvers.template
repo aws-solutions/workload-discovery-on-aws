@@ -166,6 +166,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource: !GetAtt SearchApiAppSyncFunction.Arn
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
                 
   PerspectiveAppSyncSearchLambdaDataSource:
     Type: AWS::AppSync::DataSource

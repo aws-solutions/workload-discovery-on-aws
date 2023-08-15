@@ -114,6 +114,8 @@ Resources:
             - 'logs:CreateLogStream'
             - 'logs:PutLogEvents'
             Resource: !GetAtt 'FlowLogGroup.Arn'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   FlowLogGroup:
     Metadata:

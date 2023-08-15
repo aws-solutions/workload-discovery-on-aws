@@ -60,6 +60,8 @@ Resources:
                 Action:
                   - logs:PutLogEvents
                 Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*'
+      PermissionsBoundary:
+        !If [AttachPermissionsBoundary, !Ref PermissionsBoundaryName, !Ref "AWS::NoValue"]
 
   PerspectiveAppSyncApi:
     Type: AWS::AppSync::GraphQLApi
