@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import Header from '@awsui/components-react/header';
-import FormField from '@awsui/components-react/form-field';
-import Container from '@awsui/components-react/container';
+import Header from '@cloudscape-design/components/header';
+import FormField from '@cloudscape-design/components/form-field';
+import Container from '@cloudscape-design/components/container';
 import { services } from '../../../Utils/Dictionaries/service-names';
 import PropTypes from 'prop-types';
-import { Select } from '@awsui/components-react';
+import { Select } from '@cloudscape-design/components';
 
 import * as R  from 'ramda';
 import dayjs from 'dayjs';

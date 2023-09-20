@@ -9,10 +9,11 @@ import {
 import * as R from "ramda";
 import {
   getGlobalTemplate,
-  getRegionalTemplate,
-  wrapRequest
+  getRegionalTemplate
 } from "../../API/Handlers/SettingsGraphQLHandler";
 import {getStatus} from "../../Utils/StatusUtils";
+import { wrapRequest } from '../../Utils/API/HandlerUtils';
+import { processAccountsError } from '../../Utils/ErrorHandlingUtils';
 
 export const GLOBAL_TEMPLATE = "getGlobalTemplate";
 export const REGIONAL_TEMPLATE = "getRegionalTemplate";
@@ -23,7 +24,7 @@ export const useTemplate = (templateName, config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     [queryKey, templateName],
-    () =>  wrapRequest(templateName === GLOBAL_TEMPLATE ? getGlobalTemplate : getRegionalTemplate)
+    () =>  wrapRequest(processAccountsError, templateName === GLOBAL_TEMPLATE ? getGlobalTemplate : getRegionalTemplate)
         .then(handleResponse)
         .then(R.pathOr([], ['body', 'data', templateName])),
     {

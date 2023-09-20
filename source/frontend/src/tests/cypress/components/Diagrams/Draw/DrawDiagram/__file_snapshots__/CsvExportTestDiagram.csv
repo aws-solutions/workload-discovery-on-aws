@@ -1,0 +1,6 @@
+﻿"type";"name";"accountId";"region";"estimatedCost"
+"AWS::EKS::Nodegroup";"ng-11111111";"xxxxxxxxxxxx";"eu-west-1";"arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3";0
+"AWS::IAM::Role";"test-cluster-NodeInstanceRole";"xxxxxxxxxxxx";"global";"arn:aws:iam::xxxxxxxxxxxx:role/test-cluster-NodeInstanceRole";0
+"AWS::EC2::LaunchTemplate";"test-cluster--nodegroup-ng-11111111";"xxxxxxxxxxxx";"eu-west-1";"arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:launch-template/lt-11111111111111111";0
+"AWS::AutoScaling::AutoScalingGroup";"eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3";"xxxxxxxxxxxx";"eu-west-1";"arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3";0
+"AWS::EKS::Cluster";"test-cluster";"xxxxxxxxxxxx";"eu-west-1";"arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster";0

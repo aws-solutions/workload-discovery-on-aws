@@ -7,7 +7,7 @@
   },
   "s3": {
     "accountId": "${$constants.accountId}",
-    "arn": "s3Arn",
+    "arn": "arn:aws:s3:::bucketName",
     "resourceType": "AWS::S3::Bucket",
     "resourceId": "bucketName",
     "resourceName": "bucketName",

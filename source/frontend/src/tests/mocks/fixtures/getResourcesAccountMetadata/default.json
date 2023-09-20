@@ -1,0 +1,68 @@
+{
+  "getResourcesAccountMetadata": [
+    {
+      "accountId": "xxxxxxxxxxxx",
+      "count": 13,
+      "resourceTypes": [
+        {
+          "count": 2,
+          "type": "AWS::EC2::Subnet"
+        },
+        {
+          "count": 1,
+          "type": "AWS::EC2::VPC"
+        },
+        {
+          "count": 2,
+          "type": "AWS::IAM::Role"
+        },
+        {
+          "count": 5,
+          "type": "AWS::S3::Bucket"
+        },
+        {
+          "count": 1,
+          "type": "AWS::ECS::Cluster"
+        },
+        {
+          "count": 2,
+          "type": "AWS::IAM::User"
+        }
+      ]
+    },
+    {
+      "accountId": "yyyyyyyyyyyy",
+      "count": 16,
+      "resourceTypes": [
+        {
+          "count": 2,
+          "type": "AWS::EC2::Instance"
+        },
+        {
+          "count": 3,
+          "type": "AWS::EC2::SecurityGroup"
+        },
+        {
+          "count": 7,
+          "type": "AWS::S3::Bucket"
+        },
+        {
+          "count": 1,
+          "type": "AWS::RDS::DBInstance"
+        },
+        {
+          "count": 1,
+          "type": "AWS::RDS::Cluster"
+        },
+        {
+          "count": 1,
+          "type": "AWS::Lambda::Function"
+        },
+        {
+          "count": 1,
+          "type": "AWS::EKS::Cluster"
+        }
+      ]
+    }
+  ]
+}

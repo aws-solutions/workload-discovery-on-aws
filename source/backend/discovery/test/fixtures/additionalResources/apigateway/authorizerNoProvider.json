@@ -1,0 +1,21 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "restApi": {
+    "id": "restApiArn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Not Applicable",
+    "resourceType": "AWS::ApiGateway::RestApi",
+    "resourceId": "restApiId",
+    "relationships": [],
+    "configuration": {
+      "id": "${restApi.resourceId}"
+    }
+  },
+  "apiGwAuthorizer": {
+    "id": "apiGwAuthorizerId"
+  }
+}

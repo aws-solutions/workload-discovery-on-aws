@@ -3,6 +3,7 @@
 
 const R = require('ramda');
 const {build: buildArn} = require('@aws-sdk/util-arn-parser');
+const logger = require('./logger');
 
 const {
     AWS,
@@ -22,7 +23,20 @@ const {
     US_GOV_EAST_1,
     US_GOV_WEST_1,
     RESOURCE_DISCOVERED,
-    SECURITY_GROUP
+    SECURITY_GROUP,
+    AWS_API_GATEWAY_METHOD,
+    AWS_API_GATEWAY_RESOURCE,
+    AWS_COGNITO_USER_POOL,
+    AWS_ECS_TASK,
+    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
+    AWS_EKS_NODE_GROUP,
+    AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
+    AWS_IAM_AWS_MANAGED_POLICY,
+    AWS_DYNAMODB_STREAM,
+    AWS_EC2_SPOT,
+    AWS_EC2_SPOT_FLEET,
+    AWS_IAM_INLINE_POLICY,
+    AWS_OPENSEARCH_DOMAIN
 } = require('./constants');
 
 const crypto = require('crypto');
@@ -34,15 +48,18 @@ function hash(data) {
 }
 
 const createRelationship = R.curry((relationshipName, resourceType, {arn, relNameSuffix, resourceName, resourceId, awsRegion, accountId}) => {
-    const relationship = {relationshipName, resourceType}
+    const relationship = {relationshipName}
     if(arn != null) {
         relationship.arn = arn;
+    }
+    if(resourceType != null) {
+        relationship.resourceType = resourceType;
     }
     if(resourceName != null) {
         relationship.resourceName = resourceName;
     }
     if(relNameSuffix != null) {
-        relationship.relationshipName = relationshipName + ' ' + relNameSuffix;
+        relationship.relationshipName = relationshipName + relNameSuffix;
     }
     if(resourceId != null) {
         relationship.resourceId = resourceId;
@@ -54,6 +71,10 @@ const createRelationship = R.curry((relationshipName, resourceType, {arn, relNam
         relationship.awsRegion = awsRegion;
     }
     return relationship;
+});
+
+const createArnRelationship = R.curry((relationshipName, arn) => {
+    return createRelationship(relationshipName, null, {arn});
 });
 
 const chinaRegions = new Map([[CN_NORTH_1, AWS_CN], [CN_NORTHWEST_1, AWS_CN]]);
@@ -120,6 +141,16 @@ function isDate(date) {
     return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
 }
 
+function createResourceNameKey({resourceName, resourceType, accountId, awsRegion}) {
+    const first = resourceType == null ? '' : `${resourceType}_`;
+    return `${first}${resourceName}_${accountId}_${awsRegion}`;
+}
+
+function createResourceIdKey({resourceId, resourceType, accountId, awsRegion}) {
+    const first = resourceType == null ? '' : `${resourceType}_`;
+    return `${first}${resourceId}_${accountId}_${awsRegion}`;
+}
+
 function safeForEach(f, xs) {
     const errors = [];
 
@@ -137,7 +168,36 @@ function safeForEach(f, xs) {
     return {errors};
 }
 
+function profileAsync(message, f) {
+    return async (...args) => {
+        logger.profile(message);
+        const result = await f(...args);
+        logger.profile(message);
+        return result;
+    }
+}
+
+const memoize = R.memoizeWith((...args) => JSON.stringify(args));
+
+const resourceTypesToHash = new Set([
+        AWS_API_GATEWAY_METHOD,
+        AWS_API_GATEWAY_RESOURCE,
+        AWS_DYNAMODB_STREAM,
+        AWS_ECS_TASK,
+        AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
+        AWS_EKS_NODE_GROUP,
+        AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
+        AWS_IAM_AWS_MANAGED_POLICY,
+        AWS_EC2_SPOT,
+        AWS_EC2_SPOT_FLEET,
+        AWS_IAM_INLINE_POLICY,
+        AWS_COGNITO_USER_POOL,
+        AWS_OPENSEARCH_DOMAIN
+    ]
+);
+
 module.exports = {
+    createArnRelationship,
     createContainsRelationship: createRelationship(CONTAINS),
     createAssociatedRelationship: createRelationship(IS_ASSOCIATED_WITH),
     createAttachedRelationship: createRelationship(IS_ATTACHED_TO),
@@ -153,5 +213,10 @@ module.exports = {
     isString,
     isObject,
     objToKeyNameArray,
-    safeForEach: R.curry(safeForEach)
+    createResourceNameKey,
+    createResourceIdKey,
+    safeForEach: R.curry(safeForEach),
+    profileAsync: R.curry(profileAsync),
+    memoize,
+    resourceTypesToHash
 }

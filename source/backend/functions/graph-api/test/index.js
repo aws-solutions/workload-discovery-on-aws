@@ -22,12 +22,15 @@ describe('index.js', () => {
                 V: sinon.stub().returnsThis(),
                 with_: sinon.stub().returnsThis(),
                 aggregate: sinon.stub().returnsThis(),
+                cap: sinon.stub().returnsThis(),
                 addE: sinon.stub().returnsThis(),
                 by: sinon.stub().returnsThis(),
                 both: sinon.stub().returnsThis(),
+                bothE: sinon.stub().returnsThis(),
                 or: sinon.stub().returnsThis(),
                 outE: sinon.stub().returnsThis(),
                 inV: sinon.stub().returnsThis(),
+                otherV: sinon.stub().returnsThis(),
                 to: sinon.stub().returnsThis(),
                 has: sinon.stub().returnsThis(),
                 hasLabel: sinon.stub().returnsThis(),
@@ -51,162 +54,6 @@ describe('index.js', () => {
                 g
             }
         }
-
-        const linkedNodesHierarchyTests = {
-            lambda: {
-                input: require('./fixtures/getLinkedNodesHierarchy/lambda-input.json'),
-                expected: require('./fixtures/hierarchy/gremlin-lambda-expected.json')[0]
-            },
-            ec2: {
-                input: require('./fixtures/getLinkedNodesHierarchy/ec2-input.json'),
-                expected: require('./fixtures/hierarchy/gremlin-ec2-expected.json')[0]
-            }
-        };
-
-        describe('getLinkedNodesHierarchy',  () => {
-
-            it('should reject payloads with invalid arn', async () => {
-                const mockGremlinClient = createMockGremlinClient({nextValue: {}});
-
-                return handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'getLinkedNodesHierarchy',
-                    },
-                    arguments: {id: 'foo'}
-                }, {}).catch(err => assert.strictEqual(err.message, 'The id parameter must be a valid ARN.'));
-            });
-
-            it('should create a nested hierarchy from an id', async () => {
-                const mockGremlinClient = createMockGremlinClient({
-                    nextValue: linkedNodesHierarchyTests.lambda.input
-                });
-
-                const actual = await handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'getLinkedNodesHierarchy',
-                    },
-                    arguments: {id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM'}
-                }, {})
-
-                assert.deepEqual(actual, linkedNodesHierarchyTests.lambda.expected)
-            });
-        });
-
-        describe('batchGetLinkedNodesHierarchy', () => {
-
-            it('should reject invalid arns', async () => {
-                const mockGremlinClient = createMockGremlinClient({
-                    nextValues: []
-                });
-
-                return handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'batchGetLinkedNodesHierarchy',
-                    },
-                    arguments: {
-                        ids: [
-                            'notArn1',
-                            'notArn2'
-                        ]
-                    }
-                }, {}).catch(err => assert.deepEqual(err.message, 'The following ARNs are invalid: notArn1,notArn2'));
-            });
-
-            it('should return the ids of unprocessed items', async () => {
-                const mockGremlinClient = createMockGremlinClient({
-                    nextValues: [
-                        null, null
-                    ]
-                });
-
-                const actual = await handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'batchGetLinkedNodesHierarchy',
-                    },
-                    arguments: {
-                        ids: [
-                            'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                            'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec'
-                        ]
-                    }
-                }, {})
-
-                assert.deepEqual(actual, {
-                    hierarchies: [],
-                    notFound: [],
-                    unprocessedResources: [
-                        'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                        'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec'
-                    ]
-                });
-            });
-
-            it('should return the ids of resources not found', async () => {
-                const mockGremlinClient = createMockGremlinClient({
-                    nextValues: [
-                        [], []
-                    ]
-                });
-
-                const actual = await handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'batchGetLinkedNodesHierarchy',
-                    },
-                    arguments: {
-                        ids: [
-                            'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                            'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec'
-                        ]
-                    }
-                }, {})
-
-                assert.deepEqual(actual, {
-                    hierarchies: [],
-                    notFound: [
-                        'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                        'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec'
-                    ],
-                    unprocessedResources: []
-                });
-            });
-
-            it('should create a nested hierarchies for multiple id', async () => {
-                const mockGremlinClient = createMockGremlinClient({
-                    nextValues: [
-                        linkedNodesHierarchyTests.lambda.input,
-                        linkedNodesHierarchyTests.ec2.input
-                    ]
-                });
-
-                const actual = await handler(mockGremlinClient)({
-                    info: {
-                        fieldName: 'batchGetLinkedNodesHierarchy',
-                    },
-                    arguments: {
-                        ids: [
-                            'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                            'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec'
-                        ]
-                    }
-                }, {})
-
-               assert.deepEqual(actual, {
-                   hierarchies: [
-                       {
-                           parentId: 'arn:aws:lambda:eu-west-1:xxxxxx:function:aws-perspective-xxxxxx-eu-we-GremlinFunction-194JBR0FRB0EM',
-                           hierarchy: linkedNodesHierarchyTests.lambda.expected
-                       },
-                       {
-                           parentId: 'arn:aws:ec2:eu-west-1:xxxxxx:instance/i-038f307ddeb9caaec',
-                           hierarchy: linkedNodesHierarchyTests.ec2.expected
-                       }
-                   ],
-                   notFound: [],
-                   unprocessedResources: []
-               });
-            });
-
-        });
 
         describe('getResources', () => {
 
@@ -260,6 +107,49 @@ describe('index.js', () => {
                 }, {});
 
                 assert.deepEqual(actual, getResourcesTests.lambda.expected);
+            });
+
+        });
+
+        describe('deleteResources', () => {
+
+            it('should handle empty list of ids', async () => {
+                const mockGremlinClient = createMockGremlinClient({nextValue: {}});
+
+                const ids = [];
+
+                const actual = await handler(mockGremlinClient)({
+                    info: {
+                        fieldName: 'deleteResources',
+                    },
+                    arguments: {
+                        resourceIds: ids
+                    }
+                }, {});
+
+                assert.notStrictEqual(actual, ids);
+                assert.deepEqual(actual, ids);
+            });
+
+            it('should return ids of deleted relationships', async () => {
+                const mockGremlinClient = createMockGremlinClient({nextValue: {}});
+
+                const ids = [
+                    'id1',
+                    'id2',
+                    'id3'
+                ];
+
+                const actual = await handler(mockGremlinClient)({
+                    info: {
+                        fieldName: 'deleteResources',
+                    },
+                    arguments: {
+                        resourceIds: ids
+                    }
+                }, {});
+
+                assert.deepEqual(actual, ids);
             });
 
         });
@@ -466,27 +356,147 @@ describe('index.js', () => {
 
         });
 
-        describe('deleteResources', () => {
+        describe('getResourceGraph', () => {
 
-            it('should return ids of deleted resources', async () => {
-                const mockGremlinClient = createMockGremlinClient({nextValue: {}});
+            it('should reject invalid arns', async () => {
+                const mockGremlinClient = createMockGremlinClient({
+                    nextValues: []
+                });
+
+                return handler(mockGremlinClient)({
+                    info: {
+                        fieldName: 'getResourceGraph',
+                    },
+                    arguments: {
+                        ids: [
+                            'notArn1',
+                            'notArn2'
+                        ]
+                    }
+                }, {}).catch(err => assert.deepEqual(err.message, 'The following ARNs are invalid: notArn1,notArn2'));
+            });
+
+            it('should handle empty list of ids', async () => {
+                const mockGremlinClient = createMockGremlinClient({
+                    nextValues: ['should not be returned']
+                });
+
+                const actual = await handler(mockGremlinClient)({
+                    info: {
+                        fieldName: 'getResourceGraph',
+                    },
+                    arguments: {
+                        ids: []
+                    }
+                }, {});
+
+                assert.deepEqual(actual, {nodes: [], edges: []});
+            });
+
+            it('should return nodes and edges related to the supplied ids', async () => {
+                const mockGremlinClient = createMockGremlinClient({
+                    nextValue: {
+                        nodes: [{
+                            id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                            label: 'AWS_LAMBDA_FUNCTION',
+                            md5Hash: '',
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }, {
+                            id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
+                            label: 'AWS_LAMBDA_FUNCTION',
+                            md5Hash: '',
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }, {
+                            id: 'iamRoleArn',
+                            label: 'AWS_IAM_ROLE',
+                            md5Hash: '',
+                            prop1: 'prop1IamVal',
+                            prop2: 'prop2IamVal'
+                        }
+                        ],
+                        edges: [{
+                            id: 'edgeId1',
+                            label: 'CONTAINED_IN',
+                            source: {
+                                id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                                label: 'AWS_LAMBDA_FUNCTION'
+                            },
+                            target: {id: 'vpcArn', label: 'AWS_EC2_VPC'}
+                        }, {
+                            id: 'edgeId2',
+                            label: 'IS_ASSOCIATED_WITH',
+                            source: {
+                                id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                                label: 'AWS_LAMBDA_FUNCTION'
+                            },
+                            target: {id: 'iamRoleArn', label: 'AWS_IAM_ROLE'}
+                        }]
+                    }
+                });
 
                 const ids = [
                     'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
-                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
-                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function3'
+                    'arn:aws:lambda:eu-west-1:xxxxxx:function:function2'
                 ];
 
                 const actual = await handler(mockGremlinClient)({
                     info: {
-                        fieldName: 'deleteResources',
+                        fieldName: 'getResourceGraph',
                     },
                     arguments: {
-                        resourceIds: ids
+                        ids
                     }
                 }, {});
 
-                assert.deepEqual(actual, ids);
+                assert.deepEqual(actual.edges, [{
+                    id: 'edgeId1',
+                    label: 'CONTAINED_IN',
+                    source: {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION'
+                    },
+                    target: {id: 'vpcArn', label: 'AWS_EC2_VPC'}
+                }, {
+                    id: 'edgeId2',
+                    label: 'IS_ASSOCIATED_WITH',
+                    source: {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION'
+                    },
+                    target: {id: 'iamRoleArn', label: 'AWS_IAM_ROLE'}
+                }]);
+
+                assert.deepEqual(actual.nodes, [
+                    {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function1',
+                        label: 'AWS_LAMBDA_FUNCTION',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }
+                    },
+                    {
+                        id: 'arn:aws:lambda:eu-west-1:xxxxxx:function:function2',
+                        label: 'AWS_LAMBDA_FUNCTION',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1Val',
+                            prop2: 'prop2Val'
+                        }
+                    },
+                    {
+                        id: 'iamRoleArn',
+                        label: 'AWS_IAM_ROLE',
+                        md5Hash: '',
+                        properties: {
+                            prop1: 'prop1IamVal',
+                            prop2: 'prop2IamVal'
+                        }
+                    }
+                ])
 
             });
 

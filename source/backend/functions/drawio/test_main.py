@@ -11,10 +11,8 @@ def test_diagram_with_nodes_and_edges():
                 'id': 'xxxxxxxxxxxx',
                 'title': 'xxxxxxxxxxxx',
                 'label': 'xxxxxxxxxxxx',
-                'level': 0,
                 'type': 'account',
                 'image': '/icons/AWS-Cloud-alt_light-bg.svg',
-                'hasChildren': True,
                 'position': {
                     'x': 0,
                     'y': 1.25
@@ -25,10 +23,8 @@ def test_diagram_with_nodes_and_edges():
                 'parent': 'xxxxxxxxxxxx',
                 'title': 'global',
                 'label': 'global',
-                'level': 1,
                 'type': 'region',
                 'image': '/icons/Region_light-bg.svg',
-                'hasChildren': True,
                 'position': {
                     'x': 0,
                     'y': 1.25
@@ -39,10 +35,8 @@ def test_diagram_with_nodes_and_edges():
                 'parent': 'global-xxxxxxxxxxxx',
                 'title': 'Role',
                 'label': 'Role',
-                'level': 2,
                 'type': 'type',
                 'image': '/icons/AWS-Identity-and-Access-Management-IAM_Role_light-bg.svg',
-                'hasChildren': True,
                 'position': {
                     'x': -56.5,
                     'y': 1.25
@@ -53,7 +47,6 @@ def test_diagram_with_nodes_and_edges():
                 'parent': 'Role-global-xxxxxxxxxxxx',
                 'title': 'retaildemostore-Services-1-CodePipelineServiceRole-18ZLD8A7LI3YM',
                 'label': 'retaildemost...',
-                'level': 3,
                 'type': 'resource',
                 'image': '/icons/AWS-Identity-and-Access-Management-IAM_Role_light-bg.svg',
                 'position': {
@@ -66,10 +59,8 @@ def test_diagram_with_nodes_and_edges():
                 'parent': 'global-xxxxxxxxxxxx',
                 'title': 'InlinePolicy',
                 'label': 'InlinePolicy',
-                'level': 2,
                 'type': 'type',
                 'image': '/icons/Res_AWS-Identity-Access-Management_Permissions_48_Light.svg',
-                'hasChildren': True,
                 'position': {
                     'x': 56.5,
                     'y': 1.25
@@ -80,7 +71,6 @@ def test_diagram_with_nodes_and_edges():
                 'parent': 'InlinePolicy-global-xxxxxxxxxxxx',
                 'title': 'arn:aws:iam::xxxxxxxxxxxx:role/retaildemostore-Services-1-CodePipelineServiceRole-18ZLD8A7LI3YM/inlinePolicy/root',
                 'label': 'arn:aws:iam:...',
-                'level': 3,
                 'type': 'resource',
                 'image': '/icons/Res_AWS-Identity-Access-Management_Permissions_48_Light.svg',
                 'position': {

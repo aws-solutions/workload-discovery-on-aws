@@ -7,7 +7,7 @@ import {
   Form,
   Header,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import Breadcrumbs from '../../../../Utils/Breadcrumbs';
 import {CREATE_VIEW, EDIT_VIEW, VIEW, VIEWS} from '../../../../routes';
 import ViewOverview from '../Shared/ViewOverview';

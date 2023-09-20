@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import Table from '@awsui/components-react/table';
-import Box from '@awsui/components-react/box';
-import TextFilter from '@awsui/components-react/text-filter';
-import Pagination from '@awsui/components-react/pagination';
-import { useCollection } from '@awsui/collection-hooks';
+import Table from '@cloudscape-design/components/table';
+import Box from '@cloudscape-design/components/box';
+import TextFilter from '@cloudscape-design/components/text-filter';
+import Pagination from '@cloudscape-design/components/pagination';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 
 export const ResourceDetailsTagTable = ({
   trackBy,

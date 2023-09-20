@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import {
   Form,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import CostDatePicker from '../../Diagrams/Draw/Utils/CostDatePicker';
 
 const CostForm = ({ setDateInterval }) => {

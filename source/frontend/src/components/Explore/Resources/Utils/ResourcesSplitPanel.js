@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { SplitPanel } from '@awsui/components-react';
-import ResourceDetailsPanel from './ResourceDetailsPanel';
+import { SplitPanel } from '@cloudscape-design/components';
 import { useResourceState } from '../../../Contexts/ResourceContext';
 import MultipleResourceDetailsPanel from './MultipleResourceDetailsPanel';
 
 import * as R  from 'ramda';
+import ResourceDetails from "../../../Shared/ResourceDetails";
 
 const ResourcesSplitPanel = () => {
   const [{ resources }] = useResourceState({});
@@ -26,7 +26,7 @@ const ResourcesSplitPanel = () => {
     else
       return {
         header: R.head(resources).properties.title,
-        body: <ResourceDetailsPanel resource={R.head(resources)} />,
+        body: <ResourceDetails selectedResource={R.head(resources)} />,
       };
   };
 

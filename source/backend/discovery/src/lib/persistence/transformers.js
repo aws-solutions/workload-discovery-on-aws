@@ -9,13 +9,6 @@ const {
     AWS_AUTOSCALING_AUTOSCALING_GROUP,
     AWS_API_GATEWAY_METHOD,
     AWS_API_GATEWAY_RESOURCE,
-    AWS_ECS_TASK,
-    AWS_EKS_NODE_GROUP,
-    AWS_IAM_AWS_MANAGED_POLICY,
-    AWS_EC2_SPOT,
-    AWS_EC2_SPOT_FLEET,
-    AWS_IAM_INLINE_POLICY,
-    AWS_OPENSEARCH_DOMAIN,
     AWS_EC2_VPC,
     AWS_EC2_NETWORK_INTERFACE,
     AWS_EC2_INSTANCE,
@@ -46,7 +39,7 @@ const {
     HOME,
     REGION
 } = require("../constants");
-const {hash} = require("../utils");
+const {hash, resourceTypesToHash} = require("../utils");
 
 const defaultUrlMappings = {
     [AWS_EC2_VPC]: { url: 'vpcs:sort=VpcId', type: VPC.toLowerCase()},
@@ -153,14 +146,14 @@ function createTitle({resourceId, resourceName, arn, resourceType, tags}) {
 
 const propertiesToKeep = new Set([
     'accountId', 'arn', 'availabilityZone', 'awsRegion', 'configuration', 'configurationItemCaptureTime',
-    'configurationItemStatus', 'configurationStateId', 'relationships', 'resourceCreationTime', 'resourceId',
+    'configurationItemStatus', 'configurationStateId', 'resourceCreationTime', 'resourceId',
     'resourceName', 'resourceType', 'supplementaryConfiguration', 'tags', 'version', 'vpcId', 'subnetId', 'subnetIds',
     'resourceValue', 'state', 'private', 'dBInstanceStatus', 'statement', 'instanceType']);
 
-const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfiguration', 'tags', 'relationships', 'state'])
+const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfiguration', 'tags', 'state'])
 
 /**
- * Neptune cannot store nested properties. Therefore this function extracts the
+ * Neptune cannot store nested properties. Therefore, this function extracts the
  * specified and adds them to the main object. It also converts nested fields
  * into JSON.
  * @param {*} node
@@ -188,21 +181,6 @@ function createProperties(resource) {
 
     return properties;
 }
-
-const resourceTypesToHash = new Set([
-        AWS_API_GATEWAY_METHOD,
-        AWS_API_GATEWAY_RESOURCE,
-        AWS_ECS_TASK,
-        AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
-        AWS_EKS_NODE_GROUP,
-        AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
-        AWS_IAM_AWS_MANAGED_POLICY,
-        AWS_EC2_SPOT,
-        AWS_EC2_SPOT_FLEET,
-        AWS_IAM_INLINE_POLICY,
-        AWS_OPENSEARCH_DOMAIN
-    ]
-);
 
 function createSaveObject(resource) {
     const {id, resourceId, resourceName, resourceType, accountId, arn, awsRegion, relationships = [], tags = []} = resource;

@@ -1,0 +1,43 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-2"
+  },
+  "eventRule1": {
+    "id": "${eventRule1.arn}",
+    "arn": "eventRuleArn1",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion}",
+    "resourceType": "AWS::Events::Rule",
+    "relationships": [],
+    "configuration": {
+      "EventBusName": "eventBusArn1",
+      "Targets": [
+        {
+          "Arn": "ruleTargetArn1",
+          "RoleArn": "roleArn1"
+        }
+      ]
+    }
+  },
+  "eventRule2": {
+    "id": "${eventRule2.arn}",
+    "arn": "eventRuleArn2",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion}",
+    "resourceType": "AWS::Events::Rule",
+    "relationships": [],
+    "configuration": {
+      "EventBusName": "eventBusArn1",
+      "Targets": [
+        {
+          "Arn": "clusterArn",
+          "RoleArn": "roleArn2",
+          "EcsParameters": {
+            "TaskDefinitionArn": "taskDefinitionArn"
+          }
+        }
+      ]
+    }
+  }
+}

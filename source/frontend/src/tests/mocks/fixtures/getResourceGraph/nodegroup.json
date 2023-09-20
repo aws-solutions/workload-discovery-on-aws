@@ -1,0 +1,680 @@
+{
+  "getResourceGraph": {
+    "nodes": [
+      {
+        "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+        "label": "AWS_EKS_Nodegroup",
+        "md5Hash": "47fe23e99747f60d65ca9d6a4f826633",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "availabilityZone": "eu-west-1a,eu-west-1b,eu-west-1c",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": null,
+          "configurationItemStatus": "ResourceDiscovered",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "resourceName": "ng-11111111",
+          "resourceType": "AWS::EKS::Nodegroup",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": null,
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": null,
+          "loginURL": null,
+          "title": "ng-11111111",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:iam::xxxxxxxxxxxx:role/test-cluster-NodeInstanceRole",
+        "label": "AWS_IAM_Role",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:iam::xxxxxxxxxxxx:role/test-cluster-NodeInstanceRole",
+          "availabilityZone": "Not Applicable",
+          "awsRegion": "global",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2022-02-14T13:50:59.294Z",
+          "configurationItemStatus": "ResourceDiscovered",
+          "configurationStateId": null,
+          "resourceCreationTime": "2020-10-30T00:07:24.000Z",
+          "resourceId": "BBBBBBBBBBBBBB",
+          "resourceName": "test-cluster-NodeInstanceRole",
+          "resourceType": "AWS::IAM::Role",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": null,
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": "https://console.aws.amazon.com/iam/home?#/roles",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/iam?home?#/roles",
+          "title": "test-cluster-NodeInstanceRole",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:launch-template/lt-11111111111111111",
+        "label": "AWS_EC2_LaunchTemplate",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:launch-template/lt-11111111111111111",
+          "availabilityZone": "Regional",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2022-02-22T10:12:29.829Z",
+          "configurationItemStatus": "ResourceDiscovered",
+          "configurationStateId": "1645524749829",
+          "resourceCreationTime": null,
+          "resourceId": "lt-11111111111111111",
+          "resourceName": "test-cluster--nodegroup-ng-11111111",
+          "resourceType": "AWS::EC2::LaunchTemplate",
+          "supplementaryConfiguration": "\"{}\"",
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": null,
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": null,
+          "loginURL": null,
+          "title": "test-cluster--nodegroup-ng-11111111",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+        "label": "AWS_AutoScaling_AutoScalingGroup",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "availabilityZone": "eu-west-1a,eu-west-1b,eu-west-1c",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-01-03T23:54:04.184Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": "2020-10-30T00:09:06.968Z",
+          "resourceId": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "resourceName": "eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "resourceType": "AWS::AutoScaling::AutoScalingGroup",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/ec2/home/autoscaling/home?region=eu-west-1#AutoScalingGroups:id=eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3;view=details",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/ec2/autoscaling/home?region=eu-west-1#AutoScalingGroups:id=eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3;view=details",
+          "title": "eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+        "label": "AWS_EKS_Cluster",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "availabilityZone": "eu-west-1a,eu-west-1b,eu-west-1c",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-03-11T00:54:04.337Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": "1666054444349",
+          "resourceCreationTime": null,
+          "resourceId": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "resourceName": "test-cluster",
+          "resourceType": "AWS::EKS::Cluster",
+          "supplementaryConfiguration": "\"{}\"",
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": null,
+          "loginURL": null,
+          "title": "test-cluster",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+        "label": "AWS_EC2_VPC",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "availabilityZone": "Multiple Availability Zones",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-30T22:16:37.179Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "vpc-11111111111111111",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::VPC",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": null,
+          "subnetId": null,
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": null,
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#vpcs:sort=VpcId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#vpcs:sort=VpcId",
+          "title": "test-cluster-vpc",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+          "availabilityZone": "eu-west-1c",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-29T16:13:25.221Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-11111111111111111",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-11111111111111111",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "true",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet1",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+          "availabilityZone": "eu-west-1b",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2020-10-29T23:57:46.899Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-22222222222222222",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-22222222222222222",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "true",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet2",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+          "availabilityZone": "eu-west-1b",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-20T05:54:05.329Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-33333333333333333",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-33333333333333333",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "false",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet3",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-44444444444444444",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-44444444444444444",
+          "availabilityZone": "eu-west-1a",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-20T05:54:05.329Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-44444444444444444",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-44444444444444444",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "false",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet4",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-55555555555555555",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-55555555555555555",
+          "availabilityZone": "eu-west-1c",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-20T05:54:05.329Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-55555555555555555",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tag": "'[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-55555555555555555",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "false",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet5",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      },
+      {
+        "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-466666666666666666",
+        "label": "AWS_EC2_Subnet",
+        "md5Hash": "",
+        "properties": {
+          "accountId": "xxxxxxxxxxxx",
+          "arn": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-466666666666666666",
+          "availabilityZone": "eu-west-1a",
+          "awsRegion": "eu-west-1",
+          "configuration": "\"{}\"",
+          "configurationItemCaptureTime": "2023-05-30T22:16:37.298Z",
+          "configurationItemStatus": "OK",
+          "configurationStateId": null,
+          "resourceCreationTime": null,
+          "resourceId": "subnet-466666666666666666",
+          "resourceName": null,
+          "resourceType": "AWS::EC2::Subnet",
+          "supplementaryConfiguration": null,
+          "tags": "[]",
+          "version": "1.3",
+          "vpcId": "vpc-11111111111111111",
+          "subnetId": "subnet-466666666666666666",
+          "subnetIds": null,
+          "resourceValue": null,
+          "state": null,
+          "private": "true",
+          "loggedInURL": "https://eu-west-1.console.aws.amazon.com/vpc/v2/home?region=eu-west-1#subnets:sort=SubnetId",
+          "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/vpc?region=eu-west-1#subnets:sort=SubnetId",
+          "title": "test-cluster-subnet6",
+          "dBInstanceStatus": null,
+          "statement": null,
+          "instanceType": null
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "c6c2d776-016e-d989-5de4-4233bb148cc5",
+        "label": "IS_ASSOCIATED_WITH_ROLE",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:iam::xxxxxxxxxxxx:role/test-cluster-NodeInstanceRole",
+          "label": "AWS_IAM_Role"
+        }
+      },
+      {
+        "id": "26c2d776-016e-965a-74db-03e8b99f2dd7",
+        "label": "IS_ASSOCIATED_WITH",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:launch-template/lt-11111111111111111",
+          "label": "AWS_EC2_LaunchTemplate"
+        }
+      },
+      {
+        "id": "04c2d776-016e-6eaf-6e94-28d3c6ec465f",
+        "label": "IS_ASSOCIATED_WITH",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_AutoScaling_AutoScalingGroup"
+        }
+      },
+      {
+        "id": "e0c2d776-016d-e0ac-9ba1-767fc246ec8e",
+        "label": "IS_CONTAINED_IN",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        }
+      },
+      {
+        "id": "54c2d776-016d-a6c9-3e8f-5ef95535dad3",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      },
+      {
+        "id": "68c2d776-016d-9e9f-218b-25295a876c49",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "e4c2d776-016e-6e94-2439-e287cf8e6e93",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "b8c2d776-016e-0e72-a2a7-9c2719fd07d3",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:nodegroup/test-cluster/ng-11111111/5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_EKS_Nodegroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "22c2d776-016b-3454-cd58-3253ca0d49ba",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      },
+      {
+        "id": "acc2d776-016b-b0f4-9862-bae710fcff4c",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "86c2d776-016c-02e7-9739-6f4f6952676a",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "06c2d776-016c-a809-2065-ffcf5b217725",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-44444444444444444",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "4cc2d776-016c-fe1d-92ee-935173352e9a",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-55555555555555555",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "1cc2d776-016c-151b-aa19-b5f5599e9d7e",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-66666666666666666",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "c6c2d776-016c-17f3-a249-92da44a23390",
+        "label": "IS_CONTAINED_IN_SUBNET",
+        "source": {
+          "id": "arn:aws:eks:eu-west-1:xxxxxxxxxxxx:cluster/test-cluster",
+          "label": "AWS_EKS_Cluster"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "aec1d9d4-a0a7-430a-a5a7-a65f37582a88",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+          "label": "AWS_EC2_Subnet"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      },
+      {
+        "id": "24c1d9d4-a0cd-ba16-299e-4502f5dc555e",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+          "label": "AWS_EC2_Subnet"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      },
+      {
+        "id": "16c1d9d4-9f22-6106-eca9-f283b4be81e5",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_AutoScaling_AutoScalingGroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      },
+      {
+        "id": "c6c1d9d4-9f21-1fe3-4c7d-cf9864af2139",
+        "label": "IS_ASSOCIATED_WITH_SUBNET",
+        "source": {
+          "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_AutoScaling_AutoScalingGroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-11111111111111111",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "fec1d9d4-9f21-97fe-a6db-f9c21ea844be",
+        "label": "IS_ASSOCIATED_WITH_SUBNET",
+        "source": {
+          "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_AutoScaling_AutoScalingGroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-22222222222222222",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "24c1d9d4-9f21-a65c-e6f5-ef0d64b93c01",
+        "label": "IS_ASSOCIATED_WITH_SUBNET",
+        "source": {
+          "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+          "label": "AWS_AutoScaling_AutoScalingGroup"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+          "label": "AWS_EC2_Subnet"
+        }
+      },
+      {
+        "id": "26c1d9d4-a0e8-478f-4985-5132a87dccf3",
+        "label": "IS_CONTAINED_IN_VPC",
+        "source": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:subnet/subnet-33333333333333333",
+          "label": "AWS_EC2_Subnet"
+        },
+        "target": {
+          "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:vpc/vpc-11111111111111111",
+          "label": "AWS_EC2_VPC"
+        }
+      }
+    ]
+  }
+}

@@ -9,8 +9,8 @@ import {
   SpaceBetween,
   Table,
   Pagination,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 
 import * as R  from 'ramda';
 
@@ -49,8 +49,7 @@ const ViewExplorerAccountsTable = ({ selectedView }) => {
         {...collectionProps}
         trackBy='accountId'
         ariaLabels={{
-          itemSelectionLabel: (e, t) => `select ${t.accountId}`,
-          selectionGroupLabel: 'Item selection',
+            tableLabel: 'Accounts'
         }}
         columnDefinitions={[
           {

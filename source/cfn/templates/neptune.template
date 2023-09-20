@@ -78,6 +78,20 @@ Parameters:
     Type: String
     Default: db.r5.large
 
+  MinNCUs:
+    Type: String
+    Default: 1
+    Description: |
+      Min NCUs to be set on the Neptune cluster (should be less than or equal to MaxNCUs). Required if DBInstance type 
+      is db.serverless.
+
+  MaxNCUs:
+    Type: String
+    Default: 128
+    Description: |
+      Max NCUs to be set on the Neptune cluster(Should be greater than or equal to MinNCUs). Required if DBInstance 
+      type is db.serverless.
+
   Port:
     Description: Port used to connect to the Neptune cluster. Must be a valid port
       number between
@@ -189,9 +203,11 @@ Parameters:
 
   AvailabilityZone0:
     Type: String
+    Default: ''
 
   AvailabilityZone1:
     Type: String
+    Default: ''
 
   PrivateSubnet0:
     Description: Private Subnet
@@ -211,14 +227,10 @@ Parameters:
     Default: 'No'
 
 Conditions:
-  EnableAuditLogUpload:
-    Fn::Equals:
-      - Ref: UploadAuditLogs
-      - true
-  CreateInstanceReplica:
-    Fn::Equals:
-      - Ref: CreateNeptuneReplica
-      - 'Yes'
+  IsAvailabilityZone0ParameterEmpty: !Equals [!Ref AvailabilityZone0, '']
+  IsAvailabilityZone1ParameterEmpty: !Equals [!Ref AvailabilityZone1, '']
+  EnableAuditLogUpload: !Equals [!Ref UploadAuditLogs, true]
+  CreateInstanceReplica: !Equals [!Ref CreateNeptuneReplica, 'Yes']
 
 Resources:
 
@@ -241,6 +253,10 @@ Resources:
   WDNeptuneDBCluster:
     Type: AWS::Neptune::DBCluster
     Properties:
+      EngineVersion: 1.2.1.0
+      ServerlessScalingConfiguration:
+        MinCapacity: !Ref MinNCUs
+        MaxCapacity: !Ref MaxNCUs
       BackupRetentionPeriod:
         Ref: BackupRetentionPeriod
       DBSubnetGroupName:
@@ -282,7 +298,7 @@ Resources:
   NeptuneDBInstance:
     Type: AWS::Neptune::DBInstance
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone0
+      AvailabilityZone: !If [IsAvailabilityZone0ParameterEmpty, !Ref AWS::NoValue, !Ref AvailabilityZone0]
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:
@@ -322,7 +338,7 @@ Resources:
     Type: AWS::Neptune::DBInstance
     Condition: CreateInstanceReplica
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone1
+      AvailabilityZone: !If [IsAvailabilityZone1ParameterEmpty, !Ref AWS::NoValue, !Ref AvailabilityZone1]
       AllowMajorVersionUpgrade:
         Ref: MajorVersionUpgrade
       AutoMinorVersionUpgrade:

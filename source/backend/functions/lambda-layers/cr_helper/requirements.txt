@@ -1,1 +1,2 @@
 crhelper==2.0.5
+urllib3==1.26.15

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon-Architecture/64/Arch_Amazon-Kinesis-Data-Analytics_64</title>
+    <g id="Icon-Architecture/64/Arch_Amazon-Kinesis-Data-Analytics_64" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon-Architecture-BG/64/Analytics" fill="#8C4FFF">
+            <rect id="Rectangle" x="0" y="0" width="80" height="80"></rect>
+        </g>
+        <g id="Icon-Service/64/Amazon-Kinesis-Data-Analytics" transform="translate(13.000000, 12.000000)" fill="#FFFFFF">
+            <path d="M6,50 L8,50 C8,45.013 9.699,39.493 22.016,36.106 L22.016,34.039 C7.849,37.788 6,44.521 6,50 L6,50 Z M12,56 L14,56 C14,51.399 14.016,45.733 22.016,41.781 L22.016,39.565 C12.008,44.052 12,50.942 12,56 L12,56 Z M52,35 L26,35 L26,54 L28,54 L28,45 C28,44.448 28.447,44 29,44 L33,44 C33.553,44 34,44.448 34,45 L34,54 L36,54 L36,42 C36,41.448 36.447,41 37,41 L41,41 C41.553,41 42,41.448 42,42 L42,54 L44,54 L44,39 C44,38.448 44.447,38 45,38 L49,38 C49.553,38 50,38.448 50,39 L50,54 L52,54 L52,35 Z M46,54 L48,54 L48,40 L46,40 L46,54 Z M38,54 L40,54 L40,43 L38,43 L38,54 Z M30,54 L32,54 L32,46 L30,46 L30,54 Z M54,34 L54,55 C54,55.552 53.553,56 53,56 L25,56 C24.447,56 24,55.552 24,55 L24,34 C24,33.448 24.447,33 25,33 L53,33 C53.553,33 54,33.448 54,34 L54,34 Z M2,14 L0,14 C0,21.396 10.039,26.08 29.893,28 C10.039,29.92 0,34.604 0,42 L2,42 C2,37.145 8.756,29 54,29 L54,27 C8.756,27 2,18.855 2,14 L2,14 Z M8,6 L6,6 C6,15.396 11.703,25 54,25 L54,23 C13.465,23 8,14.406 8,6 L8,6 Z M54,19 L54,21 C35.663,21 23.728,18.641 17.51,13.788 C12,9.488 12,4.004 12,0 L14,0 C14,7.566 14,19 54,19 L54,19 Z" id="Amazon-Kinesis-Data-Analytics_Icon_64_Squid"></path>
+        </g>
+        <text transform="translate(17,70)" font-size="10" fill="#d6242d" font-family="Amazon Ember, Helvetica, Arial, sans-serif" font-weight="bold">
+            <tspan x="1em" dy="1em">Application</tspan>
+        </text>    
+    </g>
+</svg>

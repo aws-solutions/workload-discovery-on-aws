@@ -114,7 +114,7 @@ Resources:
       Code:
         S3Bucket: !Ref DeploymentBucket
         S3Key: !Sub ${DeploymentBucketKey}/search-api.zip
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: Lambda for Search AppSync API
       Timeout: 10
       TracingConfig:
@@ -170,6 +170,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: indexResources
       DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
@@ -178,6 +182,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: deleteIndexedResources
       DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
@@ -186,6 +194,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: updateIndexedResources
       DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name
@@ -194,6 +206,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: searchResources
       DataSourceName: !GetAtt PerspectiveAppSyncSearchLambdaDataSource.Name

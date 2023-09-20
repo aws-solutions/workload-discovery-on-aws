@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { DateRangePicker, FormField } from '@awsui/components-react';
+import { DateRangePicker, FormField } from '@cloudscape-design/components';
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";

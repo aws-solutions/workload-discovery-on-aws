@@ -4,7 +4,7 @@
 import React from 'react';
 import {
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import Breadcrumbs from '../../../../Utils/Breadcrumbs';
 import { DRAW } from '../../../../routes';
 import { useDiagramSettingsState } from '../../../Contexts/DiagramSettingsContext';

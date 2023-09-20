@@ -70,6 +70,16 @@ echo "--------------------------------------------------------------------------
 cp "${build_dist_dir}/main.template" "${template_dist_dir}/workload-discovery-on-aws.template"
 
 echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Upload GraphQL Schema"
+echo "------------------------------------------------------------------------------"
+cp "${source_dir}/backend/graphql/schema/perspective-api.graphql" "${build_dist_dir}/perspective-api.graphql"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Upload AppSync JS resolvers"
+echo "------------------------------------------------------------------------------"
+cp "${source_dir}/backend/graphql/resolvers/default.js" "${build_dist_dir}/default-resolver.js"
+
+echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Layers"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/lambda-layers"
@@ -120,7 +130,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Account Import Template API"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/account-import-templates-api"
-
 auditDeps
 npm run build
 cp ./dist/account-import-templates-api.zip "${build_dist_dir}/account-import-templates-api.zip"
@@ -175,9 +184,12 @@ npm run build
 cp ./dist/cur-setup.zip "${build_dist_dir}/cur-setup.zip"
 
 echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Upload GraphQL Schema"
+echo "[Rebuild] Metrics"
 echo "------------------------------------------------------------------------------"
-cp "${source_dir}/backend/graphql/schema/perspective-api.graphql" "${build_dist_dir}/perspective-api.graphql"
+cd "${source_dir}/backend/functions/metrics"
+auditDeps
+npm run build
+cp ./dist/metrics.zip "${build_dist_dir}/metrics.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Discovery"
@@ -194,4 +206,4 @@ cd "${source_dir}/frontend"
 auditDeps
 #npm run test
 npm run build
-cp ./build/ui.zip "${build_dist_dir}/ui.zip"
+cp ./dist/ui.zip "${build_dist_dir}/ui.zip"

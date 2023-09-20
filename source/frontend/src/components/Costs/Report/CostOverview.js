@@ -6,7 +6,7 @@ import {
   SpaceBetween,
   Container,
   Header, Spinner, Box,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import CostBreakdownSummary from './CostBreakdownSummary';
 import CostBreakdown from './CostBreakdown';
 import CostForm from './CostForm';

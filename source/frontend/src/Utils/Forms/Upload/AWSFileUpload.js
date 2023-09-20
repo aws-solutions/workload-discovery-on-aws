@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { readString } from 'react-papaparse';
-import { SpaceBetween, Button } from '@awsui/components-react';
+import { SpaceBetween, Button } from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 
 const reader = new FileReader();

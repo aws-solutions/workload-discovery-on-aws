@@ -5,51 +5,48 @@ import { Storage, Auth } from 'aws-amplify';
 import * as R  from 'ramda';
 import {ObjectNotFoundError} from "../../errors/ObjectNotFoundError";
 
-export const uploadObject = async (key, content, level, type) => {
-  return Storage.put(key, content, {
-    level: level,
-    contentType: type,
-    metadata: {
-      username: `${await Auth.currentAuthenticatedUser().then(
-        (response) => response.username
-      )}`,
-    },
-  }).catch((err) => {
-    console.error(err);
-    throw new Error('We could not complete that action. Please try again');
-  });
-};
+const [provider] = Object.keys(Storage._config);
 
-export const uploadTemplate = async (key, content, type) => {
-  return Storage.put(key, content, {
-    acl: 'public-read',
-    contentType: type,
-    metadata: {
-      username: `${await Auth.currentAuthenticatedUser().then(
-        (response) => response.username
-      )}`,
-    },
-  }).catch((err) => {
-    console.error(err);
-    throw new Error('We could not complete that action. Please try again');
-  });
+export const uploadObject = async (key, content, level, type) => {
+    const blob = new Blob([content]);
+    const {username} = await Auth.currentAuthenticatedUser();
+
+    return new Promise((res, rej) => {
+        Storage.put(key, blob, {
+            level,
+            resumable: true,
+            metadata: {
+                username
+            },
+            provider,
+            completeCallback: (event) => {
+                res(event);
+            },
+            errorCallback: (err) => {
+                console.error(err);
+                rej(new Error('We could not complete that action. Please try again'));
+            }
+        });
+    });
 };
 
 export const listObjects = (key, level) => {
-  return Storage.list(key, { level: level }).catch((err) => {
-    console.error(err);
-    throw new Error('We could not complete that action. Please try again');
-  });
+  return Storage.list(key, { level, provider })
+      .then(res => res.results)
+      .catch((err) => {
+        console.error(err);
+        throw new Error('We could not complete that action. Please try again');
+      });
 };
 
 export const removeObject = (key, level) =>
-  Storage.remove(key, { level: level }).catch((err) => {
+  Storage.remove(key, { level, provider }).catch((err) => {
     console.error(err);
     throw new Error('We could not complete that action. Please try again');
   });
 
 export const getObject = async (key, level) => {
-  return Storage.get(key, { level: level })
+  return Storage.get(key, { level, provider })
     .then((result) =>
       fetch(result)
         .then((res) => {
@@ -61,8 +58,4 @@ export const getObject = async (key, level) => {
         })
         .then((response) => response.json())
     );
-};
-
-export const generatePreSignedURL = (key, expires) => {
-  return Storage.get(key, { expires: expires });
 };

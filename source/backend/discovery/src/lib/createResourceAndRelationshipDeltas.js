@@ -3,7 +3,9 @@
 
 const R = require("ramda");
 const {iterate} = require('iterare');
-const {GLOBAL,
+const logger = require('./logger');
+const {
+    GLOBAL,
     AWS_IAM_AWS_MANAGED_POLICY,
     AWS,
     AWS_IAM_INLINE_POLICY,
@@ -11,18 +13,10 @@ const {GLOBAL,
     AWS_IAM_ROLE,
     AWS_IAM_POLICY,
     AWS_IAM_GROUP,
-    AWS_API_GATEWAY_METHOD,
-    AWS_API_GATEWAY_RESOURCE,
-    AWS_ECS_TASK,
-    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
-    AWS_EKS_NODE_GROUP,
-    AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
-    AWS_EC2_SPOT,
-    AWS_EC2_SPOT_FLEET,
-    AWS_COGNITO_USER_POOL,
     AWS_TAGS_TAG,
-    UNKNOWN, AWS_OPENSEARCH_DOMAIN
+    UNKNOWN
 } = require("./constants");
+const {resourceTypesToHash} = require('./utils')
 
 function createLookUpMaps(resources) {
     const resourceMap = new Map();
@@ -103,22 +97,6 @@ function getLinkChanges(configLinks, dbLinks) {
     return {linksToAdd, linksToDelete};
 }
 
-const resourceTypesToHash = new Set([
-        AWS_API_GATEWAY_METHOD,
-        AWS_API_GATEWAY_RESOURCE,
-        AWS_ECS_TASK,
-        AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
-        AWS_EKS_NODE_GROUP,
-        AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
-        AWS_IAM_AWS_MANAGED_POLICY,
-        AWS_EC2_SPOT,
-        AWS_EC2_SPOT_FLEET,
-        AWS_IAM_INLINE_POLICY,
-        AWS_COGNITO_USER_POOL,
-        AWS_OPENSEARCH_DOMAIN
-    ]
-);
-
 function createUpdate(dbResourcesMap) {
     return ({id, md5Hash, properties}) => {
         const {properties: dbProperties} = dbResourcesMap.get(id);
@@ -164,16 +142,14 @@ function getResourceChanges(configResources, dbResourcesMap) {
     }
 }
 
-async function createResourceAndRelationshipDeltas(apiClient, resources) {
+function createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap, resources) {
     const {resourceIdentifierToIdMap, resourceMap} = createLookUpMaps(resources);
 
     const links = resources.flatMap(createLinksFromRelationships(resourceIdentifierToIdMap, resourceMap));
     const configLinksMap = new Map(links.map(x => [`${x.source}_${x.label}_${x.target}`, x]));
-    const dbLinksMap = await apiClient.getDbRelationshipsMap();
 
     const {linksToAdd, linksToDelete} = getLinkChanges(configLinksMap, dbLinksMap);
 
-    const dbResourcesMap = await apiClient.getDbResourcesMap();
     const {resourceIdsToDelete, resourcesToStore, resourcesToUpdate} = getResourceChanges(resourceMap, dbResourcesMap);
 
     return {

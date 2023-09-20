@@ -13,20 +13,22 @@ Parameters:
     Type: String
 
 Resources:
+
   WebUIBucketReadPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref WebUIBucket
       PolicyDocument:
         Statement:
-          - Action: s3:GetObject
+          - Sid: CloudFrontOriginStatement
+            Action: s3:GetObject
             Effect: Allow
-            Resource: !Sub "arn:aws:s3:::${WebUIBucket}/*"
+            Resource: !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}/*
             Principal:
-              CanonicalUser:
-                Fn::GetAtt:
-                  - CloudFrontOriginAccessIdentity
-                  - S3CanonicalUserId
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution.Id}"
           - Sid: HttpsOnly
             Action: '*'
             Effect: Deny
@@ -38,11 +40,15 @@ Resources:
               Bool:
                 'aws:SecureTransport': 'false'
 
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  CloudFrontOac:
+    Type: AWS::CloudFront::OriginAccessControl
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Ref WebUIBucket
+      OriginAccessControlConfig:
+        Description: Workload Discovery Web UI
+        Name: !Sub ${AWS::StackName}-WD-WebUI-OAC
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   CloudFrontDistribution:
     Metadata:
@@ -56,9 +62,8 @@ Resources:
         Origins:
           - DomainName: !Ref WebUIBucketRegionalDomainName
             Id: perspective-origin
-            S3OriginConfig:
-              OriginAccessIdentity:
-                Fn::Sub: origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+            OriginAccessControlId: !Ref CloudFrontOac
+            S3OriginConfig: {}
         Enabled: true
         HttpVersion: http2
         Comment: The Distribution for the Perspective Web UI

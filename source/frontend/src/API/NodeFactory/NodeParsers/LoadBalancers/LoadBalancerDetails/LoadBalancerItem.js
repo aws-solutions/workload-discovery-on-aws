@@ -3,10 +3,10 @@
 
 import React from 'react';
 import {
-  Box,
   ColumnLayout,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
+import ValueWithLabel from '../../../../../components/Shared/ValueWithLabel';
 
 const parseConfiguration = (configuration) => {
   try{
@@ -19,15 +19,6 @@ const parseConfiguration = (configuration) => {
 
 export const LoadBalancerItem = ({ configuration }) => {
   const parsedConfig = parseConfiguration(configuration);
-
-  const ValueWithLabel = ({ label, children }) => (
-    <div>
-      <Box margin={{ bottom: 'xxxs' }} color='text-label'>
-        {label}
-      </Box>
-      <div>{children}</div>
-    </div>
-  );
 
   return (
     <ColumnLayout columns={2} variant='text-grid'>

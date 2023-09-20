@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
+import { hashProperty } from "../../Utils/ObjectUtils";
 import {useNotificationDispatch} from "../Contexts/NotificationContext";
 
 const useQueryErrorHandler = () => {
   const { addNotification } = useNotificationDispatch()
-  const handleError = (e) => {
+    const handleError = (e) => {
     const error = e.error ? e.error : e
     if (error?.name) {
       let notification
@@ -17,7 +18,7 @@ const useQueryErrorHandler = () => {
             content: <>
               The following errors occurred:
               <ul>
-                {error.errors.map((i, idx) => <li key={idx}>{i.message}</li>)}
+                {error.errors.map((i) => <li key={hashProperty(i.name)}>{i.message}</li>)}
               </ul>
             </>,
             type: "error"

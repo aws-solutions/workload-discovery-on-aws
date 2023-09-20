@@ -10,7 +10,7 @@ import {
   Button,
   Multiselect,
   Autosuggest,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import { regionMap } from '../../../Utils/Dictionaries/RegionMap';
 import {useAccounts} from "../../Hooks/useAccounts";
 import * as R from "ramda";

@@ -3,7 +3,7 @@
 
 import React, {useEffect} from 'react';
 import PropTypes from "prop-types";
-import {FormField, Select, SpaceBetween} from '@awsui/components-react';
+import {FormField, Select, SpaceBetween} from '@cloudscape-design/components';
 import { useResourceState } from '../../../Contexts/ResourceContext';
 import { fetchResources } from '../Canvas/Commands/CanvasCommands';
 import { useDiagramSettingsState } from '../../../Contexts/DiagramSettingsContext';
@@ -36,8 +36,7 @@ const ResourceSearch = () => {
         description={"Search for a resource to add to the diagram"}
       >
         <OpensearchResourceSelect
-          onChange={({ detail }) =>
-            fetchResources(
+          onChange={({ detail }) => fetchResources(
               canvas,
               updateCanvas,
               updateResources,

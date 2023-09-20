@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 #
 # This assumes all of the OS-level configuration has been completed and git repo has already been cloned
 #
@@ -35,40 +36,52 @@ echo "--------------------------------------------------------------------------
 echo "[Test] Account Import Templates"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/account-import-templates-api
-npm test
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Cost Parser"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/cost-parser
-npm test
+npm run test:ci
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Metrics"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/metrics
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Discovery"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/discovery/
-npm test
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Graph API"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/graph-api
-npm test
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Search"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/search-api
-npm test
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Settings"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/settings
-npm test
+npm run test:ci
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] JavaScript SDK"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/sdk/js
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] UI"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/frontend/
-npm test
+npm run test:ci

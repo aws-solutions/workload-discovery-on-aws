@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { Box, Header, Table } from '@awsui/components-react';
+import { Box, Header, Table } from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import * as R  from 'ramda';
 import dayjs  from 'dayjs';
@@ -11,6 +11,9 @@ import relativeTime  from 'dayjs/plugin/relativeTime';
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
+function ComparisonType(comparisonType) {
+  return <b>{comparisonType}</b>
+}
 const MultipleResourceDetailsPanel = ({ resources }) => {
 
     const keyHeaderMap = {
@@ -36,7 +39,7 @@ const MultipleResourceDetailsPanel = ({ resources }) => {
         {
           id: 'comparisonType',
           header: '',
-          cell: ({ comparisonType }) => <b>{comparisonType}</b>
+          cell: ({ comparisonType }) => ComparisonType(comparisonType)
         },
         ...resources.map(({ id, properties }) => ({
           id,
@@ -48,7 +51,9 @@ const MultipleResourceDetailsPanel = ({ resources }) => {
   return (
     <Box padding={{ bottom: 'l' }}>
     <Table
-      ariaLabels={[]}
+      ariaLabels={{
+          tableLabel: 'Resources Details'
+      }}
       header={<Header variant="h2">Resource details</Header>}
       items={transformedData}
       columnDefinitions={columnDefinitions}

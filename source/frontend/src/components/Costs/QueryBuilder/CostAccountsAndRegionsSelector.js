@@ -9,7 +9,7 @@ import {
   Multiselect,
   ColumnLayout,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import CostDatePicker from '../../Diagrams/Draw/Utils/CostDatePicker';
 import {useAccounts} from "../../Hooks/useAccounts";

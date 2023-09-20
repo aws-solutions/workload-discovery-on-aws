@@ -1,22 +1,25 @@
 {
   "name": "wd-graph-api",
-  "version": "2.0.0",
-  "description": "",
+  "version": "2.1.0",
+  "description": "The lambda function that queries the Neptune database",
   "main": "src/index.js",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=nyc-report-lcov-absolute mocha test/*.js",
-    "posttest": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
-    "clean": "rm -rf dist && rm -rf node_modules",
-    "build:zip": "zip -rq --exclude=*tests* --exclude=package-lock.json graph-api.zip node_modules/ && zip -urj graph-api.zip src/",
+    "test": "nyc --reporter=html --reporter=text mocha test",
+    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
+    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "clean": "rm -rf dist",
+    "build:zip": "zip -rq --exclude=test/* --exclude=package-lock.json graph-api.zip node_modules/ && zip -urj graph-api.zip src/",
     "build:dist": "mkdir dist && mv graph-api.zip dist/",
-    "build": "npm run clean && npm i --production && npm run build:zip && npm run build:dist",
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"
   },
-  "author": "svozza",
-  "license": "ISC",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions"
+  },
+  "license": "Apache-2.0",
   "dependencies": {
-    "@supercharge/promise-pool": "2.3.2",
     "gremlin": "3.5.2",
     "neptune-lambda-client": "1.0.0",
     "pino": "7.11.0",
@@ -24,12 +27,11 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^9.2.2",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "nyc-report-lcov-absolute": "^1.0.0",
     "rewire": "^6.0.0",
-    "sinon": "^7.5.0",
-    "socks5-https-client": "^1.2.0"
+    "sinon": "^15.2.0"
   }
 }

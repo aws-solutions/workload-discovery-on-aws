@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const {assert} = require('chai');
-const sinon = require('sinon');
-const {ACCESS_DENIED} = require('../src/lib/constants')
 const {initialise} = require('../src/lib/intialisation');
 
 describe('initialisation', () => {
     const ACCOUNT_X = 'xxxxxxxxxxxx';
     const ACCOUNT_Y = 'yyyyyyyyyyyy';
     const EU_WEST_1= 'eu-west-1';
+    const US_EAST_1= 'us-east-1';
 
     describe('initialise', () => {
 
@@ -21,8 +20,27 @@ describe('initialisation', () => {
                     ]
                 }
             },
+            createEc2Client() {
+                return {
+                    async getAllRegions() {
+                        return []
+                    }
+                };
+            },
             createConfigServiceClient() {
                 return {}
+            },
+            createOrganizationsClient() {
+                return {
+                    async getAllAccounts() {
+                        return []
+                    },
+                    async getRootAccount() {
+                        return {
+                            Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
+                        }
+                    }
+                }
             },
             createStsClient() {
                 return {
@@ -62,50 +80,6 @@ describe('initialisation', () => {
 
             return initialise({...defaultMockAwsClient, ...mockAwsClient}, defaultAppSync, defaultConfig)
                 .catch(err => assert.strictEqual(err.message, 'Discovery process ECS task is already running in cluster.'));
-        });
-
-        it('should throw when no accounts to scan', async () => {
-            const mockAppSync = () => {
-                return {
-                    getAccounts: async () => [],
-                    createPaginator: async () => {}
-                }
-            };
-
-            return initialise(defaultMockAwsClient, mockAppSync, defaultConfig)
-                .catch(err => assert.strictEqual(err.message, 'No accounts to scan') );
-
-        });
-
-        it('should handle errors when retrieving credential by assuming the discovery role', async () => {
-            const mockAwsClient = {
-                createStsClient() {
-                    const accessError = new Error();
-                    accessError.Code = ACCESS_DENIED;
-
-                    return {
-                        getCurrentCredentials: async () => {
-                            return {accessKeyId: 'accessKeyId', secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
-                        },
-                        getCredentials: sinon.stub()
-                            .onFirstCall().rejects(accessError)
-                            .onSecondCall().resolves({accessKeyId: 'accessKeyId', secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'})
-                    }
-                }
-            };
-
-            const mockAppSync = () => {
-                return {
-                    getAccounts: async () => [
-                        {accountId: ACCOUNT_X, regions: [{name: EU_WEST_1}]},
-                        {accountId: ACCOUNT_Y, regions: [{name: EU_WEST_1}]}
-                    ],
-                    createPaginator: async () => {}
-                }
-            };
-
-            const {accountsMap} = await initialise({...defaultMockAwsClient, ...mockAwsClient}, mockAppSync, defaultConfig);
-            assert.strictEqual(accountsMap.size, 1)
         });
 
     });

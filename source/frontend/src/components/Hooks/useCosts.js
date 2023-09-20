@@ -5,14 +5,16 @@ import useQueryErrorHandler from "./useQueryErrorHandler";
 import {useQuery} from "react-query";
 import {handleResponse} from "../../API/Handlers/ResourceGraphQLHandler";
 import * as R from "ramda";
-import {getCostForResource, getResourcesByCostByDay, wrapCostAPIRequest} from "../../API/Handlers/CostsGraphQLHandler";
+import {getCostForResource, getResourcesByCostByDay} from "../../API/Handlers/CostsGraphQLHandler";
 import {getStatus} from "../../Utils/StatusUtils";
+import { wrapRequest } from "../../Utils/API/HandlerUtils";
+import { processAccountsError } from "../../Utils/ErrorHandlingUtils";
 
 export const useResourceCosts = (resources= [], dateInterval={}, config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     ["resourceCosts", resources, dateInterval],
-    () =>  wrapCostAPIRequest(getCostForResource, {
+    () =>  wrapRequest(processAccountsError, getCostForResource, {
       costForResourceQuery: {
         pagination: { start: 0, end: resources.length },
         resourceIds: R.filter(
@@ -52,7 +54,7 @@ export const useDailyResourceCosts = (resources= [], dateInterval={}, pageSize=5
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     ["resourceCosts", resources, dateInterval],
-    () => wrapCostAPIRequest(getResourcesByCostByDay, {
+    () => wrapRequest(processAccountsError, getResourcesByCostByDay, {
       costForResourceQueryByDay: {
         pagination: { start: 0, end: pageSize },
         resourceIds: R.chain((e) => {

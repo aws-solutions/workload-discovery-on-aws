@@ -3,15 +3,16 @@
 
 import {
   handleResponse,
-  readResultsFromS3,
-  wrapCostAPIRequest,
+  readResultsFromS3
 } from '../../../../API/Handlers/CostsGraphQLHandler';
+import { wrapRequest } from '../../../../Utils/API/HandlerUtils';
+import { processAccountsError } from '../../../../Utils/ErrorHandlingUtils';
 
 export const sendCostQuery = (queryToExecute) =>
-  wrapCostAPIRequest(queryToExecute.queryFunction, queryToExecute.queryOptions)
+  wrapRequest(processAccountsError, queryToExecute.queryFunction, queryToExecute.queryOptions)
     .then(handleResponse);
 export const fetchNextPage = (pagination, queryDetails) =>
-  wrapCostAPIRequest(readResultsFromS3, {
+  wrapRequest(processAccountsError, readResultsFromS3, {
     s3Query: {
       bucket: queryDetails.s3Bucket,
       key: queryDetails.s3Key,

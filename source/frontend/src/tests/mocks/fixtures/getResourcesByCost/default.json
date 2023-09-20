@@ -1,0 +1,113 @@
+{
+    "getResourcesByCost":{
+        "totalCost":283.74,
+        "costItems":[
+            {
+                "line_item_resource_id":"",
+                "product_servicename":"AWS CloudTrail",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-west-1",
+                "pricing_term":"OnDemand",
+                "cost":39.11,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:rds:us-east-2:xxxxxxxxxxxx:db:neptunedbinstance-xxxxxxxxxxxx",
+                "product_servicename":"Amazon Neptune",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":31.46,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:securityhub:us-east-1:xxxxxxxxxxxx:hub/default",
+                "product_servicename":"AWS Security Hub",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-east-1",
+                "pricing_term":"OnDemand",
+                "cost":16.65,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:ec2:us-east-2:yyyyyyyyyyyy:natgateway/nat",
+                "product_servicename":"Amazon Elastic Compute Cloud",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"yyyyyyyyyyyy",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":14.62,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:ec2:us-east-2:yyyyyyyyyyyy:natgateway/nat",
+                "product_servicename":"Amazon Elastic Compute Cloud",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"yyyyyyyyyyyy",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":14.62,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"",
+                "product_servicename":"AWS Config",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":9.91,
+                "line_item_currency_code":"USD"
+            },{
+                "line_item_resource_id":"arn:aws:ec2:us-east-2:xxxxxxxxxxxx:vpc-endpoint/vpce",
+                "product_servicename":"Amazon Virtual Private Cloud",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":6.48,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:ec2:us-east-2:yyyyyyyyyyyy:vpc-endpoint/vpce",
+                "product_servicename":"Amazon Virtual Private Cloud",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"yyyyyyyyyyyy",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":6.44,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"arn:aws:logs:us-east-2:yyyyyyyyyyyy:log-group:/aws/appsync/apis/aaaaaaaaaa",
+                "product_servicename":"AmazonCloudWatch",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"yyyyyyyyyyyy",
+                "region":"us-east-2",
+                "pricing_term":"OnDemand",
+                "cost":6.38,
+                "line_item_currency_code":"USD"
+            },
+            {
+                "line_item_resource_id":"",
+                "product_servicename":"Amazon GuardDuty",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-west-1",
+                "pricing_term":"OnDemand",
+                "cost":2.14,
+                "line_item_currency_code":"USD"
+            }
+            ],
+            "queryDetails":{
+                "cost":4.768E-5,
+                "s3Bucket":"workload-discovery-on-aw-costandusageathenaresult-xxxxxxxxxxxx",
+                "s3Key":"test.csv",
+                "dataScannedInMB":0,
+                "resultCount":1072
+            }
+    }
+}

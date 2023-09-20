@@ -4,63 +4,55 @@
 const gremlin = require('gremlin');
 const R = require('ramda');
 const {lambdaRequestTracker} = require('pino-lambda');
-const {PromisePool} = require('@supercharge/promise-pool')
 const __ = gremlin.process.statics;
 const c = gremlin.process.column
 const p = gremlin.process.P;
+const {local} = gremlin.process.scope;
 const {cardinality: {single}, t} = gremlin.process;
 const logger = require('./logger');
-const {createHierarchy} = require('./hierarchy');
 const {create: createGremlinClient} = require('neptune-lambda-client');
 
 const gremlinClient = createGremlinClient(process.env.neptuneConnectURL, process.env.neptunePort);
 
 const withRequest = lambdaRequestTracker();
 
-function getNodes(query, vId) {
+function getResourceGraph({query}, {ids, pagination: {start, end}}) {
     return query(async g => {
-        return g.V(vId).aggregate('nodes')
-            .both().aggregate('nodes')
-            .outE('IS_CONTAINED_IN_VPC', 'IS_ASSOCIATED_WITH_VPC', 'IS_CONTAINED_IN_SUBNET', 'IS_ASSOCIATED_WITH_SUBNET').inV().aggregate('nodes')
+        if(R.isEmpty(ids)) {
+            return {nodes: [], edges: []}
+        }
+
+        return g.with_('Neptune#enableResultCacheWithTTL', 30)
+            .V(...ids).aggregate('nodes')
+            .bothE().aggregate('edges').otherV().aggregate('nodes')
+            .outE('IS_CONTAINED_IN_VPC', 'IS_ASSOCIATED_WITH_VPC', 'IS_CONTAINED_IN_SUBNET', 'IS_ASSOCIATED_WITH_SUBNET').aggregate('edges').inV().aggregate('nodes')
+            .cap('nodes', 'edges')
             .fold()
-            .select('nodes')
-            .by(__.unfold().dedup().elementMap().fold())
+            .select('nodes', 'edges')
+            .by(__.unfold().dedup().elementMap().fold().range(local, start, end))
+            .by(__.unfold().dedup()
+                .project('id', 'label', 'target','source')
+                    .by(t.id)
+                    .by(t.label)
+                    .by(__.inV())
+                    .by(__.outV())
+                .fold().range(local, start, end))
             .next()
             .then(x => x.value)
-            .then(R.map(({id, label, ...properties}) => {
+            .then(({nodes, edges}) => {
                 return {
-                    id,
-                    label,
-                    parent: vId === id,
-                    properties
+                    edges,
+                    nodes: nodes.map(({id, label, md5Hash, ...properties}) => {
+                        return {
+                            id,
+                            label,
+                            md5Hash,
+                            properties
+                        };
+                    })
                 };
-            }))
+            });
     });
-}
-
-function getLinkedNodesHierarchy({query}, args) {
-    return getNodes(query, args).then(createHierarchy).then(R.head);
-}
-
-async function batchGetLinkedNodesHierarchy({query}, ids) {
-    const {results, errors} = await PromisePool
-        .withConcurrency(10)
-        .for(ids)
-        .process(async id => {
-            const hierarchy = await getLinkedNodesHierarchy({query}, id);
-            return {parentId: id, hierarchy};
-        });
-
-    logger.info(`There were ${errors.length} errors when fetching hierarchies.`);
-    logger.debug({errors}, 'Errors: ');
-
-    const [notFound, hierarchies] = R.partition(x => x.hierarchy == null, results);
-
-    return {
-        hierarchies,
-        notFound: notFound.map(x => x.parentId),
-        unprocessedResources: errors.map(x => x.item)
-    }
 }
 
 function createAccountPredicates(accounts) {
@@ -295,22 +287,20 @@ function handler(gremlinClient) {
             case 'deleteAllResources':
                 return deleteAllResources(gremlinClient);
             case 'deleteResources':
+                if(R.isEmpty(args.resourceIds)) return [];
                 return deleteResources(gremlinClient, args.resourceIds);
-            case 'getLinkedNodesHierarchy':
-                if (!isArn(args.id)) throw new Error('The id parameter must be a valid ARN.');
-                return getLinkedNodesHierarchy(gremlinClient, args.id);
-            case 'batchGetLinkedNodesHierarchy':
-                const invalidArns = R.filter(id => !isArn(id), args.ids);
-                if (!R.isEmpty(invalidArns)) {
-                    logger.error({invalidArns}, 'Invalid ARNs provided. ');
-                    throw new Error('The following ARNs are invalid: ' + invalidArns);
-                }
-                return batchGetLinkedNodesHierarchy(gremlinClient, args.ids)
             case 'getResources':
                 if (R.isEmpty(args.resourceTypes)) return []
                 const resourceTypes = args.resourceTypes ?? [];
                 const accounts = args.accounts ?? []
                 return getResources(gremlinClient, {pagination, resourceTypes, accounts});
+            case 'getResourceGraph':
+                const invalidArns = R.filter(id => !isArn(id), args.ids);
+                if (!R.isEmpty(invalidArns)) {
+                    logger.error({invalidArns}, 'Invalid ARNs provided. ');
+                    throw new Error('The following ARNs are invalid: ' + invalidArns);
+                }
+                return getResourceGraph(gremlinClient, {ids: args.ids, pagination});
             case 'getResourcesMetadata':
                 return getResourcesMetadata(gremlinClient);
             case 'getResourcesAccountMetadata':

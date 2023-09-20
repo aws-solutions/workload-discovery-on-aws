@@ -9,15 +9,15 @@ import {
   Form,
   Select,
   Autosuggest,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import {useHistory} from 'react-router-dom';
 import {OPEN_DIAGRAM} from '../../../../../routes';
 import { useDiagramSettingsState } from '../../../../Contexts/DiagramSettingsContext';
 import {diagramsPrefix, useListObjects, usePutObject} from "../../../../Hooks/useS3Objects";
 import * as R  from 'ramda';
-const validFilename = require('valid-filename');
-const dayjs = require('dayjs');
-import relativeTime  from 'dayjs/plugin/relativeTime';
+import validFilename from 'valid-filename';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const mapIndexed = R.addIndex(R.map);

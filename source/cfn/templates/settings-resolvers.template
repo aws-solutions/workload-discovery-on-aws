@@ -60,14 +60,18 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       Policies:
-        - PolicyName: !Sub ${AWS::StackName}-AppSyncLambdaRole
+        - PolicyName: !Sub ${AWS::StackName}-SettingsAppSyncLambdaPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
               - Effect: Allow
                 Action:
                   - dynamodb:Query
@@ -99,8 +103,8 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/settings.zip
-      Runtime: nodejs16.x
-      Description: Lambda for Appsync resolvers
+      Runtime: nodejs18.x
+      Description: Lambda for Settings Appsync resolvers
       Timeout: 10
       MemorySize: 1024
       ReservedConcurrentExecutions: 10
@@ -150,6 +154,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getAccount
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -158,6 +166,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: addRegions
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -166,6 +178,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: deleteRegions
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -174,6 +190,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getAccounts
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -182,6 +202,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: addAccounts
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -190,6 +214,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: updateAccount
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -198,6 +226,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: updateRegions
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
@@ -206,6 +238,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: deleteAccounts
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name

@@ -15,6 +15,9 @@ Parameters:
   CognitoUserPoolId:
     Type: String
 
+  ApiAllowListedRanges:
+    Type: String
+
 Resources:
 
   PerspectiveAppSyncLoggingRole:
@@ -58,7 +61,7 @@ Resources:
         - AuthenticationType: AWS_IAM
       LogConfig:
         CloudWatchLogsRoleArn: !GetAtt PerspectiveAppSyncLoggingRole.Arn
-        FieldLogLevel: ALL
+        FieldLogLevel: ERROR
       UserPoolConfig:
         UserPoolId: !Ref CognitoUserPoolId
         AwsRegion: !Sub ${AWS::Region}
@@ -69,6 +72,132 @@ Resources:
     Properties:
       ApiId: !GetAtt PerspectiveAppSyncApi.ApiId
       DefinitionS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/perspective-api.graphql
+
+  WorkloadDiscoveryAllowListedCidr:
+    Type: AWS::WAFv2::IPSet
+    Properties:
+      Scope: REGIONAL
+      Description: CIDR ranges allowed access to Workload Discovery GraphQL API
+      IPAddressVersion: IPV4
+      Addresses: !Split [ ',', !Ref ApiAllowListedRanges]
+
+  WorkloadDiscoveryGraphQLApiWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Scope: REGIONAL
+      DefaultAction:
+        Block: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: false
+        CloudWatchMetricsEnabled: true
+        MetricName: Workload-Discovery-Api-WebACL-Metrics
+      Rules:
+        - Name: AWSManagedRules
+          Priority: 0
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: Workload-Discovery-Api-AWSManagedRulesMetric
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+              ExcludedRules: []
+              RuleActionOverrides:
+                - Name: SizeRestrictions_BODY
+                  ActionToUse:
+                    Count: {}
+                - Name: CrossSiteScripting_BODY
+                  ActionToUse:
+                    Count: {}
+        - Name: DiscoveryCrossSiteScriptingBodyException
+          Priority: 1
+          Statement:
+            AndStatement:
+              Statements:
+                - LabelMatchStatement:
+                    Scope: LABEL
+                    Key: awswaf:managed:aws:core-rule-set:CrossSiteScripting_Body
+                - NotStatement:
+                    Statement:
+                      ByteMatchStatement:
+                        FieldToMatch:
+                          SingleHeader:
+                            Name: x-amzn-workload-discovery-requester
+                        SearchString: discovery-process
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+                        PositionalConstraint: EXACTLY
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: DiscoveryCrossSiteScriptingBodyException
+        - Name: AWSManagedRulesKnownBadInputsRuleSet
+          Priority: 2
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: Workload-Discovery-Api-AWSManagedRulesKnownBadInputsRuleSetMetric
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+              ExcludedRules: []
+        - Name: AWSManagedRulesAmazonIpReputationList
+          Priority: 3
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: Workload-Discovery-Api-AWSManagedRulesAmazonIpReputationListMetric
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesAmazonIpReputationList
+              ExcludedRules: []
+        - Name: BlockGraphQLIntrospectionQuery
+          Priority: 4
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: Workload-Discovery-Api-BlockGraphQLIntrospectionRuleMetric
+          Statement:
+            ByteMatchStatement:
+              FieldToMatch:
+                Body:
+                  OversizeHandling: CONTINUE
+              PositionalConstraint: CONTAINS
+              SearchString: __schema
+              TextTransformations:
+                - Type: LOWERCASE
+                  Priority: 0
+        - Name: AllowlistRule
+          Priority: 5
+          Action:
+            Allow: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: Workload-Discovery-Api-AllowlistRuleMetric
+          Statement:
+            IPSetReferenceStatement:
+              Arn: !GetAtt WorkloadDiscoveryAllowListedCidr.Arn
+
+  GraphQLApiWebACLAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      WebACLArn: !GetAtt WorkloadDiscoveryGraphQLApiWebACL.Arn
+      ResourceArn: !GetAtt PerspectiveAppSyncApi.Arn
 
 Outputs:
   AppSyncApiId:

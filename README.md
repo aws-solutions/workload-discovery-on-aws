@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.0.3)
+# Workload Discovery on AWS (v2.1.0)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -157,7 +157,6 @@ Parameters required by the template:
 * **AdminUserEmailAddress** - The email address to receive login credentials at.
 * **AlreadyHaveConfigSetup** - Yes/No depending on whether AWS Config has is configured in the deployment Region.
 * **CreateOpensearchServiceRole** - Yes/No depending on whether you already have this service-role created. You can check in the IAM console to see if it is provisioned.
-* **OptOutOfSendingAnonymousUsageMetrics** - Yes/No depending on whether you are happy to send anonymous usage metrics back to AWS.
 * **CreateNeptuneReplica** - Yes/No depending on whether you want a read-replica created for Amazon Neptune. Note, that this will increase the cost of running the solution.
 * **NeptuneInstanceClass** - Select from a range of instance types that will be provisioned for the Amazon Neptune database. Note, the selection could increase the cost associated with running the solution.
 * **OpensearchInstanceType** - Select the instance type that will be provisioned for the Amazon ElasticSearch Domain.
@@ -166,9 +165,13 @@ Parameters required by the template:
   
 **Note** - You will need to deploy in the same account and region as the S3 bucket that the deployment artefacts are uploaded to.
 
-## Collecting Anonymous Operational Metrics
+## License
 
-This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution. 
+See license [here](./LICENSE.txt).
+
+## Anonymized data collection
+
+This solution collects anonymized operational metrics to help AWS improve the quality and features of the solution. 
 For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/collection-of-operational-metrics.html).
 
 ## Acknowledgements

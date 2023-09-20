@@ -12,8 +12,8 @@ import {
   Button,
   Modal,
   Link,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import {CREATE_DIAGRAM, OPEN_DIAGRAM} from '../../../routes';
 import { useHistory } from 'react-router-dom';
 import * as R from "ramda";
@@ -44,18 +44,21 @@ const DiagramTable = () => {
     refetchPublic(),
   ]);
 
+  function link(item){
+    return <Link href={OPEN_DIAGRAM.replace(
+      ':name',
+      item.label
+    ).replace(
+      ':visibility',
+      item.visibility
+    )} onFollow={handleFollow}>{item.label}</Link>;
+  }
+
   const columns = [
     {
       id: 'label',
       header: 'Name',
-      cell: (e) =>
-        <Link href={OPEN_DIAGRAM.replace(
-          ':name',
-          e.label
-        ).replace(
-          ':visibility',
-          e.visibility
-        )} onFollow={handleFollow}>{e.label}</Link>,
+      cell: (e) => link(e),
       width: 350,
       minWidth: 350,
     },

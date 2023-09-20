@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import {Box, Button, Icon, SpaceBetween} from "@awsui/components-react";
+import {Box, Button, Icon, SpaceBetween} from "@cloudscape-design/components";
 
 function ErrorFallback({error, resetErrorBoundary}) {
   return (

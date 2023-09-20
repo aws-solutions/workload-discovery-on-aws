@@ -8,7 +8,7 @@ import {
   Header,
   SpaceBetween,
   TextContent,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 
 import RegionUploadMethod from './RegionUploadMethod';
 import RegionEditor from './RegionEditor';

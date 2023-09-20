@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { RadioGroup } from '@awsui/components-react';
+import { RadioGroup } from '@cloudscape-design/components';
 
 const RegionUploadMethod = ({setUploadMethod}) => {
   const [value, setValue] = React.useState('csv');

@@ -13,7 +13,7 @@ import { fetchResources } from './Commands/CanvasCommands';
 import { getExpandCollapseGraphLayout } from './Layout/ExpandCollapseLayout';
 import { getGridLayout } from './Layout/GridGraphLayout';
 import { useResourceState } from '../../../Contexts/ResourceContext';
-const expandCollapse = require('cytoscape-expand-collapse');
+import expandCollapse from 'cytoscape-expand-collapse'
 import * as R  from 'ramda';
 import {useWindowSize} from "react-use";
 
@@ -186,7 +186,7 @@ const PureCytoscape = ({ name, visibility, setRendered }) => {
       setRendered && setRendered(true);
       const removeHighlight = setTimeout(
         () => cy.elements().removeClass('highlight'),
-        3000
+        2000
       );
       return () => clearTimeout(removeHighlight);
     });

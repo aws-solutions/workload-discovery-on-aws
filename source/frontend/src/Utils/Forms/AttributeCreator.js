@@ -2,7 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import AttributeEditor from '@awsui/components-react/attribute-editor';
+import AttributeEditor from '@cloudscape-design/components/attribute-editor';
+
+function getLimit(limit, items) {
+  if (limit) {
+    if (items.length === limit) {
+      return `You have reached the limit of ${limit} item(s)`
+    }
+    else
+      return `You can add up to ${limit} item(s)`
+  }
+  return undefined
+}
 
 export const AttributeCreator = ({
   item,
@@ -23,13 +34,7 @@ export const AttributeCreator = ({
       addButtonText={`Add ${item}`}
       disableAddButton={items.length === limit}
       removeButtonText='Remove'
-      additionalInfo={
-        limit
-          ? items.length === limit
-            ? `You have reached the limit of ${limit} item(s)`
-            : `You can add up to ${limit} item(s)`
-          : undefined
-      }
+      additionalInfo={getLimit(limit, items)}
       empty={limit ? `Add upto ${limit} items` : undefined}
     />
   );

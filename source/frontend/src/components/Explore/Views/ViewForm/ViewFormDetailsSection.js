@@ -10,7 +10,7 @@ import {
   FormField, Header,
   Input,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import {privateLevel, useListObjects, viewsPrefix} from "../../../Hooks/useS3Objects";
 import * as R  from 'ramda';

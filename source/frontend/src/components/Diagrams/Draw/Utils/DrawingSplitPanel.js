@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { SplitPanel } from '@awsui/components-react';
+import { SplitPanel } from '@cloudscape-design/components';
 import DiagramSplitPanelContents from '../SplitPanel/DiagramSplitPanelContents';
 import { useDiagramSettingsState } from '../../../Contexts/DiagramSettingsContext';
 

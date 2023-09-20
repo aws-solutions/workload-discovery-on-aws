@@ -6,12 +6,14 @@ env:
 extends:
   - 'eslint:recommended'
   - 'plugin:react/recommended'
+  - 'plugin:cypress/recommended'
 parserOptions:
   ecmaFeatures:
     jsx: true
   ecmaVersion: 12
   sourceType: module
 plugins:
+  - header
   - react
   - react-hooks
 settings:
@@ -42,4 +44,5 @@ rules:
     - error
     - ignore:
         - css
+  header/header: [ 'error', 'line', [' Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.', ' SPDX-License-Identifier: Apache-2.0'] ]
 #  ['error', { ignore: ['css'] }]

@@ -6,9 +6,8 @@ import * as R  from 'ramda';
 import {
   ColumnLayout,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import Breadcrumbs from '../../../Utils/Breadcrumbs';
-import ViewExplorerResourcesTable from './ViewExplorerResourcesTable';
 import ViewExplorerAccountsTable from './ViewExplorerAccountsTable';
 import ViewExplorerRegionsTable from './ViewExplorerRegionsTable';
 import ViewExplorerResourceTypesTable from './ViewExplorerResourceTypesTable';
@@ -17,6 +16,22 @@ import ViewOverview from './Shared/ViewOverview';
 import { useDiagramSettingsState } from '../../Contexts/DiagramSettingsContext';
 import { useResourceState } from '../../Contexts/ResourceContext';
 import {VIEWS} from "../../../routes";
+import ResourcesTable from "../Shared/ResourcesTable";
+
+const filterAccounts = R.chain((e) => {
+    return {
+        accountId: e.accountId,
+        ...(
+            e.regions?.length > 0
+                ? {
+                    regions: R.map((r) => {
+                        return { name: r.name };
+                    }, R.pathOr([], ['regions'], e))
+                }
+                : {}
+        ),
+    };
+});
 
 const ViewExplorerPage = () => {
   const [selectedView, setSelectedView] = React.useState(null);
@@ -56,7 +71,14 @@ const ViewExplorerPage = () => {
                 <ViewExplorerRegionsTable selectedView={selectedView} />
                 <ViewExplorerResourceTypesTable selectedView={selectedView} />
               </ColumnLayout>
-              <ViewExplorerResourcesTable selectedView={selectedView} />
+              <ResourcesTable
+                  accounts={filterAccounts(R.pathOr([], ['accounts'], selectedView))}
+                  resourceTypes={R.map(
+                      (r) => r.type,
+                      R.pathOr([], ['resourceTypes'], selectedView)
+                  )}
+                  pageSize={10}
+              />
             </>
           )
         }

@@ -66,27 +66,18 @@ Container Service console].
 . In the *Last Status* column check for the error message `OutOfMemoryError: Container killed due to memory usage`.
 
 === Increasing the memory for the ECS task
-. Sign in to the https://console.aws.amazon.com/ecs/home[Amazon Elastic Container Service console].
-. Select *Task Definitions* from the sidebar.
-. Select the task definition called *workload-discovery-taskgroup*.
-. Select the first task definition in the list.
-. Choose *Create new revision*.
-. In the *Task size* panel, double the memory specified in the *Task memory (GB)* drop down list.
-. Scroll down to the *Container definitions* panel.
-. Select the container with the container name *workload-discovery*.
-. In the dialog that appears, scroll to the *ENVIRONMENT* panel.
-. In the *Environment variables* section add an environment variable called `NODE_OPTIONS`. The value of this
-environment variable should be the size of the memory specified in step 6 in MB minus 500MB.
+. Sign in to the https://console.aws.amazon.com/cloudformation[CloudFormation console].
+. Select the main Workload Discovery stack radio button (it will have a description containing the text
+`Workload Discovery on AWS Main Template(SO0075a) - Solution - Main Template`)
 . Choose *Update*
-. Choose *Create* at the bottom right hand corner.
-. Select *Clusters* in the *Amazon ECS* section of the sidebar.
-. Select the cluster named *workload-discovery-cluster*.
-. Select *Scheduled Tasks*.
-. Select *workload-discovery-rule*.
-. Choose *Edit*.
-. Select the target name called *apiScheduledTask*.
-. In the *Task Definition* section, select the newly created revision (it will be tagged with the word *latest*).
-. Choose *Update* from the bottom right hand corner of the dialog.
+. On the *Update stack* page choose *Next*.
+. On the *Specify stack details* page change the following parameters:
+.. To increase the memory allocation for the ECS task, change *Memory* to a value double the previous one.
+.. To increase the CPU allocation for the ECS task, change *CpuUnits* to a value double the previous one.
+This step is only necessary if you wish to allocate more than 8Gb of memory to the task. The allowed memory and CPU
+combinations for Fargate tasks can be found https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size[here].
+. On the *Configure stack options* page, choose *Next*.
+. On the *Review* page, check the checkboxes in the *Capabilities* panel and choose *Next*.
 
 [NOTE]
 ====

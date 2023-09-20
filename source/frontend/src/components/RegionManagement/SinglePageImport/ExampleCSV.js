@@ -4,13 +4,13 @@
 import React from 'react';
 import {
   ExpandableSection,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 
 const ExampleCSV = () => {
   return (
     <ExpandableSection header='Example CSV'>
         <pre>
-          accountId,accountName,region <br />
+          accountId,accountName,region<br />
           123456789123,example-account-1,eu-west-1,
           <br />
           123456789123,example-account-1,eu-west-2,

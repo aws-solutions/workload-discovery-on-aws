@@ -6,7 +6,7 @@ import {
   Container,
   Header,
   ColumnLayout,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import CostBreakdownPie from './CostBreakdownPie';
 import {
   getAccountColour,

@@ -9,8 +9,8 @@ import {
   SpaceBetween,
   Table,
   Pagination,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import { regionMap } from '../../../Utils/Dictionaries/RegionMap';
 
 import * as R  from 'ramda';

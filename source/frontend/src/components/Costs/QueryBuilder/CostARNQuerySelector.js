@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, {useMemo} from 'react';
-import { Header, Container, Input } from '@awsui/components-react';
+import { Header, Container, Input } from '@cloudscape-design/components';
 
 import PropTypes from 'prop-types';
 import AttributeCreator from '../../../Utils/Forms/AttributeCreator';
@@ -28,20 +28,21 @@ const Control = React.memo(({ value, index, placeholder, setItems, prop }) => {
 
 Control.displayName = 'Control';
 
+function controlCell(resourceArn, itemIndex, setARNs){
+  return <Control
+  prop='resourceArn'
+  value={resourceArn}
+  index={itemIndex}
+  placeholder={'Enter an Resource Id or ARN'}
+  setItems={setARNs}/>;
+}
+
 const CostARNQuerySelector = ({ arns, setARNs }) => {
   const definition = useMemo(
     () => [
       {
         label: 'Resource',
-        control: ({ resourceArn = '' }, itemIndex) => (
-          <Control
-            prop='resourceArn'
-            value={resourceArn}
-            index={itemIndex}
-            placeholder={'Enter an Resource Id or ARN'}
-            setItems={setARNs}
-          />
-        ),
+        control: ({ resourceArn = '' }, itemIndex) => controlCell(resourceArn, itemIndex, setARNs)
       },
     ],
     [setARNs]

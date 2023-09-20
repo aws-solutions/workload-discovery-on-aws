@@ -14,6 +14,9 @@ async function sendQuery(opts, name, {query, variables = {}}) {
         host: opts.host,
         region: opts.region,
         path: opts.path,
+        headers: {
+            'x-amzn-workload-discovery-requester': 'discovery-process'
+        },
         body: JSON.stringify({
             query,
             variables
@@ -92,9 +95,9 @@ const getAccounts = opts => async () => {
       query ${name} {
         getAccounts {
           accountId
+          lastCrawled
           regions {
             name
-            lastCrawled
           }
         }
       }`;
@@ -154,7 +157,6 @@ const getResources = opts => async ({pagination, resourceTypes, accounts}) => {
         loggedInURL
         loginURL
         private
-        relationships
         resourceCreationTime
         resourceName
         resourceId
@@ -267,16 +269,41 @@ const updateIndexedResources = opts => async resources => {
     return sendQuery(opts, name, {query, variables});
 };
 
-const updateAccount = opts => async (accountId, lastCrawled) => {
+const addAccounts = opts => async accounts => {
+    const name = 'addAccounts';
+    const query = `
+      mutation ${name}($accounts: [AccountInput]!) {
+        addAccounts(accounts: $accounts) {
+          unprocessedAccounts
+        }
+      }
+`
+    const variables = {accounts};
+    return sendQuery(opts, name, {query, variables});
+}
+
+const updateAccount = opts => async (accountId, accountName, isIamRoleDeployed, lastCrawled) => {
     const name = 'updateAccount';
     const query = `
-    mutation ${name}($accountId: String!, $lastCrawled: AWSDateTime) {
-      ${name}(accountId: $accountId, lastCrawled: $lastCrawled) {
+    mutation ${name}($accountId: String!, $name: String, $isIamRoleDeployed: Boolean, $lastCrawled: AWSDateTime) {
+      ${name}(accountId: $accountId, name: $name, isIamRoleDeployed: $isIamRoleDeployed, lastCrawled: $lastCrawled) {
         accountId
         lastCrawled
       }
     }`;
-    const variables = {accountId, lastCrawled};
+    const variables = {accountId, name: accountName, lastCrawled, isIamRoleDeployed};
+    return sendQuery(opts, name, {query, variables});
+};
+
+const deleteAccounts = opts => async (accountIds) => {
+    const name = 'deleteAccounts';
+    const query = `
+    mutation ${name}($accountIds: [String]!) {
+        deleteAccounts(accountIds: $accountIds) {
+            unprocessedAccounts
+        }
+    }`;
+    const variables = {accountIds};
     return sendQuery(opts, name, {query, variables});
 };
 
@@ -295,6 +322,8 @@ module.exports = function(config) {
         deleteRelationships: deleteRelationships(opts),
         deleteResources: deleteResources(opts),
         indexResources: indexResources(opts),
+        addAccounts: addAccounts(opts),
+        deleteAccounts: deleteAccounts(opts),
         getAccounts: getAccounts(opts),
         updateAccount: updateAccount(opts),
         updateResources: updateResources(opts),

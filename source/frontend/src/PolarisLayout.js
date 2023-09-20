@@ -4,7 +4,7 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import PropTypes from "prop-types";
 import {matchPath, Route, Switch, useHistory, useLocation,} from 'react-router-dom';
-import {AppLayout, Box, Button, SideNavigation, SpaceBetween} from '@awsui/components-react';
+import {AppLayout, Box, Button, SideNavigation, SpaceBetween} from '@cloudscape-design/components';
 import routes, {ACCOUNTS, COSTS, CREATE_DIAGRAM, DRAW, HOMEPAGE_PATH, OPEN_DIAGRAM, RESOURCES, VIEWS,} from './routes';
 import panels from './help-panel';
 import splitPanels from './split-panel';

@@ -7,9 +7,10 @@ import {
   getResourcesAccountMetadata,
   getResourcesRegionMetadata,
   getResourcesMetadata,
-  wrapResourceRequest,
   handleResponse,
 } from '../../API/Handlers/ResourceGraphQLHandler';
+import { wrapRequest } from '../../Utils/API/HandlerUtils';
+import { processResourcesError } from '../../Utils/ErrorHandlingUtils';
 import * as R from "ramda";
 import {getStatus} from "../../Utils/StatusUtils";
 
@@ -20,7 +21,7 @@ export const useResourcesAccountMetadata = (accounts=null, config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     [accountQueryKey, accounts],
-    () => wrapResourceRequest(getResourcesAccountMetadata, { accounts })
+    () => wrapRequest(processResourcesError, getResourcesAccountMetadata, { accounts })
         .then(handleResponse)
         .then(R.pathOr([], ['body', 'data', 'getResourcesAccountMetadata'])),
     {
@@ -41,7 +42,7 @@ export const useResourcesRegionMetadata = (accounts=null, config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isFetching, isError, data, refetch } = useQuery(
     [regionQueryKey, accounts],
-    () => wrapResourceRequest(getResourcesRegionMetadata, { accounts })
+    () => wrapRequest(processResourcesError, getResourcesRegionMetadata, { accounts })
         .then(handleResponse)
         .then(R.pathOr([], ['body', 'data', 'getResourcesRegionMetadata'])),
     {
@@ -62,7 +63,7 @@ export const useResourcesMetadata = (accounts=null, config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isFetching, isError, data, refetch } = useQuery(
     [resourcesKey, accounts],
-    () => wrapResourceRequest(getResourcesMetadata, { accounts })
+    () => wrapRequest(processResourcesError, getResourcesMetadata, { accounts })
         .then(handleResponse)
         .then(R.pathOr([], ['body', 'data', 'getResourcesMetadata'])),
     {
