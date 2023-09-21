@@ -5,9 +5,10 @@ import {useQuery} from 'react-query'
 import useQueryErrorHandler from "./useQueryErrorHandler"
 import {
   exportToDrawIo,
-  handleResponse,
-  wrapResourceRequest,
+  handleResponse
 } from '../../API/Handlers/ResourceGraphQLHandler';
+import { wrapRequest } from '../../Utils/API/HandlerUtils';
+import { processResourcesError } from '../../Utils/ErrorHandlingUtils'
 import * as R from "ramda";
 import {diagramsPrefix, useObject} from "./useS3Objects";
 import {diagramToDrawioData} from "../Diagrams/Draw/Canvas/Export/Drawio/CreateDrawioDiagram";
@@ -20,9 +21,11 @@ export const useDrawIoUrl = (name, visibility, config={}) => {
 
   const { isLoading, isError, refetch, data, isFetching } = useQuery(
     [queryKey, name, visibility],
-    () => Promise.resolve(R.pick(["nodes", "edges"], diagramData))
+    () => Promise.resolve(
+        diagramData.settings.hideEdges ? R.pick(['nodes'], diagramData) : R.pick(['nodes', 'edges'], diagramData)
+    )
       .then(diagramToDrawioData)
-      .then(inputData => wrapResourceRequest(exportToDrawIo, inputData))
+      .then(inputData => wrapRequest(processResourcesError, exportToDrawIo, inputData))
       .then(handleResponse)
       .then(R.pathOr([], ['body', 'data', 'exportToDrawIo'])),
     {

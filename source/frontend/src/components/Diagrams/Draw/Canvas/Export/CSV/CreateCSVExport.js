@@ -22,8 +22,8 @@ const columns = [
   },
 ];
 
-function createExportRow(type, name, accountId, region, cost) {
-  return { type, name, accountId, region, cost };
+function createExportRow(type, name, accountId, region, arn, cost) {
+  return { type, name, accountId, region, arn, cost };
 }
 
 const getExportRows = (resources) => {
@@ -33,6 +33,7 @@ const getExportRows = (resources) => {
       e.data.title,
       e.data.resource.accountId,
       e.data.resource.region,
+      e.data.arn,
       e.data.cost
     )
   );

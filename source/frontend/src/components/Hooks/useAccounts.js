@@ -11,9 +11,10 @@ import {
   addAccounts,
   deleteAccounts,
   deleteRegions,
-  getAccounts,
-  wrapRequest
+  getAccounts
 } from "../../API/Handlers/SettingsGraphQLHandler";
+import { wrapRequest } from '../../Utils/API/HandlerUtils';
+import { processAccountsError } from '../../Utils/ErrorHandlingUtils';
 import {accountQueryKey, regionQueryKey} from "./useResourcesMetadata";
 import {useNotificationDispatch} from "../Contexts/NotificationContext";
 import {getStatus} from "../../Utils/StatusUtils";
@@ -23,7 +24,7 @@ export const useAccounts = (config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     [queryKey],
-    () =>  wrapRequest(getAccounts)
+    () =>  wrapRequest(processAccountsError, getAccounts)
         .then(handleResponse)
         .then(R.pathOr([], ['body', 'data', 'getAccounts'])),
     {
@@ -45,7 +46,7 @@ export const useAddAccounts = (config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { addNotification } = useNotificationDispatch()
   const queryClient = useQueryClient();
-  const mutation = useMutation((accounts) => wrapRequest(addAccounts, {
+  const mutation = useMutation((accounts) => wrapRequest(processAccountsError, addAccounts, {
     accounts,
   }).then(handleResponse), {
     onSuccess: async () => {
@@ -71,7 +72,7 @@ export const useRemoveAccount = (config={}) => {
   const { handleError } = useQueryErrorHandler()
   const queryClient = useQueryClient();
   const { addNotification } = useNotificationDispatch()
-  const mutation = useMutation((accountIds) => wrapRequest(deleteAccounts, {
+  const mutation = useMutation((accountIds) => wrapRequest(processAccountsError, deleteAccounts, {
     accountIds,
   }).then(handleResponse), {
     onSuccess: async () => {
@@ -96,7 +97,7 @@ export const useRemoveAccountRegion = (config={}) => {
   const { handleError } = useQueryErrorHandler()
   const { addNotification } = useNotificationDispatch()
   const queryClient = useQueryClient();
-  const mutation = useMutation(({accountId, regions}) =>  wrapRequest(deleteRegions, {
+  const mutation = useMutation(({accountId, regions}) =>  wrapRequest(processAccountsError, deleteRegions, {
     accountId,
     regions,
   }).then(handleResponse), {

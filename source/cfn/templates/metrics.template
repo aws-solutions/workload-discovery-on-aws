@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS Metrics Stack
+
+Parameters:
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  SolutionVersion:
+    Type: String
+
+  AmplifyStorageBucket:
+    Type: String
+
+  CostAndUsageReportBucket:
+    Type: String
+
+  AppSyncAPIUrl:
+    Type: String
+
+  AppSyncArn:
+    Type: String
+
+  CrossAccountDiscovery:
+    Type: String
+
+Resources:
+
+  MetricsCollectionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MetricsLambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: GetMetricsFromS3
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                    - s3:GetObject
+                    - s3:GetObjectAttributes
+                    - s3:ListBucket
+                Effect: Allow
+                Resource:
+                    - !Sub 'arn:${AWS::Partition}:s3:::${AmplifyStorageBucket}'
+                    - !Sub 'arn:${AWS::Partition}:s3:::${CostAndUsageReportBucket}'
+        - PolicyName: GetUUIDFromSSM
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                    - ssm:PutParameter
+                    - ssm:GetParameter
+                Effect: Allow
+                Resource: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/Solutions/WorkloadDiscovery/*'
+        - PolicyName: GetQueryFromAppsync
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action: appsync:GraphQL
+                Effect: Allow
+                Resource: !Sub '${AppSyncArn}/*'
+
+  MetricsCollectionLambdaFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This Lambda does not connect to any resources in a VPC
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt MetricsCollectionLambdaRole.Arn
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/metrics.zip
+      Runtime: nodejs18.x
+      Description: Lambda for Collecting Metrics
+      Timeout: 2
+      Tracing: Active
+      MemorySize: 512
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          REGION: !Ref AWS::Region
+          SOLUTION_VERSION: !Ref SolutionVersion
+          GRAPHQL_API_ENDPOINT: !Ref AppSyncAPIUrl
+          CROSS_ACCOUNT_DISCOVERY: !Ref CrossAccountDiscovery
+          diagramBucket: !Ref AmplifyStorageBucket
+          costFeatureBucket: !Ref CostAndUsageReportBucket
+      Events:
+        ScheduleEventV2:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(6 hours)
+            

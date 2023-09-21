@@ -10,9 +10,9 @@ import {
   Button,
   SpaceBetween,
   Table,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 
-import { useCollection } from '@awsui/collection-hooks';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import { isEmpty } from 'ramda';
 
 import PropTypes from 'prop-types';

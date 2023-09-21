@@ -8,23 +8,24 @@ import {
   Header,
   Pagination,
   Button,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import PropTypes from 'prop-types';
 
 import * as R  from 'ramda';
+import {createTableAriaLabels} from "../../../Utils/AccessibilityUtils";
 
 const columns = [
   {
     id: 'resource',
     header: 'Resource',
-    cell: (e) =>
-      e.line_item_resource_id
-        ? e.line_item_resource_id
-        : e.product_servicename
-        ? e.product_servicename
-        : 'undefined',
+    cell: (e) => {
+        if (e.line_item_resource_id) {
+            return e.line_item_resource_id
+        }
+        return e.product_servicename ? e.product_servicename : 'undefined'
+    },
     width: 320,
     minWidth: 320,
   },
@@ -97,6 +98,10 @@ const CostTable = ({
 
   return (
     <Table
+      ariaLabels={createTableAriaLabels('resource', 'resources', {
+          keys: ['line_item_resource_id', 'product_servicename'],
+          fallback: 'Unknown resource'
+      }, 'Resources')}
       {...collectionProps}
       header={
         <Header

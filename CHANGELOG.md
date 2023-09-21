@@ -5,6 +5,31 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2023-09-21
+
+### Added
+
+- AppRegistry integration to monitor application costs and usage.
+- Integration with Organizations. Customers can install the solution in a delegated admin account (recommended)
+or the management account and the solution will use an organization wide config aggregator to discover resources across 
+their organization. [1](https://github.com/aws-solutions/workload-discovery-on-aws/issues/1)
+- Pipeline for local development of the solution.
+- Support for deploying this solution in an existing VPC. [169](https://github.com/aws-solutions/workload-discovery-on-aws/issues/169)
+- Support for deploying this solution with Neptune Serverless. [314](https://github.com/aws-solutions/workload-discovery-on-aws/issues/314)
+- UI now indicates if global resources template has been deployed in target accounts. [367](https://github.com/aws-solutions/workload-discovery-on-aws/issues/367)
+- Support for more resource types now totalling over 250.
+
+### Changed
+- Migrated from the deprecated awsui frontend framework to [Cloudscape](https://cloudscape.design). 
+
+### Fixed
+- Export of diagrams to JSON [426](https://github.com/aws-solutions/workload-discovery-on-aws/issues/426)
+- Export of diagrams to draw.io [329](https://github.com/aws-solutions/workload-discovery-on-aws/issues/329)
+- Outdated OpenSSL package being used [424](https://github.com/aws-solutions/workload-discovery-on-aws/issues/424)
+- Response payload size exceeding maximum allowed payload size [351](https://github.com/aws-solutions/workload-discovery-on-aws/issues/351)
+- Publishing name instead of ARN of resources [330](https://github.com/aws-solutions/workload-discovery-on-aws/issues/330)
+- CSV report of the Resources does not include ARN [407](https://github.com/aws-solutions/workload-discovery-on-aws/issues/407)
+
 ## [2.0.3] - 2023-04-18
 
 ### Fixed

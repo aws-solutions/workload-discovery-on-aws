@@ -6,7 +6,7 @@ import {
   Container,
   LineChart,
   Box,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import * as R  from 'ramda';
 import dayjs from 'dayjs';
@@ -29,7 +29,7 @@ const CostBreakdownChart = ({ items }) => {
     return mapIndexed((e, i) => {
       return {
         id: i,
-        title: `${R.last(R.split(':', e))} (${R.head(groups[`${e}`]).product_servicename})`,
+        title: `${R.last(R.split(':', e))} (${R.head(groups[e]).product_servicename})`,
         type: 'line',
         valueFormatter: (t) => t,
         data: R.map((e) => {

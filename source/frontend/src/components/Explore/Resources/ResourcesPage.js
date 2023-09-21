@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, {useEffect, useState} from 'react';
-import {ColumnLayout, Container, Header, SpaceBetween} from '@awsui/components-react';
+import {ColumnLayout, Container, Header, SpaceBetween} from '@cloudscape-design/components';
 import ResourcesTypes from './Types/TypeOverview/ResourcesTypes';
-import ResourcesTable from './Types/TypeOverview/ResourcesTable';
 import ResourceOverview from './ResourceOverview';
 import Breadcrumbs from '../../../Utils/Breadcrumbs';
 import { RESOURCES } from '../../../routes';
@@ -14,6 +13,7 @@ import AccountMultiSelect from "./Types/TypeOverview/AccountMultiSelect";
 import RegionMultiSelect from "./Types/TypeOverview/RegionMultiSelect";
 import * as R from "ramda";
 import {useDeepCompareEffect} from "react-use";
+import ResourcesTable from "../Shared/ResourcesTable";
 
 const ResourcesPage = () => {
   const [, dispatchCanvas] = useDiagramSettingsState();
@@ -55,7 +55,7 @@ const ResourcesPage = () => {
     <SpaceBetween size='l'>
       <Breadcrumbs items={[{ text: 'Resources', href: RESOURCES }]} />
       <ColumnLayout columns={1}>
-        <ResourceOverview />
+        <ResourceOverview/>
         <Container header={<Header variant={"h2"}>Resource Filters</Header>}>
           <SpaceBetween size={"s"}>
             <AccountMultiSelect selected={selectedAccounts} onChange={setSelectedAccounts}/>
@@ -76,11 +76,12 @@ const ResourcesPage = () => {
           onSelection={setSelectedResourceTypes}
         />
         <ResourcesTable
-          accounts={selectedAccounts.map(i => ({
-            accountId: i,
-            ...(selectedRegions.length > 0 ? {regions: selectedRegions.map(i => ({name: i}))} : {})
-          }))}
-          resourceTypes={selectedResourceTypes}
+            accounts={selectedAccounts.map(i => ({
+                accountId: i,
+                ...(selectedRegions.length > 0 ? {regions: selectedRegions.map(i => ({name: i}))} : {})
+            }))}
+            resourceTypes={R.map((e) => e.type, selectedResourceTypes)}
+            pageSize={10}
         />
       </ColumnLayout>
     </SpaceBetween>

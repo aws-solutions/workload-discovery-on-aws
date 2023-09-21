@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
+import * as R  from 'ramda';
+import dayjs  from 'dayjs';
+import { hashProperty } from '../../../Utils/ObjectUtils';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import {
   Table,
   Box,
@@ -11,15 +15,16 @@ import {
   Button,
   SpaceBetween,
   StatusIndicator, Modal,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import { isEmpty } from 'ramda';
 import PropTypes from 'prop-types';
 import {useAccounts, useRemoveAccountRegion} from "../../Hooks/useAccounts";
 import {useResourcesRegionMetadata} from "../../Hooks/useResourcesMetadata";
-import * as R  from 'ramda';
-import dayjs  from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import {isUsingOrganizations} from "../../../Utils/AccountUtils";
+import {createTableAriaLabels} from "../../../Utils/AccessibilityUtils";
+import useQueryErrorHandler from "../../Hooks/useQueryErrorHandler";
+
 dayjs.extend(relativeTime);
 
 const columns = [
@@ -60,6 +65,7 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
   const {data: accounts=[], isLoading: loadingAccounts} = useAccounts();
   const [selectedRegions, setSelectedRegions] = React.useState([]);
   const {removeAsync} = useRemoveAccountRegion();
+  const {handleError} = useQueryErrorHandler();
   const {data=[], isLoading: loadingRegions} = useResourcesRegionMetadata(R.chain((e) => {
     return {
       accountId: e.accountId,
@@ -135,6 +141,7 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
         return { name: e.name };
       }, selectedRegions),
     })
+      .catch(handleError)
       .then(() => setShowDeleteConfirm(false))
       .then(() => setSelectedRegions([]))
   };
@@ -157,25 +164,31 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
       >
         <Box>Remove the following regions for <strong>{selectedAccounts.map(i => i.accountId).join(", ")}</strong>?</Box>
         <ul>
-          {selectedRegions.map((i, idx) => <li key={idx}><strong>{i.name}</strong></li>)}
+          {selectedRegions.map((i) => <li key={hashProperty(i.name)}><strong>{i.name}</strong></li>)}
         </ul>
       </Modal>
       <Table
+          ariaLabels={createTableAriaLabels('region', 'regions', {
+            keys: ['region'],
+            fallback: 'Unknown region'
+        }, 'Regions')}
         {...collectionProps}
         header={
           <Header
             variant='h2'
             description='AWS Regions that have been imported into Workload Discovery on AWS.'
             actions={
-              <SpaceBetween direction='horizontal' size='l'>
-                <Button
-                  loadingText='Removing'
-                  variant='primary'
-                  disabled={isEmpty(selectedRegions)}
-                  onClick={() => setShowDeleteConfirm(true)}>
-                  Remove
-                </Button>
-              </SpaceBetween>
+                isUsingOrganizations()
+                    ? void 0
+                    : <SpaceBetween direction='horizontal' size='l'>
+                        <Button
+                            loadingText='Removing'
+                            variant='primary'
+                            disabled={isEmpty(selectedRegions)}
+                            onClick={() => setShowDeleteConfirm(true)}>
+                            Remove
+                        </Button>
+                    </SpaceBetween>
             }>
             Regions
           </Header>
@@ -189,6 +202,7 @@ const DiscoverableRegionsTable = ({ selectedAccounts }) => {
         selectedItems={selectedRegions}
         selectionType='multi'
         onSelectionChange={(evt) => setSelectedRegions(evt.detail.selectedItems)}
+        isItemDisabled={isUsingOrganizations}
         loadingText='Loading Regions'
         filter={
           <TextFilter {...filterProps} filteringPlaceholder='Find a Region...' />

@@ -3,28 +3,14 @@
 
 import React from 'react';
 import {
-  Box,
   ColumnLayout,
   Container,
   Header,
   TextContent,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
-
-const ValueWithLabel = ({ label, children }) => (
-  <div>
-    <Box margin={{ bottom: 'xxxs' }} color='text-label'>
-      {label}
-    </Box>
-    <div>{children}</div>
-  </div>
-);
-
-ValueWithLabel.propTypes = {
-  label: PropTypes.string.isRequired,
-  children: PropTypes.object
-}
+import ValueWithLabel from '../../../Shared/ValueWithLabel';
 
 const ViewOverview = ({ accounts, resourceTypes }) => {
   const accountsToRegionList = R.uniq(R.chain(i => i.regions, accounts));

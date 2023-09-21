@@ -1,4 +1,10 @@
 {
+  "description": "The markdown for the documentation on https://aws-solutions.github.io/workload-discovery-on-aws",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions"
+  },
+  "license": "Apache-2.0",
   "devDependencies": {
     "@antora/cli": "3.1.1",
     "@antora/site-generator": "3.1.1"

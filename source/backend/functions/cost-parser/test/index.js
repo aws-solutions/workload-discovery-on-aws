@@ -159,7 +159,7 @@ describe('testing the athena query builder', () => {
       const from = '2020-01-01 00:00:00.000';
       const to = '2020-01-21 00:00:00.000';
 
-      const queryResult = `SELECT product_servicename, line_item_usage_account_id, product_region AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_usage_account_id IN ('123456789012','123456789013','123456789014') AND product_region IN ('eu-west-1','us-east-1') AND product_servicename LIKE '%some-random-name-of a service 2.0%' AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY  product_servicename, line_item_usage_account_id, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
+      const queryResult = `SELECT product_servicename, line_item_usage_account_id, Array_join(Array_distinct(Array_agg(product_region)), '|') AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM test-table WHERE line_item_usage_account_id IN ('123456789012','123456789013','123456789014') AND product_region IN ('eu-west-1','us-east-1') AND product_servicename LIKE '%some-random-name-of a service 2.0%' AND line_item_usage_start_date >= TIMESTAMP '2020-01-01 00:00:00.000' AND line_item_usage_end_date <= TIMESTAMP '2020-01-21 00:00:00.000' GROUP BY  product_servicename, line_item_usage_account_id, pricing_term, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 ORDER BY cost DESC;`;
 
       const actual = byServiceQuery({
         cache: getRegions(),

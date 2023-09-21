@@ -13,7 +13,16 @@
 
 # dependencies
 **/node_modules
+
+# testing
 **/coverage
+**/cypress-coverage
+**/vitest-coverage
+source/frontend/reports
+source/frontend/cypress/downloads
+source/frontend/cypress/screenshots
+source/frontend/cypress/snapshots/diff
+source/frontend/cypress/videos
 
 # e2e
 **/e2e/*.js
@@ -25,6 +34,10 @@
 # package-lock.json
 **/.vscode/settings.json
 **/setenv.sh
+
+#IntelliJ
+.idea
+*.iml
 
 # System Files
 **/.DS_Store
@@ -42,11 +55,12 @@
 source/backend/functions/lambda-layers/aws_sdk/python
 source/backend/functions/lambda-layers/cr_helper/python
 source/backend/functions/lambda-layers/decorators/python/*
-source/backend/functions/lambda-layers/boto_utils/python/*
+source/backend/functions/drawio/python/*
+source/backend/functions/drawio/.pytest_cache
 source/backend/functions/cleanup-bucket/package
 source/backend/functions/cost-parser/src/setting-up-athena-integration.md
 
-local-deploy-perspective.sh
+deployment/local_install.sh
 
 # docs build
 docs/build

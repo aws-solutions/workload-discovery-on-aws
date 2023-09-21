@@ -5,23 +5,37 @@ const R = require('ramda')
 const logger = require('./logger');
 const {initialise} = require('./intialisation');
 const getAllConfigResources = require('./aggregator/getAllConfigResources');
-const {createAdditionalResources} = require('./additionalResources');
-const {createAdditionalRelationships} = require('./additionalRelationships');
+const {getAllSdkResources} = require('./sdkResources');
+const {addAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
 const {createSaveObject} = require('./persistence/transformers');
-const {writeResourcesAndRelationships} = require('./persistence');
+const {persistResourcesAndRelationships, persistAccounts} = require('./persistence');
+const {GLOBAL} = require("./constants");
 
 async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
-    const {accountsMap, apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
+    const {apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
 
-    return getAllConfigResources(configServiceClient, accountsMap, config.configAggregator)
-        .then(createAdditionalResources(accountsMap, awsClient))
-        .then(createAdditionalRelationships(accountsMap, awsClient))
+    const [accounts, dbLinksMap, dbResourcesMap, configResources] = await Promise.all([
+        apiClient.getAccounts(),
+        apiClient.getDbRelationshipsMap(),
+        apiClient.getDbResourcesMap(),
+        getAllConfigResources(configServiceClient, config.configAggregator)
+    ]);
+
+    const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed && !x.toDelete).map(x => [x.accountId, x]));
+
+    return Promise.resolve(configResources)
+        .then(R.filter(({accountId, awsRegion}) => {
+            // resources from removed accounts/regions can take a while to be deleted from the Config aggregator
+            return (accountsMap.has(accountId) && awsRegion === GLOBAL) || (accountsMap.get(accountId)?.regions ?? []).includes(awsRegion);
+        }))
+        .then(getAllSdkResources(accountsMap, awsClient))
+        .then(addAdditionalRelationships(accountsMap, awsClient))
         .then(R.map(createSaveObject))
-        .then(createResourceAndRelationshipDeltas(apiClient))
-        .then(writeResourcesAndRelationships(apiClient))
-        .then(() => apiClient.updateAccountsCrawledTime(Array.from(accountsMap.keys())));
+        .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
+        .then(persistResourcesAndRelationships(apiClient))
+        .then(() => persistAccounts(config, apiClient, accounts));
 }
 
 module.exports = {

@@ -14,6 +14,9 @@ Parameters:
   PerspectiveAppSyncApiId:
     Type: String
 
+  DiscoveryRoleArn:
+    Type: String
+
 Resources:
 
   AccountImportTemplatesApiLambdaFunctionRole:
@@ -21,7 +24,6 @@ Resources:
     Properties:
       Path: '/'
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       AssumeRolePolicyDocument:
         Statement:
@@ -30,6 +32,17 @@ Resources:
               Service:
                 - lambda.amazonaws.com
             Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ImportTemplatesLambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   AccountImportTemplatesApiFunction:
     Metadata:
@@ -44,7 +57,7 @@ Resources:
       Code:
         S3Bucket: !Ref DeploymentBucket
         S3Key: !Sub ${DeploymentBucketKey}/account-import-templates-api.zip
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: Lambda for Account Import Template Api
       Timeout: 10
       TracingConfig:
@@ -54,6 +67,7 @@ Resources:
       Environment:
         Variables:
           ACCOUNT_ID: !Ref AWS::AccountId
+          DISCOVERY_ROLE_ARN: !Ref DiscoveryRoleArn
           REGION: !Ref AWS::Region
 
   AccountImportTemplatesApiInvokeRole:
@@ -93,6 +107,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getGlobalTemplate
       DataSourceName: !GetAtt AccountImportTemplatesApiLambdaDataSource.Name
@@ -101,6 +119,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getRegionalTemplate
       DataSourceName: !GetAtt AccountImportTemplatesApiLambdaDataSource.Name

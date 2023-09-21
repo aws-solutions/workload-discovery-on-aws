@@ -5,7 +5,7 @@ import React from 'react';
 import CostBreakdownTable from './CostBreakdownTable';
 import PropTypes from 'prop-types';
 import CostBreakdownChart from './CostBreakdownChart';
-import {Box, Container, Spinner} from "@awsui/components-react";
+import {Box, Container, Spinner} from "@cloudscape-design/components";
 
 const CostBreakdown = ({
   resources,

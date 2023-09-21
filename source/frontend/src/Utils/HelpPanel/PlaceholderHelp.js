@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { HelpPanel } from '@awsui/components-react';
+import { HelpPanel } from '@cloudscape-design/components';
 
 const PlaceholderHelp = () => {
   return (

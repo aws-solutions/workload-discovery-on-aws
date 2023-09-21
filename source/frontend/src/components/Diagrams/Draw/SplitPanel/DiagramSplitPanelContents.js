@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, {useEffect} from 'react';
-import { ColumnLayout } from '@awsui/components-react';
+import { ColumnLayout } from '@cloudscape-design/components';
 import ResourcesTable from './ResourcesTable';
-import ResourceDetails from './ResourceDetails';
+import ResourceDetails from '../../../Shared/ResourceDetails';
 import { useDiagramSettingsState } from '../../../Contexts/DiagramSettingsContext';
 import * as R  from 'ramda';
 const DiagramSplitPanelContents = () => {
@@ -48,7 +48,7 @@ const DiagramSplitPanelContents = () => {
         setSelectedResource={setSelectedResource}
       />
       {!R.isEmpty(selectedResource) && (
-        <ResourceDetails selectedResource={R.head(selectedResource)} />
+        <ResourceDetails selectedResource={R.head(selectedResource.map(x => x.data))} />
       )}
     </ColumnLayout>
   );

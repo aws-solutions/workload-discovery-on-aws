@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { Container, SpaceBetween, Header } from '@awsui/components-react';
+import { Container, SpaceBetween, Header } from '@cloudscape-design/components';
 import DiagramTable from './DiagramTable';
 import Breadcrumbs from '../../../Utils/Breadcrumbs';
 import { DIAGRAM_MANAGEMENT } from '../../../routes';

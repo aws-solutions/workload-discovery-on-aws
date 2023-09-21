@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { BreadcrumbGroup } from "@awsui/components-react";
+import { BreadcrumbGroup } from "@cloudscape-design/components";
 import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 import { HOMEPAGE_PATH } from "../routes";

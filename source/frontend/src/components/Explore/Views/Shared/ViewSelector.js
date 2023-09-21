@@ -10,7 +10,7 @@ import {
   Header,
   Select,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import {CREATE_VIEW, EDIT_VIEW, VIEW, VIEWS} from '../../../../routes';
 import {useHistory, useParams} from 'react-router-dom';
 import PropTypes from 'prop-types';

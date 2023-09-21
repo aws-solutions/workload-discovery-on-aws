@@ -5,8 +5,9 @@ import {
   useNotificationContext,
   useNotificationDispatch
 } from "../components/Contexts/NotificationContext"
-import { Alert } from "@awsui/components-react"
+import { Alert } from "@cloudscape-design/components"
 import React, { useEffect } from "react"
+import { hashProperty } from "./ObjectUtils"
 
 export const Notifications = ({ maxNotifications = 3 }) => {
   const {
@@ -25,7 +26,7 @@ export const Notifications = ({ maxNotifications = 3 }) => {
     <>
       {notifications.map((notification, idx) => (
         <Alert
-          key={idx}
+          key={hashProperty(notification.header)}
           dismissible={true}
           type={notification.type}
           header={notification.header}

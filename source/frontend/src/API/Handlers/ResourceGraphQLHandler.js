@@ -1,23 +1,35 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { retryAttempts } from '../../config/api-retry';
-import {delay} from "../../Utils/AsyncUtils";
-import { Auth, API, graphqlOperation } from 'aws-amplify';
+import { API, graphqlOperation } from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
 import * as R  from 'ramda';
-
-export const getLinkedNodesHierarchy = (params) => {
-  return API.graphql(graphqlOperation(queries.getLinkedNodesHierarchy, params));
-};
-
-export const batchGetLinkedNodesHierarchy = (params) => {
-  return API.graphql(graphqlOperation(queries.batchGetLinkedNodesHierarchy, params));
-};
 
 export const getResources = (params) => {
   return API.graphql(graphqlOperation(queries.getResources, params));
 };
+
+export const getResourceGraph = (params) => {
+    return API.graphql(graphqlOperation(queries.getResourceGraph, params));
+};
+
+export const getResourceGraphPaginated = ({ids, pageSize = 500}) => {
+    async function getResourceGraphRec(pagination, resourceGraph = {nodes: [], edges: []}) {
+        const {end} = pagination;
+        const {nodes, edges} = await getResourceGraph({ids, pagination})
+            .then(R.pathOr({nodes: [], edges: []}, ['data', 'getResourceGraph']));
+
+        if(R.isEmpty(nodes) && R.isEmpty(edges)) return resourceGraph;
+
+        return getResourceGraphRec({start: end, end: end + pageSize}, {
+            nodes: [...resourceGraph.nodes, ...nodes],
+            edges: [...resourceGraph.edges, ...edges],
+        });
+    }
+
+    return getResourceGraphRec({start: 0, end: pageSize});
+}
+
 export const getResourcesMetadata = (params) => {
   return API.graphql(graphqlOperation(queries.getResourcesMetadata, params));
 };
@@ -40,42 +52,6 @@ export const searchResources = (params) => {
 
 export const exportToDrawIo = (params) => {
   return API.graphql(graphqlOperation(queries.exportToDrawIo, params));
-};
-
-const processError = (retryCount, retryAttempts, response) =>
-  response.error && retryCount < retryAttempts;
-
-export const sendGetRequests = async (requests) => {
-  await Auth.currentSession().catch((err) => {
-    if (R.equals(err, 'No current user')) Auth.signOut();
-  });
-
-  return Promise.all(requests);
-};
-
-export const wrapResourceRequest = (request, data, retryCount = 0) => {
-  return request(data)
-    .then((response) => {
-      return processError(retryCount, retryAttempts, response)
-        ? delay(retryCount).then(
-            wrapResourceRequest(request, data, retryCount + 1)
-          )
-        : wrapResponse(response, response.error);
-    })
-    .catch((err) => {
-      return retryCount < retryAttempts
-        ? delay(retryCount).then(() =>
-            wrapResourceRequest(request, data, retryCount + 1)
-          )
-        : wrapResponse(err, true);
-    });
-};
-
-const wrapResponse = (data, error) => {
-  return {
-    error: error,
-    body: data,
-  };
 };
 
 export function handleResponse(response) {

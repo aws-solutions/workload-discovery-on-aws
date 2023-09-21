@@ -9,11 +9,15 @@ import {
   SpaceBetween,
   Table,
   Pagination,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import { fetchImage } from '../../../Utils/ImageSelector';
 
 import * as R  from 'ramda';
+
+function imageCell(item) {
+  return <img src={fetchImage(item.type)} style={{ width: '25px' }} />;
+}
 
 const ViewExplorerResourceTypesTable = ({ selectedView }) => {
   const {
@@ -51,15 +55,12 @@ const ViewExplorerResourceTypesTable = ({ selectedView }) => {
         {...collectionProps}
         trackBy='type'
         ariaLabels={{
-          itemSelectionLabel: (e, t) => `select ${t.accountId}`,
-          selectionGroupLabel: 'Item selection',
+            tableLabel: 'Resources types'
         }}
         columnDefinitions={[
           {
             id: 'icon',
-            cell: (e) => (
-              <img src={fetchImage(e.type)} style={{ width: '25px' }} />
-            ),
+            cell: (e) => imageCell(e),
           },
           {
             id: 'type',

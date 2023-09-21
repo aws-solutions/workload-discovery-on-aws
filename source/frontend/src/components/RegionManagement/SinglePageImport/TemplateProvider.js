@@ -6,10 +6,11 @@ import {
   Button,
   SpaceBetween,
   Box,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import {GLOBAL_TEMPLATE, REGIONAL_TEMPLATE, useTemplate} from "../../Hooks/useTemplate";
 
-const fileDownload = require('js-file-download');
+import fileDownload from 'js-file-download';
+import {GLOBAL_RESOURCES_TEMPLATE_FILENAME} from "../../../config/constants";
 
 const TemplateProvider = () => {
   const {data: globalTemplate, isLoading: isLoadingGlobal} = useTemplate(GLOBAL_TEMPLATE);
@@ -34,7 +35,7 @@ const TemplateProvider = () => {
               onClick={async () =>
                 fileDownload(
                   globalTemplate,
-                  'global-resources.template'
+                    GLOBAL_RESOURCES_TEMPLATE_FILENAME
                 )
               }>
               Global Resources

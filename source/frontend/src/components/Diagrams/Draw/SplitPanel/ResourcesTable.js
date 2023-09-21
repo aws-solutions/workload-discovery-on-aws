@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { Table, Box, TextFilter, Pagination } from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+import { Table, Box, TextFilter, Pagination } from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import PropTypes from 'prop-types';
 import { useDiagramSettingsState } from '../../../Contexts/DiagramSettingsContext';
 import { fetchImage } from '../../../../Utils/ImageSelector';
@@ -26,7 +26,7 @@ const ResourcesTable = ({
       canvas.elements().map(function (ele) {
         ele.removeClass('highlight');
       });
-    }, 3000);
+    }, 2000);
     return () => clearTimeout(removeHighlight);
   };
 
@@ -36,6 +36,17 @@ const ResourcesTable = ({
       canvas.getElementById(R.head(selectedResources).id)
     );
   };
+
+  function imageCell(item){
+    return <img
+    alt={`${item.data.resource.type} icon`}
+    src={fetchImage(item.data.resource.type)}
+    style={{
+      background: 'white',
+      width: '30px',
+      height: '30px',
+    }}/>;
+  }
 
   const {
     items,
@@ -75,17 +86,7 @@ const ResourcesTable = ({
       columnDefinitions={[
         {
           id: 'icon',
-          cell: (item) => (
-            <img
-              alt={`${item.data.resource.type} icon`}
-              src={fetchImage(item.data.resource.type)}
-              style={{
-                background: 'white',
-                width: '30px',
-                height: '30px',
-              }}
-            />
-          ),
+          cell: (item) => imageCell(item),
           width: 50,
           minWidth: 50,
         },

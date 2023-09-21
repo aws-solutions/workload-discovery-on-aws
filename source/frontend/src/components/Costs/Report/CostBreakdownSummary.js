@@ -9,7 +9,7 @@ import {
   ColumnLayout,
   TextContent,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import CostBreakdownCharts from './CostBreakdownCharts';
 import PropTypes from 'prop-types';
 

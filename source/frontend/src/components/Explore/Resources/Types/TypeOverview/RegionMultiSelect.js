@@ -3,7 +3,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import {Button, FormField, Multiselect} from "@awsui/components-react";
+import {Button, FormField, Multiselect} from "@cloudscape-design/components";
 import * as R from "ramda";
 import {useResourcesRegionMetadata} from "../../../../Hooks/useResourcesMetadata";
 import {useDeepCompareEffect} from "react-use";

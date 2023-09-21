@@ -13,7 +13,7 @@ import {
   Icon,
   SpaceBetween,
   Link,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import {ACCOUNTS, DIAGRAM_MANAGEMENT, IMPORT, RESOURCES} from "../../routes";
 import useLink from "../Hooks/useLink";
 import { css } from '@emotion/react'
@@ -21,7 +21,8 @@ import {
   colorBackgroundHomeHeader, colorBorderDividerDefault,
   colorTextHomeHeaderDefault,
   colorTextHomeHeaderSecondary
-} from "@awsui/design-tokens";
+} from "@cloudscape-design/design-tokens";
+import {isUsingOrganizations} from "../../Utils/AccountUtils";
 
 const headerStyle = css`
   background: ${colorBackgroundHomeHeader};
@@ -83,14 +84,11 @@ const Homepage = () => {
           <Grid
             gridDefinition={[
               { offset: { l: '2', xxs: '1' }, colspan: { l: '8', xxs: '10' } },
-              {
-                colspan: { xl: '6', l: '5', s: '6', xxs: '10' },
-                offset: { l: '2', xxs: '1' },
-              },
-              {
-                colspan: { xl: '2', l: '3', s: '4', xxs: '10' },
-                offset: { s: '0', xxs: '1' },
-              },
+              { colspan: { xl: '6', l: '5', s: '6', xxs: '10' }, offset: { l: '2', xxs: '1' } },
+              ...(isUsingOrganizations()
+                ? []
+                : [{ colspan: { xl: '2', l: '3', s: '4', xxs: '10' }, offset: { s: '0', xxs: '1' } }]
+              )
             ]}>
             <Box fontWeight='light' padding={{ top: 'xs' }}>
               <span className='category'>
@@ -122,24 +120,27 @@ const Homepage = () => {
                 </span>
               </Box>
             </div>
-            <div className="header-cta">
-              <Container>
-                <SpaceBetween size='xl'>
-                  <Box variant='h2' padding='n'>
-                    Discover Resources
-                  </Box>
-                  <Box variant='p' padding='n'>
-                    Get started by importing regions from one or more of your
-                    accounts.
-                  </Box>
-                  <Button onClick={() => handleFollow({
-                    detail: {href: IMPORT, external: false}
-                  })} variant='primary'>
-                    Import
-                  </Button>
-                </SpaceBetween>
-              </Container>
-            </div>
+            {isUsingOrganizations()
+              ? void 0
+              : <div className="header-cta">
+                    <Container>
+                        <SpaceBetween size='xl'>
+                            <Box variant='h2' padding='n'>
+                                Discover Resources
+                            </Box>
+                            <Box variant='p' padding='n'>
+                                Get started by importing regions from one or more of your
+                                accounts.
+                            </Box>
+                            <Button onClick={() => handleFollow({
+                                detail: {href: IMPORT, external: false}
+                            })} variant='primary'>
+                                Import
+                            </Button>
+                        </SpaceBetween>
+                    </Container>
+                </div>
+            }
           </Grid>
         </Box>
       </div>
@@ -164,7 +165,7 @@ const Homepage = () => {
               <Container>
                 <img
                   style={{ width: '100%', height: '100%' }}
-                  src={`${process.env.PUBLIC_URL}/icons/architecture-diagram.png`}
+                  src={`/icons/architecture-diagram.png`}
                 />
               </Container>
             </div>

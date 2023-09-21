@@ -1,0 +1,19 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-2"
+  },
+  "method": {
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:apigateway:${$constants.awsRegion}::/restapis/abcde12345/resources/abc123/methods/POST",
+    "availabilityZone": "Not Applicable",
+    "awsRegion": "${$constants.awsRegion}",
+    "resourceId": "${method.arn}",
+    "resourceType": "AWS::ApiGateway::Method",
+    "relationships": [],
+    "id": "id2",
+    "configuration": {
+      "methodIntegration": {}
+    }
+  }
+}

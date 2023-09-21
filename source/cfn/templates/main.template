@@ -1,44 +1,100 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 
 Description: Workload Discovery on AWS Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:<VERSION>)
 
-Transform: "AWS::Serverless-2016-10-31"
+Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+
   AdminUserEmailAddress:
     Type: String
     AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
     ConstraintDescription: Must be an email address
-    Description: 'A user will be created in the UI. This email address will be used to send your username and password.'
+    Description: A user will be created in the UI. This email address will be used to send your username and password.
   AlreadyHaveConfigSetup:
     Type: String
     Default: 'No'
-    Description: 'Is AWS Config set-up within this Region?'
+    Description: Is AWS Config set-up within this Region?
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this Region has AWS Config set-up (Yes / No)'
-  OptOutOfSendingAnonymousUsageMetrics:
+    ConstraintDescription: Please specify if this Region has AWS Config set-up (Yes / No)
+  CrossAccountDiscovery:
     Type: String
-    Default: 'No'
-    Description: 'Opt out of sending any anonymous usage metrics to AWS Perspective'
+    Default: SELF_MANAGED
+    Description: | 
+      Manage account discovery automatically using AWS Organizations or manually by importing accounts through the 
+      Workload Discovery UI.
     AllowedValues:
-      - 'No'
-      - 'Yes'
+      - SELF_MANAGED
+      - AWS_ORGANIZATIONS
+  OrganizationUnitId:
+    Type: String
+    Default: ''
+    Description: | 
+      The organization unit you wish Workload Discovery discover, this will typically be the root organization unit ID.
+      Parameter only used when CrossAccountDiscovery is set to AWS_ORGANIZATIONS.
+  AccountType:
+    Type: String
+    Default: DELEGATED_ADMIN
+    Description: | 
+      The type of AWS Organizations account to install Workload Discovery in. Parameter only used when CrossAccountDiscovery 
+      is set to AWS_ORGANIZATIONS.
+    AllowedValues:
+      - MANAGEMENT
+      - DELEGATED_ADMIN
+  ConfigAggregatorName:
+    Type: String
+    Default: ''
+    Description: |
+      The AWS Organization wide Config aggregator to use. You must install the solution in the same account and 
+      region as this aggregator. If left blank, a new aggregator will be created. Parameter only used when CrossAccountDiscovery 
+      is set to AWS_ORGANIZATIONS.
+  CpuUnits:
+    Type: String
+    Default: 1 vCPU
+    Description:
+      The number of CPUs to allocate for the Fargate task that the discovery process runs in
+    AllowedValues:
+      - 1 vCPU
+      - 2 vCPU
+      - 4 vCPU
+      - 8 vCPU
+  Memory:
+    Type: String
+    Default: 2048
+    Description:
+      The amount of memory to allocate for the Fargate task that the discovery process runs in
+    AllowedValues:
+      - 2048
+      - 4096
+      - 6144
+      - 8192
+      - 12288
+      - 16384
+      - 20480
+      - 24576
+      - 28672
+      - 32768
+      - 40960
+      - 49152
+      - 57344
   CreateOpensearchServiceRole:
     Type: String
     Default: 'Yes'
-    Description: 'Do you need an OpenSearch Service Role to be created?
-    You can check for a Role called AWSServiceRoleForAmazonElasticsearchService in your account. If it exists then you do NOT need one creating'
+    Description: | 
+      Do you need an OpenSearch Service Role to be created? You can check for a Role called AWSServiceRoleForAmazonElasticsearchService 
+      in your account. If it exists then you do NOT need one creating
     AllowedValues:
       - 'No'
       - 'Yes'
-    ConstraintDescription: 'Please specify if this account has AWS Config set-up (Yes / No)'
+    ConstraintDescription: Please specify if this account has the OpenSearch service role created (Yes / No)
   NeptuneInstanceClass:
     Type: String
     Description: Neptune DB instance class that will be used for primary and all replicas. Changing this will affect the cost of running this solution.
     Default: db.r5.large
     AllowedValues:
+      - db.serverless
       - db.t3.medium
       - db.t4g.medium
       - db.x2g.large
@@ -62,13 +118,27 @@ Parameters:
       - db.r6g.8xlarge
       - db.r6g.12xlarge
       - db.r6g.16xlarge
+  MinNCUs:
+    Type: String
+    Default: 1
+    Description: |
+      Min NCUs to be set on the Neptune cluster (should be less than or equal to MaxNCUs). Required if DBInstance type 
+      is db.serverless.
+  MaxNCUs:
+    Type: String
+    Default: 128
+    Description: |
+      Max NCUs to be set on the Neptune cluster(Should be greater than or equal to MinNCUs). Required if DBInstance 
+      type is db.serverless.
   CreateNeptuneReplica:
     Type: String
     AllowedValues:
       - 'No'
       - 'Yes'
     Default: 'No'
-    Description: If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of running the solution.
+    Description: | 
+      If you would like a read replica creating in a separate AZ. Please select 'Yes'. This will increase the cost of 
+      running the solution.
   OpensearchInstanceType:
     Description: The instance type for OpenSearch data nodes
     Type: String
@@ -138,27 +208,131 @@ Parameters:
     Description: Deploys the OpenSearch cluster across two Availability Zones (AZs) in the same region to prevent
       data loss and minimize downtime in the event of node or data center failure. This will increase the cost of running the solution
     Type: String
-    Default: "No"
+    Default: 'No'
     AllowedValues:
       - 'Yes'
       - 'No'
+  VpcId:
+    Description: The ID of the VPC you wish to use. If left blank, a new VPC will be provisioned.
+    Type: String
+    Default: ''
+  VpcCidrBlock:
+    Description: The VPC CIDR block of the VPC referenced by the VpcId parameter. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
+  PrivateSubnet0:
+    Description: The private subnet you wish to use. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
+  PrivateSubnet1:
+    Description: The private subnet you wish to use. Only used if VpcId parameter is set.
+    Type: String
+    Default: ''
   AthenaWorkgroup:
     Type: String
-    Default: "primary"
+    Default: primary
     Description: Specify the name of the Athena Workgroup you would like to use. By default it will use 'primary'.
+  ApiAllowListedRanges:
+    Type: CommaDelimitedList
+    Description: |
+      Comma separated list of CIDR ranges to manage access the API. To allow all the entire internet, 
+      use 0.0.0.0/1,128.0.0.0/1
+    Default: 0.0.0.0/1,128.0.0.0/1
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: User Configuration
+        Parameters:
+          - AdminUserEmailAddress
+      - Label:
+          default: AWS Config Configuration
+        Parameters:
+          - AlreadyHaveConfigSetup
+      - Label:
+          default: Neptune Configuration
+        Parameters:
+          - NeptuneInstanceClass
+          - CreateNeptuneReplica
+          - MinNCUs
+          - MaxNCUs
+      - Label:
+          default: OpenSearch Configuration
+        Parameters:
+          - CreateOpensearchServiceRole
+          - OpensearchInstanceType
+          - OpensearchMultiAz
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VpcId
+          - VpcCidrBlock
+          - PrivateSubnet0
+          - PrivateSubnet1
+      - Label:
+          default: Discovery Configuration
+        Parameters:
+          - CpuUnits
+          - Memory
+      - Label:
+          default: AWS Organizations Configuration
+        Parameters:
+          - CrossAccountDiscovery
+          - OrganizationUnitId
+          - AccountType
+          - ConfigAggregatorName
+      - Label:
+          default: Amazon Athena Configuration
+        Parameters:
+          - AthenaWorkgroup
+      - Label:
+          default: WAF Configuration
+        Parameters:
+          - ApiAllowListedRanges
+
+Rules:
+  OrganizationsRule:
+    RuleCondition: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref OrganizationUnitId, '']]
+        AssertDescription: | 
+          Organization ID parameter cannot be blank when cross account discovery is managed by AWS
+          Organizations:
+  OrganizationsAggregatorRule:
+    RuleCondition: !Not [!Equals [!Ref ConfigAggregatorName, '']]
+    Assertions:
+      - Assert: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+        AssertDescription: | 
+          A config aggregator can only be specified when cross account discovery is managed by AWS
+          Organizations
+  VpcRule:
+    RuleCondition: !Not [!Equals [!Ref VpcId, '']]
+    Assertions:
+      - Assert: !Not [!And [!Equals [ !Ref PrivateSubnet0, '' ], !Equals [ !Ref PrivateSubnet1, '' ]]]
+        AssertDescription: You must provide two private subnets when using an existing VPC
+      - Assert: !Not [ !Equals [ !Ref VpcCidrBlock, '' ]]
+        AssertDescription: You must provide a CIDR block when using an existing VPC
 
 Mappings:
   Solution:
     Constants:
+      SolutionId: SO0075
       AppName: workload-discovery
+      SolutionName: Workload Discovery On AWS
+      ApplicationType: AWS-Solutions
       DeploymentBucketNamePrefix: <BUCKET_NAME>
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
-      CustomUserAgent: AwsSolution/SO0075/<VERSION>
+    Metrics:
+      CollectAnonymizedUsageMetrics: 'true'
 
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
+  IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+  CreateVpc: !Equals [!Ref VpcId, '']
+  CreateAnonymizedUsageMetrics: !Equals [!FindInMap [Solution, Metrics, CollectAnonymizedUsageMetrics], 'true']
 
 Resources:
   EchoFunction:
@@ -166,8 +340,8 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W89
-            reason: 'Not applicable'
-    Type: "AWS::Serverless::Function"
+            reason: Not applicable
+    Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
       Runtime: python3.9
@@ -186,11 +360,11 @@ Resources:
            )
 
   Variables:
-    Type: "Custom::Variables"
+    Type: Custom::Variables
     Properties:
       ServiceToken: !GetAtt EchoFunction.Arn
       DeploymentBucket: !Sub
-        - "https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}"
+        - https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}
         - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
           DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
@@ -198,7 +372,10 @@ Resources:
         - ${DeploymentBucketNamePrefix}-${Region}
         - DeploymentBucketNamePrefix: !FindInMap [Solution, Constants, DeploymentBucketNamePrefix]
           Region: !Ref AWS::Region
-
+      CustomUserAgent: !Sub
+        - AwsSolution/${SolutionId}/${Version}
+        - SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
+          Version: !FindInMap [ Solution, Constants, SolutionVersion ]
 
   LayerStack:
     Type: AWS::CloudFormation::Stack
@@ -206,10 +383,7 @@ Resources:
       Parameters:
         LayerBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
-      TemplateURL:
-        !Sub
-          - "${DeploymentBucket}/layers.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/layers.template
       TimeoutInMinutes: 60
 
   S3Buckets:
@@ -220,60 +394,61 @@ Resources:
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
         CreateConfigBucket: !If [SetUpConfig, 'true', 'false']
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
-      TemplateURL:
-        !Sub
-          - "${DeploymentBucket}/buckets.template"
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/buckets.template
       TimeoutInMinutes: 60
 
   VpcStack:
     Type: AWS::CloudFormation::Stack
+    Condition: CreateVpc
     Properties:
-      TemplateURL:
-        !Sub
-         - "${DeploymentBucket}/vpc.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/vpc.template
       TimeoutInMinutes: 60
 
   NeptuneStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-         - "${DeploymentBucket}/neptune.template"
-         - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/neptune.template
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
-        AvailabilityZone0: !GetAtt VpcStack.Outputs.AvailabilityZone0
-        AvailabilityZone1: !GetAtt VpcStack.Outputs.AvailabilityZone1
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
-        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        AvailabilityZone0: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone0, !Ref AWS::NoValue]
+        AvailabilityZone1: !If [CreateVpc, !GetAtt VpcStack.Outputs.AvailabilityZone1, !Ref AWS::NoValue]
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
+        PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId ]
+        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         Port: 6174
         CreateNeptuneReplica: !Ref CreateNeptuneReplica
         DBInstanceClass: !Ref NeptuneInstanceClass
+        MinNCUs: !Ref MinNCUs
+        MaxNCUs: !Ref MaxNCUs
 
   ConfigAggregator:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/config-aggregator.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/config-aggregator.template
       TimeoutInMinutes: 60
       Parameters:
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         ExistingConfigInstallation: !Ref AlreadyHaveConfigSetup
         ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
+        ConfigAggregatorName: !Ref ConfigAggregatorName
+
+  OrganizationsGlobalResourcesStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: IsUsingOrganizations
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/org-global-resources-stackset.template
+      Parameters:
+        OrganizationUnitId: !Ref OrganizationUnitId
+        AccountType: !Ref AccountType
+        DiscoveryRoleArn: !GetAtt TaskStack.Outputs.DiscoveryRoleArn
+        DeploymentBucket: !GetAtt Variables.DeploymentBucket
 
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/opensearch-roles.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/opensearch-roles.template
       TimeoutInMinutes: 60
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
@@ -281,55 +456,48 @@ Resources:
   OpenSearchStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/opensearch.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/opensearch.template
       TimeoutInMinutes: 60
       Parameters:
         AppName: !FindInMap [Solution, Constants, AppName]
         InstanceType: !Ref OpensearchInstanceType
         ZoneAwarenessEnabled: !Ref OpensearchMultiAz
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        PerspectiveVPCId: !GetAtt VpcStack.Outputs.VPCId
-        PerspectiveVpcCidr: !GetAtt VpcStack.Outputs.VpcCidr
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
+        PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         SearchLambdaIAMRoleARN: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
 
   TaskStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/discovery-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/discovery-crawler.template
       TimeoutInMinutes: 60
       Parameters:
         DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
         AppName: !FindInMap [Solution, Constants, AppName]
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VpcEndpointsSg: !GetAtt VpcStack.Outputs.VpcEndpointsSg
+        PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]
+        PrivateSubnet1: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1 ]
+        VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        VpcEndpointsSg: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VpcEndpointsSg, !Ref AWS::NoValue ]
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
         AppSyncApiUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
-        Cpu: 1024
-        Memory: 2048
+        Cpu: !Ref CpuUnits
+        Memory: !Ref Memory
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
   CodebuildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/codebuild.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/codebuild.template
       TimeoutInMinutes: 60
       Parameters:
         CloudfrontDistributionId: !GetAtt WebUiStack.Outputs.DistributionId
@@ -344,10 +512,7 @@ Resources:
   CognitoStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/cognito.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/cognito.template
       TimeoutInMinutes: 60
       Parameters:
         AdminUserEmailAddress: !Ref AdminUserEmailAddress
@@ -357,43 +522,37 @@ Resources:
   GremlinResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/gremlin-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/gremlin-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
         NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
         NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
         NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
+        VPCCidrBlock: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
+        PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]
+        PrivateSubnet1: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1 ]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
   SearchResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/search-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/search-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         OpenSearchDomainEndpoint: !GetAtt OpenSearchStack.Outputs.DomainEndpoint
         OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
         OpenSearchLambdaRoleArn: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
-        VpcId: !GetAtt VpcStack.Outputs.VPCId
-        VPCCidrBlock: !GetAtt VpcStack.Outputs.VpcCidr
-        PrivateSubnet0: !GetAtt VpcStack.Outputs.PrivateSubnet0
-        PrivateSubnet1: !GetAtt VpcStack.Outputs.PrivateSubnet1
+        VpcId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId]
+        VPCCidrBlock: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
+        PrivateSubnet0: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0]
+        PrivateSubnet1: !If [CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet1, !Ref PrivateSubnet1]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
@@ -401,10 +560,7 @@ Resources:
   DrawIoExportResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/draw-io-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/draw-io-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -414,39 +570,32 @@ Resources:
   AccountImportTemplatesResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/account-import-templates-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/account-import-templates-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DiscoveryRoleArn: !GetAtt TaskStack.Outputs.DiscoveryRoleArn
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/appsync-api.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/appsync-api.template
       TimeoutInMinutes: 60
       Parameters:
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        ApiAllowListedRanges: !Join [',',  !Ref ApiAllowListedRanges]
 
   CostResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/cost-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/cost-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -456,13 +605,10 @@ Resources:
   SettingsResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/settings-resolvers.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/settings-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
-        CustomUserAgent: !FindInMap [ Solution, Constants, CustomUserAgent ]
+        CustomUserAgent: !GetAtt Variables.CustomUserAgent
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
@@ -471,10 +617,7 @@ Resources:
   AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/athena-glue-crawler.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/athena-glue-crawler.template
       TimeoutInMinutes: 60
       Parameters:
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
@@ -484,10 +627,7 @@ Resources:
   WebUiStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/webui.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/webui.template
       TimeoutInMinutes: 60
       Parameters:
         AccessLogsBucket: !GetAtt S3Buckets.Outputs.AccessLogsBucket
@@ -497,23 +637,78 @@ Resources:
   WebUiSettingsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        !Sub
-          - ${DeploymentBucket}/webui-settings.template
-          - DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/webui-settings.template
       TimeoutInMinutes: 60
       Parameters:
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         AmplifyBucketName: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         AppSyncEndpoint: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
         CognitoIdentityPoolId: !GetAtt CognitoStack.Outputs.IdentityPoolId
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
         CognitoUserPoolWebClientId: !GetAtt CognitoStack.Outputs.WebClientId
-        CollectAnonymousMetrics: !Ref OptOutOfSendingAnonymousUsageMetrics
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+  
+  MetricsStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateAnonymizedUsageMetrics
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/metrics.template
+      TimeoutInMinutes: 60
+      Parameters:
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
+        AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
+        CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
+        AppSyncAPIUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
+        AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
+
+  AppRegistryStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/app-registry.template
+      TimeoutInMinutes: 60
+      Parameters:
+        AppName: !FindInMap [Solution, Constants, AppName]
+        ApplicationType: !FindInMap [Solution, Constants, ApplicationType]
+        SolutionId: !FindInMap [Solution, Constants, SolutionId]
+        SolutionName: !FindInMap [Solution, Constants, SolutionName]
+        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        MainStack: !Ref AWS::StackId
+        LayerStack: !Ref LayerStack
+        S3BucketsStack: !Ref S3Buckets
+        VpcStack: !If [CreateVpc, !Ref VpcStack, !Ref AWS::NoValue]
+        MetricsStack: !If [CreateAnonymizedUsageMetrics, !Ref MetricsStack, !Ref AWS::NoValue]
+        NeptuneStack: !Ref NeptuneStack
+        ConfigAggregatorStack: !Ref ConfigAggregator
+        OpenSearchRoleStack: !Ref OpenSearchRoleStack
+        OpenSearchStack: !Ref OpenSearchStack
+        TaskStack: !Ref TaskStack
+        CodebuildStack: !Ref CodebuildStack
+        GremlinResolversStack: !Ref GremlinResolversStack
+        SearchResolversStack: !Ref SearchResolversStack
+        DrawIoExportResolversStack: !Ref DrawIoExportResolversStack
+        AccountImportTemplatesResolversStack: !Ref AccountImportTemplatesResolversStack
+        AppSyncApiStack: !Ref AppSyncApiStack
+        CostResolversStack: !Ref CostResolversStack
+        SettingsResolversStack: !Ref SettingsResolversStack
+        AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
+        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, !Ref AWS::NoValue]
+        WebUiStack: !Ref WebUiStack
+        WebUiSettingsStack: !Ref WebUiSettingsStack
 
 Outputs:
+
+  AppSyncArn:
+    Value: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
+    Description: AppSync API ARN
+
+  AppSyncApiUrl:
+    Value: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
+    Description: AppSync API URL
 
   WebUiUrl:
     Value: !GetAtt WebUiStack.Outputs.WebUiUrl

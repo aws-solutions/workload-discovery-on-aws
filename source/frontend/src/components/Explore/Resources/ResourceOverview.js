@@ -7,22 +7,14 @@ import {
   ColumnLayout,
   Container,
   Header, Spinner,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import * as R from "ramda";
 import {
   useResourcesAccountMetadata,
   useResourcesMetadata,
   useResourcesRegionMetadata
 } from "../../Hooks/useResourcesMetadata";
-
-const ValueWithLabel = ({ label, children }) => (
-  <div>
-    <Box margin={{ bottom: 'xxxs' }} color='text-label'>
-      {label}
-    </Box>
-    <div>{children}</div>
-  </div>
-);
+import ValueWithLabel from '../../Shared/ValueWithLabel';
 
 const ResourceOverview = () => {
   const { data: accounts=[], isLoading: loadingAccounts } = useResourcesAccountMetadata();
@@ -32,7 +24,7 @@ const ResourceOverview = () => {
   const regionCount = R.reduce((acc, val) => R.add(acc, R.length(val.regions)), 0, regions);
 
   return (
-    <Container header={<Header>Overview</Header>}>
+    <Container data-testid='resources-metadata-overview' header={<Header>Overview</Header>}>
       {
         loadingAccounts || loadingRegions || loadingResources
           ? <Spinner/>

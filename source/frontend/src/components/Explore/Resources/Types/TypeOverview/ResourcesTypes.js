@@ -8,13 +8,16 @@ import {
   TextFilter,
   Header,
   Pagination,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import { fetchImage } from '../../../../../Utils/ImageSelector';
-import { useCollection } from '@awsui/collection-hooks';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import PropTypes from 'prop-types';
 import * as R from "ramda";
 import {useResourcesAccountMetadata} from "../../../../Hooks/useResourcesMetadata";
 import {groupSumBy} from "../../../../../Utils/ArrayUtils";
+import {
+    createTableAriaLabels
+} from "../../../../../Utils/AccessibilityUtils";
 
 const mapIndexed = R.addIndex(R.map);
 
@@ -80,6 +83,10 @@ const ResourcesTypes = ({ accounts, onSelection }) => {
           filteringPlaceholder='Find a resource type'
         />
       }
+      ariaLabels={createTableAriaLabels('resource type', 'resource types', {
+          keys: ['type'],
+          fallback: 'Unknown resource type'
+      }, 'Resources types')}
       {...collectionProps}
       loading={isLoading}
       columnDefinitions={[

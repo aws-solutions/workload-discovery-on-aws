@@ -1,13 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { processHierarchicalNodeData } from '../../../../../API/APIProcessors';
+import {processElements} from '../../../../../API/APIProcessors';
 import {
-  getLinkedNodesHierarchy,
-  sendGetRequests,
-  wrapResourceRequest,
+  getResourceGraphPaginated
 } from '../../../../../API/Handlers/ResourceGraphQLHandler';
-import { handleSelectedResource } from '../../../../../API/Processors/NodeProcessors';
+import { wrapRequest } from '../../../../../Utils/API/HandlerUtils';
+import { processResourcesError } from '../../../../../Utils/ErrorHandlingUtils';
+import {handleSelectedResources} from '../../../../../API/Processors/NodeProcessors';
 import { uploadObject } from '../../../../../API/Storage/S3Store';
 import { getGroupedLayout } from '../Layout/GroupedGraphLayout';
 import { getStandardLayout } from '../Layout/StandardGraphLayout';
@@ -93,7 +93,7 @@ export const addResources = (
     updateCanvas(canvas);
     const removeHighlight = setTimeout(
       () => canvas.elements().removeClass('highlight'),
-      3000
+      2000
     );
     return () => clearTimeout(removeHighlight);
   });
@@ -118,114 +118,54 @@ export const saveDiagram = (canvas, settings={}) => {
   );
 };
 
-const uniqId = (a, b) => R.equals(a.data.id, b.data.id);
-
-const filterNodes = (nodes) => R.uniqWith(uniqId, nodes);
-
 export const focusOnResources = (
   canvas,
   updateCanvas,
   updateResources,
-  resources,
+  ids,
 ) => {
   clearGraph(canvas, updateCanvas, updateResources);
-  sendGetRequests(
-    R.map(
-      (e) =>
-        wrapResourceRequest(
-          getLinkedNodesHierarchy,
-          {
-            id: e,
-          },
-          e,
-          []
-        )
-          .then((node) =>
-            handleSelectedResource(
-              processHierarchicalNodeData(
-                R.pathOr([], ['body', 'data', 'getLinkedNodesHierarchy'], node),
-                e,
-              ),
-              e,
-              []
-            )
-          )
-          .catch((err) => {
-            throw new Error(err);
-          }),
-      resources
-    )
-  )
-    .then((e) => Promise.all(e))
-    .then(R.flatten)
-    .then((nodes) => {
-      addResources(
-        canvas,
-        updateCanvas,
-        updateResources,
-        nodes,
-        getStandardLayout
-      );
-    });
+
+  return wrapRequest(processResourcesError, getResourceGraphPaginated, {ids})
+      .then(x => x.body)
+      .then(processElements)
+      .then(handleSelectedResources(ids, []))
+      .then((elements) => {
+          addResources(
+              canvas,
+              updateCanvas,
+              updateResources,
+              elements,
+              getStandardLayout
+          );
+      });
 };
 
 export const fetchResources = (
-  canvas,
-  updateCanvas,
-  updateResources,
-  resources,
-  currentResources,
+    canvas,
+    updateCanvas,
+    updateResources,
+    ids,
+    currentResources,
 ) => {
-  canvas.nodes().map(function(ele) {
-    ele.removeClass('clicked');
-  });
-  canvas.nodes().removeClass('selected');
-  canvas.nodes().unselect();
-  sendGetRequests(
-    R.chain(
-      (e) =>
-        wrapResourceRequest(
-          getLinkedNodesHierarchy,
-          {
-            id: e,
-          },
-          e,
-          currentResources
-        )
-          .then((node) =>
-            handleSelectedResource(
-              processHierarchicalNodeData(
-                R.pathOr([], ['body', 'data', 'getLinkedNodesHierarchy'], node),
-                e,
-              ),
-              e,
-              currentResources
-            )
-          )
-          .catch((err) => {
-            console.error(err);
-          }),
+    canvas.nodes().map(ele => ele.removeClass('clicked'));
+    canvas.nodes().removeClass('selected');
+    canvas.nodes().unselect();
 
-      resources
-    )
-  )
-    .then((e) => Promise.all(e))
-    .then(R.flatten)
-    .then((items) =>
-      R.concat(
-        R.filter((e) => e.edge, items),
-        filterNodes(R.filter((e) => !e.edge, items))
-      )
-    )
-    .then((nodes) => {
-      addResources(
-        canvas,
-        updateCanvas,
-        updateResources,
-        nodes,
-        getStandardLayout
-      );
-    });
+    return wrapRequest(processResourcesError, getResourceGraphPaginated, {ids})
+        .then(x => x.body)
+        .then(processElements)
+        .then(handleSelectedResources(ids, currentResources))
+        .then((elements) => {
+            addResources(
+                canvas,
+                updateCanvas,
+                updateResources,
+                elements,
+                getStandardLayout
+            );
+        });
+
 };
 
 export const showCosts = (

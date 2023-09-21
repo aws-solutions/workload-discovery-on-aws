@@ -1,0 +1,25 @@
+{
+    "getCostForService":{
+        "totalCost":72.74,
+        "costItems":
+        [
+            {
+                "line_item_resource_id":"",
+                "product_servicename":"AWS CloudTrail",
+                "line_item_usage_start_date":null,
+                "line_item_usage_account_id":"xxxxxxxxxxxx",
+                "region":"us-west-2",
+                "pricing_term":"OnDemand",
+                "cost":72.74,
+                "line_item_currency_code":"USD"
+            }
+        ],
+        "queryDetails":{
+            "cost":4.768E-5,
+            "s3Bucket":"workload-discovery-on-aw-costandusageathenaresult-xxxxxxxxxxxx",
+            "s3Key":"test.csv",
+            "dataScannedInMB":0,
+            "resultCount":1
+        }
+        }
+}

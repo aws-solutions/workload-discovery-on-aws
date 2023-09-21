@@ -13,7 +13,7 @@ import {
   RadioGroup,
   SpaceBetween,
   Toggle
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import CostDatePicker from "./CostDatePicker";
 import * as R from "ramda";
 import {useResourcesMetadata} from "../../../Hooks/useResourcesMetadata";

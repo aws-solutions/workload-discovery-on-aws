@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description:
   This Cloudformation template sets up the roles needed to import data into Workload Discovery on AWS.
-  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v2.0.0)
+  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v2.1.0)
 
 Parameters:
 
@@ -25,32 +25,27 @@ Resources:
           - id: W28
             reason: 'Role is used in external accounts and calls back to master config account to allow access to external config aggregators'
           - id: W11
-            reason: 'We have locked down resources as far as we can. It is read only access. Tags require wildcard "*"'  
+            reason: None of the APIs with '*' support resource level permissions
     Properties:
       RoleName: !Sub WorkloadDiscoveryRole-${WorkloadDiscoveryAccountId}
       AssumeRolePolicyDocument:
         Statement:
-          - Action: ['sts:AssumeRole']
+          - Action:
+              - sts:AssumeRole
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::${WorkloadDiscoveryAccountId}:root'
+              AWS: '<<substitute_discovery_role>>'
         Version: '2012-10-17'
       Policies:
-        - PolicyName: perspectiveAutoscaling
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Action: autoscaling:Describe*
-                Effect: Allow
-                Resource: '*'
         - PolicyName: perspectiveEC2
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - ec2:Get*
-                  - ec2:Describe*
+                  - ec2:DescribeSpotInstanceRequests
+                  - ec2:DescribeSpotFleetRequests
+                  - ec2:DescribeTransitGatewayAttachments
                 Resource: '*'
         - PolicyName: perspectiveIAM
           PolicyDocument:
@@ -58,8 +53,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - iam:Get*
-                  - iam:List*
+                  - iam:ListPolicies
                 Resource: '*'
         - PolicyName: perspectiveAPIGateway
           PolicyDocument:
@@ -73,16 +67,11 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              - Action: elasticloadbalancing:Describe*
+              - Action:
+                  - elasticloadbalancing:DescribeLoadBalancers
+                  - elasticloadbalancing:DescribeTargetHealth
+                  - elasticloadbalancing:DescribeTargetGroups
                 Effect: Allow
-                Resource: '*'
-        - PolicyName: perspectiveRDS
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - rds:Describe*
                 Resource: '*'
         - PolicyName: perspectiveSns
           PolicyDocument:
@@ -98,28 +87,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - lambda:List*
-                  - lambda:Get*
-                Resource: '*'
-        - PolicyName: perspectiveCloudFormation
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:List*
-                  - logs:Describe*
-                  - logs:Get*
-                Resource: '*'
-        - PolicyName: perspectiveCloudWatch
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cloudwatch:List*
-                  - cloudwatch:Describe*
-                  - cloudwatch:Get*
+                  - lambda:ListEventSourceMappings
+                  - lambda:ListFunctions
                 Resource: '*'
         - PolicyName: perspectiveECS
           PolicyDocument:
@@ -127,8 +96,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - ecs:List*
-                  - ecs:Describe*
+                  - ecs:DescribeContainerInstances
+                  - ecs:DescribeTasks
+                  - ecs:ListContainerInstances
+                  - ecs:ListTasks
                 Resource: '*'
         - PolicyName: perspectiveCognito
           PolicyDocument:
@@ -145,8 +116,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - eks:List*
-                  - eks:Describe*
+                  - eks:ListNodegroups
+                  - eks:DescribeNodegroup
                 Resource: '*'
         - PolicyName: OpenSearch
           PolicyDocument:
@@ -157,41 +128,11 @@ Resources:
                   - es:ListDomainNames
                   - es:DescribeDomains
                 Resource: '*'
-        - PolicyName: perspectiveConfig
+        - PolicyName: perspectiveDynamoDB
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - config:Get*
-                  - config:Deliver*
-                  - config:List*
-                  - config:SelectResourceConfig
-                  - config:PutDeliveryChannel
-                Resource: '*'
-        - PolicyName: perspectiveCloudtrail
-          PolicyDocument:
-             Version: '2012-10-17'
-             Statement:
-              - Effect: Allow
-                Action:
-                  - cloudtrail:GetTrailStatus
-                Resource: !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail*'
-        - PolicyName: perspectiveCloudtrailWildcards
-          PolicyDocument:
-             Version: '2012-10-17'
-             Statement:
-              - Effect: Allow
-                Action:
-                  - cloudtrail:DescribeTrails
-                  - cloudtrail:LookupEvents
-                Resource: '*'
-        - PolicyName: perspectiveTags
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - tag:GetResources
-                  - tag:GetTagKeys
-                Resource: '*'
+                  - dynamodb:DescribeStream
+                Resource: !Sub arn:aws:dynamodb:*:${AWS::AccountId}:*/stream/*

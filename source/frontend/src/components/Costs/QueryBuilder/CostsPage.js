@@ -4,7 +4,7 @@
 import React, {useEffect, useState} from 'react';
 import CostAccountsAndRegionsSelector from './CostAccountsAndRegionsSelector';
 import CostQueryTypeSelector from './CostQueryTypeSelector';
-import { Button, Form, SpaceBetween } from '@awsui/components-react';
+import { Button, Form, SpaceBetween } from '@cloudscape-design/components';
 import {
   getCostForResource,
   getCostForService,
@@ -22,8 +22,8 @@ import { useResourceState } from '../../Contexts/ResourceContext';
 import { useHistory } from 'react-router-dom';
 import * as R from "ramda";
 import {useAccounts} from "../../Hooks/useAccounts";
-import {useBatchGetLinkedNodesHierarchy} from "../../Hooks/useGetLinkedNodesHierarchy";
 import CostTable from "./CostTable";
+import {useGetResourceGraph} from "../../Hooks/useGetResourceGraph";
 
 const processCosts = (response, queryType) =>
   R.pathOr([], [queryType, 'costItems'], response).map((e, index) => {
@@ -68,8 +68,9 @@ const CostsPage = () => {
       }, account.regions),
     };
   }, accountsData)
-  const [{ graphResources }, dispatch] = useResourceState();
-  const {data: nodeData, refetch: loadSelected, isError} = useBatchGetLinkedNodesHierarchy(R.map((id) => id.line_item_resource_id, selectedResources), graphResources);
+  const [, dispatch] = useResourceState();
+  const {data: nodeData, refetch: loadSelected, isError} = useGetResourceGraph(R.map((id) => id.line_item_resource_id, selectedResources));
+
   const history = useHistory();
 
   useEffect(() => {

@@ -4,42 +4,13 @@
 import {useInfiniteQuery, useQuery} from 'react-query'
 import useQueryErrorHandler from "./useQueryErrorHandler"
 import {
-  wrapResourceRequest,
   handleResponse,
-  getResources, searchResources,
+  searchResources
 } from '../../API/Handlers/ResourceGraphQLHandler';
+import { wrapRequest } from '../../Utils/API/HandlerUtils';
 import {getStatus} from "../../Utils/StatusUtils";
+import { processResourcesError } from '../../Utils/ErrorHandlingUtils';
 import * as R from "ramda";
-
-export const queryKey = "resources"
-export const useResources = (accounts=null, resourceTypes=null, paginationToken=null, config={}) => {
-  const { handleError } = useQueryErrorHandler()
-  const { isLoading, isError, data, refetch, isFetching } = useQuery(
-    [queryKey, accounts, resourceTypes, paginationToken.start, paginationToken.end],
-    () => wrapResourceRequest(getResources, {
-      accounts,
-      resourceTypes,
-      pagination: paginationToken,
-    })
-        .then(handleResponse)
-        .then(R.pathOr([], ['body', 'data', 'getResources'])),
-    {
-      onError: handleError,
-      keepPreviousData: true,
-      refetchInterval: false,
-      ...config,
-    }
-  )
-
-  return {
-    data,
-    isLoading,
-    isError,
-    isFetching,
-    refetch,
-    status: getStatus(isFetching, isError)
-  }
-}
 
 export const searchQueryKey = "resourcesSearch";
 export const useResourcesSearch = (text='', pageSize=25, accounts=[], resourceTypes=[], config={}) => {
@@ -52,7 +23,7 @@ export const useResourcesSearch = (text='', pageSize=25, accounts=[], resourceTy
   if (accounts?.length > 0) userFilters.accounts = accounts;
   if (resourceTypes?.length > 0) userFilters.resourceTypes = resourceTypes;
 
-  const fetchResults = ({ pageParam = 0 }) => wrapResourceRequest(searchResources, { ...userFilters, pagination: {
+  const fetchResults = ({ pageParam = 0 }) => wrapRequest(processResourcesError, searchResources, { ...userFilters, pagination: {
       start: pageSize * pageParam, end: (pageSize * pageParam) + pageSize
     } })
     .then(handleResponse)
@@ -98,7 +69,7 @@ export const useResourcesSearchPaginated = (text='', pagination={start:0, end: 1
 
   const { isLoading, isError, data, refetch, isFetching } = useQuery(
     [searchPaginatedQueryKey, text, accounts, resourceTypes, pagination],
-    () => wrapResourceRequest(searchResources, userFilters)
+    () => wrapRequest(processResourcesError, searchResources, userFilters)
       .then(handleResponse)
       .then(R.pathOr([], ['body', 'data', 'searchResources'])),
     {
@@ -118,10 +89,4 @@ export const useResourcesSearchPaginated = (text='', pagination={start:0, end: 1
     refetch,
     status: getStatus(isFetching, isError)
   }
-}
-
-export default {
-  useResources,
-  useResourcesSearch,
-  useResourcesSearchPaginated,
 }

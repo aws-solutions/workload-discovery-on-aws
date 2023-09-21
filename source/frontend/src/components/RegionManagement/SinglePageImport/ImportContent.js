@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import {Button, Form, SpaceBetween, Modal, Box, Checkbox, Alert, Link} from '@awsui/components-react';
+import {Button, Form, SpaceBetween, Modal, Box, Checkbox, Alert, Link} from '@cloudscape-design/components';
 import RegionProvider from './RegionProvider';
 import Breadcrumbs from '../../../Utils/Breadcrumbs';
 import { ACCOUNTS, IMPORT } from '../../../routes';
@@ -31,6 +31,9 @@ const ImportContent = () => {
             accountId: e.accountId,
             accountName: e.name,
             region: region.name,
+            isIamRoleDeployed: e.isIamRoleDeployed,
+            isManagementAccount: e.isManagementAccount,
+            lastCrawled: e.lastCrawled
           };
         }, e.regions)
       ),
@@ -39,26 +42,27 @@ const ImportContent = () => {
   );
   const byAccount = R.groupBy((e) => e.accountId);
   const importAccounts = async () => {
-    const accounts = R.compose(
-      R.reduce(
-        (acc, val) => {
-          acc.push({
-            accountId: R.head(val).accountId,
-            name: R.head(val).accountName,
-            regions: R.map((region) => {
-              return { name: region.region };
-            }, val),
-          });
-          return acc;
-        },
-        [],
-      ),
-      R.values
-    )(R.mergeWith(
-      R.concat,
-      byAccount(regions),
-      byAccount(importedRegions)
-    ))
+    const mergedRegions = R.mergeWith(
+        R.concat,
+        byAccount(regions),
+        byAccount(importedRegions)
+    );
+
+    const accounts = Object.values(mergedRegions)
+        .map(accInfo => {
+            return accInfo.reduce((acc, item) => {
+                const {accountId, accountName, region, isIamRoleDeployed, isManagementAccount, lastCrawled} = item;
+                return {
+                    accountId,
+                    name: accountName ?? acc.name,
+                    isManagementAccount: isManagementAccount ?? acc.isManagementAccount,
+                    isIamRoleDeployed: isIamRoleDeployed ?? acc.isIamRoleDeployed,
+                    lastCrawled: lastCrawled ?? acc.lastCrawled,
+                    regions: [...acc.regions, {name: region}]
+                };
+            }, {regions: []});
+        });
+
     return addAccounts(accounts)
   };
 

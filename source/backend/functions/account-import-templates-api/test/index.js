@@ -10,9 +10,10 @@ describe('index.js', () => {
 
     const ACCOUNT_ID = 'xxxxxxxxxxxx';
     const REGION = 'eu-west-1';
+    const DISCOVERY_ROLE_ARN = 'discoveryRoleArn';
 
     describe('handler', () => {
-        const handler = index.__get__('handler')({ACCOUNT_ID, REGION});
+        const handler = index.__get__('handler')({ACCOUNT_ID, DISCOVERY_ROLE_ARN, REGION});
 
         describe('getGlobalTemplate', () => {
 
@@ -25,6 +26,7 @@ describe('index.js', () => {
                 });
                 const json = yamlParse(actual);
                 assert.strictEqual(json.Parameters.WorkloadDiscoveryAccountId.Default, ACCOUNT_ID);
+                assert.strictEqual(json.Resources.WorkloadDiscoveryRole.Properties.AssumeRolePolicyDocument.Statement[0].Principal.AWS, DISCOVERY_ROLE_ARN);
             });
 
         });

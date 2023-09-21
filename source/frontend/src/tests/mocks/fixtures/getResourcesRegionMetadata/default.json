@@ -1,0 +1,85 @@
+{
+  "getResourcesRegionMetadata": [
+    {
+      "accountId": "xxxxxxxxxxxx",
+      "count": 13,
+      "regions": [
+        {
+          "count": 9,
+          "name": "eu-west-2",
+          "resourceTypes": [
+            {
+              "count": 2,
+              "type": "AWS::EC2::Subnet"
+            },
+            {
+              "count": 1,
+              "type": "AWS::EC2::VPC"
+            },{
+              "count": 1,
+              "type": "AWS::ECS::Cluster"
+            },
+            {
+              "count": 5,
+              "type": "AWS::S3::Bucket"
+            }
+          ]
+        },
+        {
+          "count": 4,
+          "name": "global",
+          "resourceTypes": [
+            {
+              "count": 2,
+              "type": "AWS::IAM::Role"
+            },
+            {
+              "count": 2,
+              "type": "AWS::IAM::User"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "accountId": "yyyyyyyyyyyy",
+      "count": 16,
+      "regions": [
+        {
+          "count": 16,
+          "name": "eu-west-1",
+          "resourceTypes": [
+            {
+              "count": 2,
+              "type": "AWS::EC2::Instance"
+            },
+            {
+              "count": 3,
+              "type": "AWS::EC2::SecurityGroup"
+            },
+            {
+              "count": 7,
+              "type": "AWS::S3::Bucket"
+            },
+            {
+              "count": 1,
+              "type": "AWS::RDS::DBInstance"
+            },
+            {
+              "count": 1,
+              "type": "AWS::RDS::Cluster"
+            },
+            {
+              "count": 1,
+              "type": "AWS::Lambda::Function"
+            },
+            {
+              "count": 1,
+              "type": "AWS::EKS::Cluster"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

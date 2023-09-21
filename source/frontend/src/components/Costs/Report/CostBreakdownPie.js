@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { PieChart, Box } from '@awsui/components-react';
+import { PieChart, Box } from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 
 const CostBreakdownPie = ({ items, value }) => {

@@ -11,7 +11,7 @@ import {
   Header,
   ColumnLayout,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 
 const CostQueryTypeSelector = ({ queryType, setQueryType }) => {
   

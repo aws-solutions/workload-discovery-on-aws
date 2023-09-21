@@ -10,8 +10,8 @@ import {
   Header,
   SpaceBetween,
   Button,
-} from '@awsui/components-react';
-import { useCollection } from '@awsui/collection-hooks';
+} from '@cloudscape-design/components';
+import { useCollection } from '@cloudscape-design/collection-hooks';
 import PropTypes from 'prop-types';
 import { CsvBuilder } from 'filefy';
 import { fetchImage } from '../../../Utils/ImageSelector';

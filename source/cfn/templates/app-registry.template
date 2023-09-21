@@ -1,0 +1,281 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Workload Discovery on AWS AppRegistry Stack
+
+Parameters:
+
+  AppName:
+    Type: String
+
+  ApplicationType:
+    Type: String
+
+  SolutionId:
+    Type: String
+
+  SolutionName:
+    Type: String
+
+  SolutionVersion:
+    Type: String
+
+  MainStack:
+    Type: String
+
+  LayerStack:
+    Type: String
+
+  S3BucketsStack:
+    Type: String
+
+  MetricsStack:
+    Type: String
+    Default: ''
+
+  VpcStack:
+    Type: String
+    Default: ''
+
+  NeptuneStack:
+    Type: String
+
+  ConfigAggregatorStack:
+    Type: String
+
+  OpenSearchRoleStack:
+    Type: String
+
+  OpenSearchStack:
+    Type: String
+
+  TaskStack:
+    Type: String
+
+  CodebuildStack:
+    Type: String
+
+  GremlinResolversStack:
+    Type: String
+
+  SearchResolversStack:
+    Type: String
+
+  DrawIoExportResolversStack:
+    Type: String
+
+  AccountImportTemplatesResolversStack:
+    Type: String
+
+  AppSyncApiStack:
+    Type: String
+
+  CostResolversStack:
+    Type: String
+
+  SettingsResolversStack:
+    Type: String
+
+  AthenaGlueCrawlerStack:
+    Type: String
+
+  OrganizationsGlobalResourcesStack:
+    Type: String
+    Default: ''
+
+  WebUiStack:
+    Type: String
+
+  WebUiSettingsStack:
+    Type: String
+
+Conditions:
+  IsOrgStackDeployed: !Not [!Equals [!Ref OrganizationsGlobalResourcesStack, '']]
+  IsVpcCreated: !Not [!Equals [!Ref VpcStack, '']]
+  IsMetricsCreated: !Not [!Equals [!Ref MetricsStack, '']]
+
+Resources:
+
+  Application:
+    Type: AWS::ServiceCatalogAppRegistry::Application
+    Properties:
+      Description: !Sub Service Catalog application to track and manage all your resources. The Solution ID is ${SolutionId} and Solution Version is ${SolutionVersion}.
+      Name: !Sub ${AppName}-${AWS::Region}-${AWS::AccountId}
+      Tags:
+        'Solutions:SolutionID': !Ref SolutionId
+        'Solutions:SolutionName': !Ref SolutionName
+        'Solutions:SolutionVersion': !Ref SolutionVersion
+        'Solutions:ApplicationType': !Ref ApplicationType
+
+  DefaultApplicationAttributes:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroup
+    Properties:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}
+      Description: Attribute group for solution information.
+      Attributes:
+        ApplicationType: !Ref ApplicationType
+        Version: !Ref SolutionVersion
+        SolutionID: !Ref SolutionId
+        SolutionName: !Ref SolutionName
+
+  AppRegistryApplicationAttributeAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      AttributeGroup: !GetAtt DefaultApplicationAttributes.Id
+
+  AppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref MainStack
+      ResourceType: CFN_STACK
+
+  LayerStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref LayerStack
+      ResourceType: CFN_STACK
+
+  S3BucketsStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref S3BucketsStack
+      ResourceType: CFN_STACK
+
+  VpcStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Condition: IsVpcCreated
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref VpcStack
+      ResourceType: CFN_STACK
+
+  VpcStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Condition: IsMetricsCreated
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref MetricsStack
+      ResourceType: CFN_STACK
+
+  NeptuneStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref NeptuneStack
+      ResourceType: CFN_STACK
+
+  ConfigAggregatorStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref ConfigAggregatorStack
+      ResourceType: CFN_STACK
+
+  OpenSearchRoleStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref OpenSearchRoleStack
+      ResourceType: CFN_STACK
+
+  OpenSearchStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref OpenSearchStack
+      ResourceType: CFN_STACK
+
+  TaskStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref TaskStack
+      ResourceType: CFN_STACK
+
+  CodebuildStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref CodebuildStack
+      ResourceType: CFN_STACK
+
+  GremlinResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref GremlinResolversStack
+      ResourceType: CFN_STACK
+
+  SearchResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref SearchResolversStack
+      ResourceType: CFN_STACK
+
+  DrawIoExportResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref DrawIoExportResolversStack
+      ResourceType: CFN_STACK
+
+  AccountImportTemplatesResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref AccountImportTemplatesResolversStack
+      ResourceType: CFN_STACK
+
+  AppSyncApiStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref AppSyncApiStack
+      ResourceType: CFN_STACK
+
+  CostResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref CostResolversStack
+      ResourceType: CFN_STACK
+
+  SettingsResolversStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref SettingsResolversStack
+      ResourceType: CFN_STACK
+
+  AthenaGlueCrawlerStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref AthenaGlueCrawlerStack
+      ResourceType: CFN_STACK
+
+  OrganizationsGlobalResourcesStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Condition: IsOrgStackDeployed
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref OrganizationsGlobalResourcesStack
+      ResourceType: CFN_STACK
+
+  WebUiStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref WebUiStack
+      ResourceType: CFN_STACK
+
+  WebUiSettingsStackAppRegistryApplicationStackAssociation:
+    Type: AWS::ServiceCatalogAppRegistry::ResourceAssociation
+    Properties:
+      Application: !GetAtt Application.Id
+      Resource: !Ref WebUiSettingsStack
+      ResourceType: CFN_STACK

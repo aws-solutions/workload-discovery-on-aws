@@ -1,0 +1,3 @@
+﻿"Name","Billing Service","Type","Estimated Cost ($)","Account Id","Region","ARN"
+"testLambda","Lambda","AWS::Lambda::Function",5,"yyyyyyyyyyyy","eu-west-1","arn:aws:lambda:eu-west-1:yyyyyyyyyyyy:function:testLambda"
+"test-db-Cluster","Amazon Neptune","AWS::RDS::DBCluster",50,"yyyyyyyyyyyy","eu-west-1","arn:aws:rds:eu-west-1:yyyyyyyyyyyy:cluster:testdbcluster"

@@ -56,10 +56,18 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       Policies:
+        - PolicyName: CostLambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
         - PolicyName: !Sub ${AWS::StackName}-AppSyncCostLambdaRole
           PolicyDocument:
             Version: 2012-10-17
@@ -127,7 +135,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/cost.zip
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: Lambda for Appsync Cost API resolvers
       Timeout: 300
       MemorySize: 1024
@@ -177,30 +185,46 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: readResultsFromS3
       DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
 
   PerspectiveAppSyncGetCostForServiceQueryResolver:
-    Type: AWS::AppSync::Resolver
-    Properties:
-      ApiId: !Ref PerspectiveAppSyncApiId
-      TypeName: Query
-      FieldName: getCostForService
-      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+      Type: AWS::AppSync::Resolver
+      Properties:
+        ApiId: !Ref PerspectiveAppSyncApiId
+        Runtime:
+          Name: APPSYNC_JS
+          RuntimeVersion: 1.0.0
+        CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+        TypeName: Query
+        FieldName: getCostForService
+        DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
 
   PerspectiveAppSyncGetCostForResourceQueryByDayResolver:
-    Type: AWS::AppSync::Resolver
-    Properties:
-      ApiId: !Ref PerspectiveAppSyncApiId
-      TypeName: Query
-      FieldName: getResourcesByCostByDay
-      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+      Type: AWS::AppSync::Resolver
+      Properties:
+        ApiId: !Ref PerspectiveAppSyncApiId
+        Runtime:
+          Name: APPSYNC_JS
+          RuntimeVersion: 1.0.0
+        CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+        TypeName: Query
+        FieldName: getResourcesByCostByDay
+        DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
 
   PerspectiveAppSyncGetCostForResourceQueryResolver:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getCostForResource
       DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
@@ -209,6 +233,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesByCost
       DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name

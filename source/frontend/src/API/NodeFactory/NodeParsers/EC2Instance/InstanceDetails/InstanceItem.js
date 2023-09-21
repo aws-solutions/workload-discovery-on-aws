@@ -3,13 +3,13 @@
 
 import React from 'react';
 import {
-  Box,
   ColumnLayout,
   SpaceBetween,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import ValueWithLabel from '../../../../../components/Shared/ValueWithLabel';
 dayjs.extend(localizedFormat)
 dayjs.extend(relativeTime);
 
@@ -25,15 +25,6 @@ const parseConfiguration = (configuration) => {
 
 export const InstanceItem = ({ configuration }) => {
   const parsedConfig = parseConfiguration(configuration);
-
-  const ValueWithLabel = ({ label, children }) => (
-    <div>
-      <Box margin={{ bottom: 'xxxs' }} color='text-label'>
-        {label}
-      </Box>
-      <div>{children}</div>
-    </div>
-  );
 
   return (
     <ColumnLayout columns={2} variant='text-grid'>

@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Workload Discovery on AWS global resources for AWS Organizations
+
+Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  AccountType:
+    Type: String
+
+  OrganizationUnitId:
+    Type: String
+
+  DiscoveryRoleArn:
+    Type: String
+
+Conditions:
+  IsDelegatedAdmin: !Equals [!Ref AccountType, DELEGATED_ADMIN]
+
+Resources:
+
+  WdGlobalResourcesStackSet:
+    Type: AWS::CloudFormation::StackSet
+    DeletionPolicy: Retain
+    Properties:
+      StackSetName: WdGlobalResources
+      Description: Workload Discovery global resources
+      TemplateURL: !Sub ${DeploymentBucket}/org-global-resources.template
+      PermissionModel: SERVICE_MANAGED
+      CallAs: !If [IsDelegatedAdmin, DELEGATED_ADMIN, SELF]
+      Capabilities:
+        - CAPABILITY_NAMED_IAM
+      Parameters:
+        - ParameterKey: WorkloadDiscoveryAccountId
+          ParameterValue: !Ref AWS::AccountId
+        - ParameterKey: WorkloadDiscoveryDiscoveryRoleArn
+          ParameterValue: !Ref DiscoveryRoleArn
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      OperationPreferences:
+        FailureToleranceCount: 4
+        MaxConcurrentCount: 5
+        RegionConcurrencyType: PARALLEL
+      ManagedExecution:
+        Active: true
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds:
+              - !Ref OrganizationUnitId
+          Regions:
+            - !Ref AWS::Region

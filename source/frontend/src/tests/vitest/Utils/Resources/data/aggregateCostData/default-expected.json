@@ -1,0 +1,1141 @@
+[
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx",
+      "cost": "200.47",
+      "title": "xxxxxxxxxxxx",
+      "type": "account",
+      "label": "xxxxxxxxxxxx - $200.47"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-eu-west-1",
+      "parent": "xxxxxxxxxxxx",
+      "cost": "200.47",
+      "title": "eu-west-1",
+      "type": "region",
+      "label": "eu-west-1 - $200.47"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-global",
+      "parent": "xxxxxxxxxxxx",
+      "cost": 0,
+      "title": "global",
+      "type": "region",
+      "label": "global - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "1.09",
+      "title": "eu-west-1b",
+      "type": "availabilityZone",
+      "label": "eu-west-1b - $1.09"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "0.00",
+      "title": "Multiple Availability Zones",
+      "type": "availabilityZone",
+      "label": "Multiple Availability Zones - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "2.23",
+      "title": "eu-west-1a",
+      "type": "availabilityZone",
+      "label": "eu-west-1a - $2.23"
+    }
+  },
+  {
+    "data": {
+      "id": "xxxxxxxxxxxx-eu-west-1-eu-west-1c",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "1.27",
+      "title": "eu-west-1c",
+      "type": "availabilityZone",
+      "label": "eu-west-1c - $1.27"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": "0.00",
+      "title": "Multiple Availability Zones",
+      "type": "availabilityZone",
+      "label": "Multiple Availability Zones - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "47.16",
+      "title": "ecs-refarch",
+      "type": "vpc",
+      "label": "ecs-refarch - $47.16"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": "0.00",
+      "title": "Multiple Availability Zones",
+      "type": "availabilityZone",
+      "label": "Multiple Availability Zones - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "44.16",
+      "title": "vpc-22222222222222222",
+      "type": "vpc",
+      "label": "vpc-22222222222222222 - $44.16"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": "3.28",
+      "title": "Multiple Availability Zones",
+      "type": "availabilityZone",
+      "label": "Multiple Availability Zones - $3.28"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "28.32",
+      "title": "eksctl-attractive-badger-1604015308-cluster/VPC",
+      "type": "vpc",
+      "label": "eksctl-attractive-badger-1604015308-cluster/VPC - $28.32"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "cost": "0.00",
+      "title": "Multiple Availability Zones",
+      "type": "availabilityZone",
+      "label": "Multiple Availability Zones - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "76.24",
+      "title": "vpc-44444444444444444",
+      "type": "vpc",
+      "label": "vpc-44444444444444444 - $76.24"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-eu-west-1a,eu-west-1b",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": "0.00",
+      "title": "eu-west-1a,eu-west-1b",
+      "type": "availabilityZone",
+      "label": "eu-west-1a,eu-west-1b - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-eu-west-1a,eu-west-1b,eu-west-1c",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": "0.00",
+      "title": "eu-west-1a,eu-west-1b,eu-west-1c",
+      "type": "availabilityZone",
+      "label": "eu-west-1a,eu-west-1b,eu-west-1c - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111-eu-west-1b",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": "23.58",
+      "title": "eu-west-1b",
+      "type": "availabilityZone",
+      "label": "eu-west-1b - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111-eu-west-1b",
+      "cost": "23.58",
+      "title": "ecs-refarch Private Subnet (AZ2)",
+      "type": "subnet",
+      "label": "ecs-refarch Private Subnet (AZ2) - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222-eu-west-1a",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": "23.58",
+      "title": "eu-west-1a",
+      "type": "availabilityZone",
+      "label": "eu-west-1a - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222-eu-west-1a",
+      "cost": "23.58",
+      "title": "ecs-refarch Private Subnet (AZ1)",
+      "type": "subnet",
+      "label": "ecs-refarch Private Subnet (AZ1) - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333-eu-west-1b",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": "1.47",
+      "title": "eu-west-1b",
+      "type": "availabilityZone",
+      "label": "eu-west-1b - $1.47"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333-eu-west-1b",
+      "cost": "1.47",
+      "title": "subnet-33333333333333333",
+      "type": "subnet",
+      "label": "subnet-33333333333333333 - $1.47"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444-eu-west-1c",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": "12.52",
+      "title": "eu-west-1c",
+      "type": "availabilityZone",
+      "label": "eu-west-1c - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444-eu-west-1c",
+      "cost": "12.52",
+      "title": "eksctl-attractive-badger-1604015308-cluster/SubnetPublicEUWEST1C",
+      "type": "subnet",
+      "label": "eksctl-attractive-badger-1604015308-cluster/SubnetPublicEUWEST1C - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555-eu-west-1a",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": "12.52",
+      "title": "eu-west-1a",
+      "type": "availabilityZone",
+      "label": "eu-west-1a - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555-eu-west-1a",
+      "cost": "12.52",
+      "title": "eksctl-attractive-badger-1604015308-cluster/SubnetPublicEUWEST1A",
+      "type": "subnet",
+      "label": "eksctl-attractive-badger-1604015308-cluster/SubnetPublicEUWEST1A - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666-eu-west-1c",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": "40.18",
+      "title": "eu-west-1c",
+      "type": "availabilityZone",
+      "label": "eu-west-1c - $40.18"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666-eu-west-1c",
+      "cost": "40.18",
+      "title": "subnet-66666666666666666",
+      "type": "subnet",
+      "label": "subnet-66666666666666666 - $40.18"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777-eu-west-1a",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": "2.51",
+      "title": "eu-west-1a",
+      "type": "availabilityZone",
+      "label": "eu-west-1a - $2.51"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777-eu-west-1a",
+      "cost": "2.51",
+      "title": "subnet-77777777777777777",
+      "type": "subnet",
+      "label": "subnet-77777777777777777 - $2.51"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888-eu-west-1a",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "cost": "76.24",
+      "title": "eu-west-1a",
+      "type": "availabilityZone",
+      "label": "eu-west-1a - $76.24"
+    }
+  },
+  {
+    "data": {
+      "id": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888-eu-west-1a",
+      "cost": "76.24",
+      "title": "vpc-44444444444444444-private-a",
+      "type": "subnet",
+      "label": "vpc-44444444444444444-private-a - $76.24"
+    }
+  },
+  {
+    "data": {
+      "id": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888",
+      "cost": "76.24",
+      "title": "DBInstance",
+      "type": "type",
+      "label": "DBInstance - $76.24"
+    }
+  },
+  {
+    "data": {
+      "id": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666",
+      "cost": "40.18",
+      "title": "DBInstance",
+      "type": "type",
+      "label": "DBInstance - $40.18"
+    }
+  },
+  {
+    "data": {
+      "id": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777",
+      "cost": "2.51",
+      "title": "DBInstance",
+      "type": "type",
+      "label": "DBInstance - $2.51"
+    }
+  },
+  {
+    "data": {
+      "id": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "cost": "12.52",
+      "title": "Instance",
+      "type": "type",
+      "label": "Instance - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": "23.58",
+      "title": "Instance",
+      "type": "type",
+      "label": "Instance - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": "23.58",
+      "title": "Instance",
+      "type": "type",
+      "label": "Instance - $23.58"
+    }
+  },
+  {
+    "data": {
+      "id": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "cost": "12.52",
+      "title": "Instance",
+      "type": "type",
+      "label": "Instance - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "cost": "1.47",
+      "title": "Instance",
+      "type": "type",
+      "label": "Instance - $1.47"
+    }
+  },
+  {
+    "data": {
+      "id": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "parent": "xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "1.09",
+      "title": "Volume",
+      "type": "type",
+      "label": "Volume - $1.09"
+    }
+  },
+  {
+    "data": {
+      "id": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": "0.00",
+      "title": "NetworkInterface",
+      "type": "type",
+      "label": "NetworkInterface - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": "0.00",
+      "title": "SecurityGroup",
+      "type": "type",
+      "label": "SecurityGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "parent": "xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "2.23",
+      "title": "Volume",
+      "type": "type",
+      "label": "Volume - $2.23"
+    }
+  },
+  {
+    "data": {
+      "id": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": "0.00",
+      "title": "NetworkInterface",
+      "type": "type",
+      "label": "NetworkInterface - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "cost": "0.00",
+      "title": "NetworkInterface",
+      "type": "type",
+      "label": "NetworkInterface - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": "0.00",
+      "title": "SecurityGroup",
+      "type": "type",
+      "label": "SecurityGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1c",
+      "parent": "xxxxxxxxxxxx-eu-west-1-eu-west-1c",
+      "cost": "1.27",
+      "title": "Volume",
+      "type": "type",
+      "label": "Volume - $1.27"
+    }
+  },
+  {
+    "data": {
+      "id": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "cost": "0.00",
+      "title": "NetworkInterface",
+      "type": "type",
+      "label": "NetworkInterface - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": "0.00",
+      "title": "SecurityGroup",
+      "type": "type",
+      "label": "SecurityGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "cost": "0.00",
+      "title": "NetworkInterface",
+      "type": "type",
+      "label": "NetworkInterface - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "DBSubnetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222-Multiple Availability Zones",
+      "cost": "0.00",
+      "title": "DBSubnetGroup",
+      "type": "type",
+      "label": "DBSubnetGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "DBSubnetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444-Multiple Availability Zones",
+      "cost": "0.00",
+      "title": "DBSubnetGroup",
+      "type": "type",
+      "label": "DBSubnetGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "cost": "0.00",
+      "title": "SecurityGroup",
+      "type": "type",
+      "label": "SecurityGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "DBCluster-xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "parent": "xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "cost": "0.00",
+      "title": "DBCluster",
+      "type": "type",
+      "label": "DBCluster - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "TargetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-Multiple Availability Zones",
+      "cost": "0.00",
+      "title": "TargetGroup",
+      "type": "type",
+      "label": "TargetGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "ManagedInstanceInventory-xxxxxxxxxxxx-eu-west-1",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "0.00",
+      "title": "ManagedInstanceInventory",
+      "type": "type",
+      "label": "ManagedInstanceInventory - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "LoadBalancer-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-Multiple Availability Zones",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-Multiple Availability Zones",
+      "cost": "3.28",
+      "title": "LoadBalancer",
+      "type": "type",
+      "label": "LoadBalancer - $3.28"
+    }
+  },
+  {
+    "data": {
+      "id": "AutoScalingGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-eu-west-1a,eu-west-1b",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-eu-west-1a,eu-west-1b",
+      "cost": "0.00",
+      "title": "AutoScalingGroup",
+      "type": "type",
+      "label": "AutoScalingGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "Cluster-xxxxxxxxxxxx-eu-west-1",
+      "parent": "xxxxxxxxxxxx-eu-west-1",
+      "cost": "0.00",
+      "title": "Cluster",
+      "type": "type",
+      "label": "Cluster - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "AutoScalingGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-eu-west-1a,eu-west-1b,eu-west-1c",
+      "parent": "arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-eu-west-1a,eu-west-1b,eu-west-1c",
+      "cost": "0.00",
+      "title": "AutoScalingGroup",
+      "type": "type",
+      "label": "AutoScalingGroup - $0.00"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:db:serverless-neptune-instance-1",
+      "parent": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888",
+      "cost": "51.93",
+      "title": "serverless-neptune-instance-1",
+      "type": "resource",
+      "label": "serverless-neptune-instance-1 - $51.93"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:db:globaldb-instance-1",
+      "parent": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666",
+      "cost": "37.44",
+      "title": "globaldb-instance-1",
+      "type": "resource",
+      "label": "globaldb-instance-1 - $37.44"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:db:neptunedbinstance-opr3vy9xrbzh",
+      "parent": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-88888888888888",
+      "cost": "24.31",
+      "title": "workload-discovery-Instance",
+      "type": "resource",
+      "label": "workload-discovery-Instance - $24.31"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:db:database-2",
+      "parent": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-66666666666666666",
+      "cost": "2.74",
+      "title": "database-2",
+      "type": "resource",
+      "label": "database-2 - $2.74"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:db:database-1",
+      "parent": "DBInstance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-77777777777777777",
+      "cost": "2.51",
+      "title": "database-1",
+      "type": "resource",
+      "label": "database-1 - $2.51"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-094153cb430d51f61",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "cost": "12.52",
+      "title": "attractive-badger-1604015308-ng-608957a7-Node",
+      "type": "resource",
+      "label": "attractive-badger-1604015308-ng-608957a7-Node - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-0568d352e5293f7ba",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": "11.79",
+      "title": "ecs-refarch ECS host",
+      "type": "resource",
+      "label": "ecs-refarch ECS host - $11.79"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-0c90e93ebfc159e4a",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": "11.79",
+      "title": "ecs-refarch ECS host",
+      "type": "resource",
+      "label": "ecs-refarch ECS host - $11.79"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-0d6dc57f292feae19",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "cost": "12.52",
+      "title": "attractive-badger-1604015308-ng-608957a7-Node",
+      "type": "resource",
+      "label": "attractive-badger-1604015308-ng-608957a7-Node - $12.52"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-052f9f64097ac2769",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": "11.79",
+      "title": "ecs-refarch ECS host",
+      "type": "resource",
+      "label": "ecs-refarch ECS host - $11.79"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-07d0c686a25e288b4",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "cost": "1.47",
+      "title": "i-07d0c686a25e288b4",
+      "type": "resource",
+      "label": "i-07d0c686a25e288b4 - $1.47"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:instance/i-038f307ddeb9caaec",
+      "parent": "Instance-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": "11.79",
+      "title": "ecs-refarch ECS host",
+      "type": "resource",
+      "label": "ecs-refarch ECS host - $11.79"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-045aff0accd0447e8",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "0.13",
+      "title": "vol-045aff0accd0447e8",
+      "type": "resource",
+      "label": "vol-045aff0accd0447e8 - $0.13"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0c52a596424c16120",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "0.35",
+      "title": "vol-0c52a596424c16120",
+      "type": "resource",
+      "label": "vol-0c52a596424c16120 - $0.35"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-04938e2eb5bfafe99",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": 0,
+      "title": "eni-04938e2eb5bfafe99",
+      "type": "resource",
+      "label": "eni-04938e2eb5bfafe99 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:security-group/sg-0c02229ab89b7cad1",
+      "parent": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111",
+      "cost": 0,
+      "title": "ecs-refarch-ECS-Hosts",
+      "type": "resource",
+      "label": "ecs-refarch-ECS-Hosts - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-038dddb4899e7db85",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "0.35",
+      "title": "vol-038dddb4899e7db85",
+      "type": "resource",
+      "label": "vol-038dddb4899e7db85 - $0.35"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-04e43f90baefcee69",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "0.13",
+      "title": "vol-04e43f90baefcee69",
+      "type": "resource",
+      "label": "vol-04e43f90baefcee69 - $0.13"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-0f9bd2b79bd4f437f",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": 0,
+      "title": "eni-0f9bd2b79bd4f437f",
+      "type": "resource",
+      "label": "eni-0f9bd2b79bd4f437f - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-07dbcc0ff67f0c1bc",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "0.13",
+      "title": "vol-07dbcc0ff67f0c1bc",
+      "type": "resource",
+      "label": "vol-07dbcc0ff67f0c1bc - $0.13"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0c1ead3869a3d378f",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "0.35",
+      "title": "vol-0c1ead3869a3d378f",
+      "type": "resource",
+      "label": "vol-0c1ead3869a3d378f - $0.35"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-0407eecd556929d77",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-11111111111111111",
+      "cost": 0,
+      "title": "eni-0407eecd556929d77",
+      "type": "resource",
+      "label": "eni-0407eecd556929d77 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-00754e2b15f48c1f5",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1b",
+      "cost": "0.13",
+      "title": "vol-00754e2b15f48c1f5",
+      "type": "resource",
+      "label": "vol-00754e2b15f48c1f5 - $0.13"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-01ef2774854f1b172",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-33333333333333333",
+      "cost": 0,
+      "title": "eni-01ef2774854f1b172",
+      "type": "resource",
+      "label": "eni-01ef2774854f1b172 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:security-group/sg-0bc8a71ea5a172df2",
+      "parent": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": 0,
+      "title": "launch-wizard-3",
+      "type": "resource",
+      "label": "launch-wizard-3 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0b92d530489c1b24a",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1c",
+      "cost": "1.27",
+      "title": "vol-0b92d530489c1b24a",
+      "type": "resource",
+      "label": "vol-0b92d530489c1b24a - $1.27"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-04f5460a4defeec00",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "cost": 0,
+      "title": "eni-04f5460a4defeec00",
+      "type": "resource",
+      "label": "eni-04f5460a4defeec00 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-034e2d32e58987e71",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-44444444444444444",
+      "cost": 0,
+      "title": "eni-034e2d32e58987e71",
+      "type": "resource",
+      "label": "eni-034e2d32e58987e71 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:security-group/sg-0bcb1987c6667687b",
+      "parent": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333",
+      "cost": 0,
+      "title": "eks-cluster-sg-attractive-badger-1604015308-1273556504",
+      "type": "resource",
+      "label": "eks-cluster-sg-attractive-badger-1604015308-1273556504 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0677639d598ef8143",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "0.35",
+      "title": "vol-0677639d598ef8143",
+      "type": "resource",
+      "label": "vol-0677639d598ef8143 - $0.35"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0af527c0224f85642",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "0.13",
+      "title": "vol-0af527c0224f85642",
+      "type": "resource",
+      "label": "vol-0af527c0224f85642 - $0.13"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-0c1c4432165335ad6",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-22222222222222222",
+      "cost": 0,
+      "title": "eni-0c1c4432165335ad6",
+      "type": "resource",
+      "label": "eni-0c1c4432165335ad6 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:volume/vol-0e70971b0fc3b875f",
+      "parent": "Volume-xxxxxxxxxxxx-eu-west-1-eu-west-1a",
+      "cost": "1.27",
+      "title": "vol-0e70971b0fc3b875f",
+      "type": "resource",
+      "label": "vol-0e70971b0fc3b875f - $1.27"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-0f82403202f592988",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "cost": 0,
+      "title": "eni-0f82403202f592988",
+      "type": "resource",
+      "label": "eni-0f82403202f592988 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:network-interface/eni-042b61ae6b9558d21",
+      "parent": "NetworkInterface-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-subnet/subnet-555555555555555",
+      "cost": 0,
+      "title": "eni-042b61ae6b9558d21",
+      "type": "resource",
+      "label": "eni-042b61ae6b9558d21 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:subgrp:default-vpc-22222222222222222",
+      "parent": "DBSubnetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222-Multiple Availability Zones",
+      "cost": 0,
+      "title": "default-vpc-22222222222222222",
+      "type": "resource",
+      "label": "default-vpc-22222222222222222 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:security-group/sg-9a4a97d2",
+      "parent": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-22222222222222222",
+      "cost": 0,
+      "title": "default",
+      "type": "resource",
+      "label": "default - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:subgrp:perspective-dev-sng",
+      "parent": "DBSubnetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444-Multiple Availability Zones",
+      "cost": 0,
+      "title": "workload-discovery-subnet-group",
+      "type": "resource",
+      "label": "workload-discovery-subnet-group - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ec2:eu-west-1:xxxxxxxxxxxx:security-group/sg-02df76c6e6753f6b3",
+      "parent": "SecurityGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-44444444444444444",
+      "cost": 0,
+      "title": "wd2-2022-10-07-NeptuneStack-CM7XDBXLQOX2-neptune-sg",
+      "type": "resource",
+      "label": "wd2-2022-10-07-NeptuneStack-CM7XDBXLQOX2-neptune-sg - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:cluster:serverless-neptune",
+      "parent": "DBCluster-xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "cost": 0,
+      "title": "serverless-neptune",
+      "type": "resource",
+      "label": "serverless-neptune - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:cluster:wdneptunedbcluster-0kfaa4tuyz1x",
+      "parent": "DBCluster-xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "cost": 0,
+      "title": "workload-discovery-Cluster",
+      "type": "resource",
+      "label": "workload-discovery-Cluster - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:rds:eu-west-1:xxxxxxxxxxxx:cluster:globaldb",
+      "parent": "DBCluster-xxxxxxxxxxxx-eu-west-1-Multiple Availability Zones",
+      "cost": 0,
+      "title": "globaldb",
+      "type": "resource",
+      "label": "globaldb - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:elasticloadbalancing:eu-west-1:xxxxxxxxxxxx:targetgroup/ecs-r-Targe-1CEAOHL7A3S92/91f8ad87a71b6d0c",
+      "parent": "TargetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-Multiple Availability Zones",
+      "cost": 0,
+      "title": "targetgroup/ecs-r-Targe-1CEAOHL7A3S92/91f8ad87a71b6d0c",
+      "type": "resource",
+      "label": "targetgroup/ecs-r-Targe-1CEAOHL7A3S92/91f8ad87a71b6d0c - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-038f307ddeb9caaec",
+      "parent": "ManagedInstanceInventory-xxxxxxxxxxxx-eu-west-1",
+      "cost": 0,
+      "title": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-038f307ddeb9caaec",
+      "type": "resource",
+      "label": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-038f307ddeb9caaec - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-052f9f64097ac2769",
+      "parent": "ManagedInstanceInventory-xxxxxxxxxxxx-eu-west-1",
+      "cost": 0,
+      "title": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-052f9f64097ac2769",
+      "type": "resource",
+      "label": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-052f9f64097ac2769 - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0568d352e5293f7ba",
+      "parent": "ManagedInstanceInventory-xxxxxxxxxxxx-eu-west-1",
+      "cost": 0,
+      "title": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0568d352e5293f7ba",
+      "type": "resource",
+      "label": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0568d352e5293f7ba - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:elasticloadbalancing:eu-west-1:xxxxxxxxxxxx:targetgroup/ecs-r-Targe-WGHBKNSPECN5/4ded139adab8201e",
+      "parent": "TargetGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-Multiple Availability Zones",
+      "cost": 0,
+      "title": "targetgroup/ecs-r-Targe-WGHBKNSPECN5/4ded139adab8201e",
+      "type": "resource",
+      "label": "targetgroup/ecs-r-Targe-WGHBKNSPECN5/4ded139adab8201e - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:elasticloadbalancing:eu-west-1:xxxxxxxxxxxx:loadbalancer/a3af06af9830647219ca4bb76e335070",
+      "parent": "LoadBalancer-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-Multiple Availability Zones",
+      "cost": "3.28",
+      "title": "a3af06af9830647219ca4bb76e335070",
+      "type": "resource",
+      "label": "a3af06af9830647219ca4bb76e335070 - $3.28"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0c90e93ebfc159e4a",
+      "parent": "ManagedInstanceInventory-xxxxxxxxxxxx-eu-west-1",
+      "cost": 0,
+      "title": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0c90e93ebfc159e4a",
+      "type": "resource",
+      "label": "arn:aws:ssm:eu-west-1:xxxxxxxxxxxx:managed-instance-inventory/i-0c90e93ebfc159e4a - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:afb5ee16-414e-4850-a65a-03b6f80e0a5b:autoScalingGroupName/ecs-refarch-ECS-1AFGNR7O7APCU-ECSAutoScalingGroup-1QSDFDMKHQ6XD",
+      "parent": "AutoScalingGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-11111111111111111-eu-west-1a,eu-west-1b",
+      "cost": 0,
+      "title": "ecs-refarch ECS host",
+      "type": "resource",
+      "label": "ecs-refarch ECS host - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:ecs:eu-west-1:xxxxxxxxxxxx:cluster/ecs-refarch",
+      "parent": "Cluster-xxxxxxxxxxxx-eu-west-1",
+      "cost": 0,
+      "title": "ecs-refarch",
+      "type": "resource",
+      "label": "ecs-refarch - $0"
+    }
+  },
+  {
+    "data": {
+      "id": "arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:cc4a478a-ce27-43ad-b468-3b5f3a4013e6:autoScalingGroupName/eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+      "parent": "AutoScalingGroup-arn-aws-ec2-eu-west-1-xxxxxxxxxxxx-vpc/vpc-33333333333333333-eu-west-1a,eu-west-1b,eu-west-1c",
+      "cost": 0,
+      "title": "eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3",
+      "type": "resource",
+      "label": "eks-5ababb6a-75d5-8af7-0351-02c55b0db9f3 - $0"
+    }
+  }
+]

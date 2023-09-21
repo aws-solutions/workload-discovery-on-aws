@@ -140,6 +140,25 @@ class Edge:
         return obj
 
 
+# this function mutates the items in the list passed in to it
+def add_level_to_nodes(nodes):
+    node_dict = {node['id']: node for node in nodes}
+
+    def get_level(node):
+        if 'parent' not in node:
+            return 0
+
+        parent = node_dict[node['parent']]
+
+        if 'level' not in parent:
+            return get_level(parent) + 1
+        else:
+            return parent['level'] + 1
+
+    for node in nodes:
+        node['level'] = get_level(node)
+
+
 def handler(event, _):
     """
     Main Lambda Handler
@@ -150,6 +169,8 @@ def handler(event, _):
     nodes = args.get('nodes', [])
     edges = args.get('edges', [])
 
+    add_level_to_nodes(nodes)
+
     for node in nodes:
         node_id, node_type, label, level, title, position = \
             itemgetter('id', 'type', 'label', 'level', 'title', 'position')(node)
@@ -159,7 +180,7 @@ def handler(event, _):
 
         x = position['x']
         y = position['y']
-        is_end_node = not node.get('hasChildren', False)
+        is_end_node = node['type'] == 'resource'
         parent = node.get('parent')
         node = Node(node_id, node_type, label, title, level, x, y, is_end_node)
         node_dict[node_id] = node
@@ -168,6 +189,8 @@ def handler(event, _):
             node_dict[parent].add_child(node)
 
     elements = list(node_dict.values())
+    # if the elements aren't sorted by level, it causes null errors when
+    # creating the XML
     elements.sort(key=lambda x: x.level)
 
     for edge in edges:

@@ -3,28 +3,18 @@
 
 import React from 'react';
 import {
-  Box,
   TextContent,
   ExpandableSection,
   ColumnLayout,
   SpaceBetween,
   StatusIndicator,
   Grid,
-} from '@awsui/components-react';
-
+} from '@cloudscape-design/components';
+import ValueWithLabel from '../../../../../components/Shared/ValueWithLabel';
 import * as R  from 'ramda';
 
 const removeBrackets = (item) =>
   item.replace(/[[\]']+/g, '').replaceAll('"', '');
-
-const ValueWithLabel = ({ label, children }) => (
-  <div>
-    <Box margin={{ bottom: 'xxxs' }} color='text-label'>
-      {label}
-    </Box>
-    <div>{children}</div>
-  </div>
-);
 
 export const StatementItem = ({ statement }) => {
   const resources = R.split(',', removeBrackets(statement.resources));

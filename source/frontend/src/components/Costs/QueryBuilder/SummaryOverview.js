@@ -7,12 +7,12 @@ import {
   Container,
   ColumnLayout,
   TextContent,
-} from '@awsui/components-react';
+} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 
 const SummaryOverview = ({ cost, from, to, resultCount }) => {
   return (
-    <Container>
+    <Container data-testid="costs-summary-overview">
       <ColumnLayout disableGutters columns='4' variant='text-grid'>        
         <div>
           <Box margin={{ bottom: 'xxxs' }} color='text-label'>

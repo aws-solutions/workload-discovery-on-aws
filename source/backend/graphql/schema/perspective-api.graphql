@@ -11,6 +11,10 @@ type Account @aws_cognito_user_pools @aws_iam {
   # The AWS account number
   accountId: String!
   name: String
+  # The AWS organization the account belongs to
+  organizationId: String
+  isIamRoleDeployed: Boolean
+  isManagementAccount: Boolean
   # The regions AWS Perspective is enabled on
   regions: [Region]!
   lastCrawled: AWSDateTime
@@ -34,11 +38,16 @@ input RegionInput {
 input AccountInput {
   # The AWS account number
   accountId: String!
-  # A friendly name the user can provide for an account.
+  # A friendly name the user can provide for an account
   name: String
+  # The AWS organization the account belongs to
+  organizationId: String
+  isIamRoleDeployed: Boolean
+  isManagementAccount: Boolean
   # The regions AWS Perspective is enabled on. For queries, if region is absent
   # then all regions will be returned
   regions: [RegionInput]
+  lastCrawled: AWSDateTime
 }
 
 input ResourcePropertiesInput {
@@ -50,7 +59,6 @@ input ResourcePropertiesInput {
     configurationItemCaptureTime: String
     configurationItemStatus: String
     configurationStateId: String
-    relationships: String
     resourceCreationTime: String
     resourceId: String
     resourceName: String
@@ -85,12 +93,12 @@ input RelationshipInput {
     target: String
 }
 
-type ResourceIdentifier @aws_iam {
+type ResourceIdentifier @aws_cognito_user_pools @aws_iam {
     id: String
     label: String
 }
 
-type Relationship @aws_iam {
+type Relationship @aws_cognito_user_pools @aws_iam {
     id: String
     label: String
     source: ResourceIdentifier
@@ -106,30 +114,30 @@ type UnprocessedResources @aws_iam {
     unprocessedResources: [String]
 }
 
-type ResourceCount {
+type ResourceCount @aws_cognito_user_pools @aws_iam {
   count: Int
   type: String
 }
 
-type ResourceRegionCount {
+type ResourceRegionCount @aws_cognito_user_pools @aws_iam {
     count: Int
     name: String
     resourceTypes: [ResourceCount]
 }
 
-type ResourcesMetadata {
+type ResourcesMetadata @aws_cognito_user_pools @aws_iam {
   count: Int
   accounts: [Account]
   resourceTypes: [ResourceCount]
 }
 
-type ResourcesAccountMetadata {
+type ResourcesAccountMetadata @aws_cognito_user_pools @aws_iam {
   accountId: String
   count: Int
   resourceTypes: [ResourceCount]
 }
 
-type ResourcesRegionMetadata {
+type ResourcesRegionMetadata  @aws_cognito_user_pools @aws_iam {
     accountId: String
     count: Int
     regions: [ResourceRegionCount]
@@ -143,7 +151,6 @@ input drawIoNodePositionInput {
 input drawIoNodeInput {
     id: String!
     parent: String
-    level: Int!
     title: String!
     label: String!
     type: String!
@@ -160,7 +167,7 @@ input drawIoEdgeInput {
 
 type Mutation {
   # Adds accounts to be scanned
-  addAccounts(accounts: [AccountInput]!): UnprocessedAccounts
+  addAccounts(accounts: [AccountInput]!): UnprocessedAccounts @aws_cognito_user_pools @aws_iam
   # Deletes the relationship specified by id in the relationshipIds variable
   deleteRelationships(relationshipIds: [String]!): [String] @aws_iam
   # Deletes the resources specified by id in the resources variable
@@ -170,7 +177,8 @@ type Mutation {
     accountId: String!
     lastCrawled: AWSDateTime
     name: String
-  ): AccountMetadata @aws_cognito_user_pools @aws_iam
+    isIamRoleDeployed: Boolean
+  ): AccountMetadata @aws_iam
   # Updates one or more regions to be scanned
   updateRegions(accountId: String!, regions: [RegionInput]!): Account
     @aws_cognito_user_pools
@@ -192,7 +200,7 @@ type Mutation {
   # Deletes one or more regions to be scanned
   deleteRegions(accountId: String!, regions: [RegionInput]!): Account
   # Deletes one or more accounts to be scanned
-  deleteAccounts(accountIds: [String]!): UnprocessedAccounts
+  deleteAccounts(accountIds: [String]!): UnprocessedAccounts @aws_cognito_user_pools @aws_iam
 }
 
 type Query {
@@ -205,26 +213,24 @@ type Query {
     pagination: Pagination
     resourceTypes: [String]
     accounts: [AccountInput]
-  ): [Resource] @aws_cognito_user_pools @aws_iam
+  ): [Resource] @aws_iam
   # Gets relationships from Neptune. Default pagination is 1000 elements. This is
   # defined in the lambda function rather than the schema as AppSync does not
   # support default parameters yet.
   getRelationships(pagination: Pagination): [Relationship] @aws_iam
-  # Gets the children of the node with the supplied id
-  getLinkedNodesHierarchy(id: String!): Hierarchy
-  # For each supplied id, gets the children of the node with that id
-  batchGetLinkedNodesHierarchy(ids: [String]!): BatchHierarchyResponse
+  # Gets a list of related nodes and a list of the edges between them from the supplied ids
+  getResourceGraph(ids: [String]!, pagination: Pagination): getResourceGraphResponse @aws_cognito_user_pools @aws_iam
   # Get resource counts broken down by resource type and a list of all accounts and
   # associated regions.
-  getResourcesMetadata: ResourcesMetadata
+  getResourcesMetadata: ResourcesMetadata @aws_cognito_user_pools @aws_iam
   # Get resource counts broken down by account. If accounts is absent then all
   # accounts will be returned
-  getResourcesAccountMetadata(accounts: [AccountInput]): [ResourcesAccountMetadata]
+  getResourcesAccountMetadata(accounts: [AccountInput]): [ResourcesAccountMetadata] @aws_cognito_user_pools @aws_iam
   # Get resource counts broken down by account and region. If accounts is absent then
   # all accounts will be returned
-  getResourcesRegionMetadata(accounts: [AccountInput]): [ResourcesRegionMetadata]
+  getResourcesRegionMetadata(accounts: [AccountInput]): [ResourcesRegionMetadata] @aws_cognito_user_pools @aws_iam
   # Gets a single account and the regions that are being scanned
-  getAccount(accountId: String!): Account
+  getAccount(accountId: String!): Account @aws_cognito_user_pools @aws_iam
   # Gets each account and its associated regions that are being scanned
   getAccounts: [Account] @aws_cognito_user_pools @aws_iam
   # Read another set of results from the S3 Athena results
@@ -246,14 +252,14 @@ type Query {
     costForResourceQueryByDay: CostForResourceQueryByDay
   ): Cost @aws_cognito_user_pools @aws_iam
   # Gets global template for account importing
-  getGlobalTemplate: String
+  getGlobalTemplate: String @aws_cognito_user_pools @aws_iam
   # Gets regional template for account importing
-  getRegionalTemplate: String
+  getRegionalTemplate: String @aws_cognito_user_pools @aws_iam
   # Gets resources based on string search text
   searchResources(text: String!
       pagination: Pagination
       resourceTypes: [String]
-      accounts: [AccountInput]): ResourcesResponse
+      accounts: [AccountInput]): ResourcesResponse @aws_cognito_user_pools @aws_iam
   # Export a diagram to draw.io
   exportToDrawIo(nodes: [drawIoNodeInput], edges: [drawIoEdgeInput]) : String
 }
@@ -263,15 +269,9 @@ type ResourcesResponse @aws_cognito_user_pools @aws_iam {
     resources: [Resource]
 }
 
-type BatchHierarchy {
-    parentId: String!
-    hierarchy: Hierarchy
-}
-
-type BatchHierarchyResponse {
-    hierarchies: [BatchHierarchy]
-    notFound: [String]
-    unprocessedResources: [String]
+type getResourceGraphResponse @aws_cognito_user_pools @aws_iam {
+    nodes: [Resource]!
+    edges: [Relationship]!
 }
 
 type Cost @aws_cognito_user_pools @aws_iam {
@@ -345,7 +345,7 @@ input Pagination {
   end: Int!
 }
 
-type PaginationType {
+type PaginationType @aws_cognito_user_pools @aws_iam {
   # The item number to start from in the Athena query results CSV
   start: Int!
   # The item number to end on in the Athena query results CSV
@@ -393,17 +393,6 @@ input S3Query {
   pagination: Pagination!
 }
 
-type Hierarchy {
-  id: String
-  label: String!
-  type: String!
-  data: Resource
-  md5Hash: String
-  properties: ResourceProperties
-  children: [Hierarchy]
-  parent: Boolean
-}
-
 type Resource @aws_cognito_user_pools @aws_iam {
     id: String!
     label: String,
@@ -420,7 +409,6 @@ type ResourceProperties @aws_cognito_user_pools @aws_iam {
   configurationItemCaptureTime: String
   configurationItemStatus: String
   configurationStateId: String
-  relationships: AWSJSON
   resourceCreationTime: String
   resourceId: String
   resourceName: String

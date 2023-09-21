@@ -76,8 +76,6 @@ Resources:
     Properties:
       Path: '/'
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       AssumeRolePolicyDocument:
         Statement:
@@ -87,6 +85,24 @@ Resources:
                 - lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
+        - PolicyName: GremlinLambdaVpcExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                  - ec2:AssignPrivateIpAddresses
+                  - ec2:UnassignPrivateIpAddresses
+                Resource: '*'
         - PolicyName: GremlinAppSyncLambdaFunctionPolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -112,7 +128,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/graph-api.zip
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: Lambda for appsync resolver that queries Neptune
       Timeout: 15
       VpcConfig:
@@ -165,26 +181,26 @@ Resources:
       LambdaConfig:
         LambdaFunctionArn: !GetAtt GremlinAppSyncFunction.Arn
 
-  PerspectiveAppSyncGetLinkedNodesHierarchyResolver:
+  GetResourceGraphResolver:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
-      FieldName: getLinkedNodesHierarchy
-      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
-
-  PerspectiveAppSyncBatchGetLinkedNodesHierarchyResolver:
-    Type: AWS::AppSync::Resolver
-    Properties:
-      ApiId: !Ref PerspectiveAppSyncApiId
-      TypeName: Query
-      FieldName: batchGetLinkedNodesHierarchy
+      FieldName: getResourceGraph
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
 
   PerspectiveAppSyncAddRelationshipsResolver:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: addRelationships
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -193,6 +209,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: addResources
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -201,6 +221,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: updateResources
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -209,6 +233,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResources
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -217,6 +245,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getRelationships
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -225,6 +257,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: deleteResources
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -233,6 +269,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Mutation
       FieldName: deleteRelationships
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -241,6 +281,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesMetadata
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -249,6 +293,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesRegionMetadata
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
@@ -257,6 +305,10 @@ Resources:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesAccountMetadata
       DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name

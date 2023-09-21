@@ -77,7 +77,7 @@ const byServiceQuery = ({
     regions && R.map((e) => regionValidator(e, cache.regions), regions);
     serviceName && serviceNameValidator(serviceName);
 
-    return `SELECT product_servicename, line_item_usage_account_id, product_region AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
+    return `SELECT product_servicename, line_item_usage_account_id, Array_join(Array_distinct(Array_agg(product_region)), '|') AS region, pricing_term, sum(line_item_unblended_cost) AS cost, line_item_currency_code FROM ${athenaTableName} WHERE line_item_usage_account_id IN (${createINValues(
       accountIds
     )}) AND product_region IN (${createINValues(
       regions

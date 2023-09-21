@@ -4,6 +4,8 @@
 const {assert} = require('chai');
 const {
     AWS_API_GATEWAY_METHOD,
+    AWS_DYNAMODB_TABLE,
+    AWS_DYNAMODB_STREAM,
     AWS_EC2_NETWORK_INTERFACE,
     AWS_EC2_VPC,
     AWS_ECS_CLUSTER,
@@ -58,11 +60,12 @@ const {
     AWS_SQS_QUEUE,
     SECURITY_GROUP,
     AWS_IAM_INLINE_POLICY,
-    MULTIPLE_AVAILABILITY_ZONES
+    MULTIPLE_AVAILABILITY_ZONES, AWS_EVENT_EVENT_BUS, AWS_EVENT_RULE
 } = require('../src/lib/constants');
 
 const {generate} = require('./generator');
 const additionalRelationships = require('../src/lib/additionalRelationships');
+const schema = require("./fixtures/relationships/securityGroup/ingress.json");
 
 const ROLE = 'Role';
 const INSTANCE = 'Instance';
@@ -110,8 +113,8 @@ describe('additionalRelationships', () => {
         }
     };
 
-    describe('createAdditionalRelationships', () => {
-        const createAdditionalRelationships = additionalRelationships.createAdditionalRelationships(new Map(
+    describe('addAdditionalRelationships', () => {
+        const addAdditionalRelationships = additionalRelationships.addAdditionalRelationships(new Map(
             [[
                 'xxxxxxxxxxxx',
                 {
@@ -131,7 +134,27 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/apigateway/method/noLambda.json');
                 const {method} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [method]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [method]);
+                const {relationships} = rels.find(r => r.resourceId === method.resourceId);
+
+                assert.deepEqual(relationships, []);
+            });
+
+            it('should handle no method integration', async () => {
+                const schema = require('./fixtures/relationships/apigateway/method/noMethodIntegration.json');
+                const {method} = generate(schema);
+
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [method]);
+                const {relationships} = rels.find(r => r.resourceId === method.resourceId);
+
+                assert.deepEqual(relationships, []);
+            });
+
+            it('should handle no method integration uri', async () => {
+                const schema = require('./fixtures/relationships/apigateway/method/noMethodIntegrationUri.json');
+                const {method} = generate(schema);
+
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [method]);
                 const {relationships} = rels.find(r => r.resourceId === method.resourceId);
 
                 assert.deepEqual(relationships, []);
@@ -141,7 +164,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/apigateway/method/lambda.json');
                 const {lambda, method} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [lambda, method]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [lambda, method]);
                 const {relationships} = rels.find(r => r.resourceId === method.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -161,7 +184,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/asg/launchTemplate.json');
                 const {asg, subnet, launchTemplate} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet, asg]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet, asg]);
 
                 const {relationships} = rels.find(r => r.resourceId === asg.resourceId);
                 const actualLaunchTemplateRel = relationships.find(x => x.resourceId === launchTemplate.resourceId);
@@ -177,7 +200,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/asg/networking.json');
                 const {vpc, asg, subnet1, subnet2} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, asg]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, asg]);
 
                 const actualAsg = rels.find(r => r.resourceId === asg.resourceId);
                 const actualVpcRel = actualAsg.relationships.find(x => x.resourceId === vpc.resourceId);
@@ -196,7 +219,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/asg/networking.json');
                 const {vpc, asg} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [asg]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [asg]);
 
                 const actualAsg = rels.find(r => r.resourceId === asg.resourceId);
                 const actualVpcRel = actualAsg.relationships.find(x => x.resourceId === vpc.resourceId);
@@ -215,7 +238,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/cloudfront/distribution/s3.json');
                 const {cfDistro, s3} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cfDistro, s3]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [cfDistro, s3]);
                 const {relationships} = rels.find(r => r.resourceId === cfDistro.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -223,7 +246,7 @@ describe('additionalRelationships', () => {
                         relationshipName: IS_ASSOCIATED_WITH,
                         resourceId: s3.resourceId,
                         resourceType: AWS_S3_BUCKET,
-                        awsRegion: s3.awsRegion
+                        arn: s3.arn
                     }
                 ]);
             });
@@ -232,7 +255,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/cloudfront/distribution/elb.json');
                 const {cfDistro, elb} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cfDistro, elb]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [cfDistro, elb]);
                 const {relationships} = rels.find(r => r.resourceId === cfDistro.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -249,7 +272,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/cloudfront/distribution/alb.json');
                 const {cfDistro, alb} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cfDistro, alb]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [cfDistro, alb]);
                 const {relationships} = rels.find(r => r.resourceId === cfDistro.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -266,11 +289,11 @@ describe('additionalRelationships', () => {
 
         describe(AWS_CLOUDFRONT_STREAMING_DISTRIBUTION, () => {
 
-            it('should add regiun for s3 buckets', async () => {
+            it('should add region for s3 buckets', async () => {
                 const schema = require('./fixtures/relationships/cloudfrontStreamingDistribution/s3.json');
                 const {cfStreamingDistro, s3} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cfStreamingDistro, s3]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [cfStreamingDistro, s3]);
                 const {relationships} = rels.find(r => r.resourceId === cfStreamingDistro.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -278,7 +301,26 @@ describe('additionalRelationships', () => {
                         relationshipName: IS_ASSOCIATED_WITH,
                         resourceId: s3.resourceId,
                         resourceType: AWS_S3_BUCKET,
-                        awsRegion: s3.awsRegion
+                        arn: s3.arn
+                    }
+                ]);
+            });
+
+        });
+
+        describe(AWS_DYNAMODB_TABLE, () => {
+
+            it('should add relationship from table to stream', async () => {
+                const schema = require('./fixtures/relationships/dynamodb/table.json');
+                const {table} = generate(schema);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [table]);
+                const actual = rels.find(r => r.resourceType === AWS_DYNAMODB_TABLE);
+
+                assert.deepEqual(actual.relationships, [
+                    {
+                        relationshipName: IS_ASSOCIATED_WITH,
+                        resourceType: AWS_DYNAMODB_STREAM,
+                        arn: table.configuration.latestStreamArn
                     }
                 ]);
             });
@@ -292,7 +334,7 @@ describe('additionalRelationships', () => {
                 const {vpc, subnet, eni} = generate(schema);
 
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels.find(r => r.resourceType === AWS_EC2_NETWORK_INTERFACE);
 
                 assert.strictEqual(actual.vpcId, vpc.resourceId);
@@ -305,7 +347,7 @@ describe('additionalRelationships', () => {
 
                 const expectedOsDomainResourceId = 'xxxxxxxxxxxx/test-elasticsearch-cluster';
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels[0];
                 const actualOpensearchRel = actual.relationships.find(r => r.resourceId === expectedOsDomainResourceId);
 
@@ -322,7 +364,7 @@ describe('additionalRelationships', () => {
 
                 const expectedNatGatewayResourceId = 'nat-01234567890abcdef';
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels[0];
                 const actualNatGatewayRel = actual.relationships.find(r => r.resourceId === expectedNatGatewayResourceId);
 
@@ -338,7 +380,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eni/vpcEndpoint.json');
                 const {eni, vpcEndpoint} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels.find(x => x.resourceId === eni.resourceId);
                 const actualNatGatewayRel = actual.relationships.find(r => r.resourceId === vpcEndpoint.resourceId);
 
@@ -355,7 +397,7 @@ describe('additionalRelationships', () => {
 
                 const rexpectedAlbResourceId = 'arn:aws:elasticloadbalancing:eu-west-1:xxxxxxxxxxxx:loadbalancer/app/my-alb/1feef78b6a10bcd5';
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels[0];
                 const actualAlbRel = actual.relationships.find(r => r.resourceId === rexpectedAlbResourceId);
 
@@ -370,7 +412,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eni/lambda.json');
                 const {eni} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [eni]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eni]);
                 const actual = rels[0];
 
                 const expectedLambdaResourceId = 'testLambda';
@@ -392,7 +434,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/routeTable/allRelationships.json');
                 const {routeTable} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [routeTable]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [routeTable]);
 
                 const {relationships} = rels[0];
 
@@ -424,7 +466,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/securityGroup/ingress.json');
                 const {inSecurityGroup1, inSecurityGroup2, securityGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [securityGroup]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [securityGroup]);
                 const {relationships} = rels.find(r => r.resourceId === securityGroup.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -444,7 +486,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/securityGroup/egress.json');
                 const {outSecurityGroup1, outSecurityGroup2, securityGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [securityGroup]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [securityGroup]);
                 const {relationships} = rels.find(r => r.resourceId === securityGroup.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -468,7 +510,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/subnet/vpcInfo.json');
                 const {subnet, vpc, routeTable} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
                 const actualSubnet = rels.find(x => x.resourceId === subnet.resourceId);
 
                 assert.strictEqual(actualSubnet.vpcId, vpc.resourceId);
@@ -479,7 +521,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/subnet/public.json');
                 const {subnet, routeTable} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
                 const actualSubnet = rels.find(x => x.resourceId === subnet.resourceId);
 
                 assert.strictEqual(actualSubnet.private, false);
@@ -489,7 +531,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/subnet/private.json');
                 const {subnet, routeTable} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet, routeTable]);
                 const actualSubnet = rels.find(x => x.resourceId === subnet.resourceId);
 
                 assert.strictEqual(actualSubnet.private, true);
@@ -503,7 +545,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/transitgateway/routetables.json');
                 const {tgw, tgwRouteTable1, tgwRouteTable2} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [tgw]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [tgw]);
 
                 const {relationships} = rels.find(x => x.resourceId === tgw.resourceId);
 
@@ -530,7 +572,7 @@ describe('additionalRelationships', () => {
             const accountIdZ = 'zzzzzzzzzzzz';
             const euWest2 = 'eu-west-2';
 
-            const createAdditionalRelationships = additionalRelationships.createAdditionalRelationships(new Map(
+            const addAdditionalRelationships = additionalRelationships.addAdditionalRelationships(new Map(
                 [[
                     accountIdX,
                     {
@@ -567,7 +609,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [tgwAttachment]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [tgwAttachment]);
 
                 const {relationships} = rels.find(x => x.resourceId === tgwAttachment.resourceId);
 
@@ -586,7 +628,7 @@ describe('additionalRelationships', () => {
                 });
 
                 assert.deepEqual(actualVpcRel, {
-                    relationshipName: IS_ASSOCIATED_WITH + ` ${VPC}`,
+                    relationshipName: IS_ASSOCIATED_WITH + `${VPC}`,
                     resourceId: vpc.resourceId,
                     resourceType: AWS_EC2_VPC,
                     awsRegion: euWest2,
@@ -594,7 +636,7 @@ describe('additionalRelationships', () => {
                 });
 
                 assert.deepEqual(actualSubnet1Rel, {
-                    relationshipName: IS_ASSOCIATED_WITH + ' Subnet',
+                    relationshipName: IS_ASSOCIATED_WITH + 'Subnet',
                     resourceId: subnet1.resourceId,
                     resourceType: AWS_EC2_SUBNET,
                     awsRegion: euWest2,
@@ -602,7 +644,7 @@ describe('additionalRelationships', () => {
                 });
 
                 assert.deepEqual(actualSubnet2Rel, {
-                    relationshipName: IS_ASSOCIATED_WITH + ' Subnet',
+                    relationshipName: IS_ASSOCIATED_WITH + 'Subnet',
                     resourceId: subnet2.resourceId,
                     resourceType: AWS_EC2_SUBNET,
                     awsRegion: euWest2,
@@ -610,7 +652,7 @@ describe('additionalRelationships', () => {
                 });
 
                 assert.deepEqual(actualSubnet3Rel, {
-                    relationshipName: IS_ASSOCIATED_WITH + ' Subnet',
+                    relationshipName: IS_ASSOCIATED_WITH + 'Subnet',
                     resourceId: subnet3.resourceId,
                     resourceType: AWS_EC2_SUBNET,
                     awsRegion: euWest2,
@@ -621,13 +663,82 @@ describe('additionalRelationships', () => {
 
         });
 
+        describe(AWS_EVENT_EVENT_BUS, () => {
+
+            it('should add relationships for event bus rules', async () => {
+                const schema = require('./fixtures/relationships/events/eventBus/bus.json');
+                const {eventBus1, eventBus2, eventRule1, eventRule2} = generate(schema);
+
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eventBus1, eventBus2, eventRule1, eventRule2]);
+                const {relationships: eventBus1Rel} = rels.find(r => r.arn === eventBus1.arn);
+                const {relationships: eventBus2Rel} = rels.find(r => r.arn === eventBus2.arn);
+
+                assert.deepEqual(eventBus1Rel, [
+                    {
+                        arn: 'eventRuleArn1',
+                        relationshipName: IS_ASSOCIATED_WITH,
+                    }
+                ]);
+
+                assert.deepEqual(eventBus2Rel, [
+                    {
+                        arn: 'eventRuleArn2',
+                        relationshipName: IS_ASSOCIATED_WITH,
+                    }
+                ]);
+            });
+        });
+
+        describe(AWS_EVENT_RULE, () => {
+
+            it('should add relationships for event bus rules', async () => {
+                const schema = require('./fixtures/relationships/events/rule/rules.json');
+                const {eventRule1, eventRule2} = generate(schema);
+
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [eventRule1, eventRule2]);
+                const {relationships: eventRule1Rel} = rels.find(r => r.arn === eventRule1.arn);
+                const {relationships: eventRule2Rel} = rels.find(r => r.arn === eventRule2.arn);
+
+                const ruleTarget1Rel = eventRule1Rel.find(r => r.arn === 'ruleTargetArn1');
+                const ruleTarget1RoleRel = eventRule1Rel.find(r => r.arn === 'roleArn1');
+                const ruleTarget2Rel = eventRule2Rel.find(r => r.arn === 'clusterArn');
+                const ruleTaskTarget2Rel = eventRule2Rel.find(r => r.arn === 'taskDefinitionArn');
+                const ruleTarget2RoleRel = eventRule2Rel.find(r => r.arn === 'roleArn2');
+
+                assert.deepEqual(ruleTarget1Rel, {
+                    arn: 'ruleTargetArn1',
+                    relationshipName: IS_ASSOCIATED_WITH,
+                });
+
+                assert.deepEqual(ruleTarget1RoleRel, {
+                    arn: 'roleArn1',
+                    relationshipName: IS_ASSOCIATED_WITH,
+                });
+
+                assert.deepEqual(ruleTarget2Rel, {
+                    arn: 'clusterArn',
+                    relationshipName: IS_ASSOCIATED_WITH,
+                });
+
+                assert.deepEqual(ruleTaskTarget2Rel, {
+                    arn: 'taskDefinitionArn',
+                    relationshipName: IS_ASSOCIATED_WITH,
+                });
+
+                assert.deepEqual(ruleTarget2RoleRel, {
+                    arn: 'roleArn2',
+                    relationshipName: IS_ASSOCIATED_WITH,
+                });
+            });
+        })
+
         describe(AWS_LAMBDA_FUNCTION, () => {
 
             it('should not add additional relationships for Lambda functions with no vpc', async () => {
                 const schema = require('./fixtures/relationships/lambda/noVpc.json');
                 const {lambda} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [lambda]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [lambda]);
 
                 const actual = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
 
@@ -638,7 +749,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/lambda/vpc.json');
                 const {vpc, subnet1, subnet2, lambda} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, lambda]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, lambda]);
 
                 const actual = rels.find(r => r.resourceId === lambda.resourceId);
                 const actualVpcRel = actual.relationships.find(r => r.resourceId === vpc.resourceId);
@@ -668,7 +779,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/lambda/vpc.json');
                 const {vpc, lambda} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [lambda]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [lambda]);
 
                 const actual = rels.find(r => r.resourceId === lambda.resourceId);
                 const actualVpcRel = actual.relationships.find(r => r.resourceId === vpc.resourceId);
@@ -682,7 +793,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/lambda/efs.json');
                 const {subnet1, subnet2, lambda, efs} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, lambda, efs]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, lambda, efs]);
 
                 const actual = rels.find(r => r.resourceId === lambda.resourceId);
                 const actualEfsRel = actual.relationships.find(r => r.arn === efs.arn);
@@ -712,7 +823,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [lambda, kinesis]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [lambda, kinesis]);
 
                 const actual = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
 
@@ -723,7 +834,7 @@ describe('additionalRelationships', () => {
                 }]);
             });
 
-            it.only('should handle errors when encrypted environment variables are present', async () => {
+            it('should handle errors when encrypted environment variables are present', async () => {
                 const schema = require('./fixtures/relationships/lambda/encryptedEnvVar.json');
                 const {lambda} = generate(schema);
 
@@ -750,11 +861,67 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [lambda]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [lambda]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
 
                 assert.lengthOf(relationships, 0);
+            });
+
+            it('should handle when Environment field is set to null', async () => {
+                const schema = require('./fixtures/relationships/lambda/envVar.json');
+                const {resourceIdResource, resourceNameResource, arnResource, lambda} = generate(schema);
+
+                const mockAwsClient = {
+                    ...defaultMockAwsClient,
+                    createLambdaClient(_, region) {
+                        return {
+                            getAllFunctions: async arn => {
+                                if(region === lambda.awsRegion) {
+                                    return [{
+                                        FunctionArn: lambda.arn,
+                                        Environment: {
+                                            Variables: {
+                                                resourceIdVar: resourceIdResource.resourceId,
+                                                resourceNameVar: resourceNameResource.resourceName,
+                                                arnVar: arnResource.arn
+                                            }
+                                        }
+                                    }, {
+                                        FunctionArn: lambda.arn,
+                                        Environment: null
+                                    }
+                                    ]
+                                }
+                                return [];
+                            },
+                            listEventSourceMappings: async arn => []
+                        }
+                    }
+                };
+
+                const rels = await addAdditionalRelationships(mockAwsClient, [resourceIdResource, resourceNameResource, arnResource, lambda]);
+
+                const {relationships} = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
+                const actualResourceIdResourceRel = relationships.find(r => r.arn === resourceIdResource.arn);
+                const actualResourceNameResourceRel = relationships.find(r => r.arn === resourceNameResource.arn);
+                const actualArnResourceRel = relationships.find(r => r.arn === arnResource.arn);
+
+                assert.deepEqual(actualResourceIdResourceRel, {
+                    relationshipName: IS_ASSOCIATED_WITH,
+                    arn: resourceIdResource.arn,
+                    resourceType: AWS_S3_BUCKET
+                });
+                assert.deepEqual(actualResourceNameResourceRel, {
+                    relationshipName: IS_ASSOCIATED_WITH + ROLE,
+                    arn: resourceNameResource.arn,
+                    resourceType: AWS_IAM_ROLE
+                });
+                assert.deepEqual(actualArnResourceRel, {
+                    relationshipName: IS_ASSOCIATED_WITH,
+                    arn: arnResource.arn,
+                    resourceType: AWS_S3_BUCKET
+                });
             });
 
             it('should return additional non-db relationships for Lambda functions with environment variables', async () => {
@@ -785,7 +952,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [resourceIdResource, resourceNameResource, arnResource, lambda]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [resourceIdResource, resourceNameResource, arnResource, lambda]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_LAMBDA_FUNCTION);
                 const actualResourceIdResourceRel = relationships.find(r => r.arn === resourceIdResource.arn);
@@ -839,7 +1006,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [
+                const rels = await addAdditionalRelationships(mockAwsClient, [
                     elasticsearch, opensearch, rdsCluster, rdsInstance, redshiftCluster, lambda
                 ]);
 
@@ -885,7 +1052,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/cluster/noInstances.json');
                 const {ecsCluster} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsCluster]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsCluster]);
                 const {relationships} = rels.find(r => r.resourceId === ecsCluster.resourceId);
 
                 assert.deepEqual(relationships, []);
@@ -904,7 +1071,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [ecsCluster]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [ecsCluster]);
                 const {relationships} = rels.find(r => r.resourceId === ecsCluster.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -928,7 +1095,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/service/noVpc.json');
                 const {ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_ECS_SERVICE);
 
@@ -957,7 +1124,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/service/alb.json');
                 const {ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition]);
 
                 const {relationships} = rels.find(r => r.resourceId === ecsService.resourceId);
 
@@ -974,7 +1141,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/service/vpc.json');
                 const {vpc, subnet1, subnet2, securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     subnet1, subnet2, securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition
                 ]);
 
@@ -1014,7 +1181,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/service/vpc.json');
                 const {vpc, securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     securityGroup, ecsServiceRole, ecsCluster, ecsService, ecsTaskDefinition
                 ]);
 
@@ -1036,8 +1203,26 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/task/cluster.json');
                 const {ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition
+                ]);
+
+                const {relationships} = rels.find(r => r.resourceId === ecsTask.resourceId);
+                const actualClusterRel = relationships.find(r => r.resourceType === AWS_ECS_CLUSTER);
+
+                assert.deepEqual(actualClusterRel, {
+                    relationshipName: IS_CONTAINED_IN,
+                    arn: ecsCluster.arn,
+                    resourceType: AWS_ECS_CLUSTER
+                });
+            });
+
+            it('should handle missing task definition', async () => {
+                const schema = require('./fixtures/relationships/ecs/task/missingTaskDefinition.json');
+                const {ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask} = generate(schema);
+
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
+                    ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask
                 ]);
 
                 const {relationships} = rels.find(r => r.resourceId === ecsTask.resourceId);
@@ -1056,7 +1241,7 @@ describe('additionalRelationships', () => {
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition, ecsTask
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition, ecsTask
                 ]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTask.resourceId);
@@ -1083,7 +1268,7 @@ describe('additionalRelationships', () => {
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition, ecsTask
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition, ecsTask
                 ]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTask.resourceId);
@@ -1108,7 +1293,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/task/noVpc.json');
                 const {ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition
                 ]);
 
@@ -1123,7 +1308,7 @@ describe('additionalRelationships', () => {
                     vpc, ecsCluster, ecsTaskRole, ecsTaskExecutionRole, subnet, eni, ecsTask, ecsTaskDefinition
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, subnet, eni, ecsTask, ecsTaskDefinition
                 ]);
 
@@ -1161,7 +1346,7 @@ describe('additionalRelationships', () => {
                     resourceIdResource, resourceNameResource, arnResource
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition, resourceIdResource,
                     resourceNameResource, arnResource
                 ]);
@@ -1196,7 +1381,7 @@ describe('additionalRelationships', () => {
                     resourceIdResource, overridenResource
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition, resourceIdResource,
                     overridenResource
                 ]);
@@ -1219,7 +1404,7 @@ describe('additionalRelationships', () => {
                     ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsCluster, elasticsearch, opensearch, rdsCluster, rdsInstance, redshiftCluster,
                     ecsTaskRole, ecsTaskExecutionRole, ecsTask, ecsTaskDefinition
                 ]);
@@ -1266,7 +1451,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/taskDefinitions/noRoles.json');
                 const {ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTaskDefinition.resourceId);
 
                 assert.deepEqual(relationships, []);
@@ -1276,7 +1461,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/taskDefinitions/efsFs.json');
                 const {ecsTaskDefinition, efsFs} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTaskDefinition.resourceId);
                 const actualEfsFsRel = relationships.find(r => r.resourceId === efsFs.resourceId);
 
@@ -1291,7 +1476,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/taskDefinitions/efsAp.json');
                 const {ecsTaskDefinition, efsAp} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTaskDefinition.resourceId);
                 const actualEfsApRel = relationships.find(r => r.resourceId === efsAp.resourceId);
 
@@ -1306,7 +1491,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/taskDefinitions/nonexistentRoles.json');
                 const {ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsTaskDefinition]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTaskDefinition.resourceId);
 
                 assert.deepEqual(relationships, []);
@@ -1316,7 +1501,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ecs/taskDefinitions/roles.json');
                 const {ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [ecsTaskRole, ecsTaskExecutionRole, ecsTaskDefinition]);
                 const {relationships} = rels.find(r => r.resourceId === ecsTaskDefinition.resourceId);
 
                 const actualTaskRoleRel = relationships.find(r => r.resourceName === ecsTaskRole.resourceName);
@@ -1340,7 +1525,7 @@ describe('additionalRelationships', () => {
                     ecsTaskDefinition, resourceIdResource, resourceNameResource, arnResource
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     ecsTaskDefinition, resourceIdResource, resourceNameResource, arnResource
                 ]);
 
@@ -1373,7 +1558,7 @@ describe('additionalRelationships', () => {
                     elasticsearch, opensearch, rdsCluster, rdsInstance, redshiftCluster, ecsTaskDefinition
                 } = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     elasticsearch, opensearch, rdsCluster, rdsInstance, redshiftCluster, ecsTaskDefinition
                 ]);
 
@@ -1419,7 +1604,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/efs/kms.json');
                 const {efs, kms} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [kms, efs]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [kms, efs]);
 
                 const {relationships} = rels.find(r => r.resourceId === efs.resourceId);
                 const actualKmsRel = relationships.find(r => r.arn === kms.arn);
@@ -1439,7 +1624,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/efs/accessPoint/efs.json');
                 const {efs, accessPoint} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [accessPoint]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [accessPoint]);
 
                 const {relationships} = rels.find(r => r.resourceId === accessPoint.resourceId);
                 const actualEfsRel = relationships.find(r => r.resourceId === efs.resourceId);
@@ -1459,7 +1644,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/cluster/networking.json');
                 const {vpc, subnet1, subnet2, cluster, clusterRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     subnet1, subnet2, cluster, clusterRole
                 ]);
 
@@ -1492,7 +1677,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/cluster/networking.json');
                 const {vpc, cluster, clusterRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     cluster, clusterRole
                 ]);
 
@@ -1508,7 +1693,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/cluster/securityGroup.json');
                 const {securityGroup, cluster, clusterRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     securityGroup, cluster, clusterRole
                 ]);
 
@@ -1527,7 +1712,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/cluster/role.json');
                 const {cluster, clusterRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     cluster, clusterRole
                 ]);
 
@@ -1550,7 +1735,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/networking.json');
                 const {vpc, subnet1, subnet2, nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     subnet1, subnet2, nodeRole, nodeGroup
                 ]);
 
@@ -1583,7 +1768,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/networking.json');
                 const {vpc, nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [nodeRole, nodeGroup]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [nodeRole, nodeGroup]);
 
                 const {availabilityZone, relationships} = rels.find(r => r.resourceId === nodeGroup.resourceId);
                 assert.strictEqual(availabilityZone, 'Regional');
@@ -1597,7 +1782,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/securityGroupLT.json');
                 const {securityGroup, launchTemplate, nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     nodeGroup, nodeRole
                 ]);
 
@@ -1622,7 +1807,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/securityGroup.json');
                 const {securityGroup, nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     nodeGroup, nodeRole
                 ]);
 
@@ -1641,7 +1826,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/asg.json');
                 const {asg, nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     nodeGroup, nodeRole, asg
                 ]);
 
@@ -1660,7 +1845,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/eks/nodeGroup/role.json');
                 const {nodeRole, nodeGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     nodeGroup, nodeRole
                 ]);
 
@@ -1683,7 +1868,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/msk/serverful.json');
                 const {vpc, subnet1, subnet2, securityGroup, cluster} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     subnet1, subnet2, cluster
                 ]);
 
@@ -1722,7 +1907,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/msk/serverful.json');
                 const {vpc, cluster} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [cluster]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [cluster]);
 
                 const {availabilityZone, relationships} = rels.find(r => r.resourceId === cluster.resourceId);
                 assert.strictEqual(availabilityZone, 'Regional')
@@ -1741,7 +1926,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/loadBalancer/elb/instances.json');
                 const {elb} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [elb]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [elb]);
                 const {relationships} = rels.find(r => r.resourceId === elb.resourceId);
 
                 assert.deepEqual(relationships, []);
@@ -1760,7 +1945,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [elb]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [elb]);
                 const {relationships} = rels.find(r => r.resourceId === elb.resourceId);
 
                 assert.deepEqual(relationships, [
@@ -1796,7 +1981,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [
+                const rels = await addAdditionalRelationships(mockAwsClient, [
                     targetGroup, asg
                 ]);
 
@@ -1828,7 +2013,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [
+                const rels = await addAdditionalRelationships(mockAwsClient, [
                     targetGroup, asg
                 ]);
 
@@ -1865,18 +2050,17 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [
+                const rels = await addAdditionalRelationships(mockAwsClient, [
                     targetGroup, lambda
                 ]);
 
                 const {relationships} = rels.find(r => r.resourceId === targetGroup.resourceId);
 
-                const actualLambdaRel = relationships.find(r => r.resourceId === lambda.resourceId);
+                const actualLambdaRel = relationships.find(r => r.arn === lambda.arn);
 
                 assert.deepEqual(actualLambdaRel, {
                     relationshipName: IS_ASSOCIATED_WITH,
-                    resourceId: lambda.resourceId,
-                    resourceType: AWS_LAMBDA_FUNCTION
+                    arn: lambda.arn
                 });
             });
 
@@ -1884,7 +2068,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/loadBalancer/alb/targetGroup/vpc.json');
                 const {vpc, targetGroup} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [
                     targetGroup
                 ]);
 
@@ -1907,7 +2091,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/loadBalancer/alb/listeners/singleTargetGroup.json');
                 const {alb, targetGroup, listener} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [listener]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [listener]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER);
 
@@ -1930,7 +2114,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/loadBalancer/alb/listeners/multipleTargetGroups.json');
                 const {targetGroup1, targetGroup2, listener} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [listener]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [listener]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER);
 
@@ -1953,7 +2137,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/loadBalancer/alb/listeners/cognito.json');
                 const {userPool, listener} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [listener]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [listener]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER);
 
@@ -1974,7 +2158,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/iam/role/managedPolices.json');
                 const {role, managedRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [role, managedRole]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [role, managedRole]);
 
                 const {relationships} = rels.find(r => r.resourceId === role.resourceId);
                 const actualManagedRoleRel = relationships.find(r => r.arn === managedRole.arn);
@@ -1994,7 +2178,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/iam/inlinePolicy/multipleStatement.json');
                 const {policy, s3Bucket1, s3Bucket2} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [policy, s3Bucket1, s3Bucket2]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [policy, s3Bucket1, s3Bucket2]);
                 const {relationships} = rels.find(r => r.resourceId === policy.resourceId);
 
                 const actualBucket1 = relationships.find(r => r.arn === s3Bucket1.arn);
@@ -2020,7 +2204,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/iam/user/managedPolicy.json');
                 const {user, managedRole} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [user, managedRole]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [user, managedRole]);
 
                 const {relationships} = rels.find(r => r.resourceId === user.resourceId);
                 const actualManagedRoleRel = relationships.find(r => r.arn === managedRole.arn);
@@ -2040,7 +2224,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/rds/instance/vpc.json');
                 const {dbInstance, $constants} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [dbInstance]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [dbInstance]);
 
                 const actual = rels[0];
                 const actualSubnet1Rel = actual.relationships.find(r => r.resourceId === $constants.subnet1);
@@ -2068,7 +2252,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ec2/spotfleet/noLb.json');
                 const {spotFleet} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [spotFleet]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [spotFleet]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_EC2_SPOT_FLEET);
 
@@ -2079,7 +2263,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ec2/spotfleet/elb.json');
                 const {elb, spotFleet} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [spotFleet]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [spotFleet]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_EC2_SPOT_FLEET);
 
@@ -2097,7 +2281,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/ec2/spotfleet/alb.json');
                 const {targetGroup, spotFleet} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [targetGroup, spotFleet]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [targetGroup, spotFleet]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_EC2_SPOT_FLEET);
 
@@ -2131,7 +2315,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [snsTopic]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [snsTopic]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_SNS_TOPIC);
 
@@ -2155,7 +2339,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [snsTopic, lambda]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [snsTopic, lambda]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_SNS_TOPIC);
                 const actualLambdaRel = relationships.find(r => r.arn === lambda.arn);
@@ -2184,7 +2368,7 @@ describe('additionalRelationships', () => {
                     }
                 };
 
-                const rels = await createAdditionalRelationships(mockAwsClient, [snsTopic, sqs]);
+                const rels = await addAdditionalRelationships(mockAwsClient, [snsTopic, sqs]);
 
                 const {relationships} = rels.find(r => r.resourceType === AWS_SNS_TOPIC);
                 const actualSqsRel = relationships.find(r => r.arn === sqs.arn);
@@ -2204,7 +2388,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/codebuild/project/role.json');
                 const {serviceRole, project} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [serviceRole, project]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [serviceRole, project]);
 
                 const {relationships} = rels.find(r => r.resourceId === project.resourceId);
                 const actualRoleRel = relationships.find(r => r.arn === serviceRole.arn);
@@ -2220,7 +2404,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/codebuild/project/vpc.json');
                 const {vpc, subnet1, subnet2, securityGroup, project} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, project]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [subnet1, subnet2, project]);
 
                 const actual = rels.find(r => r.resourceId === project.resourceId);
                 const actualVpcRel = actual.relationships.find(r => r.resourceId === vpc.resourceId);
@@ -2260,7 +2444,7 @@ describe('additionalRelationships', () => {
                 const schema = require('./fixtures/relationships/opensearch/domain/vpc.json');
                 const {vpc, subnet1, subnet2, securityGroup, domain} = generate(schema);
 
-                const rels = await createAdditionalRelationships(defaultMockAwsClient, [domain]);
+                const rels = await addAdditionalRelationships(defaultMockAwsClient, [domain]);
 
                 const actual = rels.find(r => r.resourceId === domain.resourceId);
                 const actualVpcRel = actual.relationships.find(r => r.resourceId === vpc.resourceId);
