@@ -1,6 +1,6 @@
 {
   "name": "perspective-cur-setup",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -20,11 +20,11 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "aws-sdk": "2.1413.0",
-    "chai": "^4.3.7",
+    "aws-sdk": "2.1477.0",
+    "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "rewire": "^6.0.0",
-    "sinon": "^15.2.0"
+    "rewire": "^7.0.0",
+    "sinon": "^17.0.0"
   }
 }

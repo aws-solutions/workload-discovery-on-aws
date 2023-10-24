@@ -19,7 +19,7 @@ export class WorkloadDiscoveryMainStack extends cdk.Stack {
       stackName: props.stackName
     });
 
-    new cloudformation.CfnStack(this, 'WorkloadDiscoveryStack', {
+    new cloudformation.CfnStack(this, 'WorkloadDiscoveryStack', { //NOSONAR
       templateUrl: `https://${Constants.BUCKET_NAME}-${Constants.AWS_REGION}.s3.amazonaws.com/workload-discovery/${Constants.VERSION}/main.template`,
       parameters: {
         "AdminUserEmailAddress": Constants.ADMIN_EMAIL

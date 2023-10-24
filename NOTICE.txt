@@ -16,7 +16,7 @@ Apache 2.0 License
 **********************
 AWS SDK
 boto3
-aws-amplify 
+aws-amplify
 typescript
 gremlin
 crhelper
@@ -24,6 +24,7 @@ aws-xray-sdk-core
 constructs
 amplify-graphql-docs-generator
 importlib-resources
+license-expression
 py-serializable
 @aws-amplify/ui-react
 @aws-sdk/client-api-gateway
@@ -162,6 +163,7 @@ pyrsistent
 **********************
 BSD-2-Clause
 **********************
+boolean.py
 currency-symbol-map
 
 **********************

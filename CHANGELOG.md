@@ -5,14 +5,21 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2023-10-24
+
+### Fixed
+- Security [vulnerability](https://github.com/babel/babel/security/advisories/GHSA-67hx-6x53-jw92) in `@babel/traverse`.
+- Security [vulnerability](https://github.com/advisories/GHSA-wqq4-5wpv-mx2g)  in `undici`.
+- Security [vulnerability](https://github.com/advisories/GHSA-g4mx-q9vg-27p4) in `urllib3`.
+
 ## [2.1.0] - 2023-09-21
 
 ### Added
 
 - AppRegistry integration to monitor application costs and usage.
 - Integration with Organizations. Customers can install the solution in a delegated admin account (recommended)
-or the management account and the solution will use an organization wide config aggregator to discover resources across 
-their organization. [1](https://github.com/aws-solutions/workload-discovery-on-aws/issues/1)
+  or the management account and the solution will use an organization wide config aggregator to discover resources across
+  their organization. [1](https://github.com/aws-solutions/workload-discovery-on-aws/issues/1)
 - Pipeline for local development of the solution.
 - Support for deploying this solution in an existing VPC. [169](https://github.com/aws-solutions/workload-discovery-on-aws/issues/169)
 - Support for deploying this solution with Neptune Serverless. [314](https://github.com/aws-solutions/workload-discovery-on-aws/issues/314)
@@ -20,7 +27,7 @@ their organization. [1](https://github.com/aws-solutions/workload-discovery-on-a
 - Support for more resource types now totalling over 250.
 
 ### Changed
-- Migrated from the deprecated awsui frontend framework to [Cloudscape](https://cloudscape.design). 
+- Migrated from the deprecated awsui frontend framework to [Cloudscape](https://cloudscape.design).
 
 ### Fixed
 - Export of diagrams to JSON [426](https://github.com/aws-solutions/workload-discovery-on-aws/issues/426)
@@ -43,8 +50,8 @@ their organization. [1](https://github.com/aws-solutions/workload-discovery-on-a
 
 - Pagination size in discovery process could lead to maximum allowed payload errors [331](https://github.com/awslabs/workload-discovery-on-aws/issues/331)
 - AWS Config throttling stopped resources not supported by advanced query being discovered [332](https://github.com/awslabs/workload-discovery-on-aws/issues/332)
-- Null errors when adding relationships for `AWS::Lambda::Function`, `AWS::ECS::Task`, `AWS::AutoScaling::AutoScalingGroup` and 
-`AWS::RDS::DBInstance` resource types [333](https://github.com/awslabs/workload-discovery-on-aws/issues/333)
+- Null errors when adding relationships for `AWS::Lambda::Function`, `AWS::ECS::Task`, `AWS::AutoScaling::AutoScalingGroup` and
+  `AWS::RDS::DBInstance` resource types [333](https://github.com/awslabs/workload-discovery-on-aws/issues/333)
 - Permission errors when decrypting encrypted lambda functions broke batch lambda relationship discovery [334](https://github.com/awslabs/workload-discovery-on-aws/issues/334)
 
 ## [2.0.1] - 2022-11-23

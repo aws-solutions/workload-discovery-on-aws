@@ -1,6 +1,6 @@
 {
   "name": "wd-import-templates",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "description": "Lambda function that serves cfn templates for account and region importing",
   "main": "index.js",
   "scripts": {
@@ -20,11 +20,11 @@
     "url": "https://aws.amazon.com/solutions"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
+    "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "nyc-report-lcov-absolute": "^1.0.0",
-    "rewire": "^6.0.0",
+    "rewire": "^7.0.0",
     "yaml-cfn": "^0.3.2"
   }
 }

@@ -670,7 +670,7 @@ const serviceIconMap = {
 const icons = new Map();
 
 for (let [key, value] of Object.entries(serviceIconMap)) {
-  icons.set(value, key);
+  icons.set(value, key); //NOSONAR
 }
 
 export const fetchImage = (type, state) => {
