@@ -43,7 +43,7 @@ const crypto = require('crypto');
 
 function hash(data) {
     const algo = 'md5';
-    let shasum = crypto.createHash(algo).update(JSON.stringify(data));
+    let shasum = crypto.createHash(algo).update(JSON.stringify(data)); //NOSONAR - hashing algorithm is only used for comparing two JS objects
     return "" + shasum.digest('hex');
 }
 

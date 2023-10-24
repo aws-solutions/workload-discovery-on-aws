@@ -1,6 +1,6 @@
 {
   "name": "wd-settings",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Lambda function that stores WD configuration data in DynamoDB",
   "main": "index.js",
   "scripts": {
@@ -31,12 +31,12 @@
   },
   "devDependencies": {
     "aws-sdk-client-mock": "^3.0.0",
-    "chai": "^4.3.7",
+    "chai": "^4.3.10",
     "dynamo-db-local": "^6.0.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "nyc-report-lcov-absolute": "^1.0.0",
-    "rewire": "^6.0.0",
-    "sinon": "^15.2.0"
+    "rewire": "^7.0.0",
+    "sinon": "^17.0.0"
   }
 }
