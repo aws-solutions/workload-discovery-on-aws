@@ -54,7 +54,7 @@
     "@cloudscape-design/design-tokens": "3.0.16",
     "@cloudscape-design/global-styles": "1.0.11",
     "aws-amplify": "5.3.3",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "^4.2.0",
     "currency-symbol-map": "5.0.1",
     "cytoscape": "3.21.0",
     "cytoscape-cola": "^2.5.1",
