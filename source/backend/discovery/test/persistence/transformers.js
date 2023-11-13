@@ -3,8 +3,8 @@
 
 const {assert} = require('chai');
 const R = require('ramda');
-const {generateBaseResource} = require('../generator');
-const {createSaveObject} = require('../../src/lib/persistence/transformers');
+const {generateBaseResource, generateRandomInt} = require('../generator');
+const {createSaveObject, createResourcesRegionMetadata} = require('../../src/lib/persistence/transformers');
 const {
     AWS_API_GATEWAY_METHOD,
     AWS_API_GATEWAY_RESOURCE,
@@ -25,8 +25,16 @@ const {
     AWS_IAM_GROUP,
     AWS_IAM_USER,
     AWS_IAM_POLICY,
-    AWS_S3_BUCKET
+    AWS_S3_BUCKET,
+    AWS_RDS_DB_CLUSTER,
+    AWS_ECS_CLUSTER,
+    AWS_EC2_VPC,
+    AWS_EC2_SUBNET,
+    AWS_EC2_INSTANCE
 } = require("../../src/lib/constants");
+
+const ACCOUNT_IDX = 'xxxxxxxxxxxx';
+const EU_WEST_1 = 'eu-west-1';
 
 describe('persistence/transformers', () => {
 
@@ -49,7 +57,7 @@ describe('persistence/transformers', () => {
                 [AWS_DYNAMODB_STREAM, '6a96a6977befda49b9fab8a1f4917abd']
             ].forEach(([resourceType, hash], i) => {
                 it(`should hash ${resourceType} resources`, () => {
-                    const resource = generateBaseResource(resourceType, i);
+                    const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, resourceType, i);
 
                     const actual = createSaveObject(resource);
                     assert.strictEqual(actual.md5Hash, hash);
@@ -61,42 +69,42 @@ describe('persistence/transformers', () => {
         describe('title', () => {
 
             it('should use name tag for title if present', () => {
-                const resource = generateBaseResource(AWS_LAMBDA_FUNCTION, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_LAMBDA_FUNCTION, 1);
 
                 const actual = createSaveObject({...resource, tags: [{key: 'Name', value: 'testName'}]});
                 assert.strictEqual(actual.properties.title, 'testName');
             });
 
             it('should fall back to resource name if name tag not present', () => {
-                const resource = generateBaseResource(AWS_LAMBDA_FUNCTION, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_LAMBDA_FUNCTION, 1);
 
                 const actual = createSaveObject({...resource, resourceName: 'resourceName'});
                 assert.strictEqual(actual.properties.title, 'resourceName');
             });
 
             it('should fall back to resource id if resource name or name tag not present', () => {
-                const resource = generateBaseResource(AWS_LAMBDA_FUNCTION, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_LAMBDA_FUNCTION, 1);
 
                 const actual = createSaveObject(R.omit(['resourceName'], resource));
                 assert.strictEqual(actual.properties.title, 'resourceId1');
             });
 
             it('should use the target group id for an ALB title', () => {
-                const resource = generateBaseResource(AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP, 1);
 
                 const actual = createSaveObject({...resource, arn: 'arn:aws:elasticloadbalancing:us-west-2:xxxxxxxxxxxx:targetgroup/my-targets/73e2d6bc24d8a067'});
                 assert.strictEqual(actual.properties.title, 'targetgroup/my-targets/73e2d6bc24d8a067');
             });
 
             it('should use the listener id for an ALB title', () => {
-                const resource = generateBaseResource(AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER, 1);
 
                 const actual = createSaveObject({...resource, arn: 'arn:aws:elasticloadbalancing:us-west-2:xxxxxxxxxxxx:listener/app/my-load-balancer/50dc6c495c0c9188/f2f7dc8efc522ab2'});
                 assert.strictEqual(actual.properties.title, 'listener/app/my-load-balancer/50dc6c495c0c9188/f2f7dc8efc522ab2');
             });
 
             it('should use the listener id for an ASG title', () => {
-                const resource = generateBaseResource(AWS_AUTOSCALING_AUTOSCALING_GROUP, 1);
+                const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, AWS_AUTOSCALING_AUTOSCALING_GROUP, 1);
 
                 const actual = createSaveObject({...resource, arn: 'arn:aws:autoscaling:eu-west-1:xxxxxxxxxxxx:autoScalingGroup:123e4567-e89b-12d3-a456-426614174000:autoScalingGroupName/asg-name'});
                 assert.strictEqual(actual.properties.title, 'asg-name');
@@ -149,7 +157,7 @@ describe('persistence/transformers', () => {
                 }]
             ].forEach(([resourceType, configuration, {expectedLoginUrl, expectedLoggedInURL}], i) => {
                 it(`should create logins for ${resourceType}`, () => {
-                    const resource = generateBaseResource(resourceType, i);
+                    const resource = generateBaseResource(ACCOUNT_IDX, EU_WEST_1, resourceType, i);
 
                     const actual = createSaveObject({...resource, configuration});
                     assert.strictEqual(actual.properties.loginURL, expectedLoginUrl);
@@ -158,6 +166,57 @@ describe('persistence/transformers', () => {
             });
 
 
+        });
+    });
+
+    describe('account metadata', () => {
+        const ACCOUNT_IDX = 'xxxxxxxxxxxx';
+        const ACCOUNT_IDY = 'yyyyyyyyyyyy';
+        const ACCOUNT_IDZ = 'zzzzzzzzzzzz';
+        const GLOBAL = 'global';
+
+        const EU_WEST_1 = 'eu-west-1';
+        const EU_WEST_2 = 'eu-west-2';
+        const US_WEST_2 = 'us-west-2';
+
+        const resources = [
+            [ACCOUNT_IDX, EU_WEST_1, AWS_API_GATEWAY_METHOD, 3],
+            [ACCOUNT_IDX, EU_WEST_1, AWS_RDS_DB_CLUSTER, 7],
+            [ACCOUNT_IDX, EU_WEST_2, AWS_API_GATEWAY_RESOURCE, 8],
+            [ACCOUNT_IDX, US_WEST_2 ,AWS_ECS_CLUSTER, 1],
+            [ACCOUNT_IDX, US_WEST_2 ,AWS_ECS_TASK, 4],
+            [ACCOUNT_IDY, EU_WEST_1, AWS_EC2_VPC, 3],
+            [ACCOUNT_IDY, EU_WEST_1, AWS_LAMBDA_FUNCTION, 10],
+            [ACCOUNT_IDY, EU_WEST_2, AWS_LAMBDA_FUNCTION, 6],
+            [ACCOUNT_IDY, GLOBAL, AWS_IAM_ROLE, 15],
+            [ACCOUNT_IDZ, EU_WEST_1, AWS_EC2_VPC, 2],
+            [ACCOUNT_IDZ, US_WEST_2, AWS_EC2_VPC, 2],
+            [ACCOUNT_IDZ, US_WEST_2, AWS_EC2_SUBNET, 9],
+            [ACCOUNT_IDZ, US_WEST_2, AWS_EC2_INSTANCE, 12],
+        ].flatMap(([accountId, region, resourceType, count]) => {
+            const resources = [];
+
+            for(let i = 0; i < count; i++) {
+                const randomInt = generateRandomInt(0, 100000)
+                const {id,...properties} =  generateBaseResource(accountId, region, resourceType, randomInt)
+                resources.push({
+                    id,
+                    label: properties.resourceType.replace(/::/g, '_'),
+                    md5Hash: '',
+                    properties
+                });
+            }
+
+            return resources;
+        });
+
+        it('should get resourcesRegionMetadata', () => {
+            const expectedResourcesRegionMetadata = require('../fixtures/persistence/transformers/accountMetadata/resourcesAccountMetadataExpected.json');
+            const expected = new Map(expectedResourcesRegionMetadata.map(x => [x.accountId, x]));
+
+            const resourcesRegionMetadata = createResourcesRegionMetadata(resources);
+
+            assert.deepEqual(resourcesRegionMetadata, expected);
         });
 
     });

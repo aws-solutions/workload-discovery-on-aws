@@ -74,6 +74,9 @@ Parameters:
   CrossAccountDiscovery:
     Type: String
 
+  OrganizationUnitId:
+    Type: String
+
   AppSyncApiUrl:
     Type: String
 
@@ -309,6 +312,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - organizations:ListAccounts
+                  - organizations:ListAccountsForParent
+                  - organizations:ListOrganizationalUnitsForParent
                   - organizations:ListRoots
                 Resource: '*'
         - PolicyName: ec2-policies
@@ -370,10 +375,14 @@ Resources:
                 - MaxOldSpaceSize: !FindInMap [EcsTaskMap, MaxOldSpaceSize, !Ref Memory]
             - Name: CROSS_ACCOUNT_DISCOVERY
               Value: !Ref CrossAccountDiscovery
+            - Name: ORGANIZATION_UNIT_ID
+              Value: !Ref OrganizationUnitId
             - Name: GRAPHQL_API_URL
               Value: !Ref AppSyncApiUrl
             - Name: CONFIG_AGGREGATOR
               Value: !Ref ConfigurationAggregator
+            - Name: LOG_LEVEL
+              Value: !Ref LogLevel
             - Name: CUSTOM_USER_AGENT
               Value: !Ref CustomUserAgent
           LogConfiguration:

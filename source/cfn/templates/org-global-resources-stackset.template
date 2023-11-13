@@ -23,7 +23,6 @@ Resources:
 
   WdGlobalResourcesStackSet:
     Type: AWS::CloudFormation::StackSet
-    DeletionPolicy: Retain
     Properties:
       StackSetName: WdGlobalResources
       Description: Workload Discovery global resources
@@ -41,8 +40,8 @@ Resources:
         Enabled: true
         RetainStacksOnAccountRemoval: false
       OperationPreferences:
-        FailureToleranceCount: 4
-        MaxConcurrentCount: 5
+        FailureTolerancePercentage: 20
+        MaxConcurrentCount: 25
         RegionConcurrencyType: PARALLEL
       ManagedExecution:
         Active: true

@@ -9,7 +9,7 @@ agent.disableNetConnect();
 
 const client = agent.get('https://www.workload-discovery');
 
-const properties = generateBaseResource(AWS_LAMBDA_FUNCTION, 1);
+const properties = generateBaseResource('xxxxxxxxxxxx', 'eu-west-1', AWS_LAMBDA_FUNCTION,  1);
 
 client.intercept({
     path: '/graphql',

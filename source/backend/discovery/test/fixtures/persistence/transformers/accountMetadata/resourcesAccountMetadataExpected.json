@@ -1,0 +1,120 @@
+[
+  {
+    "accountId": "xxxxxxxxxxxx",
+    "count": 23,
+    "regions": [
+      {
+        "count": 10,
+        "resourceTypes": [
+          {
+            "count": 3,
+            "type": "AWS::ApiGateway::Method"
+          },
+          {
+            "count": 7,
+            "type": "AWS::RDS::DBCluster"
+          }
+        ],
+        "name": "eu-west-1"
+      },
+      {
+        "count": 8,
+        "resourceTypes": [
+          {
+            "count": 8,
+            "type": "AWS::ApiGateway::Resource"
+          }
+        ],
+        "name": "eu-west-2"
+      },
+      {
+        "count": 5,
+        "resourceTypes": [
+          {
+            "count": 1,
+            "type": "AWS::ECS::Cluster"
+          },
+          {
+            "count": 4,
+            "type": "AWS::ECS::Task"
+          }
+        ],
+        "name": "us-west-2"
+      }
+    ]
+  },
+  {
+    "accountId": "yyyyyyyyyyyy",
+    "count": 34,
+    "regions": [
+      {
+        "count": 13,
+        "resourceTypes": [
+          {
+            "count": 3,
+            "type": "AWS::EC2::VPC"
+          },
+          {
+            "count": 10,
+            "type": "AWS::Lambda::Function"
+          }
+        ],
+        "name": "eu-west-1"
+      },
+      {
+        "count": 6,
+        "resourceTypes": [
+          {
+            "count": 6,
+            "type": "AWS::Lambda::Function"
+          }
+        ],
+        "name": "eu-west-2"
+      },
+      {
+        "count": 15,
+        "resourceTypes": [
+          {
+            "count": 15,
+            "type": "AWS::IAM::Role"
+          }
+        ],
+        "name": "global"
+      }
+    ]
+  },
+  {
+    "accountId": "zzzzzzzzzzzz",
+    "count": 25,
+    "regions": [
+      {
+        "count": 2,
+        "resourceTypes": [
+          {
+            "count": 2,
+            "type": "AWS::EC2::VPC"
+          }
+        ],
+        "name": "eu-west-1"
+      },
+      {
+        "count": 23,
+        "resourceTypes": [
+          {
+            "count": 2,
+            "type": "AWS::EC2::VPC"
+          },
+          {
+            "count": 9,
+            "type": "AWS::EC2::Subnet"
+          },
+          {
+            "count": 12,
+            "type": "AWS::EC2::Instance"
+          }
+        ],
+        "name": "us-west-2"
+      }
+    ]
+  }
+]

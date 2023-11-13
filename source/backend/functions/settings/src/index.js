@@ -34,21 +34,50 @@ function handleAwsConfigErrors(err) {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const all = (ps) => Promise.all(ps);
 
-const query = R.curry(async (docClient, TableName, query) => docClient.query({ TableName, ...query }));
+const query = R.curry(async (docClient, TableName, query) => {
+    function query_(params, items = []) {
+        return docClient.query(params)
+            .then(({Items, LastEvaluatedKey}) => {
+                items.push(...Items);
+                return LastEvaluatedKey == null
+                    ? {Items: items} : query_({ ExclusiveStartKey: LastEvaluatedKey, TableName, ...query }, items);
+            });
+    }
+
+    return query_({ TableName, ...query });
+});
 
 const batchWrite = R.curry((docClient, retryDelay, writes) => {
     function batchWrite_(writes, attempt) {
         return docClient
             .batchWrite(writes)
             .then(async ({ UnprocessedItems }) => {
-                if (attempt > 3 || R.isEmpty(R.keys(UnprocessedItems)))
-                    return { UnprocessedItems };
+                if (attempt > 3 || R.isEmpty(R.keys(UnprocessedItems))) {
+                    return {UnprocessedItems};
+                }
                 await sleep(attempt * retryDelay);
                 return batchWrite_({ RequestItems: UnprocessedItems }, attempt + 1);
             });
     }
 
     return batchWrite_(writes, 0);
+});
+
+const batchGet = R.curry((docClient, retryDelay, gets) => {
+    function batchGet_(gets, attempt, Items = []) {
+        return docClient
+            .batchGet(gets)
+            .then(async ({ Responses, UnprocessedKeys }) => {
+                Items.push(...Object.values(Responses).flat());
+                if (attempt > 3 || R.isEmpty(R.keys(UnprocessedKeys))) {
+                    return { Items, UnprocessedKeys };
+                }
+                await sleep(attempt * retryDelay);
+                return batchGet_({ RequestItems: UnprocessedKeys }, attempt + 1, Items);
+            });
+    }
+
+    return batchGet_(gets, 0);
 });
 
 const createDeleteRequest = ({ PK, SK }) => ({
@@ -64,16 +93,18 @@ const createBatchWriteRequest = (TableName) => (writes) => ({
 const getUnprocessedItems = (TableName) =>
     R.pathOr([], ['UnprocessedItems', TableName]);
 
-const accountProjectionExpression =
+const DEFAULT_ACCOUNT_PROJECTION_EXPR =
     'accountId, #name, regions, isIamRoleDeployed, organizationId, isManagementAccount, lastCrawled';
 
-function getAccountsFromDb(docClient, TableName) {
+const DEFAULT_EXPRESSION_ATT_NAMES = {
+    '#name': 'name'
+}
+
+function getAllAccountsFromDb(docClient, TableName, {ProjectionExpression, ExpressionAttributeNames}) {
     return Promise.resolve({
         KeyConditionExpression: 'PK = :PK',
-        ProjectionExpression: accountProjectionExpression,
-        ExpressionAttributeNames:{
-            '#name': 'name'
-        },
+        ProjectionExpression,
+        ...(R.isEmpty(ExpressionAttributeNames) ? ExpressionAttributeNames : {ExpressionAttributeNames}),
         ExpressionAttributeValues: {
             ':PK': 'Account',
         }
@@ -82,13 +113,43 @@ function getAccountsFromDb(docClient, TableName) {
         .then(R.prop('Items'))
 }
 
+function getFilteredAccountsFromDb(docClient, TableName, {
+    ProjectionExpression, ExpressionAttributeNames = {}, accountFilters = [], retryTime
+}) {
+    return Promise.resolve(R.splitEvery(100, accountFilters))
+        .then(R.map(accountIds => {
+            return {
+                RequestItems: {
+                    [TableName]: {
+                        Keys: accountIds.map(accountId => ({PK: 'Account', SK: accountId})),
+                        ProjectionExpression,
+                        ...(R.isEmpty(ExpressionAttributeNames) ? ExpressionAttributeNames : {ExpressionAttributeNames}),
+                    }
+                }
+            }
+        }))
+        .then(R.map(batchGet(docClient, retryTime)))
+        .then(all)
+        .then(R.chain(x => x.Items))
+}
+
+function getAccountsFromDb(docClient, TableName, {
+    ProjectionExpression, ExpressionAttributeNames = {}, accountFilters = [], retryTime
+}) {
+    return R.isEmpty(accountFilters)
+        ? getAllAccountsFromDb(docClient, TableName, {ProjectionExpression, ExpressionAttributeNames})
+        : getFilteredAccountsFromDb(docClient, TableName, {
+            ProjectionExpression, ExpressionAttributeNames, accountFilters: accountFilters, retryTime
+        });
+}
+
 function deleteAccounts(
     docClient,
     configService,
     TableName,
     { defaultAccountId, defaultRegion, configAggregator, accountIds, retryTime }
 ) {
-    return getAccountsFromDb(docClient, TableName)
+    return getAccountsFromDb(docClient, TableName, {ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES})
         .then(dbAccounts => {
             const accountsToDelete = new Set(accountIds);
             return R.reject(({accountId}) => accountsToDelete.has(accountId), dbAccounts);
@@ -195,7 +256,7 @@ function updateRegions(docClient, TableName, { accountId, regions }) {
 function getAccount(docClient, TableName, {accountId}) {
     return Promise.resolve({
         KeyConditionExpression: 'PK = :PK AND SK = :SK',
-        ProjectionExpression: accountProjectionExpression,
+        ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR,
         ExpressionAttributeNames:{
             '#name': 'name'
         },
@@ -209,7 +270,7 @@ function getAccount(docClient, TableName, {accountId}) {
 }
 
 function getAccounts(docClient, TableName) {
-    return getAccountsFromDb(docClient, TableName);
+    return getAccountsFromDb(docClient, TableName, {ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES}) ;
 }
 
 function addAccounts(
@@ -222,7 +283,7 @@ function addAccounts(
         regions: R.uniqBy(R.prop('name'))
     }), accounts);
 
-    return getAccountsFromDb(docClient, TableName)
+    return getAccountsFromDb(docClient, TableName, {ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES})
         .then(R.reduce((acc, {regions, accountId}) => {
             acc[accountId] = {regions, accountId};
             return acc;
@@ -270,7 +331,9 @@ function addAccounts(
 
 function handleRegions(accountHandler) {
     return (docClient, configService, TableName, {accountId, regions, configAggregator}) => {
-        return getAccountsFromDb(docClient, TableName)
+        return getAccountsFromDb(docClient, TableName, {
+            ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES
+        })
             .then(R.map(accountHandler(regions, accountId)))
             .then(accounts => {
                 const AccountIds = R.pluck('accountId', accounts);
@@ -327,6 +390,120 @@ const deleteRegions = handleRegions(R.curry((regions, accountId, account)  => {
     return account.accountId === accountId ? {...account, ...{regions: newRegions}} : account;
 }));
 
+function getResourcesMetadata(docClient, TableName, {retryTime}) {
+    console.time('getResourcesMetadata elapsed time');
+
+    return getAccountsFromDb(docClient, TableName, {
+        ProjectionExpression: 'accountId, regions, resourcesRegionMetadata', retryTime
+    })
+        .then(R.reject(x => x.resourcesRegionMetadata == null))
+        .then(dbResponse => {
+            const accounts = R.map(R.pick(['accountId', 'regions']), dbResponse);
+
+            const resourcesRegionMetadata = dbResponse
+                .map(x => x.resourcesRegionMetadata)
+
+            const count = resourcesRegionMetadata.reduce((acc, {count}) => acc + count, 0);
+
+            const resourceTypesObj = resourcesRegionMetadata.reduce((acc, {regions}) => {
+                regions.forEach(({resourceTypes}) => {
+                    resourceTypes.forEach(({count, type}) => {
+                        if(acc[type] == null) {
+                            acc[type] = {
+                                count: 0,
+                                type
+                            }
+                        }
+                        acc[type].count = acc[type].count + count;
+                    });
+                });
+                return acc;
+            }, {});
+
+            return {
+                count, accounts, resourceTypes: Object.values(resourceTypesObj)
+            }
+        }).then(R.tap(() => console.timeEnd('getResourcesMetadata elapsed time')));
+}
+
+function getResourcesAccountMetadata(docClient, TableName, {retryTime, accounts = []}) {
+    const accountsMap = new Map(accounts.map(({accountId, regions = []}) => [accountId, {
+        accountId, regions: new Set(regions.map(x => x.name))
+    }]));
+
+    console.time('getResourcesAccountMetadata elapsed time');
+    return getAccountsFromDb(docClient, TableName, {
+        ProjectionExpression :'resourcesRegionMetadata', accountFilters: accounts.map(x => x.accountId), retryTime
+    })
+        .then(R.chain(({resourcesRegionMetadata}) => {
+            if(resourcesRegionMetadata == null) return [];
+
+            const {accountId, regions} = resourcesRegionMetadata;
+            let totalCount = 0;
+
+            const resourceTypesObj = regions
+                .filter(({name}) => {
+                    if(accountsMap.has(accountId)) {
+                        const regionSet = accountsMap.get(accountId).regions;
+                        return regionSet.size === 0 || regionSet.has(name);
+                    }
+                    return true;
+                })
+                .reduce((acc, {resourceTypes}) => {
+                    resourceTypes.forEach(({count, type}) => {
+                        if (acc[type] == null) {
+                            acc[type] = {
+                                count: 0,
+                                type
+                            }
+                        }
+
+                        const resourceType = acc[type];
+
+                        resourceType.count = resourceType.count + count;
+                        totalCount = totalCount + count;
+                    });
+                    return acc;
+                }, {});
+
+            return [{
+                accountId,
+                count: totalCount,
+                resourceTypes: Object.values(resourceTypesObj)
+            }]
+        }))
+        .then(R.tap(() => console.timeEnd('getResourcesAccountMetadata elapsed time')));
+}
+
+function getResourcesRegionMetadata(docClient, TableName, {retryTime, accounts = []}) {
+    const accountsMap = new Map(accounts.map(({accountId, regions = []}) => [accountId, {
+        accountId, regions: new Set(regions.map(x => x.name))
+    }]));
+
+    console.time('getResourcesRegionMetadata elapsed time');
+    return getAccountsFromDb(docClient, TableName, {
+        ProjectionExpression :'resourcesRegionMetadata', accountFilters: accounts.map(x => x.accountId), retryTime
+    })
+        .then(R.reject(R.isEmpty))
+        .then(R.map(({resourcesRegionMetadata}) => {
+            if(accountsMap.size === 0) return resourcesRegionMetadata;
+
+            const {accountId, regions, count} = resourcesRegionMetadata;
+
+            const {regions: regionsSet} = accountsMap.get(accountId);
+
+            const filteredRegions = regionsSet.size === 0 ? regions : regions.filter(x => regionsSet.has(x.name));
+            const filteredCount = regionsSet.size === 0 ? count : filteredRegions.reduce((acc, {count}) => acc + count, 0);
+
+            return {
+                accountId,
+                count: filteredCount,
+                regions: filteredRegions
+            };
+        }))
+        .then(R.tap(() => console.timeEnd('getResourcesRegionMetadata elapsed time')));
+}
+
 const isAccountNumber = R.test(/^(\d{12})$/);
 
 function validateAccountIds({accountId, accountIds, accounts}) {
@@ -334,14 +511,20 @@ function validateAccountIds({accountId, accountIds, accounts}) {
         throw new Error(`${accountId} is not a valid AWS account id.`);
     }
 
-    const invalidAccountIds = (accountIds ?? accounts?.map(x => x.accountId) ?? []).filter(x => !isAccountNumber(x));
+    const invalidAccountIds = (accountIds ?? accounts?.map(x => x.accountId) ?? [])
+        .filter(accountId => {
+            // this is a special account where AWS managed policies live
+            if(accountId === 'aws') return false;
+            return !isAccountNumber(accountId);
+        });
+
     if (!R.isEmpty(invalidAccountIds)) {
         throw new Error('The following account ids are invalid: ' + invalidAccountIds);
     }
 }
 
 function validateRegions(regionSet, {accounts, regions}) {
-    const invalidRegions = (regions ?? accounts?.flatMap(a => a.regions) ?? [])
+    const invalidRegions = (regions ?? accounts?.flatMap(a => a.regions ?? []) ?? [])
         .map(r => r.name)
         .filter(r => !regionSet.has(r));
 
@@ -365,13 +548,14 @@ function handler(ec2Client, docClient, configService, {
     return async (event, _) => {
         if (R.isNil(cache.regions)) cache.regions = await getRegions(ec2Client);
 
-        const args = event.arguments;
-        console.log(JSON.stringify(args));
+        const args = R.reject(R.isNil, event.arguments);
+        const fieldName = event.info.fieldName;
+        console.log(JSON.stringify({arguments: args, operation: fieldName}));
 
         validateAccountIds(args);
         validateRegions(cache.regions, args);
 
-        switch (event.info.fieldName) {
+        switch (fieldName) {
             case 'addAccounts':
                 return addAccounts(docClient, configService, TableName, {
                     configAggregator,
@@ -404,8 +588,14 @@ function handler(ec2Client, docClient, configService, {
                 return updateAccount(docClient, TableName, args);
             case 'updateRegions':
                 return updateRegions(docClient, TableName, args);
+            case 'getResourcesMetadata':
+                return getResourcesMetadata(docClient, TableName, {retryTime});
+            case 'getResourcesAccountMetadata':
+                return getResourcesAccountMetadata(docClient, TableName, {retryTime, ...args});
+            case 'getResourcesRegionMetadata':
+                return getResourcesRegionMetadata(docClient, TableName, {retryTime, ...args});
             default:
-                return Promise.reject('Unknown field, unable to resolve ' + event.field);
+                return Promise.reject(new Error(`Unknown field, unable to resolve ${fieldName}.`));
         }
     };
 }

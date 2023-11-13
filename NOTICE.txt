@@ -78,6 +78,8 @@ lodash
 match-sorter
 material-table
 object-hash
+p-limit
+p-throttle
 react
 react-cytoscapejs
 react-datepicker
@@ -107,7 +109,6 @@ unzipper
 mime-types
 node-fetch
 async-retry
-p-throttle
 undici
 acorn
 msw
@@ -190,11 +191,6 @@ Unlicense
 **********************
 react-use
 filelock
-
-**********************
-PSFL
-**********************
-defusedxml
 
 ***********************************************
 Other Licenses found in Dependency Tree include

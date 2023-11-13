@@ -14,36 +14,6 @@ function getRel(schema, rel) {
     return R.path(path, schema[k]);
 }
 
-const schema = {
-    "$constants": {
-        "accountId": "xxxxxxxxxxxx",
-        "region": "eu-west-2"
-    },
-    "subnet": {
-        "id": "${subnet.resourceId}_AWS::EC2::Subnet_${$constants.accountId}",
-        "accountId": {"$rel":  "$constants.accountId"},
-        "vpcId": "vpc-0123456789abcdef0",
-        "resourceType": "AWS::EC2::Subnet",
-        "resourceId": "subnet-0123456789abcdef",
-        "relationships": []
-    },
-    "eni": {
-        "id": "eni-0123456789abcdef0_AWS::EC2::NetworkInterface_xxxxxxxxxxxx",
-        "accountId": {"$rel":  "$constants.accountId"},
-        "description": "my eni",
-        "relationships": [],
-        "resourceType": "AWS::EC2::NetworkInterface",
-        "resourceId": "eni-0123456789abcdef0"
-    },
-    "ecsTask": {
-        "accountId": {"$rel":  "$constants.accountId"},
-        "resourceId": "arn:aws:ecs:eu-west-2:xxxxxxxxxxxx:task/my-test-cluster/6bc30424ff0443a582ec97c21ddfac79",
-        "resourceType": "AWS::ECS::Task",
-        "relationships": [],
-        "overrides": {}
-    }
-}
-
 function generate(schema) {
     function interpolate(input) {
         if(isObject(input)) {
@@ -88,24 +58,27 @@ function generate(schema) {
     return R.map(generateRec, interpolated);
 }
 
-const ACCOUNT_IDX = 'xxxxxxxxxxxx';
-const EU_WEST_1 = 'eu-west-1';
-
-function generateBaseResource(resourceType, num) {
+function generateBaseResource(accountId, awsRegion, resourceType, num) {
     return {
         id: 'arn' + num,
         resourceId: 'resourceId' + num,
-        resourceName: 'resourceName' + num, resourceType,
-        accountId: ACCOUNT_IDX,
+        resourceName: 'resourceName' + num,
+        resourceType,
+        accountId,
         arn: 'arn' + num,
-        awsRegion: EU_WEST_1,
+        awsRegion,
         relationships: [],
         tags: [],
         configuration: {a: +num}
     };
 }
 
+function generateRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 module.exports = {
     generate,
-    generateBaseResource
+    generateBaseResource,
+    generateRandomInt
 }

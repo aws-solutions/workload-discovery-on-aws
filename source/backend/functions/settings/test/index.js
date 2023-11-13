@@ -5,9 +5,11 @@ const rewire = require('rewire');
 const dynamoDbLocal = require('dynamo-db-local');
 const sinon = require('sinon');
 const { DynamoDB, DynamoDBClient} = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocument, DynamoDBDocumentClient, BatchWriteCommand, QueryCommand} = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocument, BatchWriteCommand, BatchGetCommand} = require('@aws-sdk/lib-dynamodb');
 const {assert} = require('chai');
 const {mockClient} = require('aws-sdk-client-mock');
+const resourceRegionMetadataInput = require('./fixtures/resourceRegionMetadata/input.json');
+const expected = require("./fixtures/getResourcesMetadata/default-expected.json");
 
 const index = rewire('../src/index');
 
@@ -1137,7 +1139,7 @@ describe('index.js', () => {
                     RETRY_TIME: 10,
                     CONFIG_AGGREGATOR: 'aggregrator'})({
                     arguments: {
-                        accountIds: ['xxx', '222222222222']
+                        accountIds: ['xxx', '222222222222', 'aws']
                     },
                     info: {
                         fieldName: 'deleteAccounts'
@@ -2034,7 +2036,756 @@ describe('index.js', () => {
 
         });
 
-        after( function(done) {
+        describe('getResourcesMetadata', () => {
+
+            const DB_TABLE = 'getResourcesMetadataTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            beforeEach(async () => {
+                await createTable(DB_TABLE);
+            });
+
+            afterEach(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+            it('should handle no accounts', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'getResourcesMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, {
+                    accounts: [],
+                    count: 0,
+                    resourceTypes: []
+                });
+            });
+
+            it('should ignore accounts with no metadata', async () => {
+                const expected = require('./fixtures/getResourcesMetadata/no-metadata-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'getResourcesMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return meta data broken down by account and resource type', async () => {
+                const expected = require('./fixtures/getResourcesMetadata/default-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'getResourcesMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+        });
+
+        describe('getResourcesAccountMetadata', () => {
+
+            const DB_TABLE = 'getResourcesAccountMetadataTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            beforeEach(async () => {
+                await createTable(DB_TABLE);
+            });
+
+            afterEach(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+            it('should handle no accounts', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, []);
+            });
+
+            it('should ignore accounts with no metadata', async () => {
+                const expected = require('./fixtures/getResourcesAccountMetadata/no-metadata-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: null
+                    },
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type', async () => {
+                const expected = require('./fixtures/getResourcesAccountMetadata/default-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: null
+                    },
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type filtered by account', async () => {
+                const expected = require('./fixtures/getResourcesAccountMetadata/account-filter-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [{accountId: '111111111111'}]
+                    },
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should handle unprocessed keys that resolve after retry', async () => {
+                const expected = require('./fixtures/getResourcesAccountMetadata/account-filter-expected.json');
+
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchGetCommand)
+                    .resolvesOnce({
+                        Responses: {
+                            [DB_TABLE]: []
+                        },
+                        UnprocessedKeys: {
+                            [DB_TABLE]: {
+                                Keys: [
+                                    {PK: 'Account', SK: '111111111111'}
+                                ],
+                                ProjectionExpression: 'resourcesRegionMetadata'
+                            }
+                        }
+                    });
+
+                ddbMock.send.callThrough();
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator', RETRY_TIME: 10})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [{accountId: '111111111111'}]
+                    },
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type filtered by account and region', async () => {
+                const expected = require('./fixtures/getResourcesAccountMetadata/account-region-filter-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {accountId: '111111111111', regions: [{name: 'eu-west-1'}]},
+                            {accountId: '222222222222'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual.sort((a, b) => a.accountId - b.accountId), expected);
+            });
+
+        });
+
+        describe('getResourcesRegionMetadata', () => {
+
+            const DB_TABLE = 'getResourcesRegionMetadataTable';
+
+            const mockConfig = {
+                putConfigurationAggregator: sinon.stub().resolves({})
+            };
+
+            beforeEach(async () => {
+                await createTable(DB_TABLE);
+            });
+
+            afterEach(async function() {
+                return dbClient.deleteTable({TableName: DB_TABLE});
+            });
+
+            it('should handle no accounts', async () => {
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, []);
+            });
+
+            it('should ignore accounts with no metadata', async () => {
+                const expected = require('./fixtures/getResourcesRegionMetadata/no-metadata-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ]
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: null
+                    },
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type', async () => {
+                const expected = require('./fixtures/getResourcesRegionMetadata/default-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: null
+                    },
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type filtered by account', async () => {
+                const expected = require('./fixtures/getResourcesRegionMetadata/account-filter-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [{accountId: '111111111111'}]
+                    },
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should handle unprocessed keys that resolve after retry', async () => {
+                const expected = require('./fixtures/getResourcesRegionMetadata/account-filter-expected.json');
+
+                const dynamoDB = new DynamoDBClient({
+                    region: 'eu-west-1',
+                    endpoint,
+                    credentials: {
+                        accessKeyId: 'accessKeyId',
+                        secretAccessKey: 'secretAccessKey'
+                    }
+                });
+
+                const docClient = DynamoDBDocument.from(dynamoDB);
+
+                const ddbMock = mockClient(docClient);
+
+                ddbMock
+                    .on(BatchGetCommand)
+                    .resolvesOnce({
+                        Responses: {
+                            [DB_TABLE]: []
+                        },
+                        UnprocessedKeys: {
+                            [DB_TABLE]: {
+                                Keys: [
+                                    {PK: 'Account', SK: '111111111111'}
+                                ],
+                                ProjectionExpression: 'resourcesRegionMetadata'
+                            }
+                        }
+                    });
+
+                ddbMock.send.callThrough();
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator', RETRY_TIME: 10})({
+                    arguments: {
+                        accounts: [{accountId: '111111111111'}]
+                    },
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+
+                assert.deepEqual(actual, expected);
+            });
+
+            it('should return per account metadata broken down by resource type filtered by account and region', async () => {
+                const expected = require('./fixtures/getResourcesRegionMetadata/account-region-filter-expected.json');
+
+                await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test111111111111',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1'
+                                    },
+                                    {
+                                        name: 'eu-west-2'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['111111111111']
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test222222222222',
+                                regions: [
+                                    {
+                                        name: 'us-east-1'
+                                    }
+                                ],
+                                ...resourceRegionMetadataInput['222222222222']
+                            }
+                        ]
+                    },
+                    info: {
+                        fieldName: 'addAccounts'
+                    }
+                });
+
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {
+                        accounts: [
+                            {accountId: '111111111111', regions: [{name: 'eu-west-1'}]},
+                            {accountId: '222222222222'}
+                        ]
+                    },
+                    info: {
+                        fieldName: 'getResourcesRegionMetadata'
+                    }
+                });
+
+                assert.deepEqual(actual.sort((a, b) => a.accountId - b.accountId), expected);
+            });
+
+        });
+
+        describe('unknown query', () => {
+
+            it('should reject payloads with unknown query', async () => {
+
+                const DB_TABLE = 'dbTable';
+
+                const mockConfig = {
+                    putConfigurationAggregator: sinon.stub().resolves({})
+                };
+
+                return handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                    arguments: {},
+                    info: {
+                        fieldName: 'foo',
+                    }
+                }, {}).catch(err => assert.strictEqual(err.message, 'Unknown field, unable to resolve foo.'));
+            });
+
+        });
+
+        after(function(done) {
             dynamoDbLocalProcess.kill();
             done();
         })

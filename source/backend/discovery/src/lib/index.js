@@ -8,9 +8,9 @@ const getAllConfigResources = require('./aggregator/getAllConfigResources');
 const {getAllSdkResources} = require('./sdkResources');
 const {addAdditionalRelationships} = require('./additionalRelationships');
 const createResourceAndRelationshipDeltas = require('./createResourceAndRelationshipDeltas');
-const {createSaveObject} = require('./persistence/transformers');
-const {persistResourcesAndRelationships, persistAccounts} = require('./persistence');
-const {GLOBAL} = require("./constants");
+const {createSaveObject, createResourcesRegionMetadata} = require('./persistence/transformers');
+const {persistResourcesAndRelationships, persistAccounts, processPersistenceFailures} = require('./persistence');
+const {GLOBAL, RESOURCE_NOT_RECORDED} = require("./constants");
 
 async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
@@ -25,17 +25,25 @@ async function discoverResources(appSync, awsClient, config) {
 
     const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed && !x.toDelete).map(x => [x.accountId, x]));
 
-    return Promise.resolve(configResources)
-        .then(R.filter(({accountId, awsRegion}) => {
+    const resources = await Promise.resolve(configResources)
+        .then(R.filter(({accountId, awsRegion, configurationItemStatus}) => {
+            if(configurationItemStatus === RESOURCE_NOT_RECORDED) {
+                return false;
+            }
             // resources from removed accounts/regions can take a while to be deleted from the Config aggregator
-            return (accountsMap.has(accountId) && awsRegion === GLOBAL) || (accountsMap.get(accountId)?.regions ?? []).includes(awsRegion);
+            const regions = accountsMap.get(accountId)?.regions ?? [];
+            return (accountsMap.has(accountId) && awsRegion === GLOBAL) || regions.includes(awsRegion);
         }))
         .then(getAllSdkResources(accountsMap, awsClient))
         .then(addAdditionalRelationships(accountsMap, awsClient))
-        .then(R.map(createSaveObject))
+        .then(R.map(createSaveObject));
+
+    return Promise.resolve(resources)
         .then(createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap))
         .then(persistResourcesAndRelationships(apiClient))
-        .then(() => persistAccounts(config, apiClient, accounts));
+        .then(processPersistenceFailures(dbResourcesMap, resources))
+        .then(createResourcesRegionMetadata)
+        .then(persistAccounts(config, apiClient, accounts));
 }
 
 module.exports = {

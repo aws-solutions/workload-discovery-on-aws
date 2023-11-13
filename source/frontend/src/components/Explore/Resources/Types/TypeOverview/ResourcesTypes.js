@@ -13,7 +13,7 @@ import { fetchImage } from '../../../../../Utils/ImageSelector';
 import { useCollection } from '@cloudscape-design/collection-hooks';
 import PropTypes from 'prop-types';
 import * as R from "ramda";
-import {useResourcesAccountMetadata} from "../../../../Hooks/useResourcesMetadata";
+import {useResourcesAccountMetadata, useResourcesMetadata} from "../../../../Hooks/useResourcesMetadata";
 import {groupSumBy} from "../../../../../Utils/ArrayUtils";
 import {
     createTableAriaLabels
@@ -22,8 +22,10 @@ import {
 const mapIndexed = R.addIndex(R.map);
 
 const ResourcesTypes = ({ accounts, onSelection }) => {
+  const { data: resources= {accounts: []}, isLoading: loadingResources } = useResourcesMetadata();
+  const accountsFilter = R.isEmpty(accounts) ? resources.accounts : accounts;
   const [selectedItems, setSelectedItems] = React.useState([]);
-  const { data=[], isLoading } = useResourcesAccountMetadata(accounts);
+  const { data=[], isLoading } = useResourcesAccountMetadata(accountsFilter, {batchSize: 50});
   const resourceTypes = R.compose(
     groupSumBy('type', 'count'),
     R.chain(e => e.resourceTypes)
@@ -88,7 +90,7 @@ const ResourcesTypes = ({ accounts, onSelection }) => {
           fallback: 'Unknown resource type'
       }, 'Resources types')}
       {...collectionProps}
-      loading={isLoading}
+      loading={loadingResources || isLoading}
       columnDefinitions={[
         {
           id: 'icon',

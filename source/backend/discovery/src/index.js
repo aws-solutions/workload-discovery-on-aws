@@ -24,8 +24,9 @@ const discover = async () => {
 };
 
 discover().catch(err => {
-  logger.error('Error in Discovery process.');
-  logger.error(err.message);
-  logger.debug(err);
+  logger.error('Error in Discovery process.', {
+      msg: err.message,
+      stack: err.stack
+  });
   process.exit(1);
 });

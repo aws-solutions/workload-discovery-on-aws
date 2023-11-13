@@ -123,7 +123,7 @@ describe('index.js', () => {
 
         it('should handle resource to large errors', async () => {
             const resources = [1,2].map(i => {
-                const properties = generateBaseResource(AWS_LAMBDA_FUNCTION, i);
+                const properties = generateBaseResource('xxxxxxxxxxxx', 'eu-west-1', AWS_LAMBDA_FUNCTION, i);
                 return {id: properties.id, label: 'label', md5Hash: '', properties};
             })
 
@@ -368,16 +368,11 @@ describe('index.js', () => {
                 },
                 createOrganizationsClient() {
                     return {
-                        async getAllAccounts() {
+                        async getAllActiveAccountsFromParent() {
                             return [
-                                {Id: ACCOUNT_X, Name: 'Account X', Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
+                                {Id: ACCOUNT_X, Name: 'Account X', isManagementAccount: true, Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
                                 {Id: ACCOUNT_Y, Name: 'Account Y', Arn: `arn:aws:organizations:::${ACCOUNT_Y}:account/o-exampleorgid/:${ACCOUNT_Y}`}
                             ]
-                        },
-                        async getRootAccount() {
-                            return {
-                                Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
-                            }
                         }
                     }
                 }
@@ -460,16 +455,11 @@ describe('index.js', () => {
                 },
                 createOrganizationsClient() {
                     return {
-                        async getAllAccounts() {
+                        async getAllActiveAccountsFromParent() {
                             return [
-                                {Id: ACCOUNT_X, Name: 'Account X', Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
+                                {Id: ACCOUNT_X, Name: 'Account X', isManagementAccount: true, Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
                                 {Id: ACCOUNT_Y, Name: 'Account Y', Arn: `arn:aws:organizations:::${ACCOUNT_Y}:account/o-exampleorgid/:${ACCOUNT_Y}`}
                             ]
-                        },
-                        async getRootAccount() {
-                            return {
-                                Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
-                            }
                         }
                     }
                 }
@@ -492,9 +482,9 @@ describe('index.js', () => {
                 name: 'Account Z',
                 organizationId: 'o-exampleorgid',
                 isIamRoleDeployed: true,
+
                 regions: [
-                    EU_WEST_1,
-                    US_EAST_1
+                    {name: EU_WEST_1}, {name: US_EAST_1}
                 ],
                 toDelete: true
             });
@@ -531,15 +521,10 @@ describe('index.js', () => {
                 },
                 createOrganizationsClient() {
                     return {
-                        async getAllAccounts() {
+                        async getAllActiveAccountsFromParent() {
                             return [
-                                {Id: ACCOUNT_X, Name: 'Account X', Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
+                                {Id: ACCOUNT_X, Name: 'Account X', isManagementAccount: true, Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`},
                             ]
-                        },
-                        async getRootAccount() {
-                            return {
-                                Arn: `arn:aws:organizations::${ACCOUNT_X}:account/o-exampleorgid/:${ACCOUNT_X}`
-                            }
                         }
                     }
                 }
@@ -551,7 +536,6 @@ describe('index.js', () => {
             const accounts = await client.getAccounts();
 
             const accX = accounts.find(x => x.accountId === ACCOUNT_X);
-            const accY = accounts.find(x => x.accountId === ACCOUNT_Y);
 
             assert.deepEqual(accX, {
                 accountId: ACCOUNT_X,

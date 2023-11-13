@@ -6,27 +6,16 @@ const R = require('ramda');
 const logger = require("../logger");
 const {
     AWS_KINESIS_STREAM,
-    AWS_EC2_LAUNCH_TEMPLATE,
-    AWS_EC2_TRANSIT_GATEWAY,
-    AWS_EC2_TRANSIT_GATEWAY_ATTACHMENT,
-    AWS_EC2_TRANSIT_GATEWAY_ROUTE_TABLE,
     AWS_EKS_CLUSTER,
     AWS_ECS_TASK_DEFINITION,
     AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
-    AWS_MSK_CLUSTER,
     AWS_OPENSEARCH_DOMAIN,
     AWS_SSM_MANAGED_INSTANCE_INVENTORY
 } = require("../constants");
 const {createArnWithResourceType, isDate, isString, isObject, objToKeyNameArray} = require('../utils')
 
 const unsupportedResourceTypes = [
-    AWS_KINESIS_STREAM,
-    AWS_EC2_LAUNCH_TEMPLATE,
-    AWS_EC2_TRANSIT_GATEWAY,
-    AWS_EC2_TRANSIT_GATEWAY_ATTACHMENT,
-    AWS_EC2_TRANSIT_GATEWAY_ROUTE_TABLE,
-    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
-    AWS_MSK_CLUSTER
+    AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER
 ];
 
 const resourceTypesToExclude = [
@@ -51,8 +40,8 @@ async function getAdvancedQueryUnsupportedResources(configServiceClient, aggrega
 
 function normaliseConfigurationItem(resource) {
     const {
-        arn, resourceType, accountId, awsRegion, resourceId, configuration, tags = [],
-        configurationItemCaptureTime
+        arn, resourceType, accountId, awsRegion, resourceId, configuration = {},
+        tags = [], configurationItemCaptureTime
     } = resource;
     resource.arn = arn ?? createArnWithResourceType({resourceType, accountId, awsRegion, resourceId});
     resource.id = resource.arn;
@@ -82,6 +71,7 @@ function normaliseConfigurationItem(resource) {
 
 async function getAllConfigResources(configServiceClient, configAggregatorName) {
     logger.profile('Time to download resources from Config');
+    logger.info('Retrieving resources from Config.');
 
     return Promise.all([
         getAdvancedQueryUnsupportedResources(configServiceClient, configAggregatorName),

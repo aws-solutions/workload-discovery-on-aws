@@ -79,6 +79,7 @@ Resources:
                   - dynamodb:DeleteItem
                   - dynamodb:GetItem
                   - dynamodb:UpdateItem
+                  - dynamodb:BatchGetItem
                   - dynamodb:BatchWriteItem
                 Resource: !GetAtt PerspectiveSettingsTable.Arn
               - Effect: Allow
@@ -96,6 +97,8 @@ Resources:
         rules_to_suppress:
           - id: W89
             reason: Lambda does not connect to any resources in a VPC
+          - id: W92
+            reason: Lambda does not need reserved concurrency
     Type: AWS::Serverless::Function
     Properties:
       Role: !GetAtt PerspectiveSettingsLambdaRole.Arn
@@ -105,9 +108,8 @@ Resources:
         Key: !Sub ${DeploymentBucketKey}/settings.zip
       Runtime: nodejs18.x
       Description: Lambda for Settings Appsync resolvers
-      Timeout: 10
+      Timeout: 15
       MemorySize: 1024
-      ReservedConcurrentExecutions: 10
       Tracing: Active
       Environment:
         Variables:
@@ -245,3 +247,8 @@ Resources:
       TypeName: Mutation
       FieldName: deleteAccounts
       DataSourceName: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
+
+Outputs:
+
+  AppSyncSettingsLambdaDataSourceName:
+    Value: !GetAtt PerspectiveAppSyncSettingsLambdaDataSource.Name
