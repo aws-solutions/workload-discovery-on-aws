@@ -482,6 +482,7 @@ Resources:
         VpcEndpointsSg: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VpcEndpointsSg, !Ref AWS::NoValue ]
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
+        OrganizationUnitId: !Ref OrganizationUnitId
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
         AppSyncApiUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
@@ -531,6 +532,7 @@ Resources:
         NeptuneClusterPort: !GetAtt NeptuneStack.Outputs.NeptuneEndpointPort
         NeptuneDbSg: !GetAtt NeptuneStack.Outputs.NeptuneDbSg
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        AppSyncSettingsLambdaDataSourceName: !GetAtt SettingsResolversStack.Outputs.AppSyncSettingsLambdaDataSourceName
         VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
         VPCCidrBlock: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]

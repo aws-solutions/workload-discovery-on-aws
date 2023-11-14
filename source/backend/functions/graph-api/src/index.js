@@ -167,97 +167,6 @@ function deleteResources({query}, resourceIds) {
     });
 }
 
-function getResourcesMetadata({query}) {
-    return query(async g => {
-        const q1 = g.V()
-            .groupCount().by('resourceType')
-            .project('resourceTypes', 'count')
-            .by(__.unfold().project('type', 'count')
-                .by(__.select(c.keys))
-                .by(__.select(c.values)).fold())
-            .by(__.coalesce(__.unfold().select(c.values).sum(), __.constant(0)))
-            .next()
-            .then(R.prop('value'));
-
-        const q2 = g.V().group().by('accountId').by(__.group().by('awsRegion'))
-            .unfold()
-            .project('accountId', 'regions')
-            .by(__.select(c.keys))
-            .by(
-                __.select(c.values)
-                    .unfold()
-                    .project('name')
-                    .by(__.select(c.keys))
-                    .fold())
-            .toList();
-
-        // it is quicker to do two concurrent queries than a single query using `.union`
-        const [resourceCount, accounts] = await Promise.all([q1, q2]);
-        return {
-            ...resourceCount,
-            accounts
-        }
-    });
-}
-
-function getResourcesAccountMetadata({query}, accounts) {
-    return query(async g => {
-        let q = g.V().has('accountId').has('awsRegion');
-
-        if (!R.isEmpty(accounts)) {
-            q = q.or(...createAccountPredicates(accounts));
-        }
-
-        return q
-            .group().by('accountId')
-            .unfold()
-            .project('accountId', 'count', 'resourceTypes')
-            .by(__.select(c.keys))
-            .by(__.select(c.values).unfold().count())
-            .by(__.select(c.values)
-                .unfold()
-                .groupCount().by('resourceType')
-                .unfold()
-                .project('type', 'count').by(__.select(c.keys)).by(__.select(c.values))
-                .fold())
-            .toList()
-    })
-}
-
-function getResourcesRegionMetadata({query}, accounts) {
-    return query(async g => {
-        let q = g.V().has('accountId').has('awsRegion');
-
-        if (!R.isEmpty(accounts)) {
-            q = q.or(...createAccountPredicates(accounts));
-        }
-
-        return q
-            .group().by('accountId').by(__.group().by('awsRegion'))
-            .unfold()
-            .project('accountId', 'count', 'regions')
-            .by(__.select(c.keys))
-            .by(__.select(c.values).select(c.values).unfold().unfold().count())
-            .by(
-                __.select(c.values)
-                    .unfold()
-                    .project('name', 'count', 'resourceTypes')
-                    .by(__.select(c.keys))
-                    .by(__.select(c.values).unfold().count().sum())
-                    .by(
-                        __.select(c.values)
-                            .unfold()
-                            .groupCount().by('resourceType')
-                            .unfold()
-                            .project('type', 'count')
-                            .by(__.select(c.keys))
-                            .by(__.select(c.values))
-                            .fold())
-                    .fold())
-            .toList();
-    });
-}
-
 const isArn = R.test(/arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):.*/);
 const MAX_PAGE_SIZE = 2500;
 
@@ -266,6 +175,9 @@ function handler(gremlinClient) {
         withRequest(event, context);
 
         const args = event.arguments;
+        const fieldName = event.info.fieldName;
+
+        logger.info({arguments: args, operation: fieldName}, 'GraphQL arguments:');
 
         const pagination = args?.pagination ?? {start: 0, end: 1000};
 
@@ -273,9 +185,7 @@ function handler(gremlinClient) {
             return Promise.reject(new Error(`Maximum page size is ${MAX_PAGE_SIZE}.`));
         }
 
-        logger.info({arguments: args}, 'GraphQL arguments:');
-
-        switch (event.info.fieldName) {
+        switch (fieldName) {
             case 'addRelationships':
                 return addRelationships(gremlinClient, args.relationships);
             case 'deleteRelationships':
@@ -301,12 +211,6 @@ function handler(gremlinClient) {
                     throw new Error('The following ARNs are invalid: ' + invalidArns);
                 }
                 return getResourceGraph(gremlinClient, {ids: args.ids, pagination});
-            case 'getResourcesMetadata':
-                return getResourcesMetadata(gremlinClient);
-            case 'getResourcesAccountMetadata':
-                return getResourcesAccountMetadata(gremlinClient, args.accounts ?? []);
-            case 'getResourcesRegionMetadata':
-                return getResourcesRegionMetadata(gremlinClient, args.accounts ?? []);
             case 'updateResources':
                 return updateResources(gremlinClient, args.resources);
             default:

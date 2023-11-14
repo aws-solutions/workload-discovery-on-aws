@@ -18,7 +18,7 @@ export function response(ctx) {
     });
 
     if (error != null) {
-        return util.appendError(error.message, error.type, result);
+        return util.error(error.message, error.type, result);
     }
     return result;
 }

@@ -39,6 +39,9 @@ Parameters:
   NeptuneClusterResourceId:
     Type: String
 
+  AppSyncSettingsLambdaDataSourceName:
+    Type: String
+
   CustomUserAgent: 
     Type: String
 
@@ -287,19 +290,7 @@ Resources:
       CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesMetadata
-      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
-
-  PerspectiveAppSyncGetResourcesRegionMetadataResolver:
-    Type: AWS::AppSync::Resolver
-    Properties:
-      ApiId: !Ref PerspectiveAppSyncApiId
-      Runtime:
-        Name: APPSYNC_JS
-        RuntimeVersion: 1.0.0
-      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
-      TypeName: Query
-      FieldName: getResourcesRegionMetadata
-      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
+      DataSourceName: !Ref AppSyncSettingsLambdaDataSourceName
 
   PerspectiveAppSyncGetResourcesAccountMetadataResolver:
     Type: AWS::AppSync::Resolver
@@ -311,4 +302,16 @@ Resources:
       CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesAccountMetadata
-      DataSourceName: !GetAtt PerspectiveAppSyncGremlinLambdaDataSource.Name
+      DataSourceName: !Ref AppSyncSettingsLambdaDataSourceName
+
+  PerspectiveAppSyncGetResourcesRegionMetadataResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+      TypeName: Query
+      FieldName: getResourcesRegionMetadata
+      DataSourceName: !Ref AppSyncSettingsLambdaDataSourceName

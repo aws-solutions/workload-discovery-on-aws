@@ -13,6 +13,8 @@ import {ResourceProvider} from "../../../../../components/Contexts/ResourceConte
 import {resourceReducer} from "../../../../../components/Contexts/Reducers/ResourceReducer";
 import {DiagramSettingsProvider} from "../../../../../components/Contexts/DiagramSettingsContext";
 import userEvent from "@testing-library/user-event";
+import {server} from "../../../../mocks/server";
+import {graphql} from "msw";
 
 function renderResourcesPage() {
     const queryClient = new QueryClient({
@@ -97,7 +99,103 @@ describe('Resource Page', () => {
         // this value is the number of resources returned by the mocked
         // `SearchResources` GQL query
         await screen.findByRole('heading', {level: 2, name: /Resources \(29\)/});
+    });
 
+    it('should retrieve account metadata in batches of 50', async () => {
+        renderResourcesPage();
+
+        server.use(
+            graphql.query('GetResourcesMetadata', async (req, res, ctx) => {
+                const accounts = [];
+
+                for(let i = 0; i < 100; i++) {
+                    const paddedNum = i.toString().padStart(2, 'O');
+                    accounts.push({
+                        accountId: `xxxxxxxxxx${paddedNum}`,
+                        regions: [
+                            {name: 'eu-west-1'}
+                        ]
+                    });
+                }
+
+                return res(ctx.data({
+                    getResourcesMetadata: {
+                        count: 100,
+                        accounts,
+                        resourceTypes: [
+                            {
+                                count: 100,
+                                type: 'AWS::IAM::Role'
+                            }
+                        ]
+                    }
+                }));
+            }),
+            graphql.query('GetResourcesAccountMetadata', (req, res, ctx) => {
+                const reqAccounts = req.variables.accounts;
+                const accounts = reqAccounts.map(({accountId}) => {
+                    return {
+                        accountId,
+                        count: 1,
+                        resourceTypes: [
+                            {
+                                count: 1,
+                                type: 'AWS::IAM::Role'
+                            }
+                        ]
+                    }
+                });
+                return res(ctx.data({getResourcesAccountMetadata: accounts}));
+            }),
+            graphql.query('GetResourcesRegionMetadata', (req, res, ctx) => {
+                const reqAccounts = req.variables.accounts;
+                const accounts = reqAccounts.map(({accountId}) => {
+                    return {
+                        accountId,
+                        count: 1,
+                        regions: [
+                            {
+                                count: 1,
+                                name: 'eu-west-1',
+                                resourceTypes: [
+                                    {
+                                        count: 1,
+                                        type: 'AWS::IAM::Role'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                });
+                return res(ctx.data({getResourcesRegionMetadata: accounts}));
+            })
+        );
+
+        const Overview = await screen.findByTestId('resources-metadata-overview');
+
+        const resourcesDiscoveredParent = await findByText(Overview, /Resources discovered/);
+
+        const resourcesDiscovered = getByText(resourcesDiscoveredParent.parentElement, /\d+/);
+
+        expect(resourcesDiscovered).toHaveTextContent(100);
+
+        const resourcesTypesParent = await findByText(Overview,/Resources types/);
+
+        const resourcesTypes = getByText(resourcesTypesParent.parentElement, /\d+/);
+
+        expect(resourcesTypes).toHaveTextContent(1);
+
+        const accountsParent = await findByText(Overview,/Accounts/);
+        const accounts = getByText(accountsParent.parentElement, /\d+/);
+
+        expect(accounts).toHaveTextContent(100);
+
+        const regionsParent = await findByText(Overview,/Regions/);
+        const regions = getByText(regionsParent.parentElement, /\d+/);
+
+        expect(regions).toHaveTextContent(100);
+
+        await screen.findByRole('heading', {level: 2, name: /Resources types \(1\)/});
     });
 
     it('should filter resources by account id and resource type', async () => {

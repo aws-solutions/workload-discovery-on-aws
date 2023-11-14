@@ -110,6 +110,7 @@ module.exports = {
     OPENSEARCH: 'OpenSearch',
     SECURITY_GROUP: 'SecurityGroup',
     RESOURCE_DISCOVERED:  'ResourceDiscovered',
+    RESOURCE_NOT_RECORDED:  'ResourceNotRecorded',
     EC2: 'ec2',
     SPOT_FLEET_REQUEST: 'spot-fleet-request',
     SPOT_INSTANCE_REQUEST: 'spot-instance-request',
@@ -133,6 +134,7 @@ module.exports = {
     AWS_CN: 'aws-cn',
     AWS_US_GOV: 'aws-us-gov',
     CONNECTION_CLOSED_PREMATURELY: 'Connection closed prematurely',
+    RESOLVER_CODE_SIZE_ERROR: 'Reached evaluated resolver code size limit.',
     PERSPECTIVE: 'perspective',
     TASK_DEFINITION: 'task-definition',
     TRANSIT_GATEWAY_ATTACHMENT: 'transit-gateway-attachment',
@@ -144,6 +146,6 @@ module.exports = {
     S3: 's3',
     HOME: 'home',
     FULFILLED: 'fulfilled',
-    FUNCTION_RESPONSE_SIZE_TOO_LARGE: 'Function.ResponseSizeTooLarge',
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE: 'Response payload size exceeded maximum allowed payload size (6291556 bytes).',
     WORKLOAD_DISCOVERY_TASKGROUP: 'workload-discovery-taskgroup'
 }

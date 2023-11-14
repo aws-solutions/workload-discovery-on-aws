@@ -10,7 +10,8 @@ import {useDeepCompareEffect} from "react-use";
 
 const RegionMultiSelect = ({accounts=[], selected=[], onChange=() => ({}), onOptionsChange=() => ({}), disabled=false}) => {
   const { data=[], isLoading, status } = useResourcesRegionMetadata(accounts.map(i => ({accountId: i})), {
-    enabled: !disabled
+    enabled: !disabled,
+    batchSize: 50
   });
   const toRegions = R.chain((e) => e.regions)
   const regions = toRegions(data);

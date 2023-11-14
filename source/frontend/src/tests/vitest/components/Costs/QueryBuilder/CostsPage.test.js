@@ -145,7 +145,7 @@ describe('Costs Page', () => {
             await verifyOverview(Overview, resourceData);
 
             await verifyDefaultDates(Overview);
-        }, 7000);
+        }, {timeout: 7000});
 
         it('should display cost by service data', async () => {
             renderCostsPage();

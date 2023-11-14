@@ -45,7 +45,9 @@ Resources:
     Properties:
       OriginAccessControlConfig:
         Description: Workload Discovery Web UI
-        Name: !Sub ${AWS::StackName}-WD-WebUI-OAC
+        Name: !Sub
+          - WD-WebUI-OAC-${uuid}
+          - uuid: !Select [2, !Split ['/', !Ref 'AWS::StackId']]
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4

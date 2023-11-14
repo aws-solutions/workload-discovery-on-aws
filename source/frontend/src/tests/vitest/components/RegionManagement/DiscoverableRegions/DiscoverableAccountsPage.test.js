@@ -187,7 +187,7 @@ describe('Discoverable Accounts Page', () => {
             expect(tableRows).toHaveLength(1);
 
             verifyBodyCells(accounts, table, 1, 0);
-        }, 10000);
+        }, {timeout: 10000});
 
         it('should import an account with multiple regions', async () => {
             const accounts = [];

@@ -24,7 +24,7 @@ const {
     AWS_SNS_TOPIC,
     AWS_SQS_QUEUE
 } = require('../src/lib/constants');
-const {generate} = require('./generator');
+const {generate, generateBaseResource, generateRandomInt} = require('./generator');
 const createResourceAndRelationshipDeltas = require('../src/lib/createResourceAndRelationshipDeltas');
 
 describe('createResourceAndRelationshipDeltas',  () => {
@@ -309,7 +309,7 @@ describe('createResourceAndRelationshipDeltas',  () => {
             } = createResourceAndRelationshipDeltas(dbResourcesMap, dbRelationshipsMap, Object.values(resources));
 
             assert.lengthOf(linksToAdd, 0)
-            assert.lengthOf(linksToDelete, 0);;
+            assert.lengthOf(linksToDelete, 0);
         });
 
         it('should handle relationships that have been deleted', async () => {

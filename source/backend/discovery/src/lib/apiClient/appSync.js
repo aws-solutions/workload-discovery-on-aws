@@ -6,7 +6,11 @@ const {request} = require('undici');
 const retry = require('async-retry');
 const aws4 = require('aws4');
 const logger = require('../logger');
-const {CONNECTION_CLOSED_PREMATURELY, FUNCTION_RESPONSE_SIZE_TOO_LARGE} = require("../constants");
+const {
+    CONNECTION_CLOSED_PREMATURELY,
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE,
+    RESOLVER_CODE_SIZE_ERROR
+} = require("../constants");
 
 async function sendQuery(opts, name, {query, variables = {}}) {
     const sigOptions = {
@@ -39,17 +43,17 @@ async function sendQuery(opts, name, {query, variables = {}}) {
                 const {errors} = body;
                 if (errors != null) {
                     if(errors.length === 1) {
-                        const {errorType, message} = R.head(errors);
+                        const {message} = R.head(errors);
                         // this transient error can happen due to a bug in the Gremlin client library
                         // that the appSync lambda uses, 1 retry is normally sufficient
                         if(message === CONNECTION_CLOSED_PREMATURELY) {
                             throw new Error(message);
                         }
-                        if(errorType === FUNCTION_RESPONSE_SIZE_TOO_LARGE) {
-                            return bail(new Error(errorType));
+                        if([RESOLVER_CODE_SIZE_ERROR, FUNCTION_RESPONSE_SIZE_TOO_LARGE].includes(message)) {
+                            return bail(new Error(message));
                         }
                     }
-                    logger.error('Error executing gql request', {errors: body.errors})
+                    logger.error('Error executing gql request', {errors: body.errors, query, variables})
                     return bail(new Error(JSON.stringify(errors)));
                 }
                 return body.data[name];
@@ -77,7 +81,7 @@ function createPaginator(operation, PAGE_SIZE) {
                 pageSize = PAGE_SIZE;
                 end = end + pageSize;
             } catch(err) {
-                if(err.message === FUNCTION_RESPONSE_SIZE_TOO_LARGE) {
+                if([RESOLVER_CODE_SIZE_ERROR, FUNCTION_RESPONSE_SIZE_TOO_LARGE].includes(err.message)) {
                     pageSize = Math.floor(pageSize / 2);
                     logger.debug(`Lambda response size too large, reducing page size to ${pageSize}`);
                     end = start + pageSize;
@@ -96,6 +100,7 @@ const getAccounts = opts => async () => {
         getAccounts {
           accountId
           lastCrawled
+          name
           regions {
             name
           }
@@ -282,16 +287,16 @@ const addAccounts = opts => async accounts => {
     return sendQuery(opts, name, {query, variables});
 }
 
-const updateAccount = opts => async (accountId, accountName, isIamRoleDeployed, lastCrawled) => {
+const updateAccount = opts => async (accountId, accountName, isIamRoleDeployed, lastCrawled, resourcesRegionMetadata) => {
     const name = 'updateAccount';
     const query = `
-    mutation ${name}($accountId: String!, $name: String, $isIamRoleDeployed: Boolean, $lastCrawled: AWSDateTime) {
-      ${name}(accountId: $accountId, name: $name, isIamRoleDeployed: $isIamRoleDeployed, lastCrawled: $lastCrawled) {
+    mutation ${name}($accountId: String!, $name: String, $isIamRoleDeployed: Boolean, $lastCrawled: AWSDateTime, $resourcesRegionMetadata: ResourcesRegionMetadataInput) {
+      ${name}(accountId: $accountId, name: $name, isIamRoleDeployed: $isIamRoleDeployed, lastCrawled: $lastCrawled, resourcesRegionMetadata: $resourcesRegionMetadata) {
         accountId
         lastCrawled
       }
     }`;
-    const variables = {accountId, name: accountName, lastCrawled, isIamRoleDeployed};
+    const variables = {accountId, name: accountName, lastCrawled, isIamRoleDeployed, resourcesRegionMetadata};
     return sendQuery(opts, name, {query, variables});
 };
 

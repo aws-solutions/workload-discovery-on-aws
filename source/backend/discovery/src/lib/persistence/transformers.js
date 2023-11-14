@@ -40,6 +40,7 @@ const {
     REGION
 } = require("../constants");
 const {hash, resourceTypesToHash} = require("../utils");
+const logger = require("../logger");
 
 const defaultUrlMappings = {
     [AWS_EC2_VPC]: { url: 'vpcs:sort=VpcId', type: VPC.toLowerCase()},
@@ -202,4 +203,61 @@ function createSaveObject(resource) {
     };
 }
 
-module.exports = {createSaveObject};
+function createResourcesRegionMetadata(resources) {
+    logger.profile('Time to createResourcesRegionMetadata');
+
+    const grouped = R.groupBy(({properties}) => {
+        const {accountId, awsRegion, resourceType} = properties;
+        return `${accountId}__${awsRegion}__${resourceType}`;
+    }, resources);
+
+    const regionsObj = Object.entries(grouped)
+        .reduce((acc, [key, resources]) => {
+            const [accountId, awsRegion, resourceType] = key.split('__');
+
+            const regionKey = `${accountId}__${awsRegion}`;
+
+            if(acc[regionKey] == null) {
+                acc[regionKey] = {
+                    count: 0,
+                    resourceTypes: []
+                };
+            }
+
+            acc[regionKey].count = acc[regionKey].count + resources.length;
+            acc[regionKey].name = awsRegion;
+            acc[regionKey].resourceTypes.push({
+                count: resources.length,
+                type: resourceType
+            });
+
+            return acc;
+        }, {});
+
+    const metadata = Object.entries(regionsObj)
+        .reduce((acc, [key, resourceTypes]) => {
+            const [accountId] = key.split('__');
+
+            if(!acc.has(accountId)) {
+                acc.set(accountId, {
+                    accountId,
+                    count: 0,
+                    regions: []
+                });
+            }
+
+            const account = acc.get(accountId)
+
+            account.count = account.count + resourceTypes.count;
+            account.regions.push(resourceTypes);
+
+            return acc;
+        }, new Map());
+
+    logger.profile('Time to createResourcesRegionMetadata');
+
+    return metadata;
+}
+
+
+module.exports = {createSaveObject, createResourcesRegionMetadata};

@@ -17,9 +17,10 @@ import {
 import ValueWithLabel from '../../Shared/ValueWithLabel';
 
 const ResourceOverview = () => {
-  const { data: accounts=[], isLoading: loadingAccounts } = useResourcesAccountMetadata();
-  const { data: regions=[], isLoading: loadingRegions } = useResourcesRegionMetadata();
-  const { data: resources=[], isLoading: loadingResources } = useResourcesMetadata();
+  const { data: resources= {accounts: []}, isLoading: loadingResources } = useResourcesMetadata();
+  const accountsFilter = resources.accounts.map(({accountId}) => ({accountId}));
+  const { data: accounts=[], isLoading: loadingAccounts } = useResourcesAccountMetadata(accountsFilter, {batchSize: 50});
+  const { data: regions=[], isLoading: loadingRegions } = useResourcesRegionMetadata(accountsFilter, {batchSize: 50});
 
   const regionCount = R.reduce((acc, val) => R.add(acc, R.length(val.regions)), 0, regions);
 

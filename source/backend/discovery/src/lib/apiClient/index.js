@@ -36,7 +36,7 @@ function getDbResourcesMap(appSync) {
 }
 
 function getDbRelationshipsMap(appSync) {
-    const pageSize = 2000;
+    const pageSize = 2500;
 
     function getDbRelationships(pagination, relationshipsMap= new Map()) {
         return appSync.getRelationships({pagination})
@@ -65,15 +65,17 @@ function process(processor) {
         .process(processor);
 }
 
-
 function updateCrawledAccounts(appSync) {
     return async accounts => {
         const {errors, results} = await PromisePool
             .withConcurrency(10) // the reserved concurrency of the settings lambda is 10
             .for(accounts)
-            .process(async ({accountId, name, isIamRoleDeployed, lastCrawled}) => {
+            .process(async ({accountId, name, isIamRoleDeployed, lastCrawled, resourcesRegionMetadata}) => {
                 return appSync.updateAccount(
-                    accountId, name, isIamRoleDeployed, isIamRoleDeployed ? new Date().toISOString() : lastCrawled
+                    accountId,
+                    name,
+                    isIamRoleDeployed, isIamRoleDeployed ? new Date().toISOString() : lastCrawled,
+                    resourcesRegionMetadata
                 );
             });
 
@@ -102,17 +104,22 @@ function addCrawledAccounts(appSync) {
 }
 
 async function getOrgAccounts(
-    {ec2Client, organizationsClient, configClient}, appSyncClient, {configAggregator}
+    {ec2Client, organizationsClient, configClient}, appSyncClient, {configAggregator, organizationUnitId}
 ) {
-    const [{Arn: managementAccountArn}, dbAccounts, orgAccounts, {OrganizationAggregationSource}, regions] = await Promise.all([
-        organizationsClient.getRootAccount(),
+
+    const [dbAccounts, orgAccounts, {OrganizationAggregationSource}, regions] = await Promise.all([
         appSyncClient.getAccounts(),
-        organizationsClient.getAllAccounts(),
+        organizationsClient.getAllActiveAccountsFromParent(organizationUnitId),
         configClient.getConfigAggregator(configAggregator),
         ec2Client.getAllRegions()
     ]);
 
+    logger.info(`Organization source info.`, {OrganizationAggregationSource});
+
     const dbAccountsMap = new Map(dbAccounts.map(x => [x.accountId, x]));
+
+    logger.info('Accounts from db.', {dbAccounts});
+
     const orgAccountsMap = new Map(orgAccounts.map(x => [x.Id, x]));
 
     const deletedAccounts = dbAccounts.reduce((acc, account) => {
@@ -123,20 +130,18 @@ async function getOrgAccounts(
         return acc;
     }, []);
 
-    const managementAccountId = parseArn(managementAccountArn).accountId;
-
     return orgAccounts
-        .map(({Id, Name: name, Arn}) => {
+        .map(({Id, isManagementAccount, Name: name, Arn}) => {
             const [, organizationId] = parseArn(Arn).resource.split('/');
             const lastCrawled = dbAccountsMap.get(Id)?.lastCrawled;
             return {
                 accountId: Id,
                 organizationId,
                 name,
-                ...(managementAccountId === Id ? {isManagementAccount: true} : {}),
+                ...(isManagementAccount ? {isManagementAccount} : {}),
                 ...(lastCrawled != null ? {lastCrawled} : {}),
                 regions: OrganizationAggregationSource.AllAwsRegions
-                    ? regions : OrganizationAggregationSource.AwsRegions,
+                    ? regions.map(x => x.name) : OrganizationAggregationSource.AwsRegions,
                 toDelete: dbAccountsMap.has(Id) && !orgAccountsMap.has(Id)
             };
         })
@@ -196,10 +201,9 @@ module.exports = {
             getAccounts: profileAsync('Time to get accounts', () => {
                 const accountsP = config.isUsingOrganizations
                     ? getOrgAccounts({ec2Client, organizationsClient, configClient}, appSync, config)
-                    : appSync.getAccounts();
+                    : appSync.getAccounts().then(R.map(R.evolve({regions: R.map(x => x.name)})));
 
                 return accountsP
-                    .then(R.map(R.evolve({regions: R.map(x => x.name)})))
                     .then(addAccountCredentials({stsClient}, config.rootAccountId))
             }),
             addCrawledAccounts: addCrawledAccounts(appSync),

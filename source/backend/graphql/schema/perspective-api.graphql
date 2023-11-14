@@ -18,6 +18,7 @@ type Account @aws_cognito_user_pools @aws_iam {
   # The regions AWS Perspective is enabled on
   regions: [Region]!
   lastCrawled: AWSDateTime
+  resourcesRegionMetadata: ResourcesRegionMetadata
 }
 
 # Top level properties of AWS account that AWS Perspective is scanning
@@ -35,6 +36,23 @@ input RegionInput {
   lastCrawled: AWSDateTime
 }
 
+input ResourceCountInput {
+    count: Int
+    type: String
+}
+
+input ResourceRegionCountInput {
+    count: Int
+    name: String
+    resourceTypes: [ResourceCountInput]
+}
+
+input ResourcesRegionMetadataInput {
+    accountId: String
+    count: Int
+    regions: [ResourceRegionCountInput]
+}
+
 input AccountInput {
   # The AWS account number
   accountId: String!
@@ -48,6 +66,7 @@ input AccountInput {
   # then all regions will be returned
   regions: [RegionInput]
   lastCrawled: AWSDateTime
+  resourcesRegionMetadata: ResourcesRegionMetadataInput
 }
 
 input ResourcePropertiesInput {
@@ -178,6 +197,7 @@ type Mutation {
     lastCrawled: AWSDateTime
     name: String
     isIamRoleDeployed: Boolean
+    resourcesRegionMetadata: ResourcesRegionMetadataInput
   ): AccountMetadata @aws_iam
   # Updates one or more regions to be scanned
   updateRegions(accountId: String!, regions: [RegionInput]!): Account

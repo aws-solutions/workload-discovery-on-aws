@@ -1,12 +1,16 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+const logger = require('./logger');
 const pThrottle = require('p-throttle');
+const {parse: parseArn} = require("@aws-sdk/util-arn-parser");
 const {customUserAgent} = require('./config');
 const {
     Organizations,
     OrganizationsClient,
-    paginateListAccounts
+    paginateListAccounts,
+    paginateListAccountsForParent,
+    paginateListOrganizationalUnitsForParent
 } = require("@aws-sdk/client-organizations");
 const {APIGateway, APIGatewayClient, paginateGetResources} = require("@aws-sdk/client-api-gateway");
 const {
@@ -82,21 +86,73 @@ function createOrganizationsClient(credentials, region) {
         client: new OrganizationsClient({customUserAgent, region, credentials})
     };
 
-    return {
-        async getRootAccount() {
-            const {Roots} = await organizationsClient.listRoots({});
-            return Roots[0];
-        },
-        async getAllAccounts() {
-            const listAccountsPaginator = paginateListAccounts(paginatorConfig, {});
+    const getAllAccountsThrottler = createThrottler('getAllAccounts', credentials, region, {
+        limit: 1,
+        interval: 1000
+    });
 
-            const accounts = []
+    const getAllFromParentThrottler = createThrottler('getAllFromParent', credentials, region, {
+        limit: 1,
+        interval: 1000
+    });
 
-            for await (const {Accounts} of listAccountsPaginator) {
+    async function getAllAccounts() {
+        const listAccountsPaginator = paginateListAccounts(paginatorConfig, {});
+
+        const accounts = []
+
+        for await (const {Accounts} of throttledPaginator(getAllAccountsThrottler, listAccountsPaginator)) {
+            accounts.push(...Accounts);
+        }
+
+        return accounts;
+    }
+
+    async function getAllAccountsFromParent(ouId) {
+        const ouIds = [ouId];
+
+        // we will do these serially so as not to encounter rate limiting
+        for(const id of ouIds) {
+            const paginator =
+                throttledPaginator(getAllFromParentThrottler, paginateListOrganizationalUnitsForParent(paginatorConfig, {ParentId: id}));
+            for await (const {OrganizationalUnits} of paginator) {
+                ouIds.push(...OrganizationalUnits.map(x => x.Id));
+            }
+        }
+
+        const accounts = [];
+
+        for(const id of ouIds) {
+            const paginator =
+                throttledPaginator(getAllFromParentThrottler, paginateListAccountsForParent(paginatorConfig, {ParentId: id}));
+            for await (const {Accounts} of paginator) {
                 accounts.push(...Accounts);
             }
+        }
 
-            return accounts;
+        return accounts;
+    }
+
+    return {
+        async getAllActiveAccountsFromParent(ouId) {
+            const {Roots} = await organizationsClient.listRoots({});
+            const {Id: rootId, Arn: managementAccountArn} = Roots[0];
+            const managementAccountId = parseArn(managementAccountArn).accountId;
+
+            const accounts = await (ouId === rootId ? getAllAccounts() : getAllAccountsFromParent(ouId));
+
+            const activeAccounts = accounts
+                .filter(account => account.Status === 'ACTIVE')
+                .map(account => {
+                    if(account.Id === managementAccountId) {
+                        account.isManagementAccount = true;
+                    }
+                    return account;
+                });
+
+            logger.info(`All active accounts from organization unit ${ouId} retrieved, ${activeAccounts.length} retrieved.`);
+
+            return activeAccounts;
         }
     };
 }
@@ -171,6 +227,13 @@ function createConfigServiceClient(credentials, region) {
         pageSize: 100
     };
 
+    const selectAggregateResourceConfigThrottler = createThrottler(
+        'selectAggregateResourceConfig', credentials, region, {
+            limit: 8,
+            interval: 1000
+        }
+    );
+
     const batchGetAggregateResourceConfigThrottler = createThrottler(
         'batchGetAggregateResourceConfig', credentials, region, {
             limit: 15,
@@ -190,6 +253,7 @@ function createConfigServiceClient(credentials, region) {
             return ConfigurationAggregators[0];
         },
         async getAllAggregatorResources(aggregatorName, {excludes: {resourceTypes: excludedResourceTypes = []}}) {
+            logger.info('Getting resources with advanced query');
             const excludedResourceTypesSqlList = excludedResourceTypes.map(rt => `'${rt}'`).join(',');
             const excludesResourceTypesWhere = R.isEmpty(excludedResourceTypes) ?
                 '' : `WHERE resourceType NOT IN (${excludedResourceTypesSqlList})`;
@@ -208,10 +272,11 @@ function createConfigServiceClient(credentials, region) {
 
             const resources = []
 
-            for await (const page of paginator) {
+            for await (const page of throttledPaginator(selectAggregateResourceConfigThrottler, paginator)) {
                 resources.push(...R.map(JSON.parse, page.Results));
             }
 
+            logger.info(`${resources.length} resources downloaded from Config advanced query`);
             return resources;
         },
         async getAggregatorResources(aggregatorName, resourceType) {

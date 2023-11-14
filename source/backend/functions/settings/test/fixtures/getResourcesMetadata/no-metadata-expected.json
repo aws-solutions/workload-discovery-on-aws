@@ -1,0 +1,62 @@
+{
+  "count": 87,
+  "accounts": [
+    {
+      "accountId": "111111111111",
+      "regions": [
+        {
+          "name": "eu-west-1"
+        },
+        {
+          "name": "eu-west-2"
+        }
+      ]
+    }
+  ],
+  "resourceTypes": [
+    {
+      "count": 6,
+      "type": "AWS::CloudFormation::Stack"
+    },
+    {
+      "count": 3,
+      "type": "AWS::SNS::Topic"
+    },
+    {
+      "count": 7,
+      "type": "AWS::Events::Rule"
+    },
+    {
+      "count": 7,
+      "type": "AWS::Lambda::Function"
+    },
+    {
+      "count": 4,
+      "type": "AWS::Cassandra::Keyspace"
+    },
+    {
+      "count": 1,
+      "type": "AWS::Config::ConfigurationRecorder"
+    },
+    {
+      "count": 1,
+      "type": "AWS::EventSchemas::Registry"
+    },
+    {
+      "count": 1,
+      "type": "AWS::Events::EventBus"
+    },
+    {
+      "count": 20,
+      "type": "AWS::IAM::Role"
+    },
+    {
+      "count": 16,
+      "type": "AWS::IAM::InlinePolicy"
+    },
+    {
+      "count": 21,
+      "type": "AWS::Tags::Tag"
+    }
+  ]
+}
