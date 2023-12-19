@@ -18,7 +18,7 @@ import {
   focusOnResources,
   groupResources,
   removeResource,
-  saveDiagram, hideCosts,
+  hideCosts,
 } from '../Canvas/Commands/CanvasCommands';
 import {Prompt, useHistory, useParams} from 'react-router-dom';
 import { COST_REPORT, DRAW, EXPORT } from '../../../../routes';
@@ -27,11 +27,21 @@ import {fetchCosts} from "../../../../API/Processors/NodeProcessors";
 import {aggregateCostData} from "../../../../Utils/Resources/CostCalculator";
 import PropTypes from "prop-types";
 import * as R from "ramda";
-import {diagramsPrefix, useRemoveObject} from "../../../Hooks/useS3Objects";
+import {diagramsPrefix, usePutObject, useRemoveObject} from "../../../Hooks/useS3Objects";
 import {usePrevious} from "react-use";
+import {DEFAULT_COSTS_INTERVAL} from "../../../../config/constants";
 
-const today = dayjs().format("YYYY-MM-DD")
-const fiveDaysAgo = dayjs().subtract(5, "day").format('YYYY-MM-DD')
+function normalizeInterval(interval) {
+    if(interval.type !== 'relative') return interval;
+
+    return {
+        type: 'relative',
+        startDate: dayjs()
+            .subtract(interval.amount, interval.unit)
+            .format('YYYY-MM-DD'),
+        endDate: dayjs().format('YYYY-MM-DD'),
+    }
+}
 
 const DiagramControlPanel = ({
   settings
@@ -47,8 +57,9 @@ const DiagramControlPanel = ({
   const [statusMessage, setStatusMessage] = useState();
   const [hasLoadedCosts, setHasLoadedCosts] = useState(false);
   const [loadingCosts, setLoadingCosts] = useState(false);
-  const { endDate=today, startDate=fiveDaysAgo } = settings?.costInterval ?? {};
+  const { endDate, startDate } = normalizeInterval(settings?.costInterval ?? DEFAULT_COSTS_INTERVAL);
   const {removeAsync} = useRemoveObject(diagramsPrefix);
+  const {putAsync} = usePutObject(diagramsPrefix)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const previousResources = usePrevious(resources);
 
@@ -145,7 +156,12 @@ const DiagramControlPanel = ({
         );
         break;
       case 'save':
-        saveDiagram(canvas, settings)
+        putAsync({
+            key: canvas.data('name'),
+            level: canvas.data('visibility'),
+            type: 'application/json',
+            content: JSON.stringify({...canvas.json().elements, settings})
+        })
           .then(() => setStatusMessage({
             type: "success",
             action: "save",
@@ -299,8 +315,11 @@ const DiagramControlPanel = ({
 DiagramControlPanel.propTypes = {
   settings: PropTypes.shape({
     costsInterval: PropTypes.shape({
+      type: PropTypes.string,
       startDate: PropTypes.string,
-      endDate: PropTypes.string
+      endDate: PropTypes.string,
+      unit: PropTypes.string,
+      amount: PropTypes.number
     }),
     hideSelected: PropTypes.bool,
     hideEdges: PropTypes.bool,

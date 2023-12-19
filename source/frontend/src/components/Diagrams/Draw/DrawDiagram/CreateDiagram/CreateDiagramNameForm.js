@@ -18,6 +18,7 @@ import * as R  from 'ramda';
 import validFilename from 'valid-filename';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import {DEFAULT_COSTS_INTERVAL} from "../../../../../config/constants";
 dayjs.extend(relativeTime);
 
 const mapIndexed = R.addIndex(R.map);
@@ -48,7 +49,7 @@ const CreateDiagramNameForm = ({ direction }) => {
       content: JSON.stringify({
         ...(canvas?.json().elements ?? {nodes: [], edges: []}),
         settings: {
-          costInterval: null,
+          costInterval: DEFAULT_COSTS_INTERVAL,
           accounts: [],
           regions: [],
           resourceTypes: [],

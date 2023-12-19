@@ -12,23 +12,24 @@ import { getStateInformation } from '../../Utils/Resources/ResourceStateParser.j
 import { fetchImage } from '../../Utils/ImageSelector.js';
 import { parseAPIGatewayEndpoint } from './NodeParsers/APIGateway/Endpoint/APIGatewayEndpointParser.js';
 import { parseS3Bucket } from './NodeParsers/S3Bucket/S3BucketParser.js';
+import { parseLambdaFunction } from './NodeParsers/LambdaFunction/LambdaFunctionParser';
+import {parseEbsVolume} from "./NodeParsers/EbsVolume/EbsVolumeParser";
 
-const nodeParsers = new Map();
-
-const buildNodeParserFactory = () => {
-  nodeParsers.set('AWS::IAM::CustomerManagedPolicyStatement',parseCustomerManagedPolicyStatement);
-  nodeParsers.set('AWS::EC2::Instance', parseEC2Instance)
-  nodeParsers.set('AWS::RDS::DBInstance', parseDatabaseInstance)
-  nodeParsers.set('AWS::ApiGateway::Method', parseAPIGatewayMethod)
-  nodeParsers.set('AWS::ApiGateway::Resource', parseAPIGatewayResource)
-  nodeParsers.set('AWS::ApiGateway::RestApi', parseAPIGatewayEndpoint)
-  nodeParsers.set('AWS::ElasticLoadBalancingV2::LoadBalancer', parseLoadBalancer)
-  nodeParsers.set('AWS::ElasticLoadBalancing::LoadBalancer', parseLoadBalancer)
-  nodeParsers.set('AWS::S3::Bucket', parseS3Bucket)
-  nodeParsers.set("AWS::CloudFront::Distribution", parseCloudFrontDistribution)
-};
-
-buildNodeParserFactory();
+const nodeParsers = new Map(
+    [
+        ['AWS::IAM::CustomerManagedPolicyStatement', parseCustomerManagedPolicyStatement],
+        ['AWS::EC2::Instance', parseEC2Instance],
+        ['AWS::EC2::Volume', parseEbsVolume],
+        ['AWS::RDS::DBInstance', parseDatabaseInstance],
+        ['AWS::ApiGateway::Method', parseAPIGatewayMethod],
+        ['AWS::ApiGateway::Resource', parseAPIGatewayResource],
+        ['AWS::ApiGateway::RestApi', parseAPIGatewayEndpoint],
+        ['AWS::ElasticLoadBalancingV2::LoadBalancer', parseLoadBalancer],
+        ['AWS::S3::Bucket', parseS3Bucket],
+        ['AWS::CloudFront::Distribution', parseCloudFrontDistribution],
+        ['AWS::Lambda::Function', parseLambdaFunction]
+    ]
+);
 
 export const parseNode = (properties, node) => {
 

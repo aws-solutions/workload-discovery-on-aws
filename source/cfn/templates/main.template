@@ -79,6 +79,18 @@ Parameters:
       - 40960
       - 49152
       - 57344
+  DiscoveryTaskFrequency:
+    Type: String
+    Description: The time interval between every run of the discovery process ECS task
+    Default: 15mins
+    AllowedValues:
+      - 15mins
+      - 1hr
+      - 2hrs
+      - 4hrs
+      - 8hrs
+      - 12hrs
+      - 24hrs
   CreateOpensearchServiceRole:
     Type: String
     Default: 'Yes'
@@ -275,6 +287,7 @@ Metadata:
         Parameters:
           - CpuUnits
           - Memory
+          - DiscoveryTaskFrequency
       - Label:
           default: AWS Organizations Configuration
         Parameters:
@@ -325,6 +338,14 @@ Mappings:
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
+    DiscoveryTaskFrequency:
+      '15mins': cron(0/15 * * * ? *)
+      '1hr': cron(0 * * * ? *)
+      '2hrs': cron(0 */2 * * ? *)
+      '4hrs': cron(0 */4 * * ? *)
+      '8hrs': cron(0 */8 * * ? *)
+      '12hrs': cron(0 */12 * * ? *)
+      '24hrs': cron(0 *0 * * ? *)
     Metrics:
       CollectAnonymizedUsageMetrics: 'true'
 
@@ -481,6 +502,7 @@ Resources:
         VpcId: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
         VpcEndpointsSg: !If [ CreateVpc, !GetAtt VpcStack.Outputs.VpcEndpointsSg, !Ref AWS::NoValue ]
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
+        DiscoveryTaskFrequency: !FindInMap [Solution, DiscoveryTaskFrequency, !Ref DiscoveryTaskFrequency]
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
         OrganizationUnitId: !Ref OrganizationUnitId
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator

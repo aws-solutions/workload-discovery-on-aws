@@ -15,6 +15,7 @@ import { getStandardLayout } from '../../Canvas/Layout/StandardGraphLayout';
 import DiagramSettings from "../../Utils/DiagramSettings";
 import {useObject} from "../../../../Hooks/useS3Objects";
 import * as R from "ramda";
+import {DEFAULT_COSTS_INTERVAL} from "../../../../../config/constants";
 
 const DIAGRAMS = 'diagrams/';
 
@@ -66,14 +67,23 @@ const OpenDiagramPage = () => {
 
   useEffect(() => {
     if (data && canvas && !canvas.destroyed()) {
-      setSettings(data?.settings ??  {
-        costInterval: null,
-        accounts: [],
-        regions: [],
-        resourceTypes: [],
-        hideSelected: true,
-        hideEdges: false
-      })
+      if(data.settings) {
+          setSettings({
+              ...data.settings,
+              // create fallback for older diagrams as default value used to be null
+              costInterval: data.settings.costInterval ?? DEFAULT_COSTS_INTERVAL
+          });
+      }  else {
+          setSettings({
+              costInterval: DEFAULT_COSTS_INTERVAL,
+              accounts: [],
+              regions: [],
+              resourceTypes: [],
+              hideSelected: true,
+              hideEdges: false
+          });
+      }
+
       addResources(
         canvas,
         updateCanvas,

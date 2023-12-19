@@ -23,7 +23,7 @@ export const parseLoadBalancer = (node) => {
       : `${properties.resourceType}`;
   };
 
-  const state = getStateInformation(properties.state);
+  const state = getStateInformation(configuration.state);
 
   return {
     styling: {

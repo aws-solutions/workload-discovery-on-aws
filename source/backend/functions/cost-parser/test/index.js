@@ -1,13 +1,95 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+const fs = require('fs');
 const rewire = require('rewire');
+const mockedEnv = require('mocked-env')
 const athenaQueryBuilder = rewire('../src/athenaQueryBuilder');
 const { assert } = require('chai');
 const { getRegions } = require('./data/regions');
+const expectedPaginatedReadResultsFromS3 = require("./data/readResultsFromS3/expected/paginated.json");
+
+describe('testing the lambda handler', () => {
+
+    const mockS3Client = {
+        getObject() {
+            return {
+                createReadStream() {
+                    return fs.createReadStream('./test/data/commaServiceName.csv')
+                }
+            }
+        }
+    }
+
+    let restore = null;
+
+    before(() => {
+        restore = mockedEnv({
+            AWS_ACCESS_KEY_ID: 'myAccessKeyId',
+            AWS_SECRET_ACCESS_KEY: 'mySecretAccessKey',
+            AWS_REGION: 'eu-west-1'
+        })
+    });
+
+    after(() => restore());
+
+    const expectedPaginatedReadResultsFromS3 = require('./data/readResultsFromS3/expected/paginated.json');
+
+    describe('readResultsFromS3', () => {
+        const expectedDefaultReadResultsFromS3 = require('./data/readResultsFromS3/expected/default.json');
+
+        it('should retrieve total costs and line items from s3', async () => {
+            const index = rewire('../src/index.js');
+            const readResultsFromS3 = index.__get__('readResultsFromS3');
+
+            const actual = await readResultsFromS3(mockS3Client, {bucket: 'myBucket', key: 'myKey'});
+            assert.deepEqual(actual, expectedDefaultReadResultsFromS3);
+        });
+
+        it('should retrieve total costs and line items from s3 with pagination', async () => {
+            const index = rewire('../src/index.js');
+            const readResultsFromS3 = index.__get__('readResultsFromS3');
+
+            const actual = await readResultsFromS3(mockS3Client, {bucket: 'myBucket', key: 'myKey', pagination: {start: 2, end: 4}});
+            assert.deepEqual(actual, expectedPaginatedReadResultsFromS3);
+        });
+
+    });
+
+    describe('fetchPaginatedResults', () => {
+
+        it('should get cost items for paginated request', async () => {
+            const index = rewire('../src/index.js');
+            const fetchPaginatedResults = index.__get__('fetchPaginatedResults');
+
+            const actual = await fetchPaginatedResults(mockS3Client, {
+                bucket: 'myBucket',
+                key: 'myKey',
+                pagination: {start: 2, end: 4}},
+                {
+                    "resultCount": 9,
+                    "pagination": {
+                        "start": 0,
+                        "end": 100
+                    },
+                    "s3Bucket": "myBucket",
+                    "s3Key": "myKey"
+                }
+            );
+
+            const {costItems, queryDetails} = expectedPaginatedReadResultsFromS3;
+
+            assert.deepEqual(actual, {costItems, queryDetails});
+        });
+
+    });
+
+});
 
 describe('testing the athena query builder', () => {
+
   describe('getResourcesByCostQuery', () => {
+
     it('should return a valid sql query string that Athena can process', async () => {
       const getResourcesByCostQuery = athenaQueryBuilder.__get__(
         'getResourcesByCostQuery'

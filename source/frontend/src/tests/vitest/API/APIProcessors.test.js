@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {beforeEach, describe, it, expect, vi} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import {getResourceGraph as singleAccount} from '../../mocks/fixtures/getResourceGraph/default.json';
 import {processElements} from '../../../API/APIProcessors';
 import singleAccountExpected from './fixtures/expected/singleAccount.json';

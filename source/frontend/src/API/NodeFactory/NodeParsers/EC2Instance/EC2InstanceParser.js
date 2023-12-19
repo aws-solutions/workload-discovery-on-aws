@@ -7,43 +7,26 @@ import { getStateInformation } from '../../../../Utils/Resources/ResourceStatePa
 import InstanceItem from './InstanceDetails/InstanceItem';
 
 import * as R  from 'ramda';
-export const parseEC2Instance = (node) => {
-  const getImageType = () => {
-    try {
-      return R.head(configuration.instanceType.split('.'));
-    } catch (error) {
-      return 'AWS::EC2::Instance';
-    }
-  };
 
-  const getState = (properties) => {
+const getImageType = (configuration) => {
     try {
-      return getStateInformation(JSON.parse(properties.state).name);
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        return properties.state
-          ? getStateInformation(properties.state)
-          : {
-              status: 'status-warning',
-              text: 'no state data',
-              color: '#FF9900',
-            };
-      }
-      return {
-        status: 'status-warning',
-        text: 'no state data',
-        color: '#FF9900',
-      };
+        return R.head(configuration.instanceType.split('.'));
+    } catch (error) {
+        return 'AWS::EC2::Instance';
     }
-  };
+};
+
+export const parseEC2Instance = (node) => {
   const properties = R.hasPath(['properties'], node)
     ? node.properties
     : node.data('properties');
-  const state = getState(properties);
+
   let configuration = JSON.parse(properties.configuration);
   configuration = R.is(Object, configuration)
     ? configuration
     : JSON.parse(configuration);
+
+  const state = getStateInformation(configuration.state);
 
   return {
     styling: {
@@ -55,7 +38,7 @@ export const parseEC2Instance = (node) => {
       colour: state.color,
     },
     state: state,
-    icon: fetchImage(getImageType(), state),
+    icon: fetchImage(getImageType(configuration), state),
     detailsComponent: (
       <InstanceItem
         title='Instance Details'

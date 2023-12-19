@@ -536,7 +536,9 @@ function validateRegions(regionSet, {accounts, regions}) {
 async function getRegions(ec2Client) {
     // make call to aws api to get regions
     const { Regions } = await ec2Client.describeRegions({});
-    return new Set(R.pluck('RegionName', Regions));
+    const regionsSet =  new Set(R.pluck('RegionName', Regions));
+    regionsSet.add('global');
+    return regionsSet;
 }
 
 const cache = {};

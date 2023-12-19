@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] - 2023-12-18
+
+### Fixed
+
+- Rate Limited Exceeded in ORGANIZATIONS mode [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
+- Incorrect status displayed for EC2 instances, load balancers, databases and lambda functions [483](https://github.com/aws-solutions/workload-discovery-on-aws/issues/483)
+- Missing resource type icons [485](https://github.com/aws-solutions/workload-discovery-on-aws/issues/485)
+- Comma in Service Name Results in Cost Feature sum of account to be 0 [489](https://github.com/aws-solutions/workload-discovery-on-aws/issues/489)
+- "Load Cost" and "Cost Report" buttons are using different time spans by default, but showing the sameone in the UI [490](https://github.com/aws-solutions/workload-discovery-on-aws/issues/490)
+- Comma in Service Name Results causes GraphQL type error [491](https://github.com/aws-solutions/workload-discovery-on-aws/issues/491)
+
+### Changed
+- Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter. 
+
 ## [2.1.2] - 2023-11-14
 
 ### Fixed
@@ -14,7 +28,7 @@ in large organisation. [478](https://github.com/aws-solutions/workload-discovery
 - Only attempt to discover accounts from provided OU and its children, rather than whole organization.
 - Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading from the Config aggregator.
 - Remove Retain on organization-wide StackSet so IAM roles are no longer left in organization's accounts after solution is uninstalled.
-- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented  discovery process from retrying 
+- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying 
 requests to DB if payload was too large.
 
 ### Changed
@@ -28,7 +42,7 @@ and `BatchGetAggregateResourceConfig`.
   - `AWS::EC2::TransitGatewayRouteTable`
   - `AWS::Kinesis::Stream`
   - `AWS::MSK::Cluster`
-- Ensure OAC name length does exceed 64 characters. [462](https://github.com/aws-solutions/workload-discovery-on-aws/issues/462)
+- Ensure OAC name length does not exceed 64 characters. [462](https://github.com/aws-solutions/workload-discovery-on-aws/issues/462)
 - No longer ingest resources with status `ResourceNotRecorded`.
 - Improve performance of `getResourceChanges` function in Discovery process from O(n<sup>2</sup>) to O(n).
 - Retrieve account metadata on frontend in batches of 50.

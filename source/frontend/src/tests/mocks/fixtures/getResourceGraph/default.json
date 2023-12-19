@@ -10,7 +10,7 @@
           "arn": "arn:aws:lambda:eu-west-1:yyyyyyyyyyyy:function:testLambda",
           "availabilityZone": "eu-west-1a,eu-west-1b",
           "awsRegion": "eu-west-1",
-          "configuration": "{\"key\":\"prop\",\"key1\":\"prop1\",\"key2\":\"prop2\"}",
+          "configuration": "{\"key\":\"prop\",\"key1\":\"prop1\",\"key2\":\"prop2\",\"state\":{\"value\":\"active\"}}",
           "configurationItemCaptureTime": "2023-06-06T22:21:58.169Z",
           "configurationItemStatus": "OK",
           "configurationStateId": null,
