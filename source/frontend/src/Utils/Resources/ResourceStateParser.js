@@ -1,64 +1,56 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-const getGreenState = state => {
-  return new RegExp(
-    ['available', 'running', 'in-use', 'active'].join('|')
-  ).exec(state);
-};
+import * as R from 'ramda';
 
-const getRedState = state => {
-  return new RegExp(
-    [
-      'stopped',
-      'deleted',
-      'shutting-down',
-      'terminated',
-      'stopping',
-      'failed'
-    ].join('|')
-  ).exec(state);
-};
+const greenStates = ['available', 'running', 'in-use', 'active'].map(state => {
+    return [state, {
+        status: 'status-available',
+        text: state,
+        color: '#1D8102'
+    }];
+});
 
-const getAmberState = state => {
-  return new RegExp(['creating', 'pending', 'provisioning'].join('|')).exec(state);
-};
+const redStates = [
+    'stopped',
+    'inactive',
+    'deleted',
+    'shutting-down',
+    'terminated',
+    'stopping',
+    'failed'
+].map(state => {
+    return [state, {
+        status: 'status-negative',
+        text: state,
+        color: '#D13212'
+    }];
+});
+
+const amberStates = ['creating', 'pending', 'provisioning'].map(state => {
+    return [state, {
+        status: 'status-warning',
+        text: state,
+        color: '#FF9900'
+    }];
+});
+
+const statesMap = new Map([
+    ...greenStates,
+    ...amberStates,
+    ...redStates
+    ]
+);
+
+function getStateValue(stateObj) {
+    return stateObj.value ?? stateObj.name ?? stateObj.code ?? '';
+}
 
 export const getStateInformation = state => {
-  try {
-    const greenState = getGreenState(state.toLowerCase());
-    if (greenState)
-      return {
-        status: 'status-available',
-        text: greenState[0],
-        color: '#1D8102'
-      };
-
-    const amberState = getAmberState(state.toLowerCase());
-    if (amberState)
-      return {
+    const value = R.is(String, state) ? state : getStateValue(state ?? {});
+    return statesMap.get(value.toLowerCase()) ?? {
         status: 'status-warning',
-        text: amberState[0],
+        text: 'no state data',
         color: '#FF9900'
-      };
-
-    const redState = getRedState(state.toLowerCase());
-    if (redState)
-      return {
-        status: 'status-negative',
-        text: redState[0],
-        color: '#D13212'
-      };
-    return {
-      status: 'status-warning',
-      text: 'no state data',
-      color: '#FF9900'
     };
-  } catch (e) {
-    return {
-      status: 'status-warning',
-      text: 'no state data',
-      color: '#FF9900'
-    };
-  }
 };

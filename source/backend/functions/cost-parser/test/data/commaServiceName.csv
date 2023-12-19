@@ -1,0 +1,10 @@
+line_item_resource_id,product_servicename,line_item_usage_account_id,region,pricing_term,cost,line_item_currency_code
+vol-,Amazon Elastic Compute Cloud,xxxxxxxxxxxx,eu-west-1,OnDemand,0.799333319,USD
+vol-,Amazon Elastic Compute Cloud,xxxxxxxxxxxx,eu-west-1,OnDemand,0.799333319,USD
+arn:aws:connect::,"Contact Center Telecommunications (service sold by AMCS, LLC) ",xxxxxxxxxxxx,eu-west-2,OnDemand,0.768750062,USD
+arn:aws:connect:::phone-number/,"Contact Center Telecommunications (service sold by AMCS, LLC) ",xxxxxxxxxxxx,eu-west-2,OnDemand,0.768750062,USD
+arn:aws:connect:::phone-number/,"Contact Center Telecommunications (service sold by AMCS, LLC) ",xxxxxxxxxxxx,eu-west-2,OnDemand,0.768750062,USD
+arn:aws:connect:::phone-number/,"Contact Center Telecommunications (service sold by AMCS, LLC) ",xxxxxxxxxxxx,eu-west-2,OnDemand,0.768750062,USD
+,Amazon Macie,xxxxxxxxxxxx,eu-west-1|eu-west-2,OnDemand,0.711287755,USD
+,"Contact Center Telecommunications (service sold by AMCS, LLC) ",xxxxxxxxxxxx,eu-west-2,OnDemand,0.665683333,USD
+,Amazon Inspector,xxxxxxxxxxxx,eu-west-2,OnDemand,0.6,USD

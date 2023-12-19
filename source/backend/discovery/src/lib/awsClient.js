@@ -4,6 +4,7 @@
 const logger = require('./logger');
 const pThrottle = require('p-throttle');
 const {parse: parseArn} = require("@aws-sdk/util-arn-parser");
+const {ConfiguredRetryStrategy} = require('@smithy/util-retry');
 const {customUserAgent} = require('./config');
 const {
     Organizations,
@@ -58,6 +59,8 @@ const {
 } = require('@aws-sdk/client-dynamodb-streams')
 const {SNSClient, paginateListSubscriptions} = require('@aws-sdk/client-sns');
 const {memoize} = require('./utils');
+
+const RETRY_EXPONENTIAL_RATE = 2;
 
 // We want to share throttling limits across instances of clients so we memoize this
 // function that each factory function calls to create its throttlers during
@@ -266,7 +269,22 @@ function createConfigServiceClient(credentials, region) {
               tags
               ${excludesResourceTypesWhere}
             `
-            const paginator = paginateSelectAggregateResourceConfig(paginatorConfig, {
+            const MAX_RETRIES = 5;
+
+            const paginator = paginateSelectAggregateResourceConfig({
+                client: new ConfigServiceClient({
+                    credentials,
+                    region,
+                    // this code is a critical path so we use a lengthy exponential retry
+                    // rate to give it as much chance to succeed in the face of any
+                    // throttling errors: 0s -> 2s -> 6s -> 14s -> 30s -> Failure
+                    retryStrategy: new ConfiguredRetryStrategy(
+                        MAX_RETRIES,
+                        attempt => 2000 * (RETRY_EXPONENTIAL_RATE ** attempt)
+                    )
+                }),
+                pageSize: 100
+            }, {
                 ConfigurationAggregatorName: aggregatorName, Expression
             });
 

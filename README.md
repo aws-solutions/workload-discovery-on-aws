@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.1.2)
+# Workload Discovery on AWS (v2.1.3)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -164,6 +164,10 @@ Parameters required by the template:
 * **OpensearchMultiAz** - Choose whether to create an Opensearch cluster that spans multiple Availability Zone. Choosing Yes improves resilience; however, increases the cost of this solution.
   
 **Note** - You will need to deploy in the same account and region as the S3 bucket that the deployment artefacts are uploaded to.
+
+## Troubleshooting
+If you encounter problems during or after the deployment of Workload Discovery, consult the [debugging flow](./debugging-flowchart.mmd) chart to help 
+diagnose and rectify common issues.
 
 ## License
 

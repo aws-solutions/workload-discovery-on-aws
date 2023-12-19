@@ -125,7 +125,6 @@ export const buildNode = (node, parent, clickedNode) => {
                 clickedId: node.id,
                 ...({state: parsedNode.state} ?? {}),
                 image: parsedNode.icon,
-                softDelete: properties.softDelete,
                 cost: Number(getCostData(node)),
                 private: properties.private,
                 ...({detailsComponent: parsedNode.detailsComponent} ?? {}),

@@ -11,8 +11,8 @@ import * as R from "ramda";
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
-const CostDatePicker = ({ disabled, onIntervalChange }) => {
-  const [value, setValue] = React.useState({
+const CostDatePicker = ({ disabled, normalizeInterval = true, initialInterval, onIntervalChange }) => {
+  const [value, setValue] = React.useState(initialInterval ?? {
     type: 'absolute',
     startDate: dayjs()
       .startOf('month')
@@ -24,15 +24,20 @@ const CostDatePicker = ({ disabled, onIntervalChange }) => {
 
   const processDateInterval = (detail) => {
     setValue(detail.value);
-    R.equals('absolute', detail.value.type)
-      ? onIntervalChange(detail.value)
-      : onIntervalChange({
-          type: 'relative',
-          startDate: dayjs()
-            .subtract(detail.value.amount, detail.value.unit)
-            .format('YYYY-MM-DD'),
-          endDate: dayjs().format('YYYY-MM-DD'),
-        });
+
+    if(normalizeInterval) {
+        R.equals('absolute', detail.value.type)
+            ? onIntervalChange(detail.value)
+            : onIntervalChange({
+                type: 'relative',
+                startDate: dayjs()
+                    .subtract(detail.value.amount, detail.value.unit)
+                    .format('YYYY-MM-DD'),
+                endDate: dayjs().format('YYYY-MM-DD'),
+            });
+    } else {
+        onIntervalChange(detail.value);
+    }
   };
 
   return (
@@ -92,7 +97,7 @@ const CostDatePicker = ({ disabled, onIntervalChange }) => {
           endTimeLabel: 'End time',
           clearButtonLabel: 'Clear',
           cancelButtonLabel: 'Cancel',
-          applyButtonLabel: 'Apply',
+          applyButtonLabel: 'Confirm',
         }}
         dateOnly
         expandToViewport

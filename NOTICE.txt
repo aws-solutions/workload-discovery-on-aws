@@ -47,6 +47,7 @@ py-serializable
 @aws-sdk/client-sts
 @aws-sdk/credential-providers
 @aws-sdk/lib-dynamodb
+@smithy/util-retry
 @aws-sdk/util-arn-parser
 @cloudscape-design/collection-hooks
 @cloudscape-design/components
@@ -57,8 +58,10 @@ py-serializable
 **********************
 MIT License
 **********************
+add
 pip
-cfn-nag 
+cfn-nag
+csv-parse
 uuid 
 material-ui 
 browserslist

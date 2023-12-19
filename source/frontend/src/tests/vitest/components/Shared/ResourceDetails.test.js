@@ -51,6 +51,8 @@ describe('Resource Details', () => {
 
         await screen.findByRole('heading', {name: /arn:aws:xxxxxxxxxxxx:eu-west-2:aws::ec2::subnet:0title/i});
 
+        screen.getByLabelText('green status icon');
+
         await userEvent.click(openPanelButton);
 
         await screen.findByRole('link', { name: /arn:aws:xxxxxxxxxxxx:eu-west-2:aws::ec2::subnet:0/i });
@@ -85,6 +87,8 @@ describe('Resource Details', () => {
         expect(getCellText(2, 3, resourcesDetailsTableWrapper)).toBe('xxxxxxxxxxxx');
         expect(getCellText(3, 3, resourcesDetailsTableWrapper)).toBe('eu-west-2');
         expect(getCellText(4, 3, resourcesDetailsTableWrapper)).toBe('availabilityZone');
+
+        screen.logTestingPlaygroundURL()
 
     });
 

@@ -31,6 +31,9 @@ Parameters:
     Description: Memory size
     Type: String
 
+  DiscoveryTaskFrequency:
+    Type: String
+
   ImageVersion:
     Description: Release version
     Type: String
@@ -439,7 +442,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: Workload Discovery on AWS Discovery service
-      ScheduleExpression: cron(0/15 * * * ? *)
+      ScheduleExpression: !Ref DiscoveryTaskFrequency
       State: ENABLED
       Targets:
         - Arn: !GetAtt Cluster.Arn

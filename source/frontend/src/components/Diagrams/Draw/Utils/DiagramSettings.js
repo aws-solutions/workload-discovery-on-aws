@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Box,
@@ -23,6 +23,7 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
   const [settings, setSettings] = useState(initialSettings);
   const [lastSubmittedSettings, setLastSubmittedSettings] = useState(settings);
   const [hasDestructiveChanges, setHasDestructiveChanges] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const {data={accounts: [], resourceTypes: []}, status} = useResourcesMetadata();
   const uniqRegions = R.compose(
     R.uniq,
@@ -42,11 +43,12 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
   const confirmSubmit = () => {
     setHasDestructiveChanges(false);
     setLastSubmittedSettings(settings);
-    onSettingsChange && onSettingsChange(settings)
+    onSettingsChange && onSettingsChange(settings);
+    setHasUnsavedChanges(false);
   }
 
   const handleSubmit = () => {
-    const isDestructiveKey = (val, key) => !["costInterval"].includes(key)
+    const isDestructiveKey = (val, key) => !['costInterval', 'hideEdges'].includes(key)
     const filterNonDestructiveKeys = R.pickBy(isDestructiveKey)
     if (!R.equals(filterNonDestructiveKeys(settings), filterNonDestructiveKeys(lastSubmittedSettings))) {
       setHasDestructiveChanges(true)
@@ -54,6 +56,10 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
       confirmSubmit()
     }
   }
+
+  useEffect(() => {
+      setHasUnsavedChanges(!R.equals(settings, initialSettings));
+  }, [settings, initialSettings]);
 
   const handleChange = (prop, value) => {
     setSettings({
@@ -96,9 +102,9 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
 
       </Modal>
       <Form
-        actions={<Button onClick={handleSubmit} variant="primary">Apply</Button>}>
+        actions={<Button onClick={handleSubmit} disabled={!hasUnsavedChanges} variant="primary">Apply</Button>}>
         <SpaceBetween size={"s"}>
-          <CostDatePicker onIntervalChange={(val) => handleChange("costInterval", val)} />
+          <CostDatePicker initialInterval={settings.costInterval} normalizeInterval={false} onIntervalChange={(val) => handleChange("costInterval", val)} />
           <FormField label={"Filter type"}>
             <RadioGroup
               onChange={({ detail }) => handleChange("hideSelected", detail.value)}

@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import {
   Container,
@@ -30,6 +30,12 @@ const getStatusType = (status) => {
   if (R.equals('status-negative', status)) return 'error';
 };
 
+const getStatusColor = (status) => {
+    if (R.equals('status-available', status)) return 'green';
+    if (R.equals('status-warning', status)) return 'yellow';
+    if (R.equals('status-negative', status)) return 'red';
+};
+
 const capitalize = (str) =>
   str.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -43,10 +49,9 @@ const parser = R.compose(
 );
 
 const ResourceDetails = ({ selectedResource }) => {
+  const properties = useMemo(() => parser(selectedResource.properties ?? {}), [selectedResource]);
+
   const getTags = () => {
-    const tags = JSON.parse(
-      R.pathOr('[]', ['properties', 'tags'], selectedResource)
-    );
     return (
       <ResourceDetailsTagTable
         trackBy='name'
@@ -55,7 +60,7 @@ const ResourceDetails = ({ selectedResource }) => {
             name: e.key,
             value: e.value,
           };
-        }, tags)}
+        }, properties.tags)}
         visibleColumns={['name', 'value']}
         columns={[
           {
@@ -90,61 +95,42 @@ const ResourceDetails = ({ selectedResource }) => {
         <ColumnLayout columns={2} variant='text-grid'>
           <SpaceBetween size='s'>
             <ValueWithLabel label='Name'>
-              {R.pathOr(
-                'N/A',
-                ['properties', 'resourceName'],
-                selectedResource
-              )}
+              {properties.resourceName ?? 'N/A'}
             </ValueWithLabel>
             <ValueWithLabel label='Account Id'>
-              {R.pathOr('N/A', ['properties', 'accountId'], selectedResource)}
+              {properties.accountId ?? 'N/A'}
             </ValueWithLabel>
             <ValueWithLabel label='Region'>
-              {R.pathOr('N/A', ['properties', 'awsRegion'], selectedResource)}
+              {properties.awsRegion ?? 'N/A'}
             </ValueWithLabel>
             <ValueWithLabel label='Availability Zone'>
-              {R.pathOr(
-                'N/A',
-                ['properties', 'availabilityZone'],
-                selectedResource
-              )}
+              {properties.availabilityZone ?? 'N/A'}
             </ValueWithLabel>
           </SpaceBetween>
           <SpaceBetween size='s'>
             <ValueWithLabel label='Status'>
               {
-                <StatusIndicator
-                  type={getStatusType(
-                    getStateInformation(
-                      R.pathOr({text: 'N/A'}, ['properties', 'state'], selectedResource)
-                    ).text
-                  )}>
-                  {capitalize(
-                    getStateInformation(
-                      R.pathOr({text: 'N/A'}, ['properties', 'state'], selectedResource)
-                    ).text
-                  )}
-                </StatusIndicator>
+                properties.configuration?.state != null ?
+                    <StatusIndicator
+                        type={getStatusType(getStateInformation(properties.configuration.state).status)}
+                        iconAriaLabel={
+                        `${getStatusColor(getStateInformation(properties.configuration.state).status)} status icon`
+                    }
+                    >
+                        {capitalize(getStateInformation(properties.configuration.state).text)}
+                    </StatusIndicator> : 'N/A'
               }
             </ValueWithLabel>
             <ValueWithLabel label='Type'>
-              {R.pathOr(
-                'N/A',
-                ['properties', 'resourceType'],
-                selectedResource
-              )}
+              {properties.resourceType ?? 'N/A'}
             </ValueWithLabel>
             <ValueWithLabel label='ARN'>
               {
                 <Link
                   external
                   externalIconAriaLabel='Opens in a new tab'
-                  href={`https://console.aws.amazon.com/go/view/${R.pathOr(
-                    'N/A',
-                    ['properties', 'arn'],
-                    selectedResource
-                  )}`}>
-                  {R.pathOr('N/A', ['properties', 'arn'], selectedResource)}
+                  href={`https://console.aws.amazon.com/go/view/${properties.arn}`}>
+                  {properties.arn}
                 </Link>
               }
             </ValueWithLabel>
@@ -159,7 +145,7 @@ const ResourceDetails = ({ selectedResource }) => {
                 iconStyle='circle'
                 collapseStringsAfterLength={200}
                 displayDataTypes={false}
-                src={parser(selectedResource.properties ?? {})}
+                src={properties}
               />
             }
           </ExpandableSection>

@@ -8,7 +8,6 @@ import {
 import { wrapRequest } from '../../../../../Utils/API/HandlerUtils';
 import { processResourcesError } from '../../../../../Utils/ErrorHandlingUtils';
 import {handleSelectedResources} from '../../../../../API/Processors/NodeProcessors';
-import { uploadObject } from '../../../../../API/Storage/S3Store';
 import { getGroupedLayout } from '../Layout/GroupedGraphLayout';
 import { getStandardLayout } from '../Layout/StandardGraphLayout';
 import * as R from "ramda";
@@ -107,15 +106,6 @@ export const groupResources = (canvas, updateCanvas) => {
     .run();
   canvas.remove(canvas.edges());
   updateCanvas(canvas);
-};
-
-export const saveDiagram = (canvas, settings={}) => {
-  return uploadObject(
-    `${DIAGRAMS}${canvas.data('name')}`,
-    JSON.stringify({...canvas.json().elements, settings}),
-    canvas.data('visibility'),
-    'application/json'
-  );
 };
 
 export const focusOnResources = (

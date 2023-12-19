@@ -5,30 +5,7 @@ import { beforeEach, test, describe, expect, vi } from 'vitest'
 import React from 'react';
 import { parseEC2Instance } from '../../../../../../API/NodeFactory/NodeParsers/EC2Instance/EC2InstanceParser';
 import { fetchImage } from '../../../../../../Utils/ImageSelector';
-import {
-  t2,
-  a1,
-  c4,
-  c5,
-  c5n,
-  d2,
-  f1,
-  g3,
-  h1,
-  i3,
-  m4,
-  m5,
-  m5a,
-  p2,
-  p3,
-  r4,
-  r5,
-  t3,
-  t3a,
-  x1,
-  x1e,
-  z1d,
-} from './data/ec2Types';
+import { createInstanceConfiguration } from './data/ec2Types';
 import InstanceItem from '../../../../../../API/NodeFactory/NodeParsers/EC2Instance/InstanceDetails/InstanceItem';
 
 describe('EC2InstanceParser', () => {
@@ -42,9 +19,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'z1d.micro',
-                configuration: z1d,
-                state: 'available',
+                configuration: createInstanceConfiguration('z1d.micro', 'running')
             },
         };
         const expectedResult = {
@@ -53,7 +28,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('z1d', {
@@ -78,10 +53,8 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'z1d.micro',
-                configuration: z1d,
-                state: 'provisioning',
-            },
+                configuration: createInstanceConfiguration('z1d.micro', 'provisioning')
+            }
         };
         const expectedResult = {
             styling: {
@@ -114,9 +87,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'z1d.micro',
-                configuration: z1d,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('z1d.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -150,8 +121,7 @@ describe('EC2InstanceParser', () => {
             properties: {
                 resourceType: 'AWS::EC2::Instance',
                 instanceType: 'x1e.micro',
-                configuration: x1e,
-                state: 'available',
+                configuration: createInstanceConfiguration('x1e.micro', 'running')
             },
         };
         const expectedResult = {
@@ -160,7 +130,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('x1e', {
@@ -185,9 +155,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'x1e.micro',
-                configuration: x1e,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('x1e.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -221,9 +189,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'x1e.micro',
-                configuration: x1e,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('x1e.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -256,9 +222,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'x1.micro',
-                configuration: x1,
-                state: 'available',
+                configuration: createInstanceConfiguration('x1.micro', 'running')
             },
         };
         const expectedResult = {
@@ -267,7 +231,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('x1', {
@@ -292,9 +256,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'x1.micro',
-                configuration: x1,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('x1.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -328,9 +290,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'x1.micro',
-                configuration: x1,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('x1.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -363,9 +323,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3a.micro',
-                configuration: t3a,
-                state: 'available',
+                configuration: createInstanceConfiguration('t3a.micro', 'running')
             },
         };
         const expectedResult = {
@@ -374,7 +332,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('t3a', {
@@ -399,9 +357,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3a.micro',
-                configuration: t3a,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('t3a.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -435,9 +391,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3a.micro',
-                configuration: t3a,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('t3a.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -470,9 +424,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3.micro',
-                configuration: t3,
-                state: 'available',
+                configuration: createInstanceConfiguration('t3.micro', 'running')
             },
         };
         const expectedResult = {
@@ -481,7 +433,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('t3', {
@@ -506,9 +458,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3.micro',
-                configuration: t3,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('t3.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -542,9 +492,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't3.micro',
-                configuration: t3,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('t3.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -577,9 +525,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r5.micro',
-                configuration: r5,
-                state: 'available',
+                configuration: createInstanceConfiguration('r5.micro', 'running')
             },
         };
         const expectedResult = {
@@ -588,7 +534,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('r5', {
@@ -613,9 +559,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r5.micro',
-                configuration: r5,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('r5.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -649,9 +593,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r5.micro',
-                configuration: r5,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('r5.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -684,9 +626,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r4.micro',
-                configuration: r4,
-                state: 'available',
+                configuration: createInstanceConfiguration('r4.micro', 'running')
             },
         };
         const expectedResult = {
@@ -695,7 +635,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('r4', {
@@ -720,9 +660,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r4.micro',
-                configuration: r4,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('r4.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -756,9 +694,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'r4.micro',
-                configuration: r4,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('r4.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -791,9 +727,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p3.micro',
-                configuration: p3,
-                state: 'available',
+                configuration: createInstanceConfiguration('p3.micro', 'running')
             },
         };
         const expectedResult = {
@@ -802,7 +736,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('p3', {
@@ -827,9 +761,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p3.micro',
-                configuration: p3,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('p3.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -863,9 +795,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p3.micro',
-                configuration: p3,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('p3.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -899,9 +829,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p2.micro',
-                configuration: p2,
-                state: 'available',
+                configuration: createInstanceConfiguration('p2.micro', 'running')
             },
         };
         const expectedResult = {
@@ -910,7 +838,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('p2', {
@@ -935,9 +863,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p2.micro',
-                configuration: p2,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('p2.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -971,9 +897,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'p2.micro',
-                configuration: p2,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('p2.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1006,9 +930,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5a.micro',
-                configuration: m5a,
-                state: 'available',
+                configuration: createInstanceConfiguration('m5a.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1017,7 +939,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('m5a', {
@@ -1042,9 +964,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5a.micro',
-                configuration: m5a,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('m5a.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1078,9 +998,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5a.micro',
-                configuration: m5a,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('m5a.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1113,9 +1031,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5.micro',
-                configuration: m5,
-                state: 'available',
+                configuration: createInstanceConfiguration('m5.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1124,7 +1040,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('m5', {
@@ -1149,9 +1065,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5.micro',
-                configuration: m5,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('m5.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1185,9 +1099,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm5.micro',
-                configuration: m5,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('m5.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1220,9 +1132,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm4.micro',
-                configuration: m4,
-                state: 'available',
+                configuration: createInstanceConfiguration('m4.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1231,7 +1141,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('m4', {
@@ -1256,9 +1166,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm4.micro',
-                configuration: m4,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('m4.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1292,9 +1200,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'm4.micro',
-                configuration: m4,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('m4.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1327,9 +1233,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'i3.micro',
-                configuration: i3,
-                state: 'available',
+                configuration: createInstanceConfiguration('i3.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1338,7 +1242,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('i3', {
@@ -1363,9 +1267,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'i3.micro',
-                configuration: i3,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('i3.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1399,9 +1301,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'i3.micro',
-                configuration: i3,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('i3.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1434,9 +1334,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'h1.micro',
-                configuration: h1,
-                state: 'available',
+                configuration: createInstanceConfiguration('h1.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1445,7 +1343,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('h1', {
@@ -1470,9 +1368,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'h1.micro',
-                configuration: h1,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('h1.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1506,9 +1402,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'h1.micro',
-                configuration: h1,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('h1.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1541,9 +1435,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'g3.micro',
-                configuration: g3,
-                state: 'available',
+                configuration: createInstanceConfiguration('g3.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1552,7 +1444,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('g3', {
@@ -1577,9 +1469,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'g3.micro',
-                configuration: g3,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('g3.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1613,9 +1503,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'g3.micro',
-                configuration: g3,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('g3.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1648,9 +1536,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'f1.micro',
-                configuration: f1,
-                state: 'available',
+                configuration: createInstanceConfiguration('f1.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1659,7 +1545,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('f1', {
@@ -1686,9 +1572,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'f1.micro',
-                configuration: f1,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('f1.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1722,9 +1606,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'f1.micro',
-                configuration: f1,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('f1.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1757,9 +1639,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'd2.micro',
-                configuration: d2,
-                state: 'available',
+                configuration: createInstanceConfiguration('d2.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1768,7 +1648,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('d2', {
@@ -1793,9 +1673,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'd2.micro',
-                configuration: d2,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('d2.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1829,9 +1707,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'd2.micro',
-                configuration: d2,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('d2.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1864,9 +1740,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5n.micro',
-                configuration: c5n,
-                state: 'available',
+                configuration: createInstanceConfiguration('c5n.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1875,7 +1749,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('c5n', {
@@ -1900,9 +1774,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5n.micro',
-                configuration: c5n,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('c5n.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -1936,9 +1808,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5n.micro',
-                configuration: c5n,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('c5n.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -1971,9 +1841,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5.micro',
-                configuration: c5,
-                state: 'available',
+                configuration: createInstanceConfiguration('c5.micro', 'running')
             },
         };
         const expectedResult = {
@@ -1982,7 +1850,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('c5', {
@@ -2007,9 +1875,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5.micro',
-                configuration: c5,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('c5.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -2043,9 +1909,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c5.micro',
-                configuration: c5,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('c5.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -2078,9 +1942,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c4.micro',
-                configuration: c4,
-                state: 'available',
+                configuration: createInstanceConfiguration('c4.micro', 'running')
             },
         };
         const expectedResult = {
@@ -2089,7 +1951,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('c4', {
@@ -2114,9 +1976,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c4.micro',
-                configuration: c4,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('c4.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -2150,9 +2010,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'c4.micro',
-                configuration: c4,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('c4.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -2186,9 +2044,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'a1.micro',
-                configuration: a1,
-                state: 'available',
+                configuration: createInstanceConfiguration('a1.micro', 'running')
             },
         };
         const expectedResult = {
@@ -2197,7 +2053,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('a1', {
@@ -2222,9 +2078,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'a1.micro',
-                configuration: a1,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('a1.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -2258,9 +2112,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 'a1.micro',
-                configuration: a1,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('a1.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -2294,9 +2146,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't2.micro',
-                configuration: t2,
-                state: 'available',
+                configuration: createInstanceConfiguration('t2.micro', 'running')
             },
         };
         const expectedResult = {
@@ -2305,7 +2155,7 @@ describe('EC2InstanceParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message: 'available',
+                message: 'running',
                 colour: '#1D8102',
             },
             icon: fetchImage('t2', {
@@ -2332,9 +2182,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't2.micro',
-                configuration: t2,
-                state: 'provisioning',
+                configuration: createInstanceConfiguration('t2.micro', 'provisioning')
             },
         };
         const expectedResult = {
@@ -2368,9 +2216,7 @@ describe('EC2InstanceParser', () => {
             name: 'anEC2Instance',
             properties: {
                 resourceType: 'AWS::EC2::Instance',
-                instanceType: 't2.micro',
-                configuration: t2,
-                state: 'shutting-down',
+                configuration: createInstanceConfiguration('t2.micro', 'shutting-down')
             },
         };
         const expectedResult = {
@@ -2398,6 +2244,5 @@ describe('EC2InstanceParser', () => {
         expect(result.icon).toEqual(expectedResult.icon);
         expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
     });
-
 
 });

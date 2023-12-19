@@ -33,7 +33,8 @@ const defaultResources = accounts.flatMap(({accountId, regions}) => {
                         awsRegion: region,
                         availabilityZone: 'availabilityZone',
                         configuration: JSON.stringify({
-                            key: label + i
+                            key: label + i,
+                            ...(resourceType === 'AWS::EC2::Subnet' ? {state: {value: 'available'}} : {})
                         }),
                         title: id + 'Title',
                         tags: JSON.stringify([
