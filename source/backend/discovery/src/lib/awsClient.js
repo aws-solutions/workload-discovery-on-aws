@@ -138,9 +138,12 @@ function createOrganizationsClient(credentials, region) {
 
     return {
         async getAllActiveAccountsFromParent(ouId) {
-            const {Roots} = await organizationsClient.listRoots({});
-            const {Id: rootId, Arn: managementAccountArn} = Roots[0];
-            const managementAccountId = parseArn(managementAccountArn).accountId;
+            const [{Roots}, {Organization}] = await Promise.all([
+                organizationsClient.listRoots({}),
+                organizationsClient.describeOrganization({})
+            ]);
+            const {Id: rootId} = Roots[0];
+            const {MasterAccountId: managementAccountId} = Organization;
 
             const accounts = await (ouId === rootId ? getAllAccounts() : getAllAccountsFromParent(ouId));
 
@@ -596,9 +599,9 @@ function createStsClient(credentials, region) {
     const CredentialsProvider = fromNodeProviderChain();
 
     return {
-        async getCredentials(role) {
+        async getCredentials(RoleArn) {
             const {Credentials} = await sts.assumeRole({
-                    RoleArn: `${role}`,
+                    RoleArn,
                     RoleSessionName: 'discovery'
                 }
             );

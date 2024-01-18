@@ -276,7 +276,7 @@ Resources:
           - id: W28
             reason: 'Role is with ECS task. It defines the roles that are to be assumed and also read-only actions required for Task Definition'
           - id: W11
-            reason: 'The config:*, organizations:List* and ec2:DescribeRegions APIs used in this role do not allow resource level permissions.'
+            reason: 'The config:*, organizations:DescribeOrganization, organizations:List* and ec2:DescribeRegions APIs used in this role do not allow resource level permissions.'
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -314,6 +314,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - organizations:DescribeOrganization
                   - organizations:ListAccounts
                   - organizations:ListAccountsForParent
                   - organizations:ListOrganizationalUnitsForParent
