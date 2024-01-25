@@ -1,7 +1,7 @@
 ---
 id: SO0075
 name: workload-discovery-on-aws
-version: v2.1.4
+version: v2.1.5
 regions:
   commercial:
     - us-east-1

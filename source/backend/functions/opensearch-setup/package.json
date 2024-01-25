@@ -1,6 +1,6 @@
 {
   "name": "opensearch-setup",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Custom resource that creates index in OpenSearch.",
   "main": "src/index.js",
   "scripts": {

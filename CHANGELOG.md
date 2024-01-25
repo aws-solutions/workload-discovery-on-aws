@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.5] - 2024-1-25
+
+### Fixed
+
+- Security [vulnerability](https://github.com/advisories/GHSA-c24v-8rfc-w8vw) in `vite`.
+- Security [vulnerability](https://github.com/advisories/GHSA-p6mc-m468-83gw) in `lodash`.
+
 ## [2.1.4] - 2024-1-18
 
 ### Fixed
@@ -25,31 +32,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comma in Service Name Results causes GraphQL type error [491](https://github.com/aws-solutions/workload-discovery-on-aws/issues/491)
 
 ### Changed
-- Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter. 
+- Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter.
 
 ## [2.1.2] - 2023-11-14
 
 ### Fixed
 
-- Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts 
-in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
+- Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts
+  in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
 - Only attempt to discover accounts from provided OU and its children, rather than whole organization.
 - Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading from the Config aggregator.
 - Remove Retain on organization-wide StackSet so IAM roles are no longer left in organization's accounts after solution is uninstalled.
-- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying 
-requests to DB if payload was too large.
+- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying
+  requests to DB if payload was too large.
 
 ### Changed
-- Move GraphQL queries that queried whole Neptune database to use DynamoDB, significantly reducing load on Neptune and 
-improving rendering times on the frontend.
+- Move GraphQL queries that queried whole Neptune database to use DynamoDB, significantly reducing load on Neptune and
+  improving rendering times on the frontend.
 - Retrieve the following resource types from AWS Config advanced query rather than  `ListAggregateDiscoveredResources`
-and `BatchGetAggregateResourceConfig`.
-  - `AWS::EC2::LaunchTemplate`
-  - `AWS::EC2::TransitGateway`
-  - `AWS::EC2::TransitGatewayAttachment`
-  - `AWS::EC2::TransitGatewayRouteTable`
-  - `AWS::Kinesis::Stream`
-  - `AWS::MSK::Cluster`
+  and `BatchGetAggregateResourceConfig`.
+    - `AWS::EC2::LaunchTemplate`
+    - `AWS::EC2::TransitGateway`
+    - `AWS::EC2::TransitGatewayAttachment`
+    - `AWS::EC2::TransitGatewayRouteTable`
+    - `AWS::Kinesis::Stream`
+    - `AWS::MSK::Cluster`
 - Ensure OAC name length does not exceed 64 characters. [462](https://github.com/aws-solutions/workload-discovery-on-aws/issues/462)
 - No longer ingest resources with status `ResourceNotRecorded`.
 - Improve performance of `getResourceChanges` function in Discovery process from O(n<sup>2</sup>) to O(n).
