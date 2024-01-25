@@ -12,7 +12,6 @@ import { getGroupedLayout } from '../Layout/GroupedGraphLayout';
 import { getStandardLayout } from '../Layout/StandardGraphLayout';
 import * as R from "ramda";
 
-const DIAGRAMS = 'diagrams/';
 export const clearGraph = (canvas, updateCanvas, updateResources) => {
   !R.isNil(canvas) && canvas.nodes().remove();
   updateCanvas(canvas);
