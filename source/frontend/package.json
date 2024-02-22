@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -84,7 +84,8 @@
     "valid-filename": "4.0.0"
   },
   "overrides": {
-    "sharp": "0.33.0"
+    "sharp": "0.33.0",
+    "ip": "2.0.1"
   },
   "scripts": {
     "start": "vite",
