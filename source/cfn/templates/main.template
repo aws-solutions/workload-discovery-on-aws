@@ -247,8 +247,10 @@ Parameters:
   ApiAllowListedRanges:
     Type: CommaDelimitedList
     Description: |
-      Comma separated list of CIDR ranges to manage access the API. To allow all the entire internet, 
-      use 0.0.0.0/1,128.0.0.0/1
+      Comma separated list of CIDRs to manage access to the AppSync GraphQL API. To allow the entire internet, 
+      use 0.0.0.0/1,128.0.0.0/1. If restricting access to specific CIDRs, you must also include the IP addresses (and 
+      a subnet mask of /32) of the NAT gateways that allow the discovery process ECS task running in its private subnet 
+      to access the internet. NB: this allowlist does not govern access to the WebUI, only the GraphQL API.
     Default: 0.0.0.0/1,128.0.0.0/1
 
 Metadata:

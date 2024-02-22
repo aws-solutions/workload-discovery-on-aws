@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.js",
   "scripts": {
@@ -44,7 +44,7 @@
     "iterare": "1.2.1",
     "p-throttle": "4.0.0",
     "ramda": "0.28.0",
-    "undici": "5.27.2",
+    "undici": "6.6.2",
     "winston": "3.3.3"
   },
   "devDependencies": {
