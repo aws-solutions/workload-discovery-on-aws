@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:18
+FROM public.ecr.aws/docker/library/node:20
 
 RUN groupadd -r discovery && useradd -r -g discovery discovery
 

@@ -5,6 +5,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: Workload Discovery on AWS Metrics Stack
 
 Parameters:
+
   DeploymentBucket:
     Type: String
 
@@ -26,8 +27,12 @@ Parameters:
   AppSyncArn:
     Type: String
 
+  NodeLambdaRuntime:
+    Type: String
+
   CrossAccountDiscovery:
     Type: String
+
 
 Resources:
 
@@ -95,7 +100,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/metrics.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for Collecting Metrics
       Timeout: 2
       Tracing: Active

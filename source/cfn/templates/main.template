@@ -340,6 +340,8 @@ Mappings:
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
+      NodeLambdaRuntime: nodejs20.x
+      PythonLambdaRuntime: python3.12
     DiscoveryTaskFrequency:
       '15mins': cron(0/15 * * * ? *)
       '1hr': cron(0 * * * ? *)
@@ -367,7 +369,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
-      Runtime: python3.9
+      Runtime: !FindInMap [Solution, Constants, PythonLambdaRuntime]
       ReservedConcurrentExecutions: 1
       InlineCode: |
         import cfnresponse
@@ -386,6 +388,8 @@ Resources:
     Type: Custom::Variables
     Properties:
       ServiceToken: !GetAtt EchoFunction.Arn
+      NodeLambdaRuntime: !FindInMap [Solution, Constants, NodeLambdaRuntime]
+      PythonLambdaRuntime: !FindInMap [Solution, Constants, PythonLambdaRuntime]
       DeploymentBucket: !Sub
         - https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}
         - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
@@ -404,6 +408,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         LayerBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
       TemplateURL: !Sub ${Variables.DeploymentBucket}/layers.template
@@ -413,6 +418,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         S3CleanupBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
         CreateConfigBucket: !If [SetUpConfig, 'true', 'false']
@@ -497,6 +503,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/discovery-crawler.template
       TimeoutInMinutes: 60
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         DiscoveryBucket: !GetAtt S3Buckets.Outputs.DiscoveryBucket
         AppName: !FindInMap [Solution, Constants, AppName]
         PrivateSubnet0: !If [ CreateVpc, !GetAtt VpcStack.Outputs.PrivateSubnet0, !Ref PrivateSubnet0 ]
@@ -525,6 +532,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/codebuild.template
       TimeoutInMinutes: 60
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         CloudfrontDistributionId: !GetAtt WebUiStack.Outputs.DistributionId
         ContainerRepo: !GetAtt TaskStack.Outputs.ContainerRepo
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
@@ -550,6 +558,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/gremlin-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         NeptuneClusterResourceId: !GetAtt NeptuneStack.Outputs.NeptuneClusterResourceId
         NeptuneClusterURL: !GetAtt NeptuneStack.Outputs.NeptuneEndpointAddress
@@ -570,6 +579,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/search-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         OpenSearchDomainEndpoint: !GetAtt OpenSearchStack.Outputs.DomainEndpoint
         OpenSearchSg: !GetAtt OpenSearchStack.Outputs.OpenSearchSg
@@ -589,6 +599,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/draw-io-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
@@ -599,6 +610,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/account-import-templates-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DiscoveryRoleArn: !GetAtt TaskStack.Outputs.DiscoveryRoleArn
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
@@ -621,6 +633,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/cost-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
@@ -634,6 +647,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/settings-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
@@ -646,6 +660,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/athena-glue-crawler.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
@@ -666,6 +681,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/webui-settings.template
       TimeoutInMinutes: 60
       Parameters:
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
         AmplifyBucketName: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
@@ -683,6 +699,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/metrics.template
       TimeoutInMinutes: 60
       Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]

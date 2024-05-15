@@ -31,7 +31,7 @@ source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
 auditDeps () {
-   npm_config_yes=true npx better-npm-audit audit --production
+   npm_config_yes=true npx better-npm-audit audit --production -l high
    OUTPUT=$?
    if [[ "$OUTPUT" -eq 0 ]];
    then
@@ -174,6 +174,14 @@ cd "${source_dir}/backend/functions/cost-parser"
 auditDeps
 npm run build
 cp ./dist/cost.zip "${build_dist_dir}/cost.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] CUR-Notification"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/cur-notification"
+auditDeps
+npm run build
+cp ./dist/cur-notification.zip "${build_dist_dir}/cur-notification.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] CUR-Setup"

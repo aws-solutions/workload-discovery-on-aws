@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.1.6)
+# Workload Discovery on AWS (v2.1.7)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -176,7 +176,7 @@ See license [here](./LICENSE.txt).
 ## Anonymized data collection
 
 This solution collects anonymized operational metrics to help AWS improve the quality and features of the solution. 
-For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/collection-of-operational-metrics.html).
+For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/anonymized-data-collection.html).
 
 ## Acknowledgements
 

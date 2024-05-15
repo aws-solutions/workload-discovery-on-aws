@@ -21,6 +21,9 @@ Parameters:
   PerspectiveAppSyncApiId:
     Type: String
 
+  NodeLambdaRuntime:
+    Type: String
+
   AthenaDatabaseName: 
     Type: String
     Default: athenacurcfn_aws_perspective_cost_and_usage
@@ -135,7 +138,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/cost.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for Appsync Cost API resolvers
       Timeout: 300
       MemorySize: 1024
