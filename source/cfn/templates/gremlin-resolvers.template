@@ -42,6 +42,9 @@ Parameters:
   AppSyncSettingsLambdaDataSourceName:
     Type: String
 
+  NodeLambdaRuntime:
+    Type: String
+
   CustomUserAgent: 
     Type: String
 
@@ -131,7 +134,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/graph-api.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for appsync resolver that queries Neptune
       Timeout: 15
       VpcConfig:

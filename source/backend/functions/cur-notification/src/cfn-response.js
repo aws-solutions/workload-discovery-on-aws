@@ -6,7 +6,7 @@
 
  exports.send = function(event, context, responseStatus, responseData, physicalResourceId, noEcho) {
 
-     var responseBody = JSON.stringify({
+     const responseBody = JSON.stringify({
          Status: responseStatus,
          Reason: "See the details in CloudWatch Log Stream: " + context.logStreamName,
          PhysicalResourceId: physicalResourceId || context.logStreamName,
@@ -19,11 +19,11 @@
 
      console.log("Response body:\n", responseBody);
 
-     var https = require("https");
-     var url = require("url");
+     const https = require("https");
+     const url = require("url");
 
-     var parsedUrl = url.parse(event.ResponseURL);
-     var options = {
+     const parsedUrl = url.parse(event.ResponseURL);
+     const options = {
          hostname: parsedUrl.hostname,
          port: 443,
          path: parsedUrl.path,
@@ -34,7 +34,7 @@
          }
      };
 
-     var request = https.request(options, function(response) {
+     const request = https.request(options, function(response) {
          console.log("Status code: " + response.statusCode);
          console.log("Status message: " + response.statusMessage);
          context.done();

@@ -14,7 +14,7 @@ exports.handler = function (event, context, callback) {
   } else {
     if (event.Records) {
       R.forEach((record) => {
-        console.dir(record);
+        console.log(JSON.stringify(record));
         console.log(
           `Downloading from ${record.s3.bucket.name}/${record.s3.object.key}`
         );

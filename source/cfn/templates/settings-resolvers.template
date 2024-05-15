@@ -18,6 +18,9 @@ Parameters:
   ConfigurationAggregator:
     Type: String
 
+  NodeLambdaRuntime:
+    Type: String
+
   CustomUserAgent: 
     Type: String
 
@@ -84,8 +87,8 @@ Resources:
                 Resource: !GetAtt PerspectiveSettingsTable.Arn
               - Effect: Allow
                 Action:
-                  - config:putConfigurationAggregator
-                Resource: !Sub arn:aws:config:${AWS::Region}:${AWS::AccountId}*
+                  - config:PutConfigurationAggregator
+                Resource: !Sub arn:aws:config:${AWS::Region}:${AWS::AccountId}:config-aggregator/*
               - Effect: Allow
                 Action:
                   - ec2:DescribeRegions
@@ -106,7 +109,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/settings.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for Settings Appsync resolvers
       Timeout: 15
       MemorySize: 1024

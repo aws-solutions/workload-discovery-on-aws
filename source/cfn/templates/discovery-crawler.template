@@ -97,6 +97,9 @@ Parameters:
     Type: String
     Default: ''
 
+  PythonLambdaRuntime:
+    Type: String
+
   CustomUserAgent:
     Type: String
 
@@ -178,7 +181,7 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucketName
         Key: !Sub ${DeploymentBucketKey}/cleanup-ecr.zip
-      Runtime: python3.8
+      Runtime: !Ref PythonLambdaRuntime
       Layers:
         - !Ref Decorators
         - !Ref BotoUtils

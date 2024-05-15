@@ -29,6 +29,9 @@ Parameters:
   S3CleanupBucket:
     Type: String
 
+  PythonLambdaRuntime:
+    Type: String
+
 Conditions:
   CreateConfigBucket: !Equals
     - Ref: CreateConfigBucket
@@ -415,7 +418,7 @@ Resources:
                     - CreateConfigBucket
                     - "Fn::Sub": "arn:aws:s3:::${ConfigBucket}/*"
                     - Ref: "AWS::NoValue"
-      Runtime: python3.8
+      Runtime: !Ref PythonLambdaRuntime
       Timeout: 60
 
   CleanupAccessLogsBucket:

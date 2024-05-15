@@ -33,6 +33,9 @@ Parameters:
   WebUIBucket:
     Type: String
 
+  PythonLambdaRuntime:
+    Type: String
+
 Resources:
 
   UiSettingsResource:
@@ -78,7 +81,6 @@ Resources:
               physicalResourceId=physical_id, 
               reason=failed_reason,
             )
-
       Policies:
         - Statement:
             - Effect: Allow
@@ -87,7 +89,7 @@ Resources:
                 - s3:PutObjectAcl
                 - s3:DeleteObject
               Resource: !Sub arn:${AWS::Partition}:s3:::${WebUIBucket}/${SettingsObjectKey}
-      Runtime: python3.9
+      Runtime: !Ref PythonLambdaRuntime
       Timeout: 120
       ReservedConcurrentExecutions: 1
 

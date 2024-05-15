@@ -32,6 +32,9 @@ Parameters:
   SolutionVersion:
     Type: String
 
+  PythonLambdaRuntime:
+    Type: String
+
 Resources:
 
   CodeBuildRole:
@@ -180,6 +183,6 @@ Resources:
               Action:
                 - codebuild:StartBuild
               Resource: !GetAtt CodeBuildProject.Arn
-      Runtime: python3.8
+      Runtime: !Ref PythonLambdaRuntime
       ReservedConcurrentExecutions: 1
       Timeout: 900

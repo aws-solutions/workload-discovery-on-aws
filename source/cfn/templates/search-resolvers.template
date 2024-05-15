@@ -5,6 +5,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: Workload Discovery on AWS AppSync Search API Stack
 
 Parameters:
+
   DeploymentBucket:
     Type: String
 
@@ -33,6 +34,9 @@ Parameters:
     Type: String
 
   PerspectiveAppSyncApiId:
+    Type: String
+
+  NodeLambdaRuntime:
     Type: String
 
   CustomUserAgent:
@@ -79,7 +83,7 @@ Resources:
         Bucket: !Ref DeploymentBucket
         Key: !Sub ${DeploymentBucketKey}/opensearch-setup.zip
       Role: !Ref OpenSearchLambdaRoleArn
-      Runtime: nodejs16.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Custom resource to create OpenSearch index
       Environment:
         Variables:
@@ -114,7 +118,7 @@ Resources:
       Code:
         S3Bucket: !Ref DeploymentBucket
         S3Key: !Sub ${DeploymentBucketKey}/search-api.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for Search AppSync API
       Timeout: 10
       TracingConfig:

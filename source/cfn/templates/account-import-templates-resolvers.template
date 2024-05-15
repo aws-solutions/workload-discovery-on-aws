@@ -17,6 +17,9 @@ Parameters:
   DiscoveryRoleArn:
     Type: String
 
+  NodeLambdaRuntime:
+    Type: String
+
 Resources:
 
   AccountImportTemplatesApiLambdaFunctionRole:
@@ -57,7 +60,7 @@ Resources:
       Code:
         S3Bucket: !Ref DeploymentBucket
         S3Key: !Sub ${DeploymentBucketKey}/account-import-templates-api.zip
-      Runtime: nodejs18.x
+      Runtime: !Ref NodeLambdaRuntime
       Description: Lambda for Account Import Template Api
       Timeout: 10
       TracingConfig:

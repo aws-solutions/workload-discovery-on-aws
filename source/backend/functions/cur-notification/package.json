@@ -1,13 +1,13 @@
 {
-  "name": "wd-cur-setup",
+  "name": "wd-cur-notification",
   "version": "2.1.7",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/*.js",
     "clean": "rm -rf dist",
-    "build:zip": "zip -rq --exclude=package-lock.json cur-setup.zip node_modules/ && zip -urj cur-setup.zip src/",
-    "build:dist": "mkdir dist && mv cur-setup.zip dist/",
+    "build:zip": "zip -rq --exclude=package-lock.json cur-notification.zip node_modules/ && zip -urj cur-notification.zip src/",
+    "build:dist": "mkdir dist && mv cur-notification.zip dist/",
     "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
     "coverage": "nyc npm test"
   },

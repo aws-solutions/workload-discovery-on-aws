@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.7] - 2024-5-15
+
+### Fixed
+
+- Invalid policy error when deploying Settings resolver nested stack
+- Update Node.js runtimes to v20.x
+- Update Python runtimes to Python 3.12
+- Security [vulnerability](https://github.com/advisories/GHSA-cxjh-pqwp-8mfp) in `follow-redirects`.
+- Security [vulnerability](https://github.com/advisories/GHSA-8jhw-289h-jh2g) in `vite`.
+- Security [vulnerability](https://github.com/advisories/GHSA-9qxr-qj54-h672) in `undici`.
+- Security [vulnerability](https://github.com/advisories/GHSA-m4v8-wqvr-p9f7) in `undici`.
+
 ## [2.1.6] - 2024-2-22
 
 ### Fixed
