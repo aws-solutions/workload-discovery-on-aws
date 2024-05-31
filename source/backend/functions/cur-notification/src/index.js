@@ -1,11 +1,12 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-const AWS = require('aws-sdk');
+const { S3 } = require('@aws-sdk/client-s3');
+
 const response = require('./cfn-response');
 
 exports.handler = function(event, context, callback) {
-    const s3 = new AWS.S3();
+    const s3 = new S3();
     const putConfigRequest = function(notificationConfiguration) {
         return new Promise(function(resolve, reject) {
             s3.putBucketNotificationConfiguration({
