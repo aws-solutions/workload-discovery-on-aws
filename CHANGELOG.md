@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.8] - 2024-6-13
+
+### Fixed
+
+- Security [vulnerability](https://github.com/advisories/GHSA-2p57-rm9w-gvfp) in `ip`.
+- Security [vulnerability](https://github.com/advisories/GHSA-grv7-fg5c-xmjg) in `braces`.
+
 ## [2.1.7] - 2024-5-15
 
 ### Fixed
