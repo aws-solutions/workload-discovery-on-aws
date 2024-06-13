@@ -39,4 +39,11 @@ npm i -g gitzip
 echo "moving to root to generate zip file"
 cd ../
 echo "generating the zip using gitzip and ensuring exclusions are ignored as they do not need to be in GitHub"
-gitzip -d $dist_dir/$1.zip -x codescan-funcs.sh codescan-prebuild-default.sh .taskcat.yml buildspec.yml .viperlight* aws-perspective-params.json taskcat-bucket-management.sh taskcat-buildspec.yaml
+gitzip -d $dist_dir/$1.zip \
+      -x "codescan-*.sh" \
+      -x "buildspec.yml" \
+      -x ".viperlight*" \
+      -x "sonar-project.properties" \
+      -x "solution-manifest.yaml" \
+      -x ".nightswatch/*" \
+      -x "Config"
