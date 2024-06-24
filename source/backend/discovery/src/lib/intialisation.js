@@ -4,7 +4,9 @@
 const R = require("ramda");
 const logger = require('./logger');
 const {createApiClient} = require("./apiClient");
+const {AggregatorNotFoundError, OrgAggregatorValidationError} = require('./errors');
 const {
+    AWS_ORGANIZATIONS,
     ECS,
     WORKLOAD_DISCOVERY_TASKGROUP,
     TASK_DEFINITION,
@@ -26,9 +28,22 @@ async function isDiscoveryEcsTaskRunning (ecsClient, taskDefinitionArn, {cluster
     return tasks.length > 1;
 }
 
+async function validateOrgAggregator(configServiceClient, aggregatorName) {
+    return configServiceClient.getConfigAggregator(aggregatorName)
+        .catch(err => {
+            if(err.name === 'NoSuchConfigurationAggregatorException') {
+                throw new AggregatorNotFoundError(aggregatorName)
+            }
+            throw err;
+        })
+        .then(aggregator => {
+            if(aggregator.OrganizationAggregationSource == null) throw new OrgAggregatorValidationError(aggregator);
+        });
+}
+
 async function initialise(awsClient, appSync, config) {
     logger.info('Initialising discovery process');
-    const {region, rootAccountId} = config;
+    const {region, rootAccountId, configAggregator: configAggregatorName, crossAccountDiscovery} = config;
 
     const stsClient = awsClient.createStsClient();
 
@@ -42,6 +57,10 @@ async function initialise(awsClient, appSync, config) {
     }
 
     const configServiceClient = awsClient.createConfigServiceClient(credentials, region);
+
+    if(crossAccountDiscovery === AWS_ORGANIZATIONS) {
+        await validateOrgAggregator(configServiceClient, configAggregatorName);
+    }
 
     const appSyncClient = appSync({...config, creds: credentials});
     const apiClient = createApiClient(awsClient, appSyncClient, config);

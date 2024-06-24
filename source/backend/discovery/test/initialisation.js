@@ -3,6 +3,8 @@
 
 const {assert} = require('chai');
 const {initialise} = require('../src/lib/intialisation');
+const {AWS_ORGANIZATIONS} = require("../src/lib/constants");
+const {AggregatorNotFoundError, OrgAggregatorValidationError} = require("../src/lib/errors");
 
 describe('initialisation', () => {
     const ACCOUNT_X = 'xxxxxxxxxxxx';
@@ -63,7 +65,8 @@ describe('initialisation', () => {
         const defaultConfig = {
             region: EU_WEST_1,
             rootAccountId: ACCOUNT_X,
-            cluster: 'testCluster'
+            cluster: 'testCluster',
+            configAggregator: 'configAggregator'
         };
 
         it('should throw if another copy of the ECS task is running', async () => {
@@ -80,6 +83,50 @@ describe('initialisation', () => {
 
             return initialise({...defaultMockAwsClient, ...mockAwsClient}, defaultAppSync, defaultConfig)
                 .catch(err => assert.strictEqual(err.message, 'Discovery process ECS task is already running in cluster.'));
+        });
+
+        it('should throw AggregatorNotFoundError if config aggregator does not exist in AWS organization', async () => {
+            const mockAwsClient = {
+                createConfigServiceClient() {
+                    return {
+                        async getConfigAggregator() {
+                            const error = new Error();
+                            error.name = 'NoSuchConfigurationAggregatorException';
+                            throw error;
+                        }
+                    }
+                }
+            };
+
+            return initialise({...defaultMockAwsClient, ...mockAwsClient}, defaultAppSync, {...defaultConfig, crossAccountDiscovery: AWS_ORGANIZATIONS})
+                .then(() => {
+                    throw new Error('Expected error not thrown.');
+                })
+                .catch(err => {
+                    assert.instanceOf(err, AggregatorNotFoundError);
+                    assert.strictEqual(err.message, `Aggregator ${defaultConfig.configAggregator} was not found`);
+                });
+        });
+
+        it('should throw OrgAggregatorValidationError if config aggregator is not org wide in AWS organization mode', async () => {
+            const mockAwsClient = {
+                createConfigServiceClient() {
+                    return {
+                        async getConfigAggregator() {
+                            return {};
+                        }
+                    }
+                }
+            };
+
+            return initialise({...defaultMockAwsClient, ...mockAwsClient}, defaultAppSync, {...defaultConfig, crossAccountDiscovery: AWS_ORGANIZATIONS})
+                .then(() => {
+                    throw new Error('Expected error not thrown.');
+                })
+                .catch(err => {
+                    assert.instanceOf(err, OrgAggregatorValidationError);
+                    assert.strictEqual(err.message, 'Config aggregator is not an organization wide aggregator');
+                });
         });
 
     });
