@@ -20,6 +20,6 @@ client.intercept({
 })
     .reply(200, {data: {
             getAccounts: []
-        }});
+        }}).persist();
 
 module.exports = agent;

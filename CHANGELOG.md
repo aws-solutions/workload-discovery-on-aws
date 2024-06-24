@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.9] - 2024-6-24
+
+### Fixed
+
+- Security [vulnerability](https://github.com/advisories/GHSA-3h5v-q93c-6h6q) in `ws`.
+- Add better logging if individual accounts aggregator supplied when cross account discovery mode is `AWS_ORGANIZATIONS`. [529](https://github.com/aws-solutions/workload-discovery-on-aws/issues/529)
+
+### Changed
+
+- Removed dev environment CDK build pipeline
+
 ## [2.1.8] - 2024-6-13
 
 ### Fixed
