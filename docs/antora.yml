@@ -1,7 +1,0 @@
----
-
-name: workload-discovery-on-aws
-title: Workload Discovery on AWS
-version: "2.0"
-nav: 
-  - modules/ROOT/nav.adoc
