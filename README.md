@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.1.9)
+# Workload Discovery on AWS (v2.1.10)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -46,7 +46,7 @@ To submit an idea for a feature you would like to see implemented, please [creat
 
 ## Architecture
 
-![Architecture diagram showing full set of deployment resources](docs/modules/ROOT/images/arch-diagram.png "Full architecture diagram")
+![Architecture diagram showing full set of deployment resources](arch-diagram.png "Full architecture diagram")
 
 Workload Discovery is deployed to your account using an AWS CloudFormation template consisting of six components. 
 The following is a high level overview of the components. For additional details about each component, refer to 

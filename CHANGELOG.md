@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.10] - 2024-7-16
+
+### Fixed
+
+- Security [vulnerability](https://github.com/advisories/GHSA-3q56-9cc2-46j4) in `fast-loops`.
+- Security [vulnerability](https://github.com/advisories/GHSA-jfmj-5v4g-7637) in `zipp`.
+- Security [vulnerability](https://github.com/advisories/GHSA-3g92-w8c5-73pq) in `undici`.
+
+### Changed
+
+- Restrict egress for Neptune lambda security group to VPC IP address range. [531](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/531)
+
 ## [2.1.9] - 2024-6-24
 
 ### Fixed
