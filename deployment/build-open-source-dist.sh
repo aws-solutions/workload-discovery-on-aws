@@ -44,6 +44,7 @@ gitzip -d $dist_dir/$1.zip \
       -x "buildspec.yml" \
       -x ".viperlight*" \
       -x "source/infrastructure" \
+      -x "docs" \
       -x "sonar-project.properties" \
       -x "solution-manifest.yaml" \
       -x ".nightswatch/*" \
