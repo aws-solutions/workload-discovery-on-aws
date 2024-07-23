@@ -1,4 +1,10 @@
-FROM public.ecr.aws/docker/library/node:20
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+
+RUN dnf install -y shadow-utils
+
+RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+
+RUN dnf install nodejs -y
 
 RUN groupadd -r discovery && useradd -r -g discovery discovery
 

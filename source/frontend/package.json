@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.1.10",
+  "version": "2.1.11",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
