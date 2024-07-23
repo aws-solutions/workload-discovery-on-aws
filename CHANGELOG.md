@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.11] - 2024-7-23
+
+### Changed
+
+- Use Amazon Linux 2023 as the base image for the discovery process Docker container
+
 ## [2.1.10] - 2024-7-16
 
 ### Fixed
