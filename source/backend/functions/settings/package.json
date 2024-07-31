@@ -1,6 +1,6 @@
 {
   "name": "wd-settings",
-  "version": "2.1.11",
+  "version": "2.1.12",
   "description": "Lambda function that stores WD configuration data in DynamoDB",
   "main": "index.js",
   "scripts": {
@@ -20,11 +20,11 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/client-config-service": "3.359.0",
-    "@aws-sdk/client-dynamodb": "3.359.0",
-    "@aws-sdk/client-ec2": "3.359.0",
-    "@aws-sdk/client-organizations": "3.359.0",
-    "@aws-sdk/lib-dynamodb": "3.359.0",
+    "@aws-sdk/client-config-service": "3.621.0",
+    "@aws-sdk/client-dynamodb": "3.621.0",
+    "@aws-sdk/client-ec2": "3.621.0",
+    "@aws-sdk/client-organizations": "3.621.0",
+    "@aws-sdk/lib-dynamodb": "3.621.0",
     "@tuplo/dynoexpr": "3.4.0",
     "aws-xray-sdk-core": "3.5.1",
     "ramda": "0.28.0"
