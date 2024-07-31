@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.12] - 2024-7-31
+
+### Fixed
+
+- Security [vulnerability](https://github.com/advisories/GHSA-mpg4-rc92-vx8v) in `fast-xml-parser`.
+
 ## [2.1.11] - 2024-7-23
 
 ### Changed
