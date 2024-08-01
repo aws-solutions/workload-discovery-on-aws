@@ -17,7 +17,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "2.1605.0",
+    "@aws-sdk/client-s3": "3.588.0",
     "ramda": "0.28.0"
   },
   "devDependencies": {
