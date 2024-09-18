@@ -272,12 +272,10 @@ describe('index.js', () => {
 
             it('should add account in AWS Organizations mode', async () => {
                 const mockConfig = {
-                    putConfigurationAggregator: sinon.stub().rejects(new Error(
-                        'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
-                    ))
+                    putConfigurationAggregator: sinon.stub()
                 };
 
-                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
+                const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'})({
                     arguments: {
                         accounts: [
                             {
@@ -318,6 +316,8 @@ describe('index.js', () => {
                         fieldName: 'addAccounts'
                     }
                 });
+
+                sinon.assert.notCalled(mockConfig.putConfigurationAggregator);
 
                 assert.deepEqual(actual, {
                     unprocessedAccounts: []
@@ -1014,6 +1014,68 @@ describe('index.js', () => {
                 });
             });
 
+            it('should add regions in AWS organizations mode', async () => {
+                const mockConfig = {
+                    putConfigurationAggregator: sinon.stub()
+                };
+
+                const actual = await handler(
+                    mockEc2Client,
+                    docClient,
+                    mockConfig,
+                    {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'}
+                )({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [{name: 'eu-central-1'}],
+                    },
+                    info: {
+                        fieldName: 'addRegions',
+                    },
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [
+                        {name: 'eu-central-1'},
+                        {name: 'eu-west-1'},
+                        {name: 'eu-west-2'},
+                    ],
+                    lastCrawled: 'new Date()',
+                    name: 'testAccount',
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                    },
+                });
+
+                sinon.assert.notCalled(mockConfig.putConfigurationAggregator);
+
+                assert.deepEqual(actualDb, {
+                    SK: '111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-central-1',
+                        },
+                        {
+                            name: 'eu-west-1',
+                        },
+                        {
+                            name: 'eu-west-2',
+                        },
+                    ],
+                    lastCrawled: 'new Date()',
+                    name: 'testAccount',
+                    type: 'account',
+                });
+            });
+
             it('should ignore duplicates regions', async () => {
                 const actual = await handler(mockEc2Client, docClient, mockConfig, {DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'})({
                     arguments: {
@@ -1211,15 +1273,13 @@ describe('index.js', () => {
 
             it('should delete account in AWS Organizations mode', async () => {
                 const mockConfig = {
-                    putConfigurationAggregator: sinon.stub().rejects(new Error(
-                        'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
-                    ))
+                    putConfigurationAggregator: sinon.stub()
                 };
 
                 const actual = await handler(mockEc2Client, docClient, mockConfig, {
                     ACCOUNT_ID,
                     AWS_REGION,
-                    DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator'
+                    DB_TABLE, CONFIG_AGGREGATOR: 'aggregrator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'
                 })({
                     arguments: {
                         accountIds: ['222222222222']
@@ -1228,6 +1288,8 @@ describe('index.js', () => {
                         fieldName: 'deleteAccounts'
                     }
                 });
+
+                sinon.assert.notCalled(mockConfig.putConfigurationAggregator);
 
                 assert.deepEqual(actual, {
                     unprocessedAccounts: []
@@ -1643,6 +1705,54 @@ describe('index.js', () => {
                         }
                     ],
                     type: 'account'
+                });
+            });
+
+            it('should delete regions in AWS organizations mode', async () => {
+                const mockConfig = {
+                    putConfigurationAggregator: sinon.stub()
+                };
+
+                const actual = await handler(
+                    mockEc2Client,
+                    docClient,
+                    mockConfig,
+                    {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'}
+                )({
+                    arguments: {
+                        accountId: '111111111111',
+                        regions: [{name: 'eu-west-2'}, {name: 'eu-central-1'}],
+                    },
+                    info: {
+                        fieldName: 'deleteRegions',
+                    },
+                });
+
+                assert.deepEqual(actual, {
+                    accountId: '111111111111',
+                    regions: [{name: 'eu-west-1'}],
+                });
+
+                const {Item: actualDb} = await docClient.get({
+                    TableName: DB_TABLE,
+                    Key: {
+                        PK: 'Account',
+                        SK: '111111111111',
+                    },
+                });
+
+                sinon.assert.notCalled(mockConfig.putConfigurationAggregator);
+
+                assert.deepEqual(actualDb, {
+                    SK: '111111111111',
+                    accountId: '111111111111',
+                    PK: 'Account',
+                    regions: [
+                        {
+                            name: 'eu-west-1',
+                        },
+                    ],
+                    type: 'account',
                 });
             });
 

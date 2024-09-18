@@ -28,7 +28,7 @@ echo "--------------------------------------------------------------------------
 echo "[Test] Drawio"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/drawio
-pipenv install --dev
+pipenv install -q --dev
 pipenv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
@@ -49,6 +49,13 @@ echo "[Test] Metrics"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/metrics
 npm run test:ci
+
+echo "[Test] Bucket cleanup Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/cleanup-bucket
+pipenv install -q --dev
+pipenv run pytest --cov-report xml --cov .
+echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Discovery"

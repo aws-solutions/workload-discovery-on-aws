@@ -349,7 +349,7 @@ Mappings:
       '4hrs': cron(0 */4 * * ? *)
       '8hrs': cron(0 */8 * * ? *)
       '12hrs': cron(0 */12 * * ? *)
-      '24hrs': cron(0 *0 * * ? *)
+      '24hrs': cron(0 */24 * * ? *)
     Metrics:
       CollectAnonymizedUsageMetrics: 'true'
 
@@ -647,6 +647,7 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/settings-resolvers.template
       TimeoutInMinutes: 60
       Parameters:
+        CrossAccountDiscovery: !Ref CrossAccountDiscovery
         NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         ConfigurationAggregator: !GetAtt ConfigAggregator.Outputs.PerspectiveConfigurationAggregator
