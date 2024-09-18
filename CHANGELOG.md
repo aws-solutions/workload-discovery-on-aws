@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.14] - 2024-9-18
+
+### Fixed
+
+- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/546)
+- Intermittent failures in `cleanup-bucket` custom resource. [545](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/545)
+- SCP error relating to `putConfigAggregator` when adding accounts in an AWS organisation using Control Tower. [544](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/544)
+- Security [vulnerability](https://github.com/advisories/GHSA-952p-6rrq-rcjv) in `micromatch`.
+- Security [vulnerability](https://github.com/advisories/GHSA-9wv6-86v2-598j) in `path-to-regexp`.
+- Security [vulnerability](https://github.com/advisories/GHSA-m6fv-jmcg-4jfg) in `send`.
+
 ## [2.1.13] - 2024-8-16
 
 ### Fixed

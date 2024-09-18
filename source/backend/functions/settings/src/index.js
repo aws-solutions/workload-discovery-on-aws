@@ -18,13 +18,12 @@ const ec2Client = new EC2({customUserAgent});
 const dbClient = AWSXRay.captureAWSv3Client(new DynamoDB({customUserAgent}));
 const docClient = DynamoDBDocument.from(dbClient);
 
-const ORG_AGGREGATOR_ERROR = 'The configuration aggregator cannot be created because your aggregator source type changed for that aggregator.'
+const AWS_ORGANIZATIONS = 'AWS_ORGANIZATIONS';
 const DUPLICATE_ACCOUNTS_ERROR =
     'Your configuration aggregator contains duplicate accounts. Delete the duplicate accounts and try again.';
 
 function handleAwsConfigErrors(err) {
-    // when using AWS Organizations, we do not want to update the the aggregator
-    if ([DUPLICATE_ACCOUNTS_ERROR, ORG_AGGREGATOR_ERROR].includes(err.message)) {
+    if ([DUPLICATE_ACCOUNTS_ERROR].includes(err.message)) {
         console.log(err);
     } else {
         throw err;
@@ -147,7 +146,7 @@ function deleteAccounts(
     docClient,
     configService,
     TableName,
-    { defaultAccountId, defaultRegion, configAggregator, accountIds, retryTime }
+    { defaultAccountId, defaultRegion, configAggregator, isUsingOrganizations, accountIds, retryTime }
 ) {
     return getAccountsFromDb(docClient, TableName, {ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES})
         .then(dbAccounts => {
@@ -160,6 +159,8 @@ function deleteAccounts(
             return {AccountIds, AwsRegions};
         })
         .then(async ({AccountIds, AwsRegions}) => {
+            if(isUsingOrganizations) return;
+
             // The putConfigurationAggregator API requires that AccountIds and AsRegions be arrays of at least
             // length 1. If a user deletes all their accounts an error occurs and the accounts are not deleted.
             // To mitigate this, we supply the default region and account where the config aggregator is deployed.
@@ -277,7 +278,7 @@ function addAccounts(
     docClient,
     configService,
     TableName,
-    {accounts, configAggregator, retryTime}
+    {accounts, configAggregator, isUsingOrganizations, retryTime}
 ) {
     const depudedAccounts = R.map(R.evolve({
         regions: R.uniqBy(R.prop('name'))
@@ -301,6 +302,8 @@ function addAccounts(
             return {AccountIds, AwsRegions};
         })
         .then(async ({AccountIds, AwsRegions}) => {
+            if(isUsingOrganizations) return;
+
             return configService
                 .putConfigurationAggregator({
                     ConfigurationAggregatorName: configAggregator,
@@ -330,7 +333,7 @@ function addAccounts(
 }
 
 function handleRegions(accountHandler) {
-    return (docClient, configService, TableName, {accountId, regions, configAggregator}) => {
+    return (docClient, configService, TableName, {accountId, regions, configAggregator, isUsingOrganizations}) => {
         return getAccountsFromDb(docClient, TableName, {
             ProjectionExpression: DEFAULT_ACCOUNT_PROJECTION_EXPR, ExpressionAttributeNames: DEFAULT_EXPRESSION_ATT_NAMES
         })
@@ -341,15 +344,17 @@ function handleRegions(accountHandler) {
                 return {AccountIds, AwsRegions, accounts};
             })
             .then(async ({AccountIds, AwsRegions, accounts}) => {
-                await configService
-                    .putConfigurationAggregator({
-                        ConfigurationAggregatorName: configAggregator,
-                        AccountAggregationSources: [{
-                            AccountIds,
-                            AllAwsRegions: false,
-                            AwsRegions
-                        }]
-                    });
+                if(!isUsingOrganizations) {
+                    await configService
+                        .putConfigurationAggregator({
+                            ConfigurationAggregatorName: configAggregator,
+                            AccountAggregationSources: [{
+                                AccountIds,
+                                AllAwsRegions: false,
+                                AwsRegions
+                            }]
+                        });
+                }
                 return accounts;
             })
             .catch((err) => {
@@ -545,10 +550,13 @@ const cache = {};
 
 function handler(ec2Client, docClient, configService, {
     ACCOUNT_ID: defaultAccountId, AWS_REGION: defaultRegion,
-    DB_TABLE: TableName, CONFIG_AGGREGATOR: configAggregator, RETRY_TIME: retryTime = 1000
+    DB_TABLE: TableName, CONFIG_AGGREGATOR: configAggregator,
+    CROSS_ACCOUNT_DISCOVERY: crossAccountDiscovery, RETRY_TIME: retryTime = 1000
 }) {
     return async (event, _) => {
         if (R.isNil(cache.regions)) cache.regions = await getRegions(ec2Client);
+
+        const isUsingOrganizations = crossAccountDiscovery === AWS_ORGANIZATIONS;
 
         const args = R.reject(R.isNil, event.arguments);
         const fieldName = event.info.fieldName;
@@ -561,12 +569,14 @@ function handler(ec2Client, docClient, configService, {
             case 'addAccounts':
                 return addAccounts(docClient, configService, TableName, {
                     configAggregator,
+                    isUsingOrganizations,
                     retryTime,
                     ...R.evolve({accounts: R.uniqBy(R.prop('accountId'))}, args),
                 });
             case 'addRegions':
                 return addRegions(docClient, configService, TableName, {
                     configAggregator,
+                    isUsingOrganizations,
                     ...args,
                 });
             case 'deleteAccounts':
@@ -574,12 +584,14 @@ function handler(ec2Client, docClient, configService, {
                     defaultAccountId,
                     defaultRegion,
                     configAggregator,
+                    isUsingOrganizations,
                     retryTime,
                     ...args,
                 });
             case 'deleteRegions':
                 return deleteRegions(docClient, configService, TableName, {
                     configAggregator,
+                    isUsingOrganizations,
                     ...args,
                 });
             case 'getAccount':

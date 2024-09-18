@@ -12,6 +12,9 @@ Parameters:
   DeploymentBucketKey:
     Type: String
 
+  CrossAccountDiscovery:
+    Type: String
+
   PerspectiveAppSyncApiId:
     Type: String
 
@@ -119,6 +122,7 @@ Resources:
           DB_TABLE: !Ref PerspectiveSettingsTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
           ACCOUNT_ID: !Ref AWS::AccountId
+          CROSS_ACCOUNT_DISCOVERY: !Ref CrossAccountDiscovery
           CONFIG_AGGREGATOR: !Ref ConfigurationAggregator
           CUSTOM_USER_AGENT: !Ref CustomUserAgent
 
