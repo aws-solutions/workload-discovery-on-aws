@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.15] - 2024-9-30
+
+### Fixed
+
+- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/546)
+- Security [vulnerability](https://github.com/advisories/GHSA-gcx4-mw62-g8wm) in `rollup`.
+- Security [vulnerability](https://github.com/advisories/GHSA-9cwx-2883-4wfx) in `vite`.
+- Security [vulnerability](https://github.com/advisories/GHSA-64vr-g452-qvp3) in `vite`.
+
 ## [2.1.14] - 2024-9-18
 
 ### Fixed
