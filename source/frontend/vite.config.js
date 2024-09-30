@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import eslint from 'vite-plugin-eslint'
+import eslint from 'vite-plugin-eslint2'
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';

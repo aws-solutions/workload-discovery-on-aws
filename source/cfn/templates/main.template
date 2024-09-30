@@ -349,7 +349,7 @@ Mappings:
       '4hrs': cron(0 */4 * * ? *)
       '8hrs': cron(0 */8 * * ? *)
       '12hrs': cron(0 */12 * * ? *)
-      '24hrs': cron(0 */24 * * ? *)
+      '24hrs': cron(0 0/24 * * ? *)
     Metrics:
       CollectAnonymizedUsageMetrics: 'true'
 

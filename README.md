@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.1.14)
+# Workload Discovery on AWS (v2.1.15)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
