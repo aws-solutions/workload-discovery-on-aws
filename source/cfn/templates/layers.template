@@ -66,3 +66,7 @@ Outputs:
   Decorators:
     Description: Decorators Layer
     Value: !Ref Decorators
+
+  LambdaPowertoolsPython:
+    Description: Lambda Powertools Python Layer
+    Value: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:2

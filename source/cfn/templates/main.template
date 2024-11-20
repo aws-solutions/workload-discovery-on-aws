@@ -252,6 +252,88 @@ Parameters:
       a subnet mask of /32) of the NAT gateways that allow the discovery process ECS task running in its private subnet 
       to access the internet. NB: this allowlist does not govern access to the WebUI, only the GraphQL API.
     Default: 0.0.0.0/1,128.0.0.0/1
+  UsesCustomIdentity:
+    Type: String
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+    Default: 'No'
+    ConstraintDescription: Please specify (Yes / No)
+  CognitoCustomDomain:
+    Type: String
+    AllowedPattern: ^(?:[a-z0-9\-]{3,63})?$
+    Default: ''
+    Description: Leave empty if you are not using a custom IdP, otherwise must include only lowercase letters, numbers, and hyphens.
+    ConstraintDescription: This string can include only lowercase letters, numbers, and hyphens.
+  CognitoAttributeMapping:
+    Type: String
+    Default: '{"email": "email}'
+    Description: | 
+      The mapping of IdP attributes to standard and custom Cognito user pool attributes. Must be a valid JSON
+      string.
+  IdentityType:
+    Type: String
+    AllowedValues:
+      - 'Google'
+      - 'SAML'
+      - 'OIDC'
+      - ''
+    Default: ''
+    Description: Leave empty if you are not using a custom IdP
+
+  ProviderName:
+    Type: String
+    Description: Name for the Identity Provider (Leave empty if you are not using a custom IdP.)
+    Default: ''
+    AllowedPattern: ^(?:[a-zA-Z0-9]{3,32})?$
+    ConstraintDescription: The value has to be in lower case, upper case and between 3 and 32 characters.
+
+  GoogleClientId:
+    Type: String
+    Default: ''
+    ConstraintDescription: Must be a valid Google Client ID.
+    Description: Google Client ID (Parameter only used when IdentityType is set to Google)
+
+  GoogleClientSecret:
+    Type: String
+    Default: ''
+    ConstraintDescription: Must be a valid Google Client Secret.
+    NoEcho: true
+    Description: Google Client Secret (Parameter only used when IdentityType is set to Google)
+
+  SAMLMetadataURL:
+    Type: String
+    Default: ''
+    ConstraintDescription: Must be a valid URL.
+    Description: Metadata URL for the SAML Identity Provider (Parameter only used when IdentityType is set to SAML)
+
+  OIDCClientId:
+    Type: String
+    Description: OIDC Client ID
+    Default: ''
+    ConstraintDescription: Must be a valid OIDC Client ID. (Parameter only used when IdentityType is set to OIDC)
+
+  OIDCClientSecret:
+    Type: String
+    Description: OIDC Client Secret
+    Default: ''
+    NoEcho: true
+    ConstraintDescription: Must be a valid OIDC Client Secret. (Parameter only used when IdentityType is set to OIDC)
+
+  OIDCIssuerURL:
+    Type: String
+    Description: OIDC Issuer URL
+    Default: ''
+    ConstraintDescription: Must be a valid URL. (Parameter only used when IdentityType is set to OIDC)
+
+  OIDCAttributeRequestMethod:
+    Type: String
+    Description: OIDC Attribute Request Method (Parameter only used when IdentityType is set to OIDC)
+    AllowedValues:
+      - 'GET'
+      - 'POST'
+    Default: 'GET'
+    ConstraintDescription: Must be either GET or POST. (refer to OIDC provider or leave default)
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -305,8 +387,24 @@ Metadata:
           default: WAF Configuration
         Parameters:
           - ApiAllowListedRanges
+      - Label:
+          default: Custom Identity Provider Configuration - the type of external IdP, a unique name for the user pool domain, and a boolean indicating if external IdP integration is necessary
+        Parameters:
+          - CognitoCustomDomain
+          - UsesCustomIdentity
+          - IdentityType
+          - CognitoAttributeMapping
+          - ProviderName
+          - SAMLMetadataURL
+          - GoogleClientId
+          - GoogleClientSecret
+          - OIDCClientId
+          - OIDCClientSecret
+          - OIDCIssuerURL
+          - OIDCAttributeRequestMethod
 
 Rules:
+
   OrganizationsRule:
     RuleCondition: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
     Assertions:
@@ -330,6 +428,7 @@ Rules:
         AssertDescription: You must provide a CIDR block when using an existing VPC
 
 Mappings:
+
   Solution:
     Constants:
       SolutionId: SO0075
@@ -358,8 +457,15 @@ Conditions:
   IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
   CreateVpc: !Equals [!Ref VpcId, '']
   CreateAnonymizedUsageMetrics: !Equals [!FindInMap [Solution, Metrics, CollectAnonymizedUsageMetrics], 'true']
+  CreateOidcSecret: !And
+    - !Equals [ !Ref UsesCustomIdentity, 'Yes' ]
+    - !Equals [ !Ref IdentityType, OIDC ]
+  CreateGoogleSecret: !And
+    - !Equals [ !Ref UsesCustomIdentity, 'Yes' ]
+    - !Equals [ !Ref IdentityType, Google ]
 
 Resources:
+
   EchoFunction:
     Metadata:
       cfn_nag:
@@ -390,6 +496,7 @@ Resources:
       ServiceToken: !GetAtt EchoFunction.Arn
       NodeLambdaRuntime: !FindInMap [Solution, Constants, NodeLambdaRuntime]
       PythonLambdaRuntime: !FindInMap [Solution, Constants, PythonLambdaRuntime]
+      ExternalId: !Select [2, !Split ["/", !Ref AWS::StackId]]
       DeploymentBucket: !Sub
         - https://s3.${Region}.amazonaws.com/${DeploymentBucketNamePrefix}-${Region}/${DeploymentBucketKey}
         - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
@@ -404,6 +511,26 @@ Resources:
         - SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
           Version: !FindInMap [ Solution, Constants, SolutionVersion ]
 
+  WdOidcClientSecret:
+    Condition: CreateOidcSecret
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Secret used by Workload Discovery for OIDC login
+      SecretString: !Ref OIDCClientSecret
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+
+  WdGoogleClientSecret:
+    Condition: CreateGoogleSecret
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Secret used by Workload Discovery for Google login
+      SecretString: !Ref GoogleClientSecret
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+
   LayerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -413,6 +540,9 @@ Resources:
         DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
       TemplateURL: !Sub ${Variables.DeploymentBucket}/layers.template
       TimeoutInMinutes: 60
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   S3Buckets:
     Type: AWS::CloudFormation::Stack
@@ -425,6 +555,9 @@ Resources:
         CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
       TemplateURL: !Sub ${Variables.DeploymentBucket}/buckets.template
       TimeoutInMinutes: 60
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   VpcStack:
     Type: AWS::CloudFormation::Stack
@@ -432,6 +565,9 @@ Resources:
     Properties:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/vpc.template
       TimeoutInMinutes: 60
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   NeptuneStack:
     Type: AWS::CloudFormation::Stack
@@ -451,6 +587,9 @@ Resources:
         DBInstanceClass: !Ref NeptuneInstanceClass
         MinNCUs: !Ref MinNCUs
         MaxNCUs: !Ref MaxNCUs
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   ConfigAggregator:
     Type: AWS::CloudFormation::Stack
@@ -462,6 +601,9 @@ Resources:
         ExistingConfigInstallation: !Ref AlreadyHaveConfigSetup
         ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
         ConfigAggregatorName: !Ref ConfigAggregatorName
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   OrganizationsGlobalResourcesStack:
     Type: AWS::CloudFormation::Stack
@@ -472,7 +614,12 @@ Resources:
         OrganizationUnitId: !Ref OrganizationUnitId
         AccountType: !Ref AccountType
         DiscoveryRoleArn: !GetAtt TaskStack.Outputs.DiscoveryRoleArn
+        ExternalId: !GetAtt Variables.ExternalId
+        MyApplicationsLambdaRoleArn: !GetAtt MyApplicationsResolversStack.Outputs.MyApplicationsLambdaRoleArn
         DeploymentBucket: !GetAtt Variables.DeploymentBucket
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -481,6 +628,9 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   OpenSearchStack:
     Type: AWS::CloudFormation::Stack
@@ -496,6 +646,9 @@ Resources:
         PerspectiveVPCId: !If [CreateVpc, !GetAtt VpcStack.Outputs.VPCId, !Ref VpcId, ]
         PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         SearchLambdaIAMRoleARN: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   TaskStack:
     Type: AWS::CloudFormation::Stack
@@ -525,6 +678,9 @@ Resources:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   CodebuildStack:
     Type: AWS::CloudFormation::Stack
@@ -541,6 +697,9 @@ Resources:
         ImageVersion: !FindInMap [Solution, Constants, ImageVersion]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   CognitoStack:
     Type: AWS::CloudFormation::Stack
@@ -548,9 +707,31 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/cognito.template
       TimeoutInMinutes: 60
       Parameters:
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
         AdminUserEmailAddress: !Ref AdminUserEmailAddress
         AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         WebUiUrl: !GetAtt WebUiStack.Outputs.WebUiUrl
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
+        LambdaPowertoolsPythonLayer: !GetAtt LayerStack.Outputs.LambdaPowertoolsPython
+        BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
+        CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
+        CognitoDomain: !Ref CognitoCustomDomain
+        UsesCustomIdentity: !Ref UsesCustomIdentity
+        AttributeMapping: !Ref CognitoAttributeMapping
+        IdentityType: !Ref IdentityType
+        ProviderName: !Ref ProviderName
+        GoogleClientId: !Ref GoogleClientId
+        GoogleClientSecretArn: !If [CreateGoogleSecret, !Ref WdGoogleClientSecret, '']
+        SAMLMetadataURL: !Ref SAMLMetadataURL
+        OIDCClientId: !Ref OIDCClientId
+        OIDCClientSecretArn: !If [CreateOidcSecret, !Ref WdOidcClientSecret, '']
+        OIDCIssuerURL: !Ref OIDCIssuerURL
+        OIDCAttributeRequestMethod: !Ref OIDCAttributeRequestMethod
+        CloudfrontDistributionURL: !GetAtt WebUiStack.Outputs.WebUiUrl
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   GremlinResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -573,6 +754,10 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+
   SearchResolversStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -592,6 +777,9 @@ Resources:
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   DrawIoExportResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -603,6 +791,24 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+
+  MyApplicationsResolversStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/myapplications-resolvers.template
+      TimeoutInMinutes: 60
+      Parameters:
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        ExternalId: !GetAtt Variables.ExternalId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   AccountImportTemplatesResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -611,10 +817,16 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
+        SolutionVersion: !FindInMap [ Solution, Constants, SolutionVersion ]
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DiscoveryRoleArn: !GetAtt TaskStack.Outputs.DiscoveryRoleArn
+        ExternalId: !GetAtt Variables.ExternalId
+        MyApplicationsLambdaRoleArn: !GetAtt MyApplicationsResolversStack.Outputs.MyApplicationsLambdaRoleArn
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack
@@ -626,6 +838,9 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
         ApiAllowListedRanges: !Join [',',  !Ref ApiAllowListedRanges]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   CostResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -640,6 +855,9 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   SettingsResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -654,6 +872,9 @@ Resources:
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
@@ -665,6 +886,9 @@ Resources:
         CostAndUsageBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   WebUiStack:
     Type: AWS::CloudFormation::Stack
@@ -675,6 +899,9 @@ Resources:
         AccessLogsBucket: !GetAtt S3Buckets.Outputs.AccessLogsBucket
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
         WebUIBucketRegionalDomainName: !GetAtt S3Buckets.Outputs.WebUIBucketRegionalDomainName
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   WebUiSettingsStack:
     Type: AWS::CloudFormation::Stack
@@ -690,8 +917,15 @@ Resources:
         CognitoIdentityPoolId: !GetAtt CognitoStack.Outputs.IdentityPoolId
         CognitoUserPoolId: !GetAtt CognitoStack.Outputs.UserPoolId
         CognitoUserPoolWebClientId: !GetAtt CognitoStack.Outputs.WebClientId
+        UsesCustomIdentity: !Ref UsesCustomIdentity
+        CognitoUserPoolCustomDomain: !Ref CognitoCustomDomain
+        CognitoUserPoolProviderName: !Ref ProviderName
+        CloudfrontDistributionURL: !GetAtt WebUiStack.Outputs.WebUiUrl
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
   
   MetricsStack:
     Type: AWS::CloudFormation::Stack
@@ -701,14 +935,25 @@ Resources:
       TimeoutInMinutes: 60
       Parameters:
         NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
+        PythonLambdaRuntime: !GetAtt Variables.PythonLambdaRuntime
+        LambdaPowertoolsPythonLayer: !GetAtt LayerStack.Outputs.LambdaPowertoolsPython
+        BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
+        CustomResourceHelperLambdaLayer: !GetAtt LayerStack.Outputs.CustomResourceHelper
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
-        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+        SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
+        SolutionVersion: !FindInMap [ Solution, Constants, SolutionVersion ]
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
         AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
         AppSyncAPIUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
         AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
+        MyApplicationsLambdaLogGroup: !GetAtt MyApplicationsResolversStack.Outputs.MyApplicationsLambdaLogGroup
+        NeptuneInstanceClass: !Ref NeptuneInstanceClass
+        OpensearchInstanceType: !Ref OpensearchInstanceType
+      Tags:
+        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
+          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
 
   AppRegistryStack:
     Type: AWS::CloudFormation::Stack
@@ -721,28 +966,17 @@ Resources:
         SolutionId: !FindInMap [Solution, Constants, SolutionId]
         SolutionName: !FindInMap [Solution, Constants, SolutionName]
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
-        MainStack: !Ref AWS::StackId
-        LayerStack: !Ref LayerStack
-        S3BucketsStack: !Ref S3Buckets
-        VpcStack: !If [CreateVpc, !Ref VpcStack, !Ref AWS::NoValue]
-        MetricsStack: !If [CreateAnonymizedUsageMetrics, !Ref MetricsStack, !Ref AWS::NoValue]
-        NeptuneStack: !Ref NeptuneStack
-        ConfigAggregatorStack: !Ref ConfigAggregator
-        OpenSearchRoleStack: !Ref OpenSearchRoleStack
-        OpenSearchStack: !Ref OpenSearchStack
-        TaskStack: !Ref TaskStack
-        CodebuildStack: !Ref CodebuildStack
-        GremlinResolversStack: !Ref GremlinResolversStack
-        SearchResolversStack: !Ref SearchResolversStack
-        DrawIoExportResolversStack: !Ref DrawIoExportResolversStack
-        AccountImportTemplatesResolversStack: !Ref AccountImportTemplatesResolversStack
-        AppSyncApiStack: !Ref AppSyncApiStack
-        CostResolversStack: !Ref CostResolversStack
-        SettingsResolversStack: !Ref SettingsResolversStack
-        AthenaGlueCrawlerStack: !Ref AthenaGlueCrawlerStack
-        OrganizationsGlobalResourcesStack: !If [IsUsingOrganizations, !Ref OrganizationsGlobalResourcesStack, !Ref AWS::NoValue]
-        WebUiStack: !Ref WebUiStack
-        WebUiSettingsStack: !Ref WebUiSettingsStack
+
+
+  AppInsightsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${Variables.DeploymentBucket}/application-insights.template
+      TimeoutInMinutes: 60
+      Parameters:
+        ApplicationResourceGroupName: !GetAtt AppRegistryStack.Outputs.ApplicationResourceGroupName
+        ClusterArn: !GetAtt TaskStack.Outputs.ClusterArn
+        DiscoveryTaskLogGroup: !GetAtt TaskStack.Outputs.DiscoveryTaskLogGroup
 
 Outputs:
 

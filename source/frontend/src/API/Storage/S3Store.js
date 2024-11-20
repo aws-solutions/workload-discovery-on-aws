@@ -1,9 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Storage, Auth } from 'aws-amplify';
-import * as R  from 'ramda';
-import {ObjectNotFoundError} from "../../errors/ObjectNotFoundError";
+import {Storage, Auth} from 'aws-amplify';
+import * as R from 'ramda';
+import {ObjectNotFoundError} from '../../errors/ObjectNotFoundError';
 
 const [provider] = Object.keys(Storage._config);
 
@@ -16,46 +16,51 @@ export const uploadObject = async (key, content, level, type) => {
             level,
             resumable: true,
             metadata: {
-                username
+                username,
             },
             provider,
-            completeCallback: (event) => {
+            completeCallback: event => {
                 res(event);
             },
-            errorCallback: (err) => {
+            errorCallback: err => {
                 console.error(err);
-                rej(new Error('We could not complete that action. Please try again'));
-            }
+                rej(
+                    new Error(
+                        'We could not complete that action. Please try again'
+                    )
+                );
+            },
         });
     });
 };
 
 export const listObjects = (key, level) => {
-  return Storage.list(key, { level, provider })
-      .then(res => res.results)
-      .catch((err) => {
-        console.error(err);
-        throw new Error('We could not complete that action. Please try again');
-      });
+    return Storage.list(key, {level, provider})
+        .then(res => res.results)
+        .catch(err => {
+            console.error(err);
+            throw new Error(
+                'We could not complete that action. Please try again'
+            );
+        });
 };
 
 export const removeObject = (key, level) =>
-  Storage.remove(key, { level, provider }).catch((err) => {
-    console.error(err);
-    throw new Error('We could not complete that action. Please try again');
-  });
+    Storage.remove(key, {level, provider}).catch(err => {
+        console.error(err);
+        throw new Error('We could not complete that action. Please try again');
+    });
 
 export const getObject = async (key, level) => {
-  return Storage.get(key, { level, provider })
-    .then((result) =>
-      fetch(result)
-        .then((res) => {
-          if (R.equals(res.status, 404)) {
-              throw new ObjectNotFoundError(res.statusText);
-          } else {
-              return res;
-          }
-        })
-        .then((response) => response.json())
+    return Storage.get(key, {level, provider}).then(result =>
+        fetch(result)
+            .then(res => {
+                if (R.equals(res.status, 404)) {
+                    throw new ObjectNotFoundError(res.statusText);
+                } else {
+                    return res;
+                }
+            })
+            .then(response => response.json())
     );
 };

@@ -1,16 +1,18 @@
 {
   "name": "metrics",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && npm ci && tsc && mv src/index.js . && npm run build:zip && npm run build:dist && rm index.js",
-    "build:zip": "zip -rq metrics.zip .",
-    "build:dist": "mkdir dist && mv metrics.zip dist/",
-    "test": "nyc --reporter=html --reporter=text mocha -r ts-node/register test/*",
-    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha -r ts-node/register --forbid-only test/*",
-    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info"
+    "compile": "tsc",
+    "test": "vitest run --coverage",
+    "pretest:ci": "npm ci",
+    "test:ci": "vitest run --coverage --allowOnly false",
+    "prebuild": "npm run clean",
+    "build": "npm ci && npm run compile && npm prune --omit dev && npm run build:zip",
+    "build:zip": "zip -rq metrics.zip node_modules/ && mv metrics.zip dist && cd dist && zip -rq metrics.zip ."
   },
   "author": {
     "name": "Amazon Web Services",
@@ -18,24 +20,26 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@aws-lambda-powertools/logger": "2.2.0",
     "@aws-sdk/client-s3": "3.621.0",
-    "@aws-sdk/client-ssm": "3.621.0",
-    "@aws-sdk/credential-providers": "3.621.0",
-    "aws4": "1.12.0",
-    "axios": "1.7.4"
+    "aws4": "1.13.0",
+    "ramda": "0.30.1",
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@types/aws4": "^1.11.3",
-    "@types/chai": "^4.3.9",
-    "@types/mocha": "^10.0.1",
+    "@mswjs/data": "^0.16.1",
+    "@types/aws4": "^1.11.6",
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.4.1",
+    "@types/ramda": "^0.30.0",
+    "@vitest/coverage-v8": "^2.1.1",
     "aws-sdk-client-mock": "^3.0.0",
-    "axios-mock-adapter": "^1.21.5",
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "nyc-report-lcov-absolute": "^1.0.0",
-    "ts-node": "10.9.1",
-    "typescript": "5.1.3"
+    "chai": "^5.1.1",
+    "msw": "^2.3.1",
+    "sinon": "^18.0.0",
+    "tsx": "^4.15.6",
+    "typescript": "5.4.5",
+    "vitest": "^2.1.1"
   }
 }

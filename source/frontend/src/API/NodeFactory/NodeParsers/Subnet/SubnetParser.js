@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { fetchImage } from '../../../../Utils/ImageSelector';
-import { getStateInformation } from '../../../../Utils/Resources/ResourceStateParser';
+import {fetchImage} from '../../../../Utils/ImageSelector';
+import {getStateInformation} from '../../../../Utils/Resources/ResourceStateParser';
 
-import * as R  from 'ramda';
+import * as R from 'ramda';
 
 export const parseSubnet = node => {
-
     const properties = R.hasPath(['properties'], node)
         ? node.properties
         : node.data('properties');
@@ -30,6 +29,6 @@ export const parseSubnet = node => {
             colour: state.color,
         },
         state,
-        icon: fetchImage(properties.resourceType, state)
+        icon: fetchImage(properties.resourceType, state),
     };
 };

@@ -1,26 +1,21 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {beforeEach, test, describe, expect, vi} from 'vitest'
+import {beforeEach, test, describe, expect, vi} from 'vitest';
 import React from 'react';
-import DatabaseInstanceItem
-    from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
-import {
-    parseDatabaseInstance
-} from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
+import DatabaseInstanceItem from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
+import {parseDatabaseInstance} from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
 import {fetchImage} from '../../../../../../Utils/ImageSelector';
 import {aurora} from './data/dbTypes';
 
 describe('DatabaseInstanceParserAurora', () => {
-
-
     beforeEach(() => {
         vi.resetModules(); // this is important - it clears the cache
     });
 
     test('when node is an aurora rds instance with status as warning provisioning', () => {
         let auroraProvisioning = JSON.parse(aurora);
-        auroraProvisioning.dBInstanceStatus = 'provisioning'
+        auroraProvisioning.dBInstanceStatus = 'provisioning';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
@@ -42,19 +37,24 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-warning',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraProvisioning)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraProvisioning)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an aurora rds instance with status as warning pending', () => {
         let auroraPending = JSON.parse(aurora);
-        auroraPending.dBInstanceStatus = 'pending'
+        auroraPending.dBInstanceStatus = 'pending';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
@@ -76,19 +76,24 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-warning',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraPending)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraPending)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an aurora rds instance with status as available', () => {
         let auroraAvailable = JSON.parse(aurora);
-        auroraAvailable.dBInstanceStatus = 'available'
+        auroraAvailable.dBInstanceStatus = 'available';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
@@ -110,19 +115,24 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-available',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraAvailable)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraAvailable)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an aurora rds instance with status as good active', () => {
         let auroraActive = JSON.parse(aurora);
-        auroraActive.dBInstanceStatus = 'active'
+        auroraActive.dBInstanceStatus = 'active';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
@@ -144,19 +154,24 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-available',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraActive)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraActive)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an aurora rds instance with status as error stopped', () => {
         let auroraStopped = JSON.parse(aurora);
-        auroraStopped.dBInstanceStatus = 'stopped'
+        auroraStopped.dBInstanceStatus = 'stopped';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
@@ -178,19 +193,24 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-negative',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraStopped)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraStopped)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an aurora rds instance with status as error failed', () => {
         let auroraFailed = JSON.parse(aurora);
-        auroraFailed.dBInstanceStatus = 'failed'
+        auroraFailed.dBInstanceStatus = 'failed';
 
         const node = {
             name: 'aDatabaseInstance',
@@ -213,15 +233,18 @@ describe('DatabaseInstanceParserAurora', () => {
                 status: 'status-negative',
             }),
             detailsComponent: (
-                <DatabaseInstanceItem title='Instance Details' configuration={JSON.stringify(auroraFailed)}/>
+                <DatabaseInstanceItem
+                    title="Instance Details"
+                    configuration={JSON.stringify(auroraFailed)}
+                />
             ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
-
 });
-

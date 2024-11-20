@@ -1,15 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { test, expect, describe } from 'vitest';
-import { parseAPIGatewayResource } from '../../../../../../../API/NodeFactory/NodeParsers/APIGateway/Resource/APIGatewayResourceParser';
-import { fetchImage } from '../../../../../../../Utils/ImageSelector';
+import {test, expect, describe} from 'vitest';
+import {parseAPIGatewayResource} from '../../../../../../../API/NodeFactory/NodeParsers/APIGateway/Resource/APIGatewayResourceParser';
+import {fetchImage} from '../../../../../../../Utils/ImageSelector';
 
 describe('APIGatewayResourceParser', () => {
-
     test('when node that is an API Resource gets custom parsed it will have a custom hover over and icon', () => {
         const node = {
-            properties: { resourceType: 'AWS::ApiGateway::Resource' }
+            properties: {resourceType: 'AWS::ApiGateway::Resource'},
         };
         const expectedResult = {
             styling: {
@@ -18,7 +17,7 @@ describe('APIGatewayResourceParser', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: '',
-                colour: '#fff'
+                colour: '#fff',
             },
             icon: fetchImage(node.properties.resourceType),
         };
@@ -32,5 +31,4 @@ describe('APIGatewayResourceParser', () => {
         const result = parseAPIGatewayResource(undefined);
         expect(result).toEqual({});
     });
-
 });

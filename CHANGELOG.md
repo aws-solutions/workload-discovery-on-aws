@@ -5,11 +5,50 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2024-11-20
+
+### Added
+- Support for custom identity providers (SAML and OIDC) [61](https://github.com/aws-solutions/workload-discovery-on-aws/issues/61) [510](https://github.com/aws-solutions/workload-discovery-on-aws/issues/510)
+- Export of diagrams to myApplications
+- Export of diagrams to SVG
+- Application Insights dashboard to monitor health of solution
+- Number of supported resource types is over 450, newly added types include, but are not limited to:
+  - `AWS::AppSync::DataSource`
+  - `AWS::AppSync::Resolver`
+  - `AWS::MediaConnect::Flow`
+  - `AWS::MediaConnect::FlowEntitlement`
+  - `AWS::MediaConnect::FlowSource`
+  - `AWS::MediaConnect::FlowVpcInterface`
+  - `AWS::MediaPackage::PackagingConfiguration`
+  - `AWS::MediaPackage::PackagingGroup`
+  - `AWS::ServiceCatalogAppRegistry::Application`
+- Increase in number of relationships not captured by AWS Config, including, but not limited to:
+  - `AWS::AppSync::DataSource` -> `AWS::Lambda::Function`/`AWS::DynamoDB::Table`/`AWS::Events::EventBus`/`AWS::RDS::DBCluster`/`AWS::OpenSearchService::Domain`
+  - `AWS::AppSync::Resolver` -> `AWS::AppSync::GraphQLApi`/`AWS::AppSync::DataSource`
+  - `AWS::S3::Bucket` -> `AWS::Lambda::Function`/`AWS::SQS::Queue`/`AWS::SNS::Topic`
+  - `AWS::IAM::InstanceProfile` -> `AWS::IAM::Role`
+  - `AWS::MediaConnect::FlowEntitlement` -> `AWS::MediaConnect::Flow`
+  - `AWS::MediaConnect::FlowSource` -> `AWS::MediaConnect::Flow`/`AWS::MediaConnect::FlowEntitlement`/`AWS::MediaConnect::FlowVpcInterface`/`AWS::IAM::Role`/`AWS::SecretsManager::Secret`
+  - `AWS::MediaConnect::FlowVpcInterface` -> `AWS::EC2::VPC`/`AWS::EC2::Subnet`/`AWS::EC2::SecurityGroup`/`AWS::EC2::NetworkInterface`
+  - `AWS::MediaPackage::PackagingConfiguration` -> `AWS::MediaPackage::PackagingGroup`/`AWS::IAM::Role`
+
+### Changed
+- Multiple resources can now be selected in the search bar on the Diagram page
+- Migrate AppRegistry integration to myApplications for monitoring solution costs and usage.
+- Migrate JavaScript lambda functions and the discovery process from CommonJS to ESM
+- Update Neptune Engine version to `1.3.1.0`.
+- Update OpenSearch version to `2.11.0`.
+
+### Fixed
+- `AWS::EC2::NetworkInterface` -> `AWS::OpenSearchService::Domain` relationships are not discovered
+- Failed writes to OpenSearch should stop the corresponding write being made to Neptune
+- Metrics lambda times out when hundreds of accounts have been imported
+
 ## [2.1.15] - 2024-9-30
 
 ### Fixed
 
-- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/546)
+- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/issues/546)
 - Security [vulnerability](https://github.com/advisories/GHSA-gcx4-mw62-g8wm) in `rollup`.
 - Security [vulnerability](https://github.com/advisories/GHSA-9cwx-2883-4wfx) in `vite`.
 - Security [vulnerability](https://github.com/advisories/GHSA-64vr-g452-qvp3) in `vite`.
@@ -18,9 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/546)
-- Intermittent failures in `cleanup-bucket` custom resource. [545](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/545)
-- SCP error relating to `putConfigAggregator` when adding accounts in an AWS organisation using Control Tower. [544](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/544)
+- Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/issues/546)
+- Intermittent failures in `cleanup-bucket` custom resource. [545](https://github.com/aws-solutions/workload-discovery-on-aws/issues/545)
+- SCP error relating to `putConfigAggregator` when adding accounts in an AWS organisation using Control Tower. [544](https://github.com/aws-solutions/workload-discovery-on-aws/issues/544)
 - Security [vulnerability](https://github.com/advisories/GHSA-952p-6rrq-rcjv) in `micromatch`.
 - Security [vulnerability](https://github.com/advisories/GHSA-9wv6-86v2-598j) in `path-to-regexp`.
 - Security [vulnerability](https://github.com/advisories/GHSA-m6fv-jmcg-4jfg) in `send`.

@@ -1,106 +1,106 @@
 {
-  "count": 118,
-  "accounts": [
-    {
-      "accountId": "111111111111",
-      "regions": [
+    "count": 118,
+    "accounts": [
         {
-          "name": "eu-west-1"
+            "accountId": "111111111111",
+            "regions": [
+                {
+                    "name": "eu-west-1"
+                },
+                {
+                    "name": "eu-west-2"
+                }
+            ]
         },
         {
-          "name": "eu-west-2"
+            "accountId": "222222222222",
+            "regions": [
+                {
+                    "name": "us-east-1"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "accountId": "222222222222",
-      "regions": [
+    ],
+    "resourceTypes": [
         {
-          "name": "us-east-1"
+            "count": 6,
+            "type": "AWS::CloudFormation::Stack"
+        },
+        {
+            "count": 3,
+            "type": "AWS::SNS::Topic"
+        },
+        {
+            "count": 11,
+            "type": "AWS::Events::Rule"
+        },
+        {
+            "count": 10,
+            "type": "AWS::Lambda::Function"
+        },
+        {
+            "count": 4,
+            "type": "AWS::Cassandra::Keyspace"
+        },
+        {
+            "count": 1,
+            "type": "AWS::Config::ConfigurationRecorder"
+        },
+        {
+            "count": 2,
+            "type": "AWS::EventSchemas::Registry"
+        },
+        {
+            "count": 1,
+            "type": "AWS::Events::EventBus"
+        },
+        {
+            "count": 20,
+            "type": "AWS::IAM::Role"
+        },
+        {
+            "count": 16,
+            "type": "AWS::IAM::InlinePolicy"
+        },
+        {
+            "count": 21,
+            "type": "AWS::Tags::Tag"
+        },
+        {
+            "count": 5,
+            "type": "AWS::KMS::Key"
+        },
+        {
+            "count": 1,
+            "type": "AWS::S3::AccountPublicAccessBlock"
+        },
+        {
+            "count": 4,
+            "type": "AWS::AppConfig::DeploymentStrategy"
+        },
+        {
+            "count": 1,
+            "type": "AWS::EC2::NetworkAcl"
+        },
+        {
+            "count": 3,
+            "type": "AWS::S3::Bucket"
+        },
+        {
+            "count": 1,
+            "type": "AWS::EC2::RouteTable"
+        },
+        {
+            "count": 1,
+            "type": "AWS::EC2::SecurityGroup"
+        },
+        {
+            "count": 6,
+            "type": "AWS::EC2::Subnet"
+        },
+        {
+            "count": 1,
+            "type": "AWS::EC2::VPC"
         }
-      ]
-    }
-  ],
-  "resourceTypes": [
-    {
-      "count": 6,
-      "type": "AWS::CloudFormation::Stack"
-    },
-    {
-      "count": 3,
-      "type": "AWS::SNS::Topic"
-    },
-    {
-      "count": 11,
-      "type": "AWS::Events::Rule"
-    },
-    {
-      "count": 10,
-      "type": "AWS::Lambda::Function"
-    },
-    {
-      "count": 4,
-      "type": "AWS::Cassandra::Keyspace"
-    },
-    {
-      "count": 1,
-      "type": "AWS::Config::ConfigurationRecorder"
-    },
-    {
-      "count": 2,
-      "type": "AWS::EventSchemas::Registry"
-    },
-    {
-      "count": 1,
-      "type": "AWS::Events::EventBus"
-    },
-    {
-      "count": 20,
-      "type": "AWS::IAM::Role"
-    },
-    {
-      "count": 16,
-      "type": "AWS::IAM::InlinePolicy"
-    },
-    {
-      "count": 21,
-      "type": "AWS::Tags::Tag"
-    },
-    {
-      "count": 5,
-      "type": "AWS::KMS::Key"
-    },
-    {
-      "count": 1,
-      "type": "AWS::S3::AccountPublicAccessBlock"
-    },
-    {
-      "count": 4,
-      "type": "AWS::AppConfig::DeploymentStrategy"
-    },
-    {
-      "count": 1,
-      "type": "AWS::EC2::NetworkAcl"
-    },
-    {
-      "count": 3,
-      "type": "AWS::S3::Bucket"
-    },
-    {
-      "count": 1,
-      "type": "AWS::EC2::RouteTable"
-    },
-    {
-      "count": 1,
-      "type": "AWS::EC2::SecurityGroup"
-    },
-    {
-      "count": 6,
-      "type": "AWS::EC2::Subnet"
-    },
-    {
-      "count": 1,
-      "type": "AWS::EC2::VPC"
-    }
-  ]
+    ]
 }

@@ -6,6 +6,8 @@
       "resourceType": "AWS::Lambda::Function"
     },
     "subnet": {
+      "id1": "subnet-0123456789abcdef",
+      "id2": "subnet-9876543210fedcba",
       "resourceType": "AWS::EC2::Subnet",
       "relationshipName": "Is contained in "
     }
@@ -15,12 +17,12 @@
   },
   "subnet1": {
     "id": "${subnet1.arn}",
-    "arn": "subnet1Arn",
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
     "accountId": "${$constants.accountId}",
     "awsRegion": "${$constants.region}",
     "availabilityZone": "${$constants.region}a",
     "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-0123456789abcdef",
+    "resourceId": "${$constants.subnet.id1}",
     "configuration": {
       "vpcId": "${vpc.resourceId}"
     },
@@ -28,12 +30,12 @@
   },
   "subnet2": {
     "id": "${subnet2.arn}",
-    "arn": "subnet2Arn",
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
     "accountId": "${$constants.accountId}",
     "awsRegion": "${$constants.region}",
     "availabilityZone": "${$constants.region}b",
     "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-9876543210fedcba",
+    "resourceId": "${$constants.subnet.id2}",
     "configuration": {
       "vpcId": "${vpc.resourceId}"
     },
@@ -59,13 +61,6 @@
         "relationshipName": "${$constants.subnet.relationshipName}"
       }
     ],
-    "configuration": {
-      "vpcConfig": {
-        "subnetIds": [
-          "${subnet1.resourceId}",
-          "${subnet2.resourceId}"
-        ]
-      }
-    }
+    "configuration": {}
   }
 }

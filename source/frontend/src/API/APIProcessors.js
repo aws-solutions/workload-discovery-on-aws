@@ -1,23 +1,52 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import * as R  from 'ramda';
-import {buildBoundingBox, buildNode} from "./NodeFactory/NodeFactory";
+import * as R from 'ramda';
+import {buildBoundingBox, buildNode} from './NodeFactory/NodeFactory';
 
-const isBoundingBox = R.includes(R.__, ['account', 'region', 'availabilityZone', 'vpc', 'subnet']);
+const isBoundingBox = R.includes(R.__, [
+    'account',
+    'region',
+    'availabilityZone',
+    'vpc',
+    'subnet',
+]);
 const isRegional = R.includes(R.__, ['Not Applicable', 'Regional']);
-const isSubnetOrVpc = R.includes(R.__, ['AWS_EC2_VPC', 'AWS_EC2_Subnet', 'AWS::EC2::VPC', 'AWS::EC2::Subnet']);
+const isSubnetOrVpc = R.includes(R.__, [
+    'AWS_EC2_VPC',
+    'AWS_EC2_Subnet',
+    'AWS::EC2::VPC',
+    'AWS::EC2::Subnet',
+]);
 
-function createParent({accountId, awsRegion, availabilityZone, vpcId, subnetId}) {
+function createParent({
+    accountId,
+    awsRegion,
+    availabilityZone,
+    vpcId,
+    subnetId,
+}) {
     if (subnetId != null) {
-        return `arn:aws:ec2:${awsRegion}:${accountId}:subnet/${subnetId}`.replace(/:/g, '-');
+        return `arn:aws:ec2:${awsRegion}:${accountId}:subnet/${subnetId}`.replace(
+            /:/g,
+            '-'
+        );
     } else if (vpcId != null && subnetId == null) {
-        const vpcArn = `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`.replace(/:/g, '-');
-        if(!isRegional(availabilityZone)) {
-           return  `${vpcArn}-${availabilityZone}`
+        const vpcArn =
+            `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`.replace(
+                /:/g,
+                '-'
+            );
+        if (!isRegional(availabilityZone)) {
+            return `${vpcArn}-${availabilityZone}`;
         }
         return vpcArn;
-    } else if (vpcId == null && subnetId == null && availabilityZone != null && !isRegional(availabilityZone)) {
+    } else if (
+        vpcId == null &&
+        subnetId == null &&
+        availabilityZone != null &&
+        !isRegional(availabilityZone)
+    ) {
         return `${accountId}-${awsRegion}-${availabilityZone}`;
     } else {
         return `${accountId}-${awsRegion}`;
@@ -38,30 +67,38 @@ function removeEmptyBoundingBoxes(nodes) {
     }, new Map());
 
     nodes.forEach(({data: {id, parent}}) => {
-        if(parent != null) {
+        if (parent != null) {
             adjList.get(parent)?.add(id);
         }
     });
 
     const toDelete = new Set();
-    for(const [id, edges] of adjList.entries()) {
-        if(isBoundingBox(typeMap.get(id)) && edges.size === 0) {
+    for (const [id, edges] of adjList.entries()) {
+        if (isBoundingBox(typeMap.get(id)) && edges.size === 0) {
             toDelete.add(id);
         }
     }
 
     toDelete.forEach(id => adjList.delete(id));
 
-    return toDelete.size === 0 ? nodes : removeEmptyBoundingBoxes(nodes.filter(x => adjList.has(x.data.id)));
+    return toDelete.size === 0
+        ? nodes
+        : removeEmptyBoundingBoxes(nodes.filter(x => adjList.has(x.data.id)));
 }
 
 export function processElements({nodes, edges}) {
     const accountsBoundingBoxes = nodes.reduce((acc, {properties}) => {
         const {accountId} = properties;
-        if(!acc.has(accountId)) {
-            acc.set(accountId, buildBoundingBox({
-                id: accountId, type: 'account', label: accountId, properties
-            }));
+        if (!acc.has(accountId)) {
+            acc.set(
+                accountId,
+                buildBoundingBox({
+                    id: accountId,
+                    type: 'account',
+                    label: accountId,
+                    properties,
+                })
+            );
         }
         return acc;
     }, new Map());
@@ -69,10 +106,19 @@ export function processElements({nodes, edges}) {
     const regionsBoundingBoxes = nodes.reduce((acc, {properties}) => {
         const {accountId, awsRegion} = properties;
         const id = `${accountId}-${awsRegion}`;
-        if(!acc.has(id)) {
-            acc.set(id, buildBoundingBox({
-                id, type: 'region', label: awsRegion, properties
-            }, accountId));
+        if (!acc.has(id)) {
+            acc.set(
+                id,
+                buildBoundingBox(
+                    {
+                        id,
+                        type: 'region',
+                        label: awsRegion,
+                        properties,
+                    },
+                    accountId
+                )
+            );
         }
         return acc;
     }, new Map());
@@ -81,34 +127,81 @@ export function processElements({nodes, edges}) {
         const {accountId, awsRegion, availabilityZone, vpcId} = properties;
         const id = `${accountId}-${awsRegion}-${availabilityZone}`;
         const parent = `${accountId}-${awsRegion}`;
-        if(availabilityZone != null && vpcId == null && !isRegional(availabilityZone) && !acc.has(id)) {
-            acc.set(id, buildBoundingBox({
-                id, type: 'availabilityZone', label: availabilityZone, properties
-            }, parent));
+        if (
+            availabilityZone != null &&
+            vpcId == null &&
+            !isRegional(availabilityZone) &&
+            !acc.has(id)
+        ) {
+            acc.set(
+                id,
+                buildBoundingBox(
+                    {
+                        id,
+                        type: 'availabilityZone',
+                        label: availabilityZone,
+                        properties,
+                    },
+                    parent
+                )
+            );
         }
         return acc;
     }, new Map());
 
     const vpcBoundingBoxes = nodes.reduce((acc, {properties}) => {
-        const {resourceType, vpcId, accountId, awsRegion, availabilityZone, arn, title} = properties;
+        const {
+            resourceType,
+            vpcId,
+            accountId,
+            awsRegion,
+            availabilityZone,
+            arn,
+            title,
+        } = properties;
 
-        if(resourceType === 'AWS::EC2::VPC' || vpcId != null) {
-            const vpcArn = (resourceType === 'AWS::EC2::VPC' ? arn : `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`);
+        if (resourceType === 'AWS::EC2::VPC' || vpcId != null) {
+            const vpcArn =
+                resourceType === 'AWS::EC2::VPC'
+                    ? arn
+                    : `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`;
             const vpcBbId = vpcArn.replace(/:/g, '-');
             const azId = `${vpcBbId}-${availabilityZone}`;
 
-            if(availabilityZone != null && !isRegional(availabilityZone) && !acc.has(azId)) {
-                acc.set(azId, buildBoundingBox({
-                    id: azId, type: 'availabilityZone', label: availabilityZone, properties
-                }, vpcBbId));
+            if (
+                availabilityZone != null &&
+                !isRegional(availabilityZone) &&
+                !acc.has(azId)
+            ) {
+                acc.set(
+                    azId,
+                    buildBoundingBox(
+                        {
+                            id: azId,
+                            type: 'availabilityZone',
+                            label: availabilityZone,
+                            properties,
+                        },
+                        vpcBbId
+                    )
+                );
             }
 
-            if(resourceType === 'AWS::EC2::VPC') {
+            if (resourceType === 'AWS::EC2::VPC') {
                 const parent = `${accountId}-${awsRegion}`;
-                if(!acc.has(vpcBbId)) {
-                    acc.set(vpcBbId, buildBoundingBox({
-                        id: vpcBbId, type: 'vpc', label: title, properties
-                    }, parent));
+                if (!acc.has(vpcBbId)) {
+                    acc.set(
+                        vpcBbId,
+                        buildBoundingBox(
+                            {
+                                id: vpcBbId,
+                                type: 'vpc',
+                                label: title,
+                                properties,
+                            },
+                            parent
+                        )
+                    );
                 }
             }
         }
@@ -117,23 +210,62 @@ export function processElements({nodes, edges}) {
     }, new Map());
 
     const subnetBoundingBoxes = nodes.reduce((acc, {properties}) => {
-        const {resourceType, accountId, awsRegion, availabilityZone, vpcId, private: isPrivate, arn, title} = properties;
-        if(resourceType === 'AWS::EC2::Subnet') {
-
+        const {
+            resourceType,
+            accountId,
+            awsRegion,
+            availabilityZone,
+            vpcId,
+            private: isPrivate,
+            arn,
+            title,
+        } = properties;
+        if (resourceType === 'AWS::EC2::Subnet') {
             const id = arn.replace(/:/g, '-');
-            const parent = `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`.replace(/:/g, '-');
+            const parent =
+                `arn:aws:ec2:${awsRegion}:${accountId}:vpc/${vpcId}`.replace(
+                    /:/g,
+                    '-'
+                );
             const azId = `${id}-${availabilityZone}`;
 
-            if(availabilityZone != null && !['Not Applicable', 'Regional', 'Multiple Availability Zones'].includes(availabilityZone) && !acc.has(azId)) {
-                acc.set(azId, buildBoundingBox({
-                    id: azId, type: 'availabilityZone', label: availabilityZone, properties
-                }, parent));
+            if (
+                availabilityZone != null &&
+                ![
+                    'Not Applicable',
+                    'Regional',
+                    'Multiple Availability Zones',
+                ].includes(availabilityZone) &&
+                !acc.has(azId)
+            ) {
+                acc.set(
+                    azId,
+                    buildBoundingBox(
+                        {
+                            id: azId,
+                            type: 'availabilityZone',
+                            label: availabilityZone,
+                            properties,
+                        },
+                        parent
+                    )
+                );
             }
 
-            if(!acc.has(id)) {
-                acc.set(id, buildBoundingBox({
-                    id, type: 'subnet', label: title, isPrivate, properties
-                }, azId));
+            if (!acc.has(id)) {
+                acc.set(
+                    id,
+                    buildBoundingBox(
+                        {
+                            id,
+                            type: 'subnet',
+                            label: title,
+                            isPrivate,
+                            properties,
+                        },
+                        azId
+                    )
+                );
             }
         }
         return acc;
@@ -145,15 +277,24 @@ export function processElements({nodes, edges}) {
         .filter(x => !isSubnetOrVpc(x.properties.resourceType))
         .map(resource => {
             const {properties} = resource;
-            const [, ,bbLabel] = properties.resourceType.split('::');
+            const [, , bbLabel] = properties.resourceType.split('::');
 
             const parent = createParent(properties);
 
-            const bbId = `${bbLabel}-${parent}`
-            if(!typeBoundingBoxes.has(bbId)) {
-                typeBoundingBoxes.set(bbId, buildBoundingBox({
-                    id: bbId, type: 'type', label: bbLabel, properties
-                }, parent));
+            const bbId = `${bbLabel}-${parent}`;
+            if (!typeBoundingBoxes.has(bbId)) {
+                typeBoundingBoxes.set(
+                    bbId,
+                    buildBoundingBox(
+                        {
+                            id: bbId,
+                            type: 'type',
+                            label: bbLabel,
+                            properties,
+                        },
+                        parent
+                    )
+                );
             }
 
             return buildNode(resource, bbId, false);
@@ -166,15 +307,24 @@ export function processElements({nodes, edges}) {
         ...Array.from(vpcBoundingBoxes.values()),
         ...Array.from(subnetBoundingBoxes.values()),
         ...Array.from(typeBoundingBoxes.values()),
-        ...elements
+        ...elements,
     ];
 
     return [
         ...removeEmptyBoundingBoxes(allNodes),
         ...edges
-            .filter(x => !(isSubnetOrVpc(x.target.label) || isSubnetOrVpc(x.source.label)))
+            .filter(
+                x =>
+                    !(
+                        isSubnetOrVpc(x.target.label) ||
+                        isSubnetOrVpc(x.source.label)
+                    )
+            )
             .map(({id, source, target}) => {
-                return {group: "edges", data: {id, source: source.id, target: target.id}}
-            })
+                return {
+                    group: 'edges',
+                    data: {id, source: source.id, target: target.id},
+                };
+            }),
     ];
 }

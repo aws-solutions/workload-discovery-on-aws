@@ -68,7 +68,7 @@ Resources:
   OpenSearchDomain:
     Type: AWS::OpenSearchService::Domain
     Properties:
-      EngineVersion: OpenSearch_1.3
+      EngineVersion: OpenSearch_2.11
       ClusterConfig:
         InstanceCount: !If [ZoneAwarenessEnabled, 2, 1]
         InstanceType: !Ref InstanceType

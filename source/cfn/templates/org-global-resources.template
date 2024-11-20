@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description:
   This Cloudformation template sets up the roles needed to import data into Workload Discovery on AWS.
-  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:v2.1.0)
+  (SO0075b) - Solution - Import Account Template (uksb-1r0720e57) (version:<VERSION>)
 
 Parameters:
 
@@ -11,12 +11,167 @@ Parameters:
     Default: '<<substitute_account_id>>'
     Description: The Workload Discovery account Id
 
+  WorkloadDiscoveryAggregationRegion:
+    Type: String
+    Default: <<substitute_region>>
+    Description: The region where the Workload Discovery account was installed
+
   WorkloadDiscoveryDiscoveryRoleArn:
     Type: String
     Default: '<<substitute_discovery_role>>'
     Description: The Workload Discovery discovery IAM role ARN
 
+  WorkloadDiscoveryExternalId:
+    Type: String
+    Default: '<<substitute_external_id>>'
+    Description: The Workload Discovery STS external ID
+
+  MyApplicationsLambdaRoleArn:
+    Type: String
+    Default: '<<substitute_my_applications_lambda_role>>'
+    Description: The Workload Discovery discovery MyApplications IAM role ARN
+
 Resources:
+
+  WorkloadDiscoveryMyApplicationsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub WorkloadDiscoveryMyApplicationsRole-${WorkloadDiscoveryAccountId}-${WorkloadDiscoveryAggregationRegion}
+      Path: '/'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref MyApplicationsLambdaRoleArn
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref WorkloadDiscoveryExternalId
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ResourceGroupsTaggingAPITagUntagSupportedResources
+      Policies:
+        - PolicyName: MyApplicationDenyRequestsWithMissingAppTagPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Deny
+                NotAction:
+                  # these read APIs are required for tggging but do not have tags in the request
+                  - apigateway:PUT
+                  - cloudformation:DescribeStacks
+                  - codebuild:BatchGetProjects
+                  - s3:GetBucketTagging
+                  - s3:GetJobTagging
+                  - s3:GetObjectTagging
+                  - s3:GetObjectVersionTagging
+                  - s3:GetStorageLensConfigurationTagging
+                  # these APIs do not support the aws:RequestTag condition
+                  - s3:PutBucketTagging
+                  - s3:PutObjectTagging
+                  - s3:PutObjectVersionTagging
+                  - tag:TagResources
+                  # this API is not involved in tagging
+                  - servicecatalog:CreateApplication
+                  - iam:CreateServiceLinkedRole
+                Resource: '*'
+                Condition:
+                  'Null':
+                    'aws:RequestTag/awsApplication': true
+        - PolicyName: MyApplicationCreateApplicationPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - servicecatalog:CreateApplication
+                Resource: !Sub arn:${AWS::Partition}:servicecatalog:*:${AWS::AccountId}:/applications/*
+              - Effect: Allow
+                Action:
+                  - iam:CreateServiceLinkedRole
+                Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/servicecatalog-appregistry.amazonaws.com/AWSServiceRoleForAWSServiceCatalogAppRegistry
+        - PolicyName: MyApplicationsS3BucketTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketTagging
+                  - s3:GetObjectTagging
+                  - s3:GetObjectVersionTagging
+                  - s3:PutBucketTagging
+                  - s3:PutObjectTagging
+                  - s3:PutObjectVersionTagging
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::*
+        - PolicyName: MyApplicationsS3JobTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetJobTagging
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:${AWS::Region}:${AWS::AccountId}:job/*
+        - PolicyName: MyApplicationsS3StorageLensTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetStorageLensConfigurationTagging
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:${AWS::Region}:${AWS::AccountId}:storage-lens/*
+        - PolicyName: MyApplicationsApiGatewayTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - apigateway:PUT
+                Resource:
+                  - arn:aws:apigateway:*::/tags*
+                Condition:
+                  'Null':
+                    'aws:RequestTag/awsApplication': false
+              - Effect: Allow
+                Action:
+                  - apigateway:PATCH
+                Resource:
+                  - arn:aws:apigateway:*::/restapis*
+        - PolicyName: MyApplicationsCfnTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                Resource:
+                  - !Sub arn:${AWS::Partition}:cloudformation:*:*:stack/*
+              - Effect: Allow
+                Action:
+                  - cloudformation:UpdateStack
+                Resource:
+                  - !Sub arn:${AWS::Partition}:cloudformation:*:*:stack/*
+                Condition:
+                  'Null':
+                    'aws:RequestTag/awsApplication': false
+        - PolicyName: MyApplicationsCodeBuildTaggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:UpdateProject
+                Resource:
+                  - !Sub arn:${AWS::Partition}:codebuild:*:*:project/*
+                Condition:
+                  'Null':
+                    'aws:RequestTag/awsApplication': false
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetProjects
+                Resource:
+                  - !Sub arn:${AWS::Partition}:codebuild:*:*:project/*
 
   WorkloadDiscoveryRole:
     Type: AWS::IAM::Role
@@ -51,6 +206,18 @@ Resources:
                   - ec2:DescribeSpotInstanceRequests
                   - ec2:DescribeSpotFleetRequests
                   - ec2:DescribeTransitGatewayAttachments
+                Resource: '*'
+        - PolicyName: serviceCatalogAppRegistry
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - servicecatalog:GetApplication
+                Resource: !Sub arn:${AWS::Partition}:servicecatalog:*:${AWS::AccountId}:/applications/*
+              - Effect: Allow
+                Action:
+                  - servicecatalog:ListApplications
                 Resource: '*'
         - PolicyName: perspectiveIAM
           PolicyDocument:
@@ -106,15 +273,6 @@ Resources:
                   - ecs:ListContainerInstances
                   - ecs:ListTasks
                 Resource: '*'
-        - PolicyName: perspectiveCognito
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cognito-idp:ListUserPools
-                  - cognito-idp:DescribeUserPool
-                Resource: '*'
         - PolicyName: perspectiveEKS
           PolicyDocument:
             Version: '2012-10-17'
@@ -141,3 +299,20 @@ Resources:
                 Action:
                   - dynamodb:DescribeStream
                 Resource: !Sub arn:aws:dynamodb:*:${AWS::AccountId}:*/stream/*
+        - PolicyName: mediaConnect
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - mediaconnect:ListFlows
+                Resource: '*'
+        - PolicyName: perspectiveAppsync
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - appsync:ListResolvers
+                  - appsync:ListDataSources
+                Resource: '*'

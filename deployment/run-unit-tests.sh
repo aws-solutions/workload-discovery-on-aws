@@ -33,6 +33,14 @@ pipenv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
+echo "[Test] Identity Provider Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/identity-provider
+pipenv install --dev
+pipenv run pytest --cov-report xml --cov .
+echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
+
+echo "------------------------------------------------------------------------------"
 echo "[Test] Account Import Templates"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/account-import-templates-api
@@ -50,12 +58,33 @@ echo "--------------------------------------------------------------------------
 cd $source_dir/backend/functions/metrics
 npm run test:ci
 
+echo "------------------------------------------------------------------------------"
 echo "[Test] Bucket cleanup Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/cleanup-bucket
 pipenv install -q --dev
 pipenv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Metrics UUID Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/metrics-uuid
+pipenv install -q --dev
+pipenv run pytest --cov-report xml --cov .
+echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] Metrics Subscription Filter"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/metrics-subscription-filter
+npm run test:ci
+
+echo "------------------------------------------------------------------------------"
+echo "[Test] myApplications Resolver"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/myapplications
+npm run test:ci
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Discovery"

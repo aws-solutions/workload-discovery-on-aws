@@ -2,19 +2,27 @@
   "$constants": {
     "accountIdX": "xxxxxxxxxxxx",
     "accountIdZ": "zzzzzzzzzzzz",
-    "region": "eu-west-2"
+    "region": "eu-west-2",
+    "subnet": {
+      "id1": "subnet-0123456789abcdef",
+      "id2": "subnet-9876543210fedcba",
+      "id3": "subnet-1111111111111111"
+    }
   },
   "vpc": {
     "resourceId": "vpcResourceId"
   },
   "subnet1": {
-    "resourceId": "subnet1ResourceId"
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id1}",
+    "resourceId": "${$constants.subnet.id1}"
   },
   "subnet2": {
-    "resourceId": "subnet2ResourceId"
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id2}",
+    "resourceId": "${$constants.subnet.id2}"
   },
   "subnet3": {
-    "resourceId": "subnet3ResourceId"
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id3}",
+    "resourceId": "${$constants.subnet.id3}"
   },
   "tgw": {
     "resourceId": "tgwResourceId"

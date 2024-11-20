@@ -52,6 +52,7 @@ source/frontend/cypress/videos
 **/.nyc_output
 
 # build
+source/backend/functions/account-import-templates-api/src/global-resources.template
 source/backend/functions/lambda-layers/aws_sdk/python
 source/backend/functions/lambda-layers/cr_helper/python
 source/backend/functions/lambda-layers/decorators/python/*

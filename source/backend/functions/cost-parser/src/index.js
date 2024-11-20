@@ -3,8 +3,10 @@
 
 const add = require('add');
 const {parse} = require('csv-parse');
-const AWS = require('aws-sdk');
-const ec2 = new AWS.EC2();
+const {Athena} = require('@aws-sdk/client-athena');
+const {S3} = require('@aws-sdk/client-s3');
+const {EC2} = require('@aws-sdk/client-ec2');
+const {Logger} = require('@aws-lambda-powertools/logger');
 const R = require('ramda');
 const athenaQueryBuilder = require('./athenaQueryBuilder');
 
@@ -16,25 +18,32 @@ const {
     CustomUserAgent: customUserAgent,
 } = process.env;
 
-const s3 = new AWS.S3({
+const athena = new Athena({});
+
+const logger = new Logger({serviceName: 'WdCostQuery'});
+
+const s3 = new S3({
     customUserAgent: customUserAgent,
     apiVersion: '2006-03-01',
 });
+const ec2 = new EC2({});
 
-const AthenaExpress = require('athena-express'),
-    aws = AWS;
+const AthenaExpress = require('athena-express-plus');
 
 /* Configuration object for athena-express library.
-  db - specified as an envrionment variable and can be found in the Athena console.
-  s3 - athena-express will store ALL results in this bucket.
+  db - database name, specified as an envrionment variable and can be found in the Athena console.
+  s3 - s3 client
+  athena - athea client
+  s3Bucket - athena-express will store ALL results in this bucket.
   skipResults - athena-express will NOT return results to the Lambda function, but stores them in S3 instead.
   getStats - athena-express will return basic query statistics from Athena e.g. cost, data scanned.
   workgroup - the Athena workgroup to use when executing a query.
 */
 const athenaExpressConfig = {
-    aws,
+    athena: athena,
     db: athenaDatabaseName,
-    s3: athenaResultsBucketName,
+    s3,
+    s3Bucket: athenaResultsBucketName,
     skipResults: true,
     getStats: true,
     workgroup: athenaWorkgroup,
@@ -45,10 +54,10 @@ const athenaExpress = new AthenaExpress(athenaExpressConfig);
 const retryDelay = 1500;
 
 // Helper function to sleep for a given number of milliseconds
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper function that will parse the return S3 URL from athena-express and return the bucket name and the key.
-const parseS3URL = (url) => {
+const parseS3URL = url => {
     return (
         url && {
             Bucket: url.match(/^[sS]3:\/\/(.*?)\/(.*)/)[1],
@@ -69,19 +78,22 @@ async function reduce(f, initial, stream) {
 }
 
 async function buildTotalCost(s3, query) {
-    const stream = s3.getObject({Bucket: query.bucket, Key: query.key}).createReadStream()
-        .pipe(parse({columns: true}));
+    const {Body} = await s3.getObject({Bucket: query.bucket, Key: query.key});
+    const stream = Body.pipe(parse({columns: true}));
 
-    return reduce((acc, {cost}) => {
-        return add([acc, parseFloat(cost)]);
-    }, 0, stream)
-        .then(cost => parseFloat(parseFloat(cost).toFixed(2)));
+    return reduce(
+        (acc, {cost}) => {
+            return add([acc, parseFloat(cost)]);
+        },
+        0,
+        stream
+    ).then(cost => parseFloat(parseFloat(cost).toFixed(2)));
 }
 
 //Counts the number of results returned by Athena in the S3 result csv.
 async function getResultCount(s3, query) {
-    const stream = s3.getObject({Bucket: query.bucket, Key: query.key}).createReadStream()
-        .pipe(parse({columns: true}));
+    const {Body} = await s3.getObject({Bucket: query.bucket, Key: query.key});
+    const stream = Body.pipe(parse({columns: true}));
 
     return reduce((acc, _) => acc + 1, 0, stream);
 }
@@ -91,29 +103,32 @@ function createCostItem(item) {
     // Global services such as S3 often have two line items, one in the region you created the bucket and then
     // us-east-1. These cases return a string that is delimited with `|`, i.e., `region: eu-west-1|us-east-1`,
     // that must be parsed.
-    const region = parsed.length > 1 ? R.head(R.reject(x => x === 'us-east-1', parsed)) : R.head(parsed)
+    const region =
+        parsed.length > 1
+            ? R.head(R.reject(x => x === 'us-east-1', parsed))
+            : R.head(parsed);
 
     return {
         ...item,
         cost: parseFloat(parseFloat(item.cost).toFixed(2)),
-        region
+        region,
     };
 }
 
 // Creates and returns an array of cost items requested in the API.
 const getCostItems = async (s3, query) => {
     const {start, end} = query.pagination ?? {start: 0, end: 100};
-    const stream = s3.getObject({Bucket: query.bucket, Key: query.key}).createReadStream()
-        .pipe(parse({columns: true}));
+    const {Body} = await s3.getObject({Bucket: query.bucket, Key: query.key});
+    const stream = Body.pipe(parse({columns: true}));
 
     const result = [];
     let count = 0;
 
     // When the Readable API is stable we can make this declarative by using the `drop`,
     // `take`, `map` and `reduce` methods.
-    for await(const item of stream) {
+    for await (const item of stream) {
         if (count === end) break;
-        if ((count >= start) || (count > end)) {
+        if (count >= start || count > end) {
             result.push(createCostItem(item));
         }
         count++;
@@ -145,12 +160,12 @@ const enrichQueryDetails = async (s3, query, queryDetails) => {
 async function fetchPaginatedResults(s3, query) {
     const [costItems, queryDetails] = await Promise.all([
         getCostItems(s3, query),
-        enrichQueryDetails(s3, query, query.queryDetails)
+        enrichQueryDetails(s3, query, query.queryDetails),
     ]);
 
     return {
         costItems,
-        queryDetails
+        queryDetails,
     };
 }
 
@@ -172,11 +187,14 @@ async function readResultsFromS3(s3, query) {
 }
 
 // Build queryDetails from the athena-express response. This provides us with the location of the results CSV in S3 and some metadata about the Athena query
-const buildQueryDetails = (result) => {
+const buildQueryDetails = result => {
     return {
         queryDetails: {
             cost: R.prop('QueryCostInUSD', result),
-            s3Bucket: R.prop('Bucket', parseS3URL(R.prop('S3Location', result))),
+            s3Bucket: R.prop(
+                'Bucket',
+                parseS3URL(R.prop('S3Location', result))
+            ),
             s3Key: R.prop('Key', parseS3URL(R.prop('S3Location', result))),
             dataScannedInMB: R.prop('DataScannedInMB', result),
         },
@@ -193,7 +211,7 @@ const buildQueryDetails = (result) => {
 function getCost(sqlQuery, {pagination = {start: 0, end: 10}}, attempts = 0) {
     return Promise.resolve(athenaExpress.query(sqlQuery))
         .then(buildQueryDetails)
-        .then((query) =>
+        .then(query =>
             readResultsFromS3(s3, {
                 cost: query.queryDetails.cost,
                 bucket: query.queryDetails.s3Bucket,
@@ -202,12 +220,12 @@ function getCost(sqlQuery, {pagination = {start: 0, end: 10}}, attempts = 0) {
                 queryDetails: query.queryDetails,
             })
         )
-        .catch(async (err) => {
+        .catch(async err => {
             if (attempts < 3) {
                 await sleep(attempts * retryDelay);
                 return getCost(sqlQuery, {pagination}, attempts + 1);
             } else {
-                console.error(err);
+                logger.error(err);
                 return err;
             }
         });
@@ -217,14 +235,25 @@ const cache = {};
 
 async function getRegions() {
     // make call to aws api to get regions
-    const {Regions} = await ec2.describeRegions({}).promise();
+    const {Regions} = await ec2.describeRegions();
     return R.pluck('RegionName', Regions);
 }
 
 exports.handler = async (event, context) => {
+    const fieldName = event.info.fieldName;
+
+    const {username} = event.identity;
+    logger.info(`User ${username} invoked the ${fieldName} operation.`);
+
     const args = event.arguments;
+    logger.info(
+        'GraphQL arguments:',
+        {arguments: args, operation: fieldName}
+    );
+
     if (R.isNil(cache.regions)) cache.regions = await getRegions();
-    switch (event.info.fieldName) {
+
+    switch (fieldName) {
         case 'readResultsFromS3':
             return fetchPaginatedResults(s3, {...args.s3Query});
         case 'getResourcesByCostByDay':
@@ -264,6 +293,8 @@ exports.handler = async (event, context) => {
                 {athenaTableName, ...args.costForServiceQuery}
             );
         default:
-            return Promise.reject('Unknown field, unable to resolve ' + event.field);
+            return Promise.reject(
+                'Unknown field, unable to resolve ' + fieldName
+            );
     }
-}
+};

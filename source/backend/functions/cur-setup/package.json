@@ -1,15 +1,15 @@
 {
   "name": "wd-cur-setup",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "mocha test/*.js",
+    "test": "vitest run --coverage",
     "clean": "rm -rf dist",
     "build:zip": "zip -rq --exclude=package-lock.json cur-setup.zip node_modules/ && zip -urj cur-setup.zip src/",
     "build:dist": "mkdir dist && mv cur-setup.zip dist/",
-    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
-    "coverage": "nyc npm test"
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist"
   },
   "author": {
     "name": "Amazon Web Services",
@@ -17,14 +17,12 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "2.1605.0",
+    "@aws-sdk/client-glue": "^3.645.0",
+    "@aws-sdk/client-s3": "^3.645.0",
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "rewire": "^7.0.0",
-    "sinon": "^17.0.0"
+    "@vitest/coverage-v8": "^1.6.0",
+    "vitest": "^1.6.0"
   }
 }

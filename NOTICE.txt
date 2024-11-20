@@ -28,6 +28,8 @@ license-expression
 py-serializable
 @aws-amplify/ui-react
 @aws-sdk/client-api-gateway
+@aws-sdk/client-appsync
+@aws-sdk/client-athena
 @aws-sdk/client-cognito-identity-provider
 @aws-sdk/client-config-service
 @aws-sdk/client-dynamodb
@@ -39,9 +41,12 @@ py-serializable
 @aws-sdk/client-elastic-load-balancing-v2
 @aws-sdk/client-iam
 @aws-sdk/client-lambda
+@aws-sdk/client-mediaconnect
 @aws-sdk/client-opensearch
 @aws-sdk/client-organizations
+@aws-sdk/client-resource-groups-tagging-api
 @aws-sdk/client-s3
+@aws-sdk/client-service-catalog-appregistry
 @aws-sdk/client-sns
 @aws-sdk/client-ssm
 @aws-sdk/client-sts
@@ -58,7 +63,10 @@ py-serializable
 **********************
 MIT License
 **********************
+@aws-lambda-powertools/logger
+@uiw/react-json-view
 add
+ajv
 pip
 cfn-nag
 csv-parse
@@ -108,6 +116,8 @@ mocha
 rewire
 socks5-https-client
 moment-timezone
+memoize
+quick-lru
 unzipper
 mime-types
 node-fetch
@@ -116,7 +126,7 @@ undici
 acorn
 msw
 aws-opensearch-connector
-athena-express
+athena-express-plus
 most
 @tuplo/dynoexpr
 aws-sdk-client-mock
@@ -163,6 +173,7 @@ pkgutil_resolve_name
 pyrsistent
 @supercharge/promise-pool
 @most/core
+zod
 
 **********************
 BSD-2-Clause

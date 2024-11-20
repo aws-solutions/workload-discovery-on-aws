@@ -1,48 +1,56 @@
 env:
-  browser: true
-  node: true
-  es2021: true
-  jest: true
+    browser: true
+    node: true
+    es2021: true
+    jest: true
 extends:
-  - 'eslint:recommended'
-  - 'plugin:react/recommended'
-  - 'plugin:cypress/recommended'
+    - 'eslint:recommended'
+    - 'plugin:react/recommended'
+    - 'plugin:cypress/recommended'
 parserOptions:
-  ecmaFeatures:
-    jsx: true
-  ecmaVersion: 12
-  sourceType: module
+    ecmaFeatures:
+        jsx: true
+    ecmaVersion: 12
+    sourceType: module
 plugins:
-  - header
-  - react
-  - react-hooks
+    - header
+    - react
+    - react-hooks
 settings:
-  react:
-    createClass: createReactClass
-    pragma: React
-    fragment: Fragment
-    version: detect
-    flowVersion: '0.53'
-  propWrapperFunctions:
-  - forbidExtraProps
-  - property: freeze
-    object: Object
-  - property: myFavoriteWrapper
-  linkComponents:
-  - Hyperlink
-  - name: Link
-    linkAttribute: to
+    react:
+        createClass: createReactClass
+        pragma: React
+        fragment: Fragment
+        version: detect
+        flowVersion: '0.53'
+    propWrapperFunctions:
+        - forbidExtraProps
+        - property: freeze
+          object: Object
+        - property: myFavoriteWrapper
+    linkComponents:
+        - Hyperlink
+        - name: Link
+          linkAttribute: to
 rules:
-  no-unused-vars: 1
-  no-empty-pattern: 1
-  no-dupe-keys: 1
-  react/prop-types: 0
-  react/display-name: 1
-  react/jsx-no-target-blank: 1
-  react-hooks/exhaustive-deps: 1
-  react/no-unknown-property:
-    - error
-    - ignore:
-        - css
-  header/header: [ 'error', 'line', [' Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.', ' SPDX-License-Identifier: Apache-2.0'] ]
+    no-unused-vars: 1
+    no-empty-pattern: 1
+    no-dupe-keys: 1
+    react/prop-types: 0
+    react/display-name: 1
+    react/jsx-no-target-blank: 1
+    react-hooks/exhaustive-deps: 1
+    react/no-unknown-property:
+        - error
+        - ignore:
+              - css
+    header/header:
+        [
+            'error',
+            'line',
+            [
+                ' Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.',
+                ' SPDX-License-Identifier: Apache-2.0',
+            ],
+        ]
 #  ['error', { ignore: ['css'] }]

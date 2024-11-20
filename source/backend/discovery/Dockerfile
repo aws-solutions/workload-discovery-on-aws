@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal
 
 RUN dnf install -y shadow-utils
 
@@ -18,4 +18,4 @@ RUN npm ci --omit=dev
 
 COPY src/ src/
 
-CMD ["node", "src/index.js"]
+CMD ["node", "src/index.mjs"]

@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.1.15)
+# Workload Discovery on AWS (v2.2.0)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -70,7 +70,7 @@ The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazo
 (AWS CUR) to make cost data available in Workload Discovery. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html) 
 to deliver the reports to the ```CostAndUsageReportBucket``` Amazon S3 bucket. When an AWS CUR is delivered, it 
 triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to trigger a AWS Glue Crawler that will update a 
-table ready for Amazon Athena to query. You can query these AWS CURs via the Perspectie UI. You can bring in cost 
+table ready for Amazon Athena to query. You can query these AWS CURs via the Workload Discovery UI. You can bring in cost 
 data from other accounts discoverable to Workload Discovery by setting up a AWS CUR and setting up replication between 
 the S3 bucket in the discoverable account and the ```CostAndUsageReportBucket```
 

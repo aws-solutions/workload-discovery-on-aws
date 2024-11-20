@@ -3,6 +3,9 @@
     "accountId": "xxxxxxxxxxxx",
     "region": "eu-west-2"
   },
+  "alb": {
+    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/app/test-alb/625c448c55eae07c"
+  },
   "ecsServiceRole": {
     "id": "${ecsServiceRole.arn}",
     "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
@@ -34,7 +37,7 @@
       "TaskDefinition": "${ecsTaskDefinition.arn}",
       "LoadBalancers": [
         {
-          "TargetGroupArn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/app/test-alb/625c448c55eae07c"
+          "TargetGroupArn": "${alb.arn}"
         }
       ]
     }

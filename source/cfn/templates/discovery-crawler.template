@@ -392,6 +392,7 @@ Resources:
               Value: !Ref LogLevel
             - Name: CUSTOM_USER_AGENT
               Value: !Ref CustomUserAgent
+          ReadonlyRootFilesystem: true
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -468,13 +469,18 @@ Resources:
                   - !Ref PrivateSubnet1
 
 Outputs:
-  Endpoint:
-    Description: Cluster
-    Value: !Ref Cluster
+
+  ClusterArn:
+    Description: WD Cluster Arn
+    Value: !GetAtt Cluster.Arn
 
   TaskDef:
     Description: Task Name
     Value: !Ref TaskDefinition
+
+  DiscoveryTaskLogGroup:
+    Description: Log group for discovery process task
+    Value: !Ref LogGroup
 
   EcsRoleDef:
     Description: ECS Role Name
