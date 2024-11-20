@@ -3,7 +3,7 @@
 
 export const getStatus = (isFetching, isError) => {
     if (isFetching) {
-        return 'loading'
+        return 'loading';
     }
-    return isError ? 'error' : 'finished'
-}
+    return isError ? 'error' : 'finished';
+};

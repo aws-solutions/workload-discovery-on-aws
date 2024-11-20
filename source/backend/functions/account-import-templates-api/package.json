@@ -1,18 +1,19 @@
 {
   "name": "wd-import-templates",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "Lambda function that serves cfn templates for account and region importing",
-  "main": "index.js",
+  "main": "index.mjs",
+  "type": "module",
   "scripts": {
-    "pretest": "npm i",
-    "test": "nyc --reporter=html --reporter=text mocha test",
-    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
-    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "copy:global-resource": "cp ../../../cfn/templates/org-global-resources.template src/global-resources.template",
+    "pretest": "npm run copy:global-resource && npm i",
+    "test": "vitest run --coverage",
+    "pretest:ci": "npm run copy:global-resource && npm ci",
+    "test:ci": "vitest run --coverage --allowOnly false",
     "clean": "rm -rf dist",
-    "build:zip": "zip -urj account-import-templates-api.zip src/",
+    "build:zip": "zip -rq --exclude=test/* account-import-templates-api.zip node_modules/ && zip -urj account-import-templates-api.zip src/",
     "build:dist": "mkdir dist && mv account-import-templates-api.zip dist/",
-    "build": "npm run clean && npm run build:zip && npm run build:dist",
-    "coverage": "nyc npm test"
+    "build": "npm run clean && npm ci --omit=dev && npm run copy:global-resource && npm run build:zip && npm run build:dist"
   },
   "license": "Apache-2.0",
   "author": {
@@ -20,11 +21,11 @@
     "url": "https://aws.amazon.com/solutions"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "nyc-report-lcov-absolute": "^1.0.0",
-    "rewire": "^7.0.0",
+    "@vitest/coverage-v8": "^2.1.1",
+    "vitest": "^2.1.1",
     "yaml-cfn": "^0.3.2"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "2.10.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "opensearch-setup",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "Custom resource that creates index in OpenSearch.",
   "main": "src/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@aws-sdk/credential-provider-node": "^3.645.0",
     "@opensearch-project/opensearch": "2.3.1",
-    "aws-opensearch-connector": "1.0.0",
     "cfn-response-promise": "1.1.0"
   }
 }

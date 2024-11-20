@@ -17,7 +17,16 @@ Parameters:
   DiscoveryRoleArn:
     Type: String
 
+  ExternalId:
+    Type: String
+
+  MyApplicationsLambdaRoleArn:
+    Type: String
+
   NodeLambdaRuntime:
+    Type: String
+
+  SolutionVersion:
     Type: String
 
 Resources:
@@ -71,7 +80,10 @@ Resources:
         Variables:
           ACCOUNT_ID: !Ref AWS::AccountId
           DISCOVERY_ROLE_ARN: !Ref DiscoveryRoleArn
+          EXTERNAL_ID: !Ref ExternalId
+          MY_APPLICATIONS_LAMBDA_ROLE_ARN: !Ref MyApplicationsLambdaRoleArn
           REGION: !Ref AWS::Region
+          SOLUTION_VERSION: !Ref SolutionVersion
 
   AccountImportTemplatesApiInvokeRole:
     Type: AWS::IAM::Role

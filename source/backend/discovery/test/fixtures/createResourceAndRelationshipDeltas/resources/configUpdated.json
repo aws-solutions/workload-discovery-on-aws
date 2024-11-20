@@ -26,6 +26,14 @@
         "c": "roleProp",
         "configurationItemCaptureTime": "2022-06-19T18:37:53.652Z"
       }
+    },
+    "AWS::S3::Bucket": {
+      "id": "bucketArn",
+      "md5Hash": "",
+      "resourceType": "AWS::S3::Bucket",
+      "properties": {
+        "configurationItemCaptureTime": "2022-06-19T18:37:53.652Z"
+      }
     }
   },
   "resources": {
@@ -55,6 +63,15 @@
       "properties": {
         "c": "roleProp",
         "configurationItemCaptureTime": "2022-06-19T18:37:53.652Z"
+      }
+    },
+    "AWS::S3::Bucket": {
+      "id": "bucketArn",
+      "md5Hash": "",
+      "resourceType": "AWS::S3::Bucket",
+      "properties": {
+        "configurationItemCaptureTime": "2022-06-19T18:37:53.652Z",
+        "supplementaryConfiguration": {}
       }
     }
   }

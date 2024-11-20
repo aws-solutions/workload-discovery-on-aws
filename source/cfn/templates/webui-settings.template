@@ -27,6 +27,15 @@ Parameters:
   SettingsObjectKey:
     Type: String
 
+  CognitoUserPoolCustomDomain:
+    Type: String
+  
+  CloudfrontDistributionURL:
+    Type: String
+  
+  CognitoUserPoolProviderName:
+    Type: String 
+    
   SolutionVersion:
     Type: String
 
@@ -35,6 +44,13 @@ Parameters:
 
   PythonLambdaRuntime:
     Type: String
+
+  UsesCustomIdentity:
+    Type: String
+
+Conditions:
+
+  CreateCustomIdPResources: !Equals [!Ref UsesCustomIdentity, 'Yes']
 
 Resources:
 
@@ -99,36 +115,42 @@ Resources:
     Properties:
       ACL: private
       BucketName: !Ref WebUIBucket
-      Content: !Sub |-
-        window.amplify = {
-        "Auth": {
-          "mandatorySignIn": true,
-          "identityPoolId": "${CognitoIdentityPoolId}",
-          "region": "${AWS::Region}",
-          "userPoolId": "${CognitoUserPoolId}",
-          "userPoolWebClientId": "${CognitoUserPoolWebClientId}"
-        },
-        "API": {
-          "aws_appsync_graphqlEndpoint": "${AppSyncEndpoint}",
-          "aws_appsync_region": "${AWS::Region}",
-          "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
-          "endpoints": []
-        },
-        "Storage": {
-          "AWSS3": {
-            "bucket": "${AmplifyBucketName}",
-            "region": "${AWS::Region}"
+      Content: !Sub 
+        - |
+          window.amplify = {
+          "Auth": {
+            "mandatorySignIn": true,
+            "identityPoolId": "${CognitoIdentityPoolId}",
+            "region": "${AWS::Region}",
+            "userPoolId": "${CognitoUserPoolId}",
+            "userPoolWebClientId": "${CognitoUserPoolWebClientId}",
+            ${FederatedIdpResource}
+            ${Oauth}
+          },
+          "API": {
+            "aws_appsync_graphqlEndpoint": "${AppSyncEndpoint}",
+            "aws_appsync_region": "${AWS::Region}",
+            "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "endpoints": []
+          },
+          "Storage": {
+            "AWSS3": {
+              "bucket": "${AmplifyBucketName}",
+              "region": "${AWS::Region}"
+            }
           }
-        }
-        };
-        window.pinpoint = {
-        "Auth": {"identityPoolId": "eu-west-1:07a0c94b-d3b7-47d4-b857-3cdd288c7973", "region": "eu-west-1"},
-        "Analytics": {
-          "autoSessionRecord": false,
-          "AWSPinpoint": {"appId": "81a5891dfce54202ad80c5a3308dd61c", "region": "eu-west-1"}
-        }
-        };
-        window.perspectiveMetadata = {"crossAccountDiscovery": "${CrossAccountDiscovery}", "rootAccount": "${AWS::AccountId}", "rootRegion": "${AWS::Region}", "version": "${SolutionVersion}"};
+          };
+          window.pinpoint = {
+          "Auth": {"identityPoolId": "eu-west-1:07a0c94b-d3b7-47d4-b857-3cdd288c7973", "region": "eu-west-1"},
+          "Analytics": {
+            "autoSessionRecord": false,
+            "AWSPinpoint": {"appId": "81a5891dfce54202ad80c5a3308dd61c", "region": "eu-west-1"}
+          }
+          };
+          window.perspectiveMetadata = {"crossAccountDiscovery": "${CrossAccountDiscovery}", "rootAccount": "${AWS::AccountId}", "rootRegion": "${AWS::Region}", "version": "${SolutionVersion}"};
+        - FederatedIdpResource: !If [CreateCustomIdPResources, !Sub  '"federatedIdpResource" : "${CognitoUserPoolProviderName}",', '']
+          Oauth:
+            !If [CreateCustomIdPResources, !Sub '"oauth": { "domain": "${CognitoUserPoolCustomDomain}.auth.${AWS::Region}.amazoncognito.com","scope": ["phone","email","profile","openid","aws.cognito.signin.user.admin"],"redirectSignIn": "${CloudfrontDistributionURL}","redirectSignOut": "${CloudfrontDistributionURL}","clientId": "${CognitoUserPoolWebClientId}" ,"responseType": "code"}', '']
       ContentType: text/javascript
       ObjectKey: !Ref SettingsObjectKey
       ServiceToken: !GetAtt UiSettingsResource.Arn

@@ -1,26 +1,25 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { beforeEach, test, describe, expect, vi } from 'vitest'
+import {beforeEach, test, describe, expect, vi} from 'vitest';
 import React from 'react';
 import StatementItem from '../../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/Statement/StatementItem';
-import { parseCustomerManagedPolicyStatement } from '../../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser';
-import { fetchImage } from '../../../../../../Utils/ImageSelector';
+import {parseCustomerManagedPolicyStatement} from '../../../../../../API/NodeFactory/NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser';
+import {fetchImage} from '../../../../../../Utils/ImageSelector';
 import {
-  atRiskActionsResources,
-  atRiskActionsNeedsAttentionResources,
-  needsAttentionActionsNeedsAttentionResources,
-  okActionsAtRiskResources,
-  atRiskActionsOKResources,
-  needsAttentionActionsOKResources,
-  okActionsNeedsAttentionResources,
-  okActionsOKResources,
-  okActionsNotArrayOKResources,
-  okActionsOKResourcesArray
+    atRiskActionsResources,
+    atRiskActionsNeedsAttentionResources,
+    needsAttentionActionsNeedsAttentionResources,
+    okActionsAtRiskResources,
+    atRiskActionsOKResources,
+    needsAttentionActionsOKResources,
+    okActionsNeedsAttentionResources,
+    okActionsOKResources,
+    okActionsNotArrayOKResources,
+    okActionsOKResourcesArray,
 } from './data/statement.js';
 
 describe('CustomerManagedPolicyStatementParser', () => {
-
     beforeEach(() => {
         vi.resetModules(); // this is important - it clears the cache
     });
@@ -31,8 +30,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: atRiskActionsResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: atRiskActionsResources
-            }
+                statement: atRiskActionsResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -42,14 +41,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'This is not secure. You should lockdown your policy statements by providing ARNs and full action names',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(atRiskActionsResources)}
                 />
             ),
@@ -58,7 +57,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with at risk actions and needs attention resources is parsed', () => {
@@ -67,8 +68,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: atRiskActionsNeedsAttentionResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: atRiskActionsNeedsAttentionResources
-            }
+                statement: atRiskActionsNeedsAttentionResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -78,14 +79,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'This is not secure. You should lockdown your policy statements by providing ARNs and full action names',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(atRiskActionsNeedsAttentionResources)}
                 />
             ),
@@ -94,7 +95,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with needs attention actions and needs attention resources is parsed', () => {
@@ -103,8 +106,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: needsAttentionActionsNeedsAttentionResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: needsAttentionActionsNeedsAttentionResources
-            }
+                statement: needsAttentionActionsNeedsAttentionResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -114,15 +117,17 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'You could further lockdown your policy by providing full resource ARNs and actions and removing any wildcards',
-                colour: '#FF9900'
+                colour: '#FF9900',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-warning'
+                status: 'status-warning',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
-                    statement={JSON.parse(needsAttentionActionsNeedsAttentionResources)}
+                    title="Statement"
+                    statement={JSON.parse(
+                        needsAttentionActionsNeedsAttentionResources
+                    )}
                 />
             ),
         };
@@ -130,7 +135,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with ok actions and at risk resources is parsed', () => {
@@ -139,8 +146,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: okActionsAtRiskResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: okActionsAtRiskResources
-            }
+                statement: okActionsAtRiskResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -150,14 +157,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'This is not secure. You should lockdown your policy statements by providing ARNs and full action names',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(okActionsAtRiskResources)}
                 />
             ),
@@ -167,7 +174,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
         expect(result.hoverComponent).toEqual(expectedResult.hoverComponent);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with at risk actions and ok resources is parsed', () => {
@@ -176,8 +185,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: atRiskActionsOKResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: atRiskActionsOKResources
-            }
+                statement: atRiskActionsOKResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -187,14 +196,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'This is not secure. You should lockdown your policy statements by providing ARNs and full action names',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(atRiskActionsOKResources)}
                 />
             ),
@@ -203,7 +212,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with needs attention actions and ok resources is parsed', () => {
@@ -212,8 +223,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: needsAttentionActionsOKResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: needsAttentionActionsOKResources
-            }
+                statement: needsAttentionActionsOKResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -223,14 +234,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'You could further lockdown your policy by providing full resource ARNs and actions and removing any wildcards',
-                colour: '#FF9900'
+                colour: '#FF9900',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-warning'
+                status: 'status-warning',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(needsAttentionActionsOKResources)}
                 />
             ),
@@ -239,7 +250,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with ok actions and needs attention resources is parsed', () => {
@@ -248,8 +261,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: okActionsNeedsAttentionResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: okActionsNeedsAttentionResources
-            }
+                statement: okActionsNeedsAttentionResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -259,14 +272,14 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderSize: 1,
                 message:
                     'You could further lockdown your policy by providing full resource ARNs and actions and removing any wildcards',
-                colour: '#FF9900'
+                colour: '#FF9900',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-warning'
+                status: 'status-warning',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(okActionsNeedsAttentionResources)}
                 />
             ),
@@ -275,7 +288,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with ok actions and ok resources is parsed', () => {
@@ -284,8 +299,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: okActionsOKResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: okActionsOKResources
-            }
+                statement: okActionsOKResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -293,16 +308,15 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message:
-                    'The actions and resources covered by this statement',
-                colour: '#1D8102'
+                message: 'The actions and resources covered by this statement',
+                colour: '#1D8102',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-available'
+                status: 'status-available',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(okActionsOKResources)}
                 />
             ),
@@ -311,7 +325,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with ok actions not array and ok resources is parsed', () => {
@@ -320,8 +336,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: okActionsNotArrayOKResources,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: okActionsNotArrayOKResources
-            }
+                statement: okActionsNotArrayOKResources,
+            },
         };
         const expectedResult = {
             styling: {
@@ -329,16 +345,15 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message:
-                    'The actions and resources covered by this statement',
-                colour: '#1D8102'
+                message: 'The actions and resources covered by this statement',
+                colour: '#1D8102',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-available'
+                status: 'status-available',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(okActionsNotArrayOKResources)}
                 />
             ),
@@ -347,7 +362,9 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node that is customer managed policy statement with ok actions and ok resources in array is parsed', () => {
@@ -356,8 +373,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
             properties: {
                 configuration: okActionsOKResourcesArray,
                 resourceType: 'AWS::IAM::CustomerManagedPolicyStatement',
-                statement: okActionsOKResourcesArray
-            }
+                statement: okActionsOKResourcesArray,
+            },
         };
         const expectedResult = {
             styling: {
@@ -365,16 +382,15 @@ describe('CustomerManagedPolicyStatementParser', () => {
                 borderColour: '#1D8102',
                 borderOpacity: 0.25,
                 borderSize: 1,
-                message:
-                    'The actions and resources covered by this statement',
-                colour: '#1D8102'
+                message: 'The actions and resources covered by this statement',
+                colour: '#1D8102',
             },
             icon: fetchImage(node.properties.resourceType, {
-                status: 'status-available'
+                status: 'status-available',
             }),
             detailsComponent: (
                 <StatementItem
-                    title='Statement'
+                    title="Statement"
                     statement={JSON.parse(okActionsOKResourcesArray)}
                 />
             ),
@@ -383,7 +399,8 @@ describe('CustomerManagedPolicyStatementParser', () => {
         const result = parseCustomerManagedPolicyStatement(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
-
 });

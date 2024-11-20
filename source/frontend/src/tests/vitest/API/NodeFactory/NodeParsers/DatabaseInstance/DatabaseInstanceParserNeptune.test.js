@@ -1,29 +1,28 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { beforeEach, test, describe, expect, vi } from 'vitest'
+import {beforeEach, test, describe, expect, vi} from 'vitest';
 import React from 'react';
 import DatabaseInstanceItem from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
-import { parseDatabaseInstance } from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
-import { fetchImage } from '../../../../../../Utils/ImageSelector';
-import { neptune } from './data/dbTypes';
+import {parseDatabaseInstance} from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
+import {fetchImage} from '../../../../../../Utils/ImageSelector';
+import {neptune} from './data/dbTypes';
 
 describe('DatabaseInstanceParserNeptune', () => {
-
     beforeEach(() => {
         vi.resetModules(); // this is important - it clears the cache
     });
 
     test('when node is an neptune rds instance with status as provisioning', () => {
         let neptuneProv = JSON.parse(neptune);
-        neptuneProv.dBInstanceStatus = 'provisioning'
+        neptuneProv.dBInstanceStatus = 'provisioning';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptuneProv),
-                dBInstanceStatus: 'provisioning'
-            }
+                dBInstanceStatus: 'provisioning',
+            },
         };
         const expectedResult = {
             styling: {
@@ -32,35 +31,37 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'provisioning',
-                colour: '#FF9900'
+                colour: '#FF9900',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-warning'
+                status: 'status-warning',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptuneProv)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an neptune rds instance with status as warning', () => {
         let neptunePending = JSON.parse(neptune);
-        neptunePending.dBInstanceStatus = 'pending'
+        neptunePending.dBInstanceStatus = 'pending';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptunePending),
-                dBInstanceStatus: 'pending'
-            }
+                dBInstanceStatus: 'pending',
+            },
         };
         const expectedResult = {
             styling: {
@@ -69,35 +70,37 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'pending',
-                colour: '#FF9900'
+                colour: '#FF9900',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-warning'
+                status: 'status-warning',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptunePending)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an neptune rds instance with status as available', () => {
         let neptuneAvailable = JSON.parse(neptune);
-        neptuneAvailable.dBInstanceStatus = 'available'
+        neptuneAvailable.dBInstanceStatus = 'available';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptuneAvailable),
-                dBInstanceStatus: 'available'
-            }
+                dBInstanceStatus: 'available',
+            },
         };
         const expectedResult = {
             styling: {
@@ -106,35 +109,37 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'available',
-                colour: '#1D8102'
+                colour: '#1D8102',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-available'
+                status: 'status-available',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptuneAvailable)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an neptune rds instance with status as active', () => {
         let neptuneActive = JSON.parse(neptune);
-        neptuneActive.dBInstanceStatus = 'active'
+        neptuneActive.dBInstanceStatus = 'active';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptuneActive),
-                dBInstanceStatus: 'active'
-            }
+                dBInstanceStatus: 'active',
+            },
         };
         const expectedResult = {
             styling: {
@@ -143,35 +148,37 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'active',
-                colour: '#1D8102'
+                colour: '#1D8102',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-available'
+                status: 'status-available',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptuneActive)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an neptune rds instance with status as stopped', () => {
         let neptuneStopped = JSON.parse(neptune);
-        neptuneStopped.dBInstanceStatus = 'stopped'
+        neptuneStopped.dBInstanceStatus = 'stopped';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptuneStopped),
-                dBInstanceStatus: 'stopped'
-            }
+                dBInstanceStatus: 'stopped',
+            },
         };
         const expectedResult = {
             styling: {
@@ -180,35 +187,37 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'stopped',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptuneStopped)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an neptune rds instance with status as failed', () => {
         let neptuneFailed = JSON.parse(neptune);
-        neptuneFailed.dBInstanceStatus = 'failed'
+        neptuneFailed.dBInstanceStatus = 'failed';
         const node = {
             name: 'aDatabaseInstance',
             properties: {
                 resourceType: 'AWS::RDS::DBInstance',
                 configuration: JSON.stringify(neptuneFailed),
-                dBInstanceStatus: 'failed'
-            }
+                dBInstanceStatus: 'failed',
+            },
         };
         const expectedResult = {
             styling: {
@@ -217,23 +226,24 @@ describe('DatabaseInstanceParserNeptune', () => {
                 borderOpacity: 0.25,
                 borderSize: 1,
                 message: 'failed',
-                colour: '#D13212'
+                colour: '#D13212',
             },
             icon: fetchImage('AWS::RDS::DBInstance-neptune', {
-                status: 'status-negative'
+                status: 'status-negative',
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(neptuneFailed)}
                 />
-            )
+            ),
         };
 
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
-
 });

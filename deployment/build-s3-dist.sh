@@ -31,7 +31,7 @@ source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
 auditDeps () {
-   npm_config_yes=true npx better-npm-audit audit --production -l high
+   npm_config_yes=true npx better-npm-audit audit --production
    OUTPUT=$?
    if [[ "$OUTPUT" -eq 0 ]];
    then
@@ -62,6 +62,7 @@ echo "--------------------------------------------------------------------------
 cp "$nested_stack_template_dir"/*.template "$build_dist_dir"
 cd "$build_dist_dir"
 sedi "s|<BUCKET_NAME>|${1}|g; s|<SOLUTION_NAME>|${2}|g; s|<VERSION>|${3}|g; s|<IMAGE_VERSION>|${4}|g" main.template
+sedi "s|<VERSION>|${3}|g;" org-global-resources.template
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Main Distribution Template"
@@ -117,6 +118,14 @@ cd "${source_dir}/backend/functions/cleanup-ecr"
 rm -rf dist && mkdir dist
 zip -q -r9 dist/cleanup-ecr.zip cleanup_ecr.py
 cp ./dist/cleanup-ecr.zip "${build_dist_dir}/cleanup-ecr.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Identity Provider Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/identity-provider"
+rm -rf dist && mkdir dist
+zip -q -r9 dist/identity-provider.zip identity_provider.py
+cp ./dist/identity-provider.zip "${build_dist_dir}/identity-provider.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Drawio Lambda"
@@ -191,6 +200,15 @@ auditDeps
 npm run build
 cp ./dist/cur-setup.zip "${build_dist_dir}/cur-setup.zip"
 
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Metrics Uuid Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/metrics-uuid"
+rm -rf dist && mkdir dist
+zip -q -r9 dist/metrics_uuid.zip metrics_uuid.py
+cp ./dist/metrics_uuid.zip "${build_dist_dir}/metrics_uuid.zip"
+
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Metrics"
 echo "------------------------------------------------------------------------------"
@@ -198,6 +216,22 @@ cd "${source_dir}/backend/functions/metrics"
 auditDeps
 npm run build
 cp ./dist/metrics.zip "${build_dist_dir}/metrics.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Metrics Subscription Filter"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/metrics-subscription-filter"
+auditDeps
+npm run build
+cp ./dist/metrics-subscription-filter.zip "${build_dist_dir}/metrics-subscription-filter.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Export to myApplication"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/myapplications"
+auditDeps
+npm run build
+cp ./dist/myapplications.zip "${build_dist_dir}/myapplications.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Discovery"

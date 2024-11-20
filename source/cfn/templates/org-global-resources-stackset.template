@@ -16,6 +16,12 @@ Parameters:
   DiscoveryRoleArn:
     Type: String
 
+  ExternalId:
+    Type: String
+
+  MyApplicationsLambdaRoleArn:
+    Type: String
+
 Conditions:
   IsDelegatedAdmin: !Equals [!Ref AccountType, DELEGATED_ADMIN]
 
@@ -34,6 +40,12 @@ Resources:
       Parameters:
         - ParameterKey: WorkloadDiscoveryAccountId
           ParameterValue: !Ref AWS::AccountId
+        - ParameterKey: WorkloadDiscoveryAggregationRegion
+          ParameterValue: !Ref AWS::Region
+        - ParameterKey: MyApplicationsLambdaRoleArn
+          ParameterValue: !Ref MyApplicationsLambdaRoleArn
+        - ParameterKey: WorkloadDiscoveryExternalId
+          ParameterValue: !Ref ExternalId
         - ParameterKey: WorkloadDiscoveryDiscoveryRoleArn
           ParameterValue: !Ref DiscoveryRoleArn
       AutoDeployment:

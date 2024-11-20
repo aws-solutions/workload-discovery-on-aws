@@ -8,7 +8,8 @@ class MockStorageProvider {
 
     // get object/pre-signed url from storage
     async get(key, {level}) {
-        return `https://www.mock-s3.com/${level}/${key}`
+        const [slug, diagramName] = key.split('/');
+        return `https://www.mock-s3.com/${slug}/${level}/${diagramName}`;
     }
 
     async _getObject(key) {
@@ -18,27 +19,39 @@ class MockStorageProvider {
     async put(key, object, {metadata, level, completeCallback, errorCallback}) {
         try {
             const blobString = await object.text();
-            objectStore.set(`${level}/${key}`, JSON.parse(blobString));
-            completeCallback({result: 'Completed!'})
-        } catch(err) {
+            const [slug, diagramName] = key.split('/');
+            objectStore.set(
+                `${slug}/${level}/${diagramName}`,
+                JSON.parse(blobString)
+            );
+            completeCallback({result: 'Completed!'});
+        } catch (err) {
+            console.error(err);
             errorCallback(new Error('Error!'));
         }
     }
 
     async remove(key, {level}) {
-        objectStore.delete(`${level}/${key}`);
+        const [slug, diagramName] = key.split('/');
+        objectStore.delete(`${slug}/${level}/${diagramName}`);
     }
 
-    async list(path, options) {
-        return Array.from(objectStore.entries())
+    async list(path, {level}) {
+        const results = Array.from(objectStore.entries())
+            .filter(([k, v]) => {
+                return k.includes(level);
+            })
             .map(([key, v]) => {
+                const [slug, , diagramName] = key.split('/');
                 return {
-                    key,
-                    eTag: "\"2836448242231487dc857a2d5334327e\"",
+                    key: `${slug}/${diagramName}`,
+                    eTag: '"2836448242231487dc857a2d5334327e"',
                     lastModified: new Date().toDateString(),
-                    size: 404764
-                }
+                    size: 404764,
+                };
             });
+
+        return {results};
     }
 
     getCategory() {

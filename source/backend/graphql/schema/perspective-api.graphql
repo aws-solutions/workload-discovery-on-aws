@@ -221,6 +221,14 @@ type Mutation {
   deleteRegions(accountId: String!, regions: [RegionInput]!): Account
   # Deletes one or more accounts to be scanned
   deleteAccounts(accountIds: [String]!): UnprocessedAccounts @aws_cognito_user_pools @aws_iam
+  # Create an application in myApplications
+  createApplication(name: String!, accountId: String!, region: String!, resources: [MyApplicationsResourceInput]!): CreateApplicationResponse
+}
+
+input MyApplicationsResourceInput {
+    id: String
+    region: String
+    accountId: String
 }
 
 type Query {
@@ -282,6 +290,12 @@ type Query {
       accounts: [AccountInput]): ResourcesResponse @aws_cognito_user_pools @aws_iam
   # Export a diagram to draw.io
   exportToDrawIo(nodes: [drawIoNodeInput], edges: [drawIoEdgeInput]) : String
+}
+
+type CreateApplicationResponse {
+    applicationTag: String
+    name: String
+    unprocessedResources: [String]
 }
 
 type ResourcesResponse @aws_cognito_user_pools @aws_iam {

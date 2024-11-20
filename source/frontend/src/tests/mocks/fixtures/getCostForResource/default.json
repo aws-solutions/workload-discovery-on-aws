@@ -1,24 +1,24 @@
 {
-    "getCostForResource":{
-        "totalCost":33.81,
-        "costItems":[
+    "getCostForResource": {
+        "totalCost": 33.81,
+        "costItems": [
             {
-                "line_item_resource_id":"arn:aws:rds:us-east-2:xxxxxxxxxxxx:db:neptunedbinstance-xxxxxxxxxxxx",
-                "product_servicename":"Amazon Neptune",
-                "line_item_usage_start_date":null,
-                "line_item_usage_account_id":"xxxxxxxxxxxx",
-                "region":"us-east-2",
-                "pricing_term":"OnDemand",
-                "cost":31.46,
-                "line_item_currency_code":"USD"
+                "line_item_resource_id": "arn:aws:rds:us-east-2:xxxxxxxxxxxx:db:neptunedbinstance-xxxxxxxxxxxx",
+                "product_servicename": "Amazon Neptune",
+                "line_item_usage_start_date": null,
+                "line_item_usage_account_id": "xxxxxxxxxxxx",
+                "region": "us-east-2",
+                "pricing_term": "OnDemand",
+                "cost": 31.46,
+                "line_item_currency_code": "USD"
             }
-        ],  
-            "queryDetails":{
-                "cost":4.768E-5,
-                "s3Bucket":"workload-discovery-on-aw-costandusageathenaresult-xxxxxxxxxxxx",
-                "s3Key":"test.csv",
-                "dataScannedInMB":1,
-                "resultCount":1
-                }
+        ],
+        "queryDetails": {
+            "cost": 4.768e-5,
+            "s3Bucket": "workload-discovery-on-aw-costandusageathenaresult-xxxxxxxxxxxx",
+            "s3Key": "test.csv",
+            "dataScannedInMB": 1,
+            "resultCount": 1
+        }
     }
 }

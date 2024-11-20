@@ -1,15 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {beforeEach, test, describe, expect, vi} from 'vitest'
+import {beforeEach, test, describe, expect, vi} from 'vitest';
 import React from 'react';
 import DatabaseInstanceItem from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceDetails/DatabaseInstanceItem';
-import { parseDatabaseInstance } from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
-import { fetchImage } from '../../../../../../Utils/ImageSelector';
-import { unknown } from './data/dbTypes';
+import {parseDatabaseInstance} from '../../../../../../API/NodeFactory/NodeParsers/DatabaseInstance/DatabaseInstanceParser';
+import {fetchImage} from '../../../../../../Utils/ImageSelector';
+import {unknown} from './data/dbTypes';
 
 describe('DatabaseInstanceParserUnknown', () => {
-
     beforeEach(() => {
         vi.resetModules(); // this is important - it clears the cache
     });
@@ -39,7 +38,7 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownProv)}
                 />
             ),
@@ -48,7 +47,9 @@ describe('DatabaseInstanceParserUnknown', () => {
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an unknown rds instance with status as warning', () => {
@@ -76,7 +77,7 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownPending)}
                 />
             ),
@@ -85,7 +86,9 @@ describe('DatabaseInstanceParserUnknown', () => {
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an unknown rds instance with status as available', () => {
@@ -113,18 +116,19 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownAvailable)}
                 />
             ),
         };
 
-
         const result = parseDatabaseInstance(node);
 
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an unknown rds instance with status as active', () => {
@@ -152,7 +156,7 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownActive)}
                 />
             ),
@@ -161,7 +165,9 @@ describe('DatabaseInstanceParserUnknown', () => {
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an unknown rds instance with status as stopped', () => {
@@ -189,7 +195,7 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownStopped)}
                 />
             ),
@@ -198,7 +204,9 @@ describe('DatabaseInstanceParserUnknown', () => {
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
 
     test('when node is an unknown rds instance with status as failed', () => {
@@ -226,7 +234,7 @@ describe('DatabaseInstanceParserUnknown', () => {
             }),
             detailsComponent: (
                 <DatabaseInstanceItem
-                    title='Instance Details'
+                    title="Instance Details"
                     configuration={JSON.stringify(unknownFailed)}
                 />
             ),
@@ -235,8 +243,8 @@ describe('DatabaseInstanceParserUnknown', () => {
         const result = parseDatabaseInstance(node);
         expect(result.styling).toEqual(expectedResult.styling);
         expect(result.icon).toEqual(expectedResult.icon);
-        expect(result.detailsComponent).toEqual(expectedResult.detailsComponent);
+        expect(result.detailsComponent).toEqual(
+            expectedResult.detailsComponent
+        );
     });
-
-
 });

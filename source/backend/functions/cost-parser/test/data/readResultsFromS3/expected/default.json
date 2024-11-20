@@ -1,95 +1,95 @@
 {
-  "totalCost": 6.65,
-  "costItems": [
-    {
-      "line_item_resource_id": "vol-",
-      "product_servicename": "Amazon Elastic Compute Cloud",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-1",
-      "pricing_term": "OnDemand",
-      "cost": 0.8,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "vol-",
-      "product_servicename": "Amazon Elastic Compute Cloud",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-1",
-      "pricing_term": "OnDemand",
-      "cost": 0.8,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "arn:aws:connect::",
-      "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.77,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "arn:aws:connect:::phone-number/",
-      "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.77,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "arn:aws:connect:::phone-number/",
-      "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.77,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "arn:aws:connect:::phone-number/",
-      "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.77,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "",
-      "product_servicename": "Amazon Macie",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-1",
-      "pricing_term": "OnDemand",
-      "cost": 0.71,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "",
-      "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.67,
-      "line_item_currency_code": "USD"
-    },
-    {
-      "line_item_resource_id": "",
-      "product_servicename": "Amazon Inspector",
-      "line_item_usage_account_id": "xxxxxxxxxxxx",
-      "region": "eu-west-2",
-      "pricing_term": "OnDemand",
-      "cost": 0.6,
-      "line_item_currency_code": "USD"
+    "totalCost": 6.65,
+    "costItems": [
+        {
+            "line_item_resource_id": "vol-",
+            "product_servicename": "Amazon Elastic Compute Cloud",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-1",
+            "pricing_term": "OnDemand",
+            "cost": 0.8,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "vol-",
+            "product_servicename": "Amazon Elastic Compute Cloud",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-1",
+            "pricing_term": "OnDemand",
+            "cost": 0.8,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "arn:aws:connect::",
+            "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.77,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "arn:aws:connect:::phone-number/",
+            "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.77,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "arn:aws:connect:::phone-number/",
+            "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.77,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "arn:aws:connect:::phone-number/",
+            "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.77,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "",
+            "product_servicename": "Amazon Macie",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-1",
+            "pricing_term": "OnDemand",
+            "cost": 0.71,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "",
+            "product_servicename": "Contact Center Telecommunications (service sold by AMCS, LLC) ",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.67,
+            "line_item_currency_code": "USD"
+        },
+        {
+            "line_item_resource_id": "",
+            "product_servicename": "Amazon Inspector",
+            "line_item_usage_account_id": "xxxxxxxxxxxx",
+            "region": "eu-west-2",
+            "pricing_term": "OnDemand",
+            "cost": 0.6,
+            "line_item_currency_code": "USD"
+        }
+    ],
+    "queryDetails": {
+        "resultCount": 9,
+        "pagination": {
+            "start": 0,
+            "end": 100
+        },
+        "s3Bucket": "myBucket",
+        "s3Key": "myKey"
     }
-  ],
-  "queryDetails": {
-    "resultCount": 9,
-    "pagination": {
-      "start": 0,
-      "end": 100
-    },
-    "s3Bucket": "myBucket",
-    "s3Key": "myKey"
-  }
 }

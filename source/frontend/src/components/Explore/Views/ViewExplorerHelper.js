@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { HelpPanel } from '@cloudscape-design/components';
+import {HelpPanel} from '@cloudscape-design/components';
 
 const ViewExplorerHelper = () => {
-  return (
-    <HelpPanel header={<h2>Explore Views</h2>}>
-      <p>Select a View to see AWS Resources that match its definition</p>
-    </HelpPanel>
-  );
+    return (
+        <HelpPanel header={<h2>Explore Views</h2>}>
+            <p>Select a View to see AWS Resources that match its definition</p>
+        </HelpPanel>
+    );
 };
 
 export default ViewExplorerHelper;

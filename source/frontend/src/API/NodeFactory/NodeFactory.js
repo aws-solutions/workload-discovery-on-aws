@@ -1,17 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { fetchImage } from '../../Utils/ImageSelector.js';
-import { getAccountColour, getRegionColour } from '../../Utils/ColorCreator.js';
-import { getCostData } from '../../Utils/Resources/CostCalculator.js';
-import { parseNode } from './NodeParserHandler.js';
+import {fetchImage} from '../../Utils/ImageSelector.js';
+import {getAccountColour, getRegionColour} from '../../Utils/ColorCreator.js';
+import {getCostData} from '../../Utils/Resources/CostCalculator.js';
+import {parseNode} from './NodeParserHandler.js';
 
-import * as R  from 'ramda';
+import * as R from 'ramda';
 
 export const buildBoundingBox = ({id, type, label, properties}, parent) => {
     try {
         const boundingBox = {
-            group: "nodes",
+            group: 'nodes',
             data: {
                 id,
                 parent: parent,
@@ -33,7 +33,7 @@ export const buildBoundingBox = ({id, type, label, properties}, parent) => {
                     type === 'region' ? label : 'Multi-Region'
                 ),
                 aZColour: '#00A1C9',
-                subnetColour: subnetColour({data: {properties}})
+                subnetColour: subnetColour({data: {properties}}),
             },
             classes: [`${type}`, 'removeAll'],
         };
@@ -51,7 +51,7 @@ export const buildBoundingBox = ({id, type, label, properties}, parent) => {
                 state: properties.state,
                 loggedInURL: properties.loggedInURL,
                 loginURL: properties.loginURL,
-                accountId: properties.accountId ?? 'global'
+                accountId: properties.accountId ?? 'global',
             };
         }
         return boundingBox;
@@ -60,43 +60,44 @@ export const buildBoundingBox = ({id, type, label, properties}, parent) => {
     }
 };
 
-const subnetColour = (node) => {
-  if (node.data) {
-    if (node.data.properties.private) {
-      return '#147eba'
+const subnetColour = node => {
+    if (node.data) {
+        if (node.data.properties.private) {
+            return '#147eba';
+        } else return '#248814';
     }
-    else return '#248814'
-  } 
-  return '#545B64'
-}
-
-const findARN = (properties) => {
-  return R.head(
-    R.reduce(
-      (acc, val) => {
-        if (R.startsWith('arn:', val)) acc.push(val);
-        return acc;
-      },
-      [],
-      R.filter((e) => !R.isNil(e), R.values(properties))
-    )
-  );
+    return '#545B64';
 };
 
-const buildResourceId = (properties) =>
-  Array.of(
-    properties.resourceId,
-    !R.isNil(properties.arn) ? properties.arn : findARN(properties)
-  );
+const findARN = properties => {
+    return R.head(
+        R.reduce(
+            (acc, val) => {
+                if (R.startsWith('arn:', val)) acc.push(val);
+                return acc;
+            },
+            [],
+            R.filter(e => !R.isNil(e), R.values(properties))
+        )
+    );
+};
+
+const buildResourceId = properties =>
+    Array.of(
+        properties.resourceId,
+        !R.isNil(properties.arn) ? properties.arn : findARN(properties)
+    );
 
 export const buildNode = (node, parent, clickedNode) => {
     try {
         const properties = node.data ? node.data.properties : node.properties;
         const parsedNode = parseNode(properties, node);
         const builtNode = {
-            group: "nodes",
+            group: 'nodes',
             data: {
-                arn: !R.isNil(properties.arn) ? properties.arn : findARN(properties),
+                arn: !R.isNil(properties.arn)
+                    ? properties.arn
+                    : findARN(properties),
                 resourceId: buildResourceId(properties),
                 parent: parent,
                 id: node.id,
@@ -135,12 +136,18 @@ export const buildNode = (node, parent, clickedNode) => {
                     value: properties.resourceValue,
                     type: properties.resourceType,
                     tags: properties.tags,
-                    arn: !R.isNil(properties.arn) ? properties.arn : findARN(properties),
-                    region: properties.awsRegion ? properties.awsRegion : 'Multi-Region',
+                    arn: !R.isNil(properties.arn)
+                        ? properties.arn
+                        : findARN(properties),
+                    region: properties.awsRegion
+                        ? properties.awsRegion
+                        : 'Multi-Region',
                     state: properties.state,
                     loggedInURL: properties.loggedInURL,
                     loginURL: properties.loginURL,
-                    accountId: properties.accountId ? properties.accountId : 'global',
+                    accountId: properties.accountId
+                        ? properties.accountId
+                        : 'global',
                 },
                 highlight: true,
                 existing: false,
@@ -168,6 +175,6 @@ function createClasses(builtNode, clickedNode) {
             : undefined,
         'image',
         'selectable',
-        'hoverover'
+        'hoverover',
     ]);
 }

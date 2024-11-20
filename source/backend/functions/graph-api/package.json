@@ -1,18 +1,17 @@
 {
   "name": "wd-graph-api",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "The lambda function that queries the Neptune database",
-  "main": "src/index.js",
+  "main": "src/index.mjs",
+  "type": "module",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=html --reporter=text mocha test",
-    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
-    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "test": "vitest run --coverage",
+    "test:ci": "npm ci && vitest run --coverage --allowOnly false",
     "clean": "rm -rf dist",
     "build:zip": "zip -rq --exclude=test/* --exclude=package-lock.json graph-api.zip node_modules/ && zip -urj graph-api.zip src/",
     "build:dist": "mkdir dist && mv graph-api.zip dist/",
-    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
-    "coverage": "nyc npm test"
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist"
   },
   "author": {
     "name": "Amazon Web Services",
@@ -20,6 +19,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@aws-lambda-powertools/logger": "2.10.0",
     "gremlin": "3.5.2",
     "neptune-lambda-client": "1.0.0",
     "pino": "8.16.1",
@@ -27,11 +27,8 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "nyc-report-lcov-absolute": "^1.0.0",
-    "rewire": "^7.0.0",
-    "sinon": "^17.0.0"
+    "@vitest/coverage-v8": "^2.1.1",
+    "sinon": "^17.0.0",
+    "vitest": "^2.1.1"
   }
 }

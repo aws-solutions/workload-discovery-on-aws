@@ -1,48 +1,48 @@
 {
-  "edge": false,
-  "data": {
-    "id": "ACCOUNT_ID-woah-this-is-my-parent",
-    "parent": "woah-this-is-my-parent",
-    "level": 1,
-    "title": "ACCOUNT_ID",
-    "label": "ACCOUNT_ID",
-    "plainLabel": "ACCOUNT_ID",
-    "type": "ACCOUNT",
-    "borderStyle": "solid",
-    "color": "#fff",
-    "borderColour": "#AAB7B8",
-    "opacity": "0",
-    "cost": 0,
-    "hasChildren": true,
-    "children": [
-      {
-        "label": "REGION",
-        "type": "REGION",
+    "edge": false,
+    "data": {
+        "id": "ACCOUNT_ID-woah-this-is-my-parent",
+        "parent": "woah-this-is-my-parent",
+        "level": 1,
+        "title": "ACCOUNT_ID",
+        "label": "ACCOUNT_ID",
+        "plainLabel": "ACCOUNT_ID",
+        "type": "ACCOUNT",
+        "borderStyle": "solid",
+        "color": "#fff",
+        "borderColour": "#AAB7B8",
+        "opacity": "0",
+        "cost": 0,
+        "hasChildren": true,
         "children": [
-          {
-            "id": "ID",
-            "perspectiveBirthDate": "2020-02-25T14:52:27.509Z",
-            "label": "AWS::Lambda::EnvironmentVariable",
-            "properties": {
-              "accountId": "ACCOUNT_ID",
-              "resourceId": "RESOURCE_ID",
-              "awsRegion": "REGION",
-              "perspectiveBirthDate": "DATE",
-              "linkedLambda": "LINKED_LAMBDA",
-              "title": "TITLE",
-              "value": "VALUE",
-              "resourceType": "TYPE"
-            },
-            "parent": false,
-            "type": "node"
-          }
-        ]
-      }
-    ],
-    "accountColour": "rgba(175, 17, 83, 0.5)",
-    "regionColour": "rgba(9, 86, 99, 0.5)",
-    "aZColour": "#00A1C9",
-    "subnetColour": "#545B64"
-  },
-  "classes": ["ACCOUNT", "removeAll"]
+            {
+                "label": "REGION",
+                "type": "REGION",
+                "children": [
+                    {
+                        "id": "ID",
+                        "perspectiveBirthDate": "2020-02-25T14:52:27.509Z",
+                        "label": "AWS::Lambda::EnvironmentVariable",
+                        "properties": {
+                            "accountId": "ACCOUNT_ID",
+                            "resourceId": "RESOURCE_ID",
+                            "awsRegion": "REGION",
+                            "perspectiveBirthDate": "DATE",
+                            "linkedLambda": "LINKED_LAMBDA",
+                            "title": "TITLE",
+                            "value": "VALUE",
+                            "resourceType": "TYPE"
+                        },
+                        "parent": false,
+                        "type": "node"
+                    }
+                ]
+            }
+        ],
+        "accountColour": "rgba(175, 17, 83, 0.5)",
+        "regionColour": "rgba(9, 86, 99, 0.5)",
+        "aZColour": "#00A1C9",
+        "subnetColour": "#545B64"
+    },
+    "classes": ["ACCOUNT", "removeAll"]
 }

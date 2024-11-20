@@ -1,21 +1,21 @@
-import { defineConfig } from 'vite';
-import eslint from 'vite-plugin-eslint2'
+import {defineConfig} from 'vite';
+import eslint from 'vite-plugin-eslint2';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
 import react from '@vitejs/plugin-react';
 import svgrPlugin from 'vite-plugin-svgr';
-import istanbul from "vite-plugin-istanbul";
+import istanbul from 'vite-plugin-istanbul';
 
 function excludeMsw() {
     return {
-        name: "exclude-msw",
+        name: 'exclude-msw',
         resolveId(source) {
-            return source === "virtual-module" ? source : null;
+            return source === 'virtual-module' ? source : null;
         },
         async renderStart(outputOptions, _inputOptions) {
             const outDir = outputOptions.dir;
-            const msWorker = path.resolve(outDir, "mockServiceWorker.js");
+            const msWorker = path.resolve(outDir, 'mockServiceWorker.js');
             await fs.rm(msWorker);
         },
     };
@@ -25,10 +25,8 @@ export default defineConfig({
     build: {
         sourcemap: true,
         rollupOptions: {
-            external: [
-                '/settings.js'
-            ],
-        }
+            external: ['/settings.js'],
+        },
     },
     esbuild: {
         loader: 'jsx',
@@ -41,7 +39,7 @@ export default defineConfig({
             },
             // Node.js global to browser globalThis
             define: {
-                global: "globalThis", //<-- AWS SDK
+                global: 'globalThis', //<-- AWS SDK
             },
         },
     },
@@ -54,12 +52,12 @@ export default defineConfig({
             name: 'load-js-files-as-jsx',
             async load(id) {
                 if (!id.match(/src\/.*\.js$/)) {
-                    return
+                    return;
                 }
 
-                const file = await fs.readFile(id, 'utf-8')
-                return esbuild.transformSync(file, { loader: 'jsx' })
-            }
+                const file = await fs.readFile(id, 'utf-8');
+                return esbuild.transformSync(file, {loader: 'jsx'});
+            },
         },
         // this plugin is require to instrument the code running in a browser for
         // the Cypress tests
@@ -93,11 +91,11 @@ export default defineConfig({
             provider: 'v8',
             reportsDirectory: 'vitest-coverage',
             reporter: [
-                ['lcov', { 'projectRoot': '../..' }],
+                ['lcov', {projectRoot: '../..'}],
                 ['html'],
                 ['text'],
-                ['json']
-            ]
-        }
-    }
+                ['json'],
+            ],
+        },
+    },
 });

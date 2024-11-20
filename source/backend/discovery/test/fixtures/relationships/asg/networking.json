@@ -3,6 +3,8 @@
     "accountId": "xxxxxxxxxxxx",
     "region": "eu-west-2",
     "subnet": {
+      "id1": "subnet-0123456789abcdef",
+      "id2": "subnet-9876543210fedcba",
       "resourceType": "AWS::EC2::Subnet",
       "relationshipName": "Is contained in Subnet"
     }
@@ -12,7 +14,7 @@
   },
   "subnet1": {
     "id": "${subnet1.arn}",
-    "arn": "subnet1Arn",
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
     "accountId": "${$constants.accountId}",
     "awsRegion": "${$constants.region}",
     "availabilityZone": "${$constants.region}a",
@@ -25,7 +27,7 @@
   },
   "subnet2": {
     "id": "${subnet2.arn}",
-    "arn": "subnet2Arn",
+    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
     "accountId": "${$constants.accountId}",
     "awsRegion": "${$constants.region}",
     "availabilityZone": "${$constants.region}b",

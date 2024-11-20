@@ -43,9 +43,8 @@ gitzip -d $dist_dir/$1.zip \
       -x "codescan-*.sh" \
       -x "buildspec.yml" \
       -x ".viperlight*" \
-      -x "source/infrastructure" \
-      -x "docs" \
+      -x "internal" \
       -x "sonar-project.properties" \
       -x "solution-manifest.yaml" \
-      -x ".nightswatch/*" \
+      -x ".nightswatch" \
       -x "Config"

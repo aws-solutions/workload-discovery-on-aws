@@ -1,18 +1,17 @@
 {
   "name": "wd-settings",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "Lambda function that stores WD configuration data in DynamoDB",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "pretest": "npm i",
-    "test": "nyc --reporter=html --reporter=text mocha test",
-    "test:ci": "npm ci && nyc --reporter=nyc-report-lcov-absolute mocha --forbid-only test",
-    "posttest:ci": "echo \"$(awk '{gsub(/SF:.*\\/source\\//, \"SF:source/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "test": "vitest run --coverage",
+    "test:ci": "npm ci && vitest run --coverage --allowOnly false",
     "clean": "rm -rf dist",
     "build:zip": "zip -rq --exclude=package-lock.json settings.zip node_modules/ && zip -urj settings.zip src/",
     "build:dist": "mkdir dist && mv settings.zip dist/",
-    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist",
-    "coverage": "nyc npm test"
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist"
   },
   "author": {
     "name": "Amazon Web Services",
@@ -20,23 +19,21 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@aws-lambda-powertools/logger": "2.10.0",
     "@aws-sdk/client-config-service": "3.621.0",
     "@aws-sdk/client-dynamodb": "3.621.0",
     "@aws-sdk/client-ec2": "3.621.0",
     "@aws-sdk/client-organizations": "3.621.0",
-    "@aws-sdk/lib-dynamodb": "3.621.0",
+    "@aws-sdk/lib-dynamodb": "3.359.0",
     "@tuplo/dynoexpr": "3.4.0",
     "aws-xray-sdk-core": "3.5.1",
     "ramda": "0.28.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.1",
     "aws-sdk-client-mock": "^3.0.0",
-    "chai": "^4.3.10",
     "dynamo-db-local": "^9.2.0",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "nyc-report-lcov-absolute": "^1.0.0",
-    "rewire": "^7.0.0",
-    "sinon": "^17.0.0"
+    "sinon": "^17.0.0",
+    "vitest": "^2.1.1"
   }
 }

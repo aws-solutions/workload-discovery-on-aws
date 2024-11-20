@@ -1,15 +1,13 @@
 {
-    "deleteRegions":
-        {
-            "accountId":"xxxxxxxxxxxx",
-            "name":"testAccountx",
-            "regions":
-            [
-                {
-                    "name":"us-east-2",
-                    "lastCrawled":null
-                }
-            ],
-            "lastCrawled":null
-        }
+    "deleteRegions": {
+        "accountId": "xxxxxxxxxxxx",
+        "name": "testAccountx",
+        "regions": [
+            {
+                "name": "us-east-2",
+                "lastCrawled": null
+            }
+        ],
+        "lastCrawled": null
+    }
 }

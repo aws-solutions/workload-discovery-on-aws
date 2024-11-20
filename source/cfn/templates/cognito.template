@@ -1,20 +1,101 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
 
 Description: Workload Discovery on AWS Amazon Cognito Stack
 
 Parameters:
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  CognitoDomain:
+    Type: String
+    Description: The unique name that will be used to create the user domain. Must be alpha numeric 3-63 in length.
   AmplifyStorageBucket:
     Type: String
     Description: The bucket that will store saved maps
-
   AdminUserEmailAddress:
     Type: String
-
   WebUiUrl:
     Type: String
 
-Resources:
+  PythonLambdaRuntime:
+    Type: String
 
+  LambdaPowertoolsPythonLayer:
+    Type: String
+
+  BotoUtils:
+    Type: String
+    Description: Required library
+
+  CustomResourceHelper:
+    Type: String
+    Description: Required library
+
+  UsesCustomIdentity: 
+    Type: String
+    AllowedValues:
+      - 'No'
+      - 'Yes'
+
+  IdentityType: 
+    Type: String
+
+  AttributeMapping:
+    Type: String
+
+  ProviderName: 
+    Type: String
+
+  GoogleClientId:
+    Type: String
+
+  GoogleClientSecretArn:
+    Type: String
+
+  SAMLMetadataURL:
+    Type: String
+
+  OIDCClientId:
+    Type: String
+
+  OIDCClientSecretArn:
+    Type: String
+
+  OIDCIssuerURL: 
+    Type: String
+
+  OIDCAttributeRequestMethod:
+    Type: String
+
+  CloudfrontDistributionURL:
+    Type: String
+  
+Conditions:
+  CreateSAMLResources: !Equals [!Ref UsesCustomIdentity, 'Yes']
+  CreateGoogleIdentity: !And
+    - !Equals [!Ref UsesCustomIdentity, 'Yes']
+    - !Equals [!Ref IdentityType, 'Google']
+  CreateSAMLIdentity: !And
+    - !Equals [!Ref UsesCustomIdentity, 'Yes']
+    - !Equals [!Ref IdentityType, 'SAML']
+  CreateOIDCIdentity: !And
+    - !Equals [!Ref UsesCustomIdentity, 'Yes']
+    - !Equals [!Ref IdentityType, 'OIDC']
+  RedirectForGoogleAndOIDC: !Or
+    - !And
+      - !Equals [!Ref UsesCustomIdentity, 'Yes']
+      - !Equals [!Ref IdentityType, 'Google']
+    - !And
+      - !Equals [!Ref UsesCustomIdentity, 'Yes']
+      - !Equals [!Ref IdentityType, 'OIDC']
+
+Resources:
   CognitoAuthRole:
     Type: AWS::IAM::Role
     Properties:
@@ -70,6 +151,13 @@ Resources:
               - Action: s3:ListBucket
                 Resource: !Sub "arn:aws:s3:::${AmplifyStorageBucket}"
                 Effect: "Allow"
+    
+  CognitoUserPoolDomain: 
+    Type: AWS::Cognito::UserPoolDomain
+    Condition: CreateSAMLResources
+    Properties:
+      Domain: !Ref CognitoDomain
+      UserPoolId: !Ref WDCognitoUserPool
 
   IdentityPoolRoleMap:
     Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -94,7 +182,6 @@ Resources:
     Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
-        UnusedAccountValidityDays: 90
         InviteMessageTemplate:
           EmailMessage: !Sub |
             <!DOCTYPE html><html><body style="font-family:sans-serif">
@@ -128,12 +215,122 @@ Resources:
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: aws-perspective-client-web
+      UserPoolId: !Ref WDCognitoUserPool
       RefreshTokenValidity: 1
-      UserPoolId:
-        Ref: WDCognitoUserPool
+      AccessTokenValidity: 60
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - aws.cognito.signin.user.admin
+        - email
+        - openid
+        - phone 
+        - profile
+      CallbackURLs: [!Ref CloudfrontDistributionURL]
+      EnableTokenRevocation: true
+      IdTokenValidity: 60
+      LogoutURLs: [!Ref CloudfrontDistributionURL]
+      SupportedIdentityProviders:
+        Fn::If: [ CreateSAMLResources, [ Fn::If: [CreateGoogleIdentity, !GetAtt GoogleIdentityProvider.ProviderName, Fn::If: [CreateSAMLIdentity, !GetAtt SAMLIdentityProvider.ProviderName, !GetAtt OIDCIdentityProvider.ProviderName ]]], [ COGNITO ]]
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
       PreventUserExistenceErrors: ENABLED
 
+  IdentityProviderCrFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Not applicable
+          - id: W92
+            reason: Not applicable
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: identity_provider.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/identity-provider.zip
+      Runtime: !Ref PythonLambdaRuntime
+      Layers:
+        - !Ref BotoUtils
+        - !Ref CustomResourceHelper
+        - !Ref LambdaPowertoolsPythonLayer
+      Description: Custom Lambda resource for creating Cognito identity provider
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:CreateIdentityProvider
+                - cognito-idp:DeleteIdentityProvider
+                - cognito-idp:UpdateIdentityProvider
+              Resource: !Sub arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${WDCognitoUserPool}
+        - !If
+          - CreateOIDCIdentity
+          - Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref OIDCClientSecretArn
+          - !Ref AWS::NoValue
+        - !If
+          - CreateGoogleIdentity
+          - Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref GoogleClientSecretArn
+          - !Ref AWS::NoValue
+
+  OIDCIdentityProvider:
+    Type: Custom::UserPoolIdentityProvider
+    Condition: CreateOIDCIdentity
+    Properties:
+      ServiceToken: !GetAtt IdentityProviderCrFunction.Arn
+      UserPoolId: !Ref WDCognitoUserPool
+      ProviderName: !Ref ProviderName
+      ProviderType: OIDC
+      ClientSecretArn: !Ref OIDCClientSecretArn
+      ProviderDetails:
+        client_id: !Ref OIDCClientId
+        attributes_request_method: !Ref OIDCAttributeRequestMethod
+        oidc_issuer: !Ref OIDCIssuerURL
+        authorize_scopes: email profile openid
+      AttributeMapping: !Ref AttributeMapping
+      IdpIdentifiers:
+        - IdpIdentifier
+
+  GoogleIdentityProvider:
+    Type: Custom::UserPoolIdentityProvider
+    Condition: CreateGoogleIdentity
+    Properties:
+      ServiceToken: !GetAtt IdentityProviderCrFunction.Arn
+      UserPoolId: !Ref WDCognitoUserPool
+      ProviderName: !Ref ProviderName
+      ProviderType: Google
+      ClientSecretArn: !Ref GoogleClientSecretArn
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        authorize_scopes: profile email openid
+      AttributeMapping: !Ref AttributeMapping
+
+  SAMLIdentityProvider:
+    Type: Custom::UserPoolIdentityProvider
+    Condition: CreateSAMLIdentity
+    Properties:
+      ServiceToken: !GetAtt IdentityProviderCrFunction.Arn
+      UserPoolId: !Ref WDCognitoUserPool
+      ProviderName: !Ref ProviderName
+      ProviderType: SAML
+      ProviderDetails:
+        MetadataURL: !Ref SAMLMetadataURL
+      AttributeMapping:
+        email: Attribute
+      IdpIdentifiers:
+        - IdpIdentifier
+  
 Outputs:
   AuthPerspectiveRoleName:
     Value: !Ref CognitoAuthRole
@@ -141,7 +338,26 @@ Outputs:
     Value: !Ref CognitoIdentityPool
   UserPoolId:
     Value: !Ref WDCognitoUserPool
+  UserPoolDomain:
+    Condition: CreateSAMLResources
+    Value: !Ref CognitoUserPoolDomain
   UserPoolARN:
     Value: !GetAtt WDCognitoUserPool.Arn
   WebClientId:
     Value: !Ref UserPoolClient
+
+  SAMLEntityId:
+    Condition: CreateSAMLIdentity
+    Value: !Sub urn:amazon:cognito:sp:${WDCognitoUserPool}
+
+  SAMLReplyURL:
+    Condition: CreateSAMLIdentity
+    Value: !Sub https://${CognitoUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/saml2/idpresponse
+
+  RedirectURI:
+    Condition: RedirectForGoogleAndOIDC
+    Value: !Sub https://${CognitoUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/oauth2/idpresponse
+
+  GoogleJavascriptOrigin:
+    Condition: CreateGoogleIdentity
+    Value: !Sub https://${CognitoUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com

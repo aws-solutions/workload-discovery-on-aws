@@ -1,57 +1,57 @@
 [
-  {
-    "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function0",
-    "label": "AWS::Lambda::Function",
-    "md5Hash": "",
-    "properties": {
-      "accountId": "accountId",
-      "awsRegion": "eu-west-1",
-      "prop1": "prop1",
-      "prop2": "prop2"
+    {
+        "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function0",
+        "label": "AWS::Lambda::Function",
+        "md5Hash": "",
+        "properties": {
+            "accountId": "accountId",
+            "awsRegion": "eu-west-1",
+            "prop1": "prop1",
+            "prop2": "prop2"
+        }
+    },
+    {
+        "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function1",
+        "label": "AWS::Lambda::Function",
+        "md5Hash": "",
+        "properties": {
+            "accountId": "accountId",
+            "awsRegion": "eu-west-1",
+            "prop1": "prop1",
+            "prop2": "prop2"
+        }
+    },
+    {
+        "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function2",
+        "label": "AWS::Lambda::Function",
+        "md5Hash": "",
+        "properties": {
+            "accountId": "accountId",
+            "awsRegion": "eu-west-1",
+            "prop1": "prop1",
+            "prop2": "prop2"
+        }
+    },
+    {
+        "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function3",
+        "label": "AWS::Lambda::Function",
+        "md5Hash": "",
+        "properties": {
+            "accountId": "accountId",
+            "awsRegion": "eu-west-1",
+            "prop1": "prop1",
+            "prop2": "prop2"
+        }
+    },
+    {
+        "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function4",
+        "label": "AWS::Lambda::Function",
+        "md5Hash": "",
+        "properties": {
+            "accountId": "accountId",
+            "awsRegion": "eu-west-1",
+            "prop1": "prop1",
+            "prop2": "prop2"
+        }
     }
-  },
-  {
-    "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function1",
-    "label": "AWS::Lambda::Function",
-    "md5Hash": "",
-    "properties": {
-      "accountId": "accountId",
-      "awsRegion": "eu-west-1",
-      "prop1": "prop1",
-      "prop2": "prop2"
-    }
-  },
-  {
-    "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function2",
-    "label": "AWS::Lambda::Function",
-    "md5Hash": "",
-    "properties": {
-      "accountId": "accountId",
-      "awsRegion": "eu-west-1",
-      "prop1": "prop1",
-      "prop2": "prop2"
-    }
-  },
-  {
-    "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function3",
-    "label": "AWS::Lambda::Function",
-    "md5Hash": "",
-    "properties": {
-      "accountId": "accountId",
-      "awsRegion": "eu-west-1",
-      "prop1": "prop1",
-      "prop2": "prop2"
-    }
-  },
-  {
-    "id": "arn:aws:lambda:eu-west-1:xxxxxx:function:function4",
-    "label": "AWS::Lambda::Function",
-    "md5Hash": "",
-    "properties": {
-      "accountId": "accountId",
-      "awsRegion": "eu-west-1",
-      "prop1": "prop1",
-      "prop2": "prop2"
-    }
-  }
 ]

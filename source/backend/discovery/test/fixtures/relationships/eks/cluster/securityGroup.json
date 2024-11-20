@@ -13,8 +13,13 @@
       "attachedManagedPolicies": []
     }
   },
-  "securityGroup": {
+  "securityGroup1": {
     "resourceId": "sg-0123456789abcdef0",
+    "configuration": {},
+    "relationships": []
+  },
+  "securityGroup2": {
+    "resourceId": "sg-111111111111111111",
     "configuration": {},
     "relationships": []
   },
@@ -29,9 +34,10 @@
     "availabilityZone": "Regional",
     "relationships": [],
     "configuration": {
+      "ClusterSecurityGroupId": "${securityGroup2.resourceId}",
       "ResourcesVpcConfig": {
         "SecurityGroupIds": [
-          "${securityGroup.resourceId}"
+          "${securityGroup1.resourceId}"
         ],
         "SubnetIds": []
       },

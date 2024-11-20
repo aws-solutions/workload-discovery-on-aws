@@ -3,782 +3,782 @@
 
 export const services = [
     {
-      "service": "Alexa for Business"
+        service: 'Alexa for Business',
     },
     {
-      "service": "Amazon AWS"
+        service: 'Amazon AWS',
     },
     {
-      "service": "Amazon Web Services",
-      "filteringTags": ["AWS"]
+        service: 'Amazon Web Services',
+        filteringTags: ['AWS'],
     },
     {
-      "service": "Amplify"
+        service: 'Amplify',
     },
     {
-      "service": "API Gateway",
-      "filteringTags": ["API GW"]
+        service: 'API Gateway',
+        filteringTags: ['API GW'],
     },
     {
-      "service": "Application Auto Scaling",
-      "filteringTags": ["Autoscaling"]
+        service: 'Application Auto Scaling',
+        filteringTags: ['Autoscaling'],
     },
     {
-      "service": "Application Discovery Service",
-      "filteringTags": ["ADS"]
+        service: 'Application Discovery Service',
+        filteringTags: ['ADS'],
     },
     {
-      "service": "AppFlow"
+        service: 'AppFlow',
     },
     {
-      "service": "App Mesh"
+        service: 'App Mesh',
     },
     {
-      "service": "AppStream 2.0"
+        service: 'AppStream 2.0',
     },
     {
-      "service": "AppSync"
+        service: 'AppSync',
     },
     {
-      "service": "Artifact"
+        service: 'Artifact',
     },
     {
-      "service": "Athena"
+        service: 'Athena',
     },
     {
-      "service": "Audit Manager"
+        service: 'Audit Manager',
     },
     {
-      "service": "Augmented AI"
+        service: 'Augmented AI',
     },
     {
-      "service": "Aurora"
+        service: 'Aurora',
     },
     {
-      "service": "Auto Scaling"
+        service: 'Auto Scaling',
     },
     {
-      "service": "Backint Agent"
+        service: 'Backint Agent',
     },
     {
-      "service": "Backup"
+        service: 'Backup',
     },
     {
-      "service": "Batch"
+        service: 'Batch',
     },
     {
-      "service": "Billing and Cost Management"
+        service: 'Billing and Cost Management',
     },
     {
-      "service": "Blockchain Templates"
+        service: 'Blockchain Templates',
     },
     {
-      "service": "Blox"
+        service: 'Blox',
     },
     {
-      "service": "Certificate Manager",
-      "filteringTags": ["ACM"]
+        service: 'Certificate Manager',
+        filteringTags: ['ACM'],
     },
     {
-      "service": "Chalice"
+        service: 'Chalice',
     },
     {
-      "service": "Chatbot"
+        service: 'Chatbot',
     },
     {
-      "service": "Chime"
+        service: 'Chime',
     },
     {
-      "service": "Client VPN"
+        service: 'Client VPN',
     },
     {
-      "service": "Cloud Development Kit",
-      "filteringTags": ["CDK"]
+        service: 'Cloud Development Kit',
+        filteringTags: ['CDK'],
     },
     {
-      "service": "Cloud Digital Interface SDK"
+        service: 'Cloud Digital Interface SDK',
     },
     {
-      "service": "Cloud Directory"
+        service: 'Cloud Directory',
     },
     {
-      "service": "Cloud Map"
+        service: 'Cloud Map',
     },
     {
-      "service": "Cloud9"
+        service: 'Cloud9',
     },
     {
-      "service": "CloudFormation",
-      "filteringTags": ["CFN"]
+        service: 'CloudFormation',
+        filteringTags: ['CFN'],
     },
     {
-      "service": "CloudFront"
+        service: 'CloudFront',
     },
     {
-      "service": "CloudHSM"
+        service: 'CloudHSM',
     },
     {
-      "service": "CloudSearch"
+        service: 'CloudSearch',
     },
     {
-      "service": "CloudShell"
+        service: 'CloudShell',
     },
     {
-      "service": "CloudTrail"
+        service: 'CloudTrail',
     },
     {
-      "service": "CloudWatch"
+        service: 'CloudWatch',
     },
     {
-      "service": "CloudWatch Events"
+        service: 'CloudWatch Events',
     },
     {
-      "service": "CloudWatch Logs"
+        service: 'CloudWatch Logs',
     },
     {
-      "service": "CodeArtifact"
+        service: 'CodeArtifact',
     },
     {
-      "service": "CodeBuild"
+        service: 'CodeBuild',
     },
     {
-      "service": "CodeCommit"
+        service: 'CodeCommit',
     },
     {
-      "service": "CodeDeploy"
+        service: 'CodeDeploy',
     },
     {
-      "service": "CodeGuru"
+        service: 'CodeGuru',
     },
     {
-      "service": "CodePipeline"
+        service: 'CodePipeline',
     },
     {
-      "service": "CodeStar"
+        service: 'CodeStar',
     },
     {
-      "service": "Cognito"
+        service: 'Cognito',
     },
     {
-      "service": "Command Line Interface",
-      "filteringTags": ["CLI"]
+        service: 'Command Line Interface',
+        filteringTags: ['CLI'],
     },
     {
-      "service": "Comprehend"
+        service: 'Comprehend',
     },
     {
-      "service": "Compute Optimizer"
+        service: 'Compute Optimizer',
     },
     {
-      "service": "Config"
+        service: 'Config',
     },
     {
-      "service": "Connect"
+        service: 'Connect',
     },
     {
-      "service": "Control Tower"
+        service: 'Control Tower',
     },
     {
-      "service": "Console Mobile Application"
+        service: 'Console Mobile Application',
     },
     {
-      "service": "Corretto"
+        service: 'Corretto',
     },
     {
-      "service": "Data Exchange"
+        service: 'Data Exchange',
     },
     {
-      "service": "Data Pipeline"
+        service: 'Data Pipeline',
     },
     {
-      "service": "DataSync"
+        service: 'DataSync',
     },
     {
-      "service": "Database Migration Service",
-      "filteringTags": ["DMS"]
+        service: 'Database Migration Service',
+        filteringTags: ['DMS'],
     },
     {
-      "service": "Deep Learning AMIs"
+        service: 'Deep Learning AMIs',
     },
     {
-      "service": "Deep Learning Containers"
+        service: 'Deep Learning Containers',
     },
     {
-      "service": "DeepComposer"
+        service: 'DeepComposer',
     },
     {
-      "service": "DeepLens"
+        service: 'DeepLens',
     },
     {
-      "service": "DeepRacer"
+        service: 'DeepRacer',
     },
     {
-      "service": "Detective"
+        service: 'Detective',
     },
     {
-      "service": "Device Farm"
+        service: 'Device Farm',
     },
     {
-      "service": "DevPay"
+        service: 'DevPay',
     },
     {
-      "service": "Direct Connect",
-      "filteringTags": ["DC"]
+        service: 'Direct Connect',
+        filteringTags: ['DC'],
     },
     {
-      "service": "Directory Service"
+        service: 'Directory Service',
     },
     {
-      "service": "Directory Service for Microsoft AD"
+        service: 'Directory Service for Microsoft AD',
     },
     {
-      "service": "AD Connector"
+        service: 'AD Connector',
     },
     {
-      "service": "Simple AD"
+        service: 'Simple AD',
     },
     {
-      "service": "DocumentDB"
+        service: 'DocumentDB',
     },
     {
-      "service": "DynamoDB",
-      "filteringTags": ["DDB"]
+        service: 'DynamoDB',
+        filteringTags: ['DDB'],
     },
     {
-      "service": "DynamoDB Streams",
-      "filteringTags": ["DDB"]
+        service: 'DynamoDB Streams',
+        filteringTags: ['DDB'],
     },
     {
-      "service": "EC2 Auto Scaling"
+        service: 'EC2 Auto Scaling',
     },
     {
-      "service": "Elastic Beanstalk",
-      "filteringTags": ["EB"]
+        service: 'Elastic Beanstalk',
+        filteringTags: ['EB'],
     },
     {
-      "service": "Elastic Block Store",
-      "filteringTags": ["EBS"]
+        service: 'Elastic Block Store',
+        filteringTags: ['EBS'],
     },
     {
-      "service": "Elastic Compute Cloud",
-      "filteringTags": ["EC2"]
+        service: 'Elastic Compute Cloud',
+        filteringTags: ['EC2'],
     },
     {
-      "service": "Elastic Container Registry",
-      "filteringTags": ["ECR"]
+        service: 'Elastic Container Registry',
+        filteringTags: ['ECR'],
     },
     {
-      "service": "Elastic Container Service",
-      "filteringTags": ["ECS"]
+        service: 'Elastic Container Service',
+        filteringTags: ['ECS'],
     },
     {
-      "service": "Elastic Kubernetes Service",
-      "filteringTags": ["EKS"]
+        service: 'Elastic Kubernetes Service',
+        filteringTags: ['EKS'],
     },
     {
-      "service": "Elastic File System",
-      "filteringTags": ["EFS"]
+        service: 'Elastic File System',
+        filteringTags: ['EFS'],
     },
     {
-      "service": "Elastic Inference",
-      "filteringTags": ["EI"]
+        service: 'Elastic Inference',
+        filteringTags: ['EI'],
     },
     {
-      "service": "Elastic Load Balancing",
-      "filteringTags": ["ELB"]
+        service: 'Elastic Load Balancing',
+        filteringTags: ['ELB'],
     },
     {
-      "service": "Elastic Transcoder"
+        service: 'Elastic Transcoder',
     },
     {
-      "service": "ElastiCache"
+        service: 'ElastiCache',
     },
     {
-      "service": "Amazon Elasticsearch Service"
+        service: 'Amazon Elasticsearch Service',
     },
     {
-      "service": "Amazon OpenSearch Service"
+        service: 'Amazon OpenSearch Service',
     },
     {
-      "service": "EMR"
+        service: 'EMR',
     },
     {
-      "service": "EventBridge"
+        service: 'EventBridge',
     },
     {
-      "service": "Fargate"
+        service: 'Fargate',
     },
     {
-      "service": "Firewall Manager"
+        service: 'Firewall Manager',
     },
     {
-      "service": "Forecast"
+        service: 'Forecast',
     },
     {
-      "service": "Fraud Detector"
+        service: 'Fraud Detector',
     },
     {
-      "service": "FreeRTOS"
+        service: 'FreeRTOS',
     },
     {
-      "service": "FSx"
+        service: 'FSx',
     },
     {
-      "service": "FSx for Lustre"
+        service: 'FSx for Lustre',
     },
     {
-      "service": "FSx for Windows File Server"
+        service: 'FSx for Windows File Server',
     },
     {
-      "service": "GameLift"
+        service: 'GameLift',
     },
     {
-      "service": "AWS Global Accelerator"
+        service: 'AWS Global Accelerator',
     },
     {
-      "service": "Glue"
+        service: 'Glue',
     },
     {
-      "service": "Grafana"
+        service: 'Grafana',
     },
     {
-      "service": "Greengrass"
+        service: 'Greengrass',
     },
     {
-      "service": "Ground Station"
+        service: 'Ground Station',
     },
     {
-      "service": "Ground Truth"
+        service: 'Ground Truth',
     },
     {
-      "service": "GovCloud (US)"
+        service: 'GovCloud (US)',
     },
     {
-      "service": "GuardDuty"
+        service: 'GuardDuty',
     },
     {
-      "service": "Health"
+        service: 'Health',
     },
     {
-      "service": "HealthLake"
+        service: 'HealthLake',
     },
     {
-      "service": "Honeycode"
+        service: 'Honeycode',
     },
     {
-      "service": "Identity and Access Management",
-      "filteringTags": ["IAM"]
+        service: 'Identity and Access Management',
+        filteringTags: ['IAM'],
     },
     {
-      "service": "Image Builder"
+        service: 'Image Builder',
     },
     {
-      "service": "Import/Export"
+        service: 'Import/Export',
     },
     {
-      "service": "Inspector"
+        service: 'Inspector',
     },
     {
-      "service": "IoT"
+        service: 'IoT',
     },
     {
-      "service": "IoT Analytics"
+        service: 'IoT Analytics',
     },
     {
-      "service": "IoT Core for LoRaWAN"
+        service: 'IoT Core for LoRaWAN',
     },
     {
-      "service": "IoT Device Defender"
+        service: 'IoT Device Defender',
     },
     {
-      "service": "IoT Device Management"
+        service: 'IoT Device Management',
     },
     {
-      "service": "IoT Events"
+        service: 'IoT Events',
     },
     {
-      "service": "IoT SiteWise"
+        service: 'IoT SiteWise',
     },
     {
-      "service": "IoT Things Graph"
+        service: 'IoT Things Graph',
     },
     {
-      "service": "IoT Wireless"
+        service: 'IoT Wireless',
     },
     {
-      "service": "IoT 1-Click"
+        service: 'IoT 1-Click',
     },
     {
-      "service": "IQ"
+        service: 'IQ',
     },
     {
-      "service": "Kendra"
+        service: 'Kendra',
     },
     {
-      "service": "Key Management Service",
-      "filteringTags": ["KMS"]
+        service: 'Key Management Service',
+        filteringTags: ['KMS'],
     },
     {
-      "service": "Kinesis"
+        service: 'Kinesis',
     },
     {
-      "service": "Kinesis Data Analytics"
+        service: 'Kinesis Data Analytics',
     },
     {
-      "service": "Kinesis Data Firehose"
+        service: 'Kinesis Data Firehose',
     },
     {
-      "service": "Kinesis Video Streams"
+        service: 'Kinesis Video Streams',
     },
     {
-      "service": "Lake Formation",
-      "filteringTags": ["LF"]
+        service: 'Lake Formation',
+        filteringTags: ['LF'],
     },
     {
-      "service": "Lambda"
+        service: 'Lambda',
     },
     {
-      "service": "Launch Wizard"
+        service: 'Launch Wizard',
     },
     {
-      "service": "Lex"
+        service: 'Lex',
     },
     {
-      "service": "License Manager"
+        service: 'License Manager',
     },
     {
-      "service": "Lightsail"
+        service: 'Lightsail',
     },
     {
-      "service": "Local Zones"
+        service: 'Local Zones',
     },
     {
-      "service": "Location Service"
+        service: 'Location Service',
     },
     {
-      "service": "Lookout for Equipment"
+        service: 'Lookout for Equipment',
     },
     {
-      "service": "Lookout for Metrics"
+        service: 'Lookout for Metrics',
     },
     {
-      "service": "Lookout for Vision"
+        service: 'Lookout for Vision',
     },
     {
-      "service": "Lumberyard"
+        service: 'Lumberyard',
     },
     {
-      "service": "Machine Learning"
+        service: 'Machine Learning',
     },
     {
-      "service": "Macie"
+        service: 'Macie',
     },
     {
-      "service": "Managed Blockchain"
+        service: 'Managed Blockchain',
     },
     {
-      "service": "Managed Service for Grafana"
+        service: 'Managed Service for Grafana',
     },
     {
-      "service": "Managed Services"
+        service: 'Managed Services',
     },
     {
-      "service": "Managed Streaming for Apache Kafka",
-      "filteringTags": ["MSK"]
+        service: 'Managed Streaming for Apache Kafka',
+        filteringTags: ['MSK'],
     },
     {
-      "service": "Management Console"
+        service: 'Management Console',
     },
     {
-      "service": "Management Portal for vCenter"
+        service: 'Management Portal for vCenter',
     },
     {
-      "service": "Marketplace"
+        service: 'Marketplace',
     },
     {
-      "service": "Mechanical Turk"
+        service: 'Mechanical Turk',
     },
     {
-      "service": "MediaConnect"
+        service: 'MediaConnect',
     },
     {
-      "service": "MediaConvert"
+        service: 'MediaConvert',
     },
     {
-      "service": "MediaLive"
+        service: 'MediaLive',
     },
     {
-      "service": "MediaPackage"
+        service: 'MediaPackage',
     },
     {
-      "service": "MediaStore"
+        service: 'MediaStore',
     },
     {
-      "service": "MediaTailor"
+        service: 'MediaTailor',
     },
     {
-      "service": "Migration Hub"
+        service: 'Migration Hub',
     },
     {
-      "service": "Mobile Analytics"
+        service: 'Mobile Analytics',
     },
     {
-      "service": "Mobile Hub"
+        service: 'Mobile Hub',
     },
     {
-      "service": "Monitron"
+        service: 'Monitron',
     },
     {
-      "service": "MQ"
+        service: 'MQ',
     },
     {
-      "service": "MXNet"
+        service: 'MXNet',
     },
     {
-      "service": "Neptune"
+        service: 'Neptune',
     },
     {
-      "service": "Network Firewall"
+        service: 'Network Firewall',
     },
     {
-      "service": "OpsWorks"
+        service: 'OpsWorks',
     },
     {
-      "service": "OpsWorks Stacks"
+        service: 'OpsWorks Stacks',
     },
     {
-      "service": "OpsWorks for Chef Automate"
+        service: 'OpsWorks for Chef Automate',
     },
     {
-      "service": "Organizations"
+        service: 'Organizations',
     },
     {
-      "service": "Outposts"
+        service: 'Outposts',
     },
     {
-      "service": "Panorama"
+        service: 'Panorama',
     },
     {
-      "service": "ParallelCluster"
+        service: 'ParallelCluster',
     },
     {
-      "service": "Personal Health Dashboard"
+        service: 'Personal Health Dashboard',
     },
     {
-      "service": "Personalize"
+        service: 'Personalize',
     },
     {
-      "service": "Pinpoint"
+        service: 'Pinpoint',
     },
     {
-      "service": "Polly"
+        service: 'Polly',
     },
     {
-      "service": "Private Certificate Authority",
-      "filteringTags": ["PCA"]
+        service: 'Private Certificate Authority',
+        filteringTags: ['PCA'],
     },
     {
-      "service": "Prometheus"
+        service: 'Prometheus',
     },
     {
-      "service": "Proton"
+        service: 'Proton',
     },
     {
-      "service": "QLDB"
+        service: 'QLDB',
     },
     {
-      "service": "QuickSight"
+        service: 'QuickSight',
     },
     {
-      "service": "Reachability Analyzer"
+        service: 'Reachability Analyzer',
     },
     {
-      "service": "Redshift"
+        service: 'Redshift',
     },
     {
-      "service": "Rekognition"
+        service: 'Rekognition',
     },
     {
-      "service": "Relational Database Service",
-      "filteringTags": ["RDS"]
+        service: 'Relational Database Service',
+        filteringTags: ['RDS'],
     },
     {
-      "service": "Remote Configuration TBR"
+        service: 'Remote Configuration TBR',
     },
     {
-      "service": "Resource Groups"
+        service: 'Resource Groups',
     },
     {
-      "service": "Resource Access Manager",
-      "filteringTags": ["RAM"]
+        service: 'Resource Access Manager',
+        filteringTags: ['RAM'],
     },
     {
-      "service": "RoboMaker"
+        service: 'RoboMaker',
     },
     {
-      "service": "Route 53",
-      "filteringTags": ["R53"]
+        service: 'Route 53',
+        filteringTags: ['R53'],
     },
     {
-      "service": "SageMaker"
+        service: 'SageMaker',
     },
     {
-      "service": "Schema Conversion Tool",
-      "filteringTags": ["SCT"]
+        service: 'Schema Conversion Tool',
+        filteringTags: ['SCT'],
     },
     {
-      "service": "Secrets Manager"
+        service: 'Secrets Manager',
     },
     {
-      "service": "Security Hub"
+        service: 'Security Hub',
     },
     {
-      "service": "Security Token Service",
-      "filteringTags": ["STS"]
+        service: 'Security Token Service',
+        filteringTags: ['STS'],
     },
     {
-      "service": "Server Migration Service"
+        service: 'Server Migration Service',
     },
     {
-      "service": "Serverless Application Model",
-      "filteringTags": ["SAM"]
+        service: 'Serverless Application Model',
+        filteringTags: ['SAM'],
     },
     {
-      "service": "Serverless Application Repository",
-      "filteringTags": ["SAR"]
+        service: 'Serverless Application Repository',
+        filteringTags: ['SAR'],
     },
     {
-      "service": "Service Catalog"
+        service: 'Service Catalog',
     },
     {
-      "service": "Service Health Dashboard"
+        service: 'Service Health Dashboard',
     },
     {
-      "service": "Service Quotas"
+        service: 'Service Quotas',
     },
     {
-      "service": "Shield"
+        service: 'Shield',
     },
     {
-      "service": "Signer"
+        service: 'Signer',
     },
     {
-      "service": "Silk"
+        service: 'Silk',
     },
     {
-      "service": "Simple Email Service",
-      "filteringTags": ["SES"]
+        service: 'Simple Email Service',
+        filteringTags: ['SES'],
     },
     {
-      "service": "Simple Notification Service",
-      "filteringTags": ["SNS"]
+        service: 'Simple Notification Service',
+        filteringTags: ['SNS'],
     },
     {
-      "service": "Simple Queue Service",
-      "filteringTags": ["SQS"]
+        service: 'Simple Queue Service',
+        filteringTags: ['SQS'],
     },
     {
-      "service": "Simple Storage Service",
-      "filteringTags": ["S3"]
+        service: 'Simple Storage Service',
+        filteringTags: ['S3'],
     },
     {
-      "service": "Simple Storage Service Glacier",
-      "filteringTags": ["S3"]
+        service: 'Simple Storage Service Glacier',
+        filteringTags: ['S3'],
     },
     {
-      "service": "Simple Workflow Service",
-      "filteringTags": ["SWS"]
+        service: 'Simple Workflow Service',
+        filteringTags: ['SWS'],
     },
     {
-      "service": "SimpleDB"
+        service: 'SimpleDB',
     },
     {
-      "service": "Single Sign-On"
+        service: 'Single Sign-On',
     },
     {
-      "service": "Site-to-Site VPN"
+        service: 'Site-to-Site VPN',
     },
     {
-      "service": "Snowball"
+        service: 'Snowball',
     },
     {
-      "service": "Snowcone"
+        service: 'Snowcone',
     },
     {
-      "service": "Snowmobile"
+        service: 'Snowmobile',
     },
     {
-      "service": "Step Functions"
+        service: 'Step Functions',
     },
     {
-      "service": "Storage Gateway"
+        service: 'Storage Gateway',
     },
     {
-      "service": "Sumerian"
+        service: 'Sumerian',
     },
     {
-      "service": "Support"
+        service: 'Support',
     },
     {
-      "service": "Systems Manager"
+        service: 'Systems Manager',
     },
     {
-      "service": "Textract"
+        service: 'Textract',
     },
     {
-      "service": "Timestream"
+        service: 'Timestream',
     },
     {
-      "service": "Tools for PowerShell"
+        service: 'Tools for PowerShell',
     },
     {
-      "service": "Transcribe"
+        service: 'Transcribe',
     },
     {
-      "service": "Transfer Family"
+        service: 'Transfer Family',
     },
     {
-      "service": "Transit Gateway",
-      "filteringTags": ["TGW"]
+        service: 'Transit Gateway',
+        filteringTags: ['TGW'],
     },
     {
-      "service": "Translate"
+        service: 'Translate',
     },
     {
-      "service": "Trusted Advisor",
-      "filteringTags": ["TA"]
+        service: 'Trusted Advisor',
+        filteringTags: ['TA'],
     },
     {
-      "service": "Virtual Private Cloud",
-      "filteringTags": ["VPC"]
+        service: 'Virtual Private Cloud',
+        filteringTags: ['VPC'],
     },
     {
-      "service": "WAF",
-      "filteringTags": ["Web Application Firewall"]
+        service: 'WAF',
+        filteringTags: ['Web Application Firewall'],
     },
     {
-      "service": "Wavelength"
+        service: 'Wavelength',
     },
     {
-      "service": "Well-Architected Tool"
+        service: 'Well-Architected Tool',
     },
     {
-      "service": "WorkDocs"
+        service: 'WorkDocs',
     },
     {
-      "service": "WorkLink"
+        service: 'WorkLink',
     },
     {
-      "service": "WorkMail"
+        service: 'WorkMail',
     },
     {
-      "service": "WorkSpaces"
+        service: 'WorkSpaces',
     },
     {
-      "service": "WAM",
-      "filteringTags": ["WorkSpaces Application Manager"]
+        service: 'WAM',
+        filteringTags: ['WorkSpaces Application Manager'],
     },
     {
-      "service": "X-Ray"
-    }
-  ]
+        service: 'X-Ray',
+    },
+];

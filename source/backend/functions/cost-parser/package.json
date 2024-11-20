@@ -1,6 +1,6 @@
 {
   "name": "wd-cost",
-  "version": "2.1.15",
+  "version": "2.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -20,9 +20,12 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "2.1513.0",
+    "@aws-lambda-powertools/logger": "2.10.0",
+    "@aws-sdk/client-athena": "3.621.0",
+    "@aws-sdk/client-ec2": "3.621.0",
+    "@aws-sdk/client-s3": "3.621.0",
     "add": "2.0.6",
-    "athena-express": "7.1.5",
+    "athena-express-plus": "^8.1.0",
     "csv-parse": "5.5.2",
     "dayjs": "1.11.5",
     "ramda": "0.28.0"

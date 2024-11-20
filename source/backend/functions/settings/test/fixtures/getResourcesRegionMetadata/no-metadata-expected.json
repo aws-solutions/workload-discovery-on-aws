@@ -1,62 +1,62 @@
 [
-  {
-    "count": 31,
-    "accountId": "222222222222",
-    "regions": [
-      {
+    {
         "count": 31,
-        "name": "us-east-1",
-        "resourceTypes": [
-          {
-            "count": 5,
-            "type": "AWS::KMS::Key"
-          },
-          {
-            "count": 1,
-            "type": "AWS::S3::AccountPublicAccessBlock"
-          },
-          {
-            "count": 4,
-            "type": "AWS::AppConfig::DeploymentStrategy"
-          },
-          {
-            "count": 4,
-            "type": "AWS::Events::Rule"
-          },
-          {
-            "count": 3,
-            "type": "AWS::Lambda::Function"
-          },
-          {
-            "count": 1,
-            "type": "AWS::EC2::NetworkAcl"
-          },
-          {
-            "count": 1,
-            "type": "AWS::EventSchemas::Registry"
-          },
-          {
-            "count": 3,
-            "type": "AWS::S3::Bucket"
-          },
-          {
-            "count": 1,
-            "type": "AWS::EC2::RouteTable"
-          },
-          {
-            "count": 1,
-            "type": "AWS::EC2::SecurityGroup"
-          },
-          {
-            "count": 6,
-            "type": "AWS::EC2::Subnet"
-          },
-          {
-            "count": 1,
-            "type": "AWS::EC2::VPC"
-          }
+        "accountId": "222222222222",
+        "regions": [
+            {
+                "count": 31,
+                "name": "us-east-1",
+                "resourceTypes": [
+                    {
+                        "count": 5,
+                        "type": "AWS::KMS::Key"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::S3::AccountPublicAccessBlock"
+                    },
+                    {
+                        "count": 4,
+                        "type": "AWS::AppConfig::DeploymentStrategy"
+                    },
+                    {
+                        "count": 4,
+                        "type": "AWS::Events::Rule"
+                    },
+                    {
+                        "count": 3,
+                        "type": "AWS::Lambda::Function"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::EC2::NetworkAcl"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::EventSchemas::Registry"
+                    },
+                    {
+                        "count": 3,
+                        "type": "AWS::S3::Bucket"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::EC2::RouteTable"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::EC2::SecurityGroup"
+                    },
+                    {
+                        "count": 6,
+                        "type": "AWS::EC2::Subnet"
+                    },
+                    {
+                        "count": 1,
+                        "type": "AWS::EC2::VPC"
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  }
+    }
 ]

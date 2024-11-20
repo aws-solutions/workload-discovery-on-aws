@@ -62,6 +62,9 @@ Resources:
       LogConfig:
         CloudWatchLogsRoleArn: !GetAtt PerspectiveAppSyncLoggingRole.Arn
         FieldLogLevel: ERROR
+      IntrospectionConfig: DISABLED
+      QueryDepthLimit: 5
+      ResolverCountLimit: 1
       UserPoolConfig:
         UserPoolId: !Ref CognitoUserPoolId
         AwsRegion: !Sub ${AWS::Region}
@@ -163,26 +166,8 @@ Resources:
               VendorName: AWS
               Name: AWSManagedRulesAmazonIpReputationList
               ExcludedRules: []
-        - Name: BlockGraphQLIntrospectionQuery
-          Priority: 4
-          Action:
-            Block: {}
-          VisibilityConfig:
-            SampledRequestsEnabled: false
-            CloudWatchMetricsEnabled: true
-            MetricName: Workload-Discovery-Api-BlockGraphQLIntrospectionRuleMetric
-          Statement:
-            ByteMatchStatement:
-              FieldToMatch:
-                Body:
-                  OversizeHandling: CONTINUE
-              PositionalConstraint: CONTAINS
-              SearchString: __schema
-              TextTransformations:
-                - Type: LOWERCASE
-                  Priority: 0
         - Name: AllowlistRule
-          Priority: 5
+          Priority: 4
           Action:
             Allow: {}
           VisibilityConfig:
