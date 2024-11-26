@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "AWS::MediaPackage::PackagingGroup",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "Authorization.[CdnIdentifierSecret, SecretsRoleArn]",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

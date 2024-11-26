@@ -1,0 +1,12 @@
+.flex-container {
+    display: flex;
+}
+
+.flex-no-shrink {
+    flex-shrink: 0;
+}
+
+.flex-auto {
+    flex: auto;
+    margin-right: 5px;
+}

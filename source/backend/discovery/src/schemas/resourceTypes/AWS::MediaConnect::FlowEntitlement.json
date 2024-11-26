@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "AWS::MediaConnect::FlowEntitlement",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "FlowArn",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

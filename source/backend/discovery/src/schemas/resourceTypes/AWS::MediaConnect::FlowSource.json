@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "AWS::MediaConnect::FlowSource",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "FlowArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "EntitlementArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::MediaConnect::FlowVpcInterface",
+        "path": "VpcInterfaceName",
+        "identifierType": "resourceName"
+      },
+      {
+        "relationshipName": "Is associated with Role",
+        "path": "Decryption.RoleArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "Decryption.SecretArn",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "type": "AWS::EFS::AccessPoint",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is attached to",
+        "path": "FileSystemId",
+        "identifierType": "resourceId",
+        "resourceType": "AWS::EFS::FileSystem"
+      }
+    ]
+  }
+}

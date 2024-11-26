@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "type": "AWS::OpenSearch::Domain",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is contained in",
+        "path": "VPCOptions.VPCId",
+        "resourceType": "AWS::EC2::VPC",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is contained in",
+        "resourceType": "AWS::EC2::Subnet",
+        "path": "VPCOptions.SubnetIds",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "VPCOptions.SecurityGroupIds",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2"
+  },
+  "dynamoDBTable": {
+    "id": "${dynamoDBTable.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
+    "resourceId": "${dynamoDBTable.arn}",
+    "resourceName":  "test",
+    "resourceType": "AWS::DynamoDB::Table",
+    "relationships": [],
+    "configuration": {}
+  },
+  "lambda": {
+    "id": "${lambda.arn}",
+    "arn": "arn:aws:lambda:${$constants.region}:${$constants.accountId}:function:test-function",
+    "accountId": "${$constants.accountId}",
+    "resourceType": "AWS::Lambda::Function",
+    "relationships": [],
+    "configuration": {
+      "deadLetterConfig": {
+        "targetArn": "dlqArn"
+      },
+      "kmsKeyArn": "kmsKeyArn"
+    }
+  },
+  "rds":{
+    "resourceType": "AWS::RDS::DBCluster",
+    "resourceId": "cluster-id",
+    "resourceName": "cluster-name",
+    "configuration":{},
+    "relationships":[]
+  },
+  "eventBus": {
+    "id": "${eventBus.arn}",
+    "arn": "arn:aws:events:${$constants.region}:${$constants.accountId}:event-bus/eventBusArn",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "resourceType": "AWS::Events::EventBus",
+    "relationships": [],
+    "configuration": {}
+  },
+  "opensearchEndpoint": {
+    "id": "${opensearchEndpoint.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "resourceType": "AWS::OpenSearch::Domain",
+    "resourceId": "opensearchEndpoint",
+    "arn": "opensearchArn",
+    "relationships": [],
+    "configuration": {
+      "Endpoint": "elasticsearch.domain.aws.com"
+    }
+  },
+  "elasticsearchEndpoint": {
+    "id": "${elasticsearchEndpoint.arn}",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "resourceType": "AWS::Elasticsearch::Domain",
+    "resourceId": "elasticsearchEndpoint",
+    "arn": "elasticsearchArn",
+    "relationships": [],
+    "configuration": {
+      "Endpoint": "elasticsearch.domain.aws.com"
+    }
+  },
+  "dynamoLinkedDataSource": {
+    "dataSourceArn": "DataSourceArn",
+    "name": "${dynamoLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "dynamodbConfig": {
+        "tableName": "${dynamoDBTable.resourceName}"
+      }
+    },
+    "relationships": [],
+    "resourceType":"AWS::AppSync::DataSource"
+  },
+  "lambdaLinkedDataSource": {
+    "dataSourceArn": "DataSourceArn",
+    "name": "${lambdaLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "lambdaConfig": {
+        "lambdaFunctionArn": "${lambda.arn}"
+      }
+    },
+    "relationships": [],
+    "resourceType":"AWS::AppSync::DataSource"
+  },
+  "eventBridgeLinkedDataSource": {
+    "dataSourceArn": "DataSourceArn",
+    "name": "${eventBridgeLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "eventBridgeConfig": {
+        "eventBusArn": "${eventBus.arn}"
+      }
+    },
+    "relationships": [],
+    "resourceType":"AWS::AppSync::DataSource"
+  },
+  "rdsLinkedDataSource": {
+    "dataSourceArn": "DataSourceArn",
+    "name": "${rdsLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "relationalDatabaseConfig": {
+        "rdsHttpEndpointConfig": {
+          "awsRegion":"${$constants.region}",
+          "dbClusterIdentifier":"${rds.resourceId}",
+          "databaseName":"${rds.resourceName}"
+        }
+      }
+    },
+    "relationships": [],
+    "resourceType":"AWS::AppSync::DataSource"
+  },
+  "openSearchLinkedDataSource": {
+    "id":"${openSearchLinkedDataSource.dataSourceArn}",
+    "dataSourceArn": "DataSourceArn",
+    "name": "${openSearchLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "openSearchServiceConfig": {
+        "endpoint": "${opensearchEndpoint.configuration.Endpoint}"
+        }
+      },
+      "relationships": [],
+      "resourceType":"AWS::AppSync::DataSource"
+  },
+  "elasticSearchLinkedDataSource": {
+    "id":"${elasticSearchLinkedDataSource.dataSourceArn}",
+    "dataSourceArn": "DataSourceArn",
+    "name": "${elasticSearchLinkedDataSource.dataSourceArn}",
+    "configuration": {
+      "elasticsearchConfig": {
+        "endpoint": "${elasticsearchEndpoint.configuration.Endpoint}"
+        }
+      },
+      "relationships": [],
+      "resourceType":"AWS::AppSync::DataSource"
+    }
+  }
+

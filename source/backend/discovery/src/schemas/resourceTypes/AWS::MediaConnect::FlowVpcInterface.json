@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "type": "AWS::MediaConnect::FlowVpcInterface",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is contained in Subnet",
+        "resourceType": "AWS::EC2::Subnet",
+        "path": "SubnetId",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with SecurityGroup",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "SecurityGroupIds",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is attached to NetworkInterface",
+        "resourceType": "AWS::EC2::NetworkInterface",
+        "path": "NetworkInterfaceIds",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

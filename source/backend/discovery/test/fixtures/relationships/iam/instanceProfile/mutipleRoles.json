@@ -1,0 +1,25 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-2"
+  },
+  "profile": {
+    "accountId": "${$constants.accountId}",
+    "arn": "arn:aws:iam::${$constants.accountId}:instance-profile/MyInstanceProfile",
+    "availabilityZone": "Not Applicable",
+    "awsRegion": "us-east-1",
+    "configuration": {
+      "Roles": [
+        "roleName1",
+        "roleName2"
+      ]
+    },
+    "resourceId": "MyInstanceProfile",
+    "resourceName": "MyInstanceProfile",
+    "resourceType": "AWS::IAM::InstanceProfile",
+    "supplementaryConfiguration": {},
+    "version": "1.3",
+    "relationships": [],
+    "tags": []
+  }
+}

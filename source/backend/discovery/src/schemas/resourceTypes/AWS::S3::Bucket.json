@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "type": "AWS::S3::Bucket",
+  "relationships": {
+    "rootPath": "@",
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "supplementaryConfiguration.BucketLoggingConfiguration.destinationBucketName",
+        "resourceType": "AWS::S3::Bucket",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "supplementaryConfiguration.BucketNotificationConfiguration.configurations.*.[functionARN, topicARN, queueARN]",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

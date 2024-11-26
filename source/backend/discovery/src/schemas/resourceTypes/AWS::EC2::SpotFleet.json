@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "type": "AWS::EC2::SpotFleet",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "SpotFleetRequestConfig.LoadBalancersConfig.ClassicLoadBalancersConfig.ClassicLoadBalancers[*].Name",
+        "identifierType": "resourceId",
+        "resourceType": "AWS::ElasticLoadBalancing::LoadBalancer"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "SpotFleetRequestConfig.LoadBalancersConfig.TargetGroupsConfig.TargetGroups[*].Arn",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

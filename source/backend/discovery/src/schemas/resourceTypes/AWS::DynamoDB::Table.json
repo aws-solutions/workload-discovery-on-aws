@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "AWS::DynamoDB::Table",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "latestStreamArn",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

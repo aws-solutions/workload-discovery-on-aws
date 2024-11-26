@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "type": "AWS::ECS::Cluster",
+  "relationships": {
+    "descriptors": [
+      {
+        "resourceType": "AWS::S3::Bucket",
+        "relationshipName": "Is associated with",
+        "path": "LogConfiguration.S3BucketName",
+        "identifierType": "resourceId"
+      },
+      {
+        "resourceType": "AWS::EC2::Instance",
+        "relationshipName": "Contains",
+        "sdkClient": {
+          "type": "ecs",
+          "method": "getAllClusterInstances",
+          "argumentPaths": ["@.arn"]
+        },
+        "path": "@",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

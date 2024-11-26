@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "type": "AWS::ElasticLoadBalancing::LoadBalancer",
+  "relationships": {
+    "descriptors": [
+      {
+        "resourceType": "AWS::EC2::Instance",
+        "relationshipName": "Is associated with",
+        "sdkClient": {
+          "type": "elbV1",
+          "method": "getLoadBalancerInstances",
+          "argumentPaths": ["@"]
+        },
+        "path": "@",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}
