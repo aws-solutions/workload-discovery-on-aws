@@ -1,0 +1,180 @@
+{
+    "getResourceGraph": {
+        "nodes": [
+            {
+                "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                "label": "AWS_Lambda_Function",
+                "md5Hash": "",
+                "properties": {
+                    "accountId": "xxxxxxxxxxxx",
+                    "arn": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "availabilityZone": "Not Applicable",
+                    "awsRegion": "eu-west-1",
+                    "configuration": "\"{\\\"architectures\\\":[\\\"x86_64\\\"],\\\"ephemeralStorage\\\":{\\\"size\\\":512},\\\"handler\\\":\\\"index.handler\\\",\\\"role\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda\\\",\\\"functionName\\\":\\\"sqs\\\",\\\"tracingConfig\\\":{\\\"mode\\\":\\\"PassThrough\\\"},\\\"runtime\\\":\\\"nodejs12.x\\\",\\\"description\\\":\\\"An Amazon SQS trigger that logs messages in a queue.\\\",\\\"codeSize\\\":383,\\\"version\\\":\\\"$LATEST\\\",\\\"packageType\\\":\\\"Zip\\\",\\\"timeout\\\":3,\\\"revisionId\\\":\\\"52a51ae1-ed13-4919-8a3d-c48b689966a8\\\",\\\"codeSha256\\\":\\\"xJUh5EPexgAe4RwmBK7VTazOpu57cdQE22Iso9jwSng=\\\",\\\"memorySize\\\":128,\\\"fileSystemConfigs\\\":[],\\\"lastUpdateStatus\\\":\\\"Successful\\\",\\\"loggingConfig\\\":{\\\"logFormat\\\":\\\"Text\\\",\\\"logGroup\\\":\\\"/aws/lambda/sqs\\\"},\\\"layers\\\":[],\\\"snapStart\\\":{\\\"applyOn\\\":\\\"None\\\",\\\"optimizationStatus\\\":\\\"Off\\\"},\\\"lastModified\\\":\\\"2020-04-10T12:36:27.981+0000\\\",\\\"state\\\":{\\\"value\\\":\\\"Active\\\"},\\\"functionArn\\\":\\\"arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs\\\"}\"",
+                    "configurationItemCaptureTime": "2024-01-09T06:54:06.285Z",
+                    "configurationItemStatus": "OK",
+                    "configurationStateId": null,
+                    "resourceCreationTime": null,
+                    "resourceId": "sqs",
+                    "resourceName": "sqs",
+                    "resourceType": "AWS::Lambda::Function",
+                    "supplementaryConfiguration": null,
+                    "tags": "[{\"tag\":\"lambda-console:blueprint=sqs-poller\",\"value\":\"sqs-poller\",\"key\":\"lambda-console:blueprint\"}]",
+                    "version": "1.3",
+                    "vpcId": null,
+                    "subnetId": null,
+                    "subnetIds": null,
+                    "resourceValue": null,
+                    "state": null,
+                    "private": null,
+                    "loggedInURL": "https://eu-west-1.console.aws.amazon.com/lambda/home?region=eu-west-1#/functions/sqs?tab=graph",
+                    "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/lambda?region=eu-west-1#/functions/sqs?tab=graph",
+                    "title": "sqs",
+                    "dBInstanceStatus": null,
+                    "statement": null,
+                    "instanceType": null
+                }
+            },
+            {
+                "id": "arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda",
+                "label": "AWS_IAM_Role",
+                "md5Hash": "",
+                "properties": {
+                    "accountId": "xxxxxxxxxxxx",
+                    "arn": "arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda",
+                    "availabilityZone": "Not Applicable",
+                    "awsRegion": "global",
+                    "configuration": "\"{\\\"path\\\":\\\"/service-role/\\\",\\\"assumeRolePolicyDocument\\\":\\\"%7B%22Version%22%3A%222012-10-17%22%2C%22Statement%22%3A%5B%7B%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Service%22%3A%22lambda.amazonaws.com%22%7D%2C%22Action%22%3A%22sts%3AAssumeRole%22%7D%5D%7D\\\",\\\"instanceProfileList\\\":[],\\\"roleId\\\":\\\"AROAQU6I6AO4TGMKBRV2F\\\",\\\"attachedManagedPolicies\\\":[{\\\"policyArn\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:policy/service-role/AWSLambdaSQSPollerExecutionRole-4dc6ea34-4c9d-4508-8f49-adf50e74c431\\\",\\\"policyName\\\":\\\"AWSLambdaSQSPollerExecutionRole-4dc6ea34-4c9d-4508-8f49-adf50e74c431\\\"},{\\\"policyArn\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:policy/service-role/AWSLambdaBasicExecutionRole-2688086c-525a-478f-9584-cdbf63e8583c\\\",\\\"policyName\\\":\\\"AWSLambdaBasicExecutionRole-2688086c-525a-478f-9584-cdbf63e8583c\\\"}],\\\"roleName\\\":\\\"sqslambda\\\",\\\"arn\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda\\\",\\\"createDate\\\":\\\"2020-04-10T12:36:15.000Z\\\",\\\"rolePolicyList\\\":[],\\\"tags\\\":[]}\"",
+                    "configurationItemCaptureTime": "2022-02-14T13:50:59.294Z",
+                    "configurationItemStatus": "ResourceDiscovered",
+                    "configurationStateId": null,
+                    "resourceCreationTime": "2020-04-10T12:36:15.000Z",
+                    "resourceId": "AROAQU6I6AO4TGMKBRV2F",
+                    "resourceName": "sqslambda",
+                    "resourceType": "AWS::IAM::Role",
+                    "supplementaryConfiguration": null,
+                    "tags": "[]",
+                    "version": "1.3",
+                    "vpcId": null,
+                    "subnetId": null,
+                    "subnetIds": null,
+                    "resourceValue": null,
+                    "state": null,
+                    "private": null,
+                    "loggedInURL": "https://console.aws.amazon.com/iam/home?#/roles",
+                    "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/iam?home?#/roles",
+                    "title": "sqslambda",
+                    "dBInstanceStatus": null,
+                    "statement": null,
+                    "instanceType": null
+                }
+            },
+            {
+                "id": "arn:aws:sqs:eu-west-1:xxxxxxxxxxxx:test-queue",
+                "label": "AWS_SQS_Queue",
+                "md5Hash": "",
+                "properties": {
+                    "accountId": "xxxxxxxxxxxx",
+                    "arn": "arn:aws:sqs:eu-west-1:xxxxxxxxxxxx:test-queue",
+                    "availabilityZone": "Not Applicable",
+                    "awsRegion": "eu-west-1",
+                    "configuration": "\"{\\\"ReceiveMessageWaitTimeSeconds\\\":0,\\\"SqsManagedSseEnabled\\\":\\\"false\\\",\\\"CreatedTimestamp\\\":\\\"1586428013\\\",\\\"DelaySeconds\\\":0,\\\"MessageRetentionPeriod\\\":345600,\\\"MaximumMessageSize\\\":262144,\\\"VisibilityTimeout\\\":30,\\\"LastModifiedTimestamp\\\":\\\"1586428013\\\",\\\"QueueArn\\\":\\\"arn:aws:sqs:eu-west-1:xxxxxxxxxxxx:test-queue\\\"}\"",
+                    "configurationItemCaptureTime": "2021-11-18T15:12:30.432Z",
+                    "configurationItemStatus": "OK",
+                    "configurationStateId": null,
+                    "resourceCreationTime": "2020-04-09T10:26:53.000Z",
+                    "resourceId": "https://sqs.eu-west-1.amazonaws.com/xxxxxxxxxxxx/test-queue",
+                    "resourceName": "test-queue",
+                    "resourceType": "AWS::SQS::Queue",
+                    "supplementaryConfiguration": null,
+                    "tags": "[]",
+                    "version": "1.3",
+                    "vpcId": null,
+                    "subnetId": null,
+                    "subnetIds": null,
+                    "resourceValue": null,
+                    "state": null,
+                    "private": null,
+                    "loggedInURL": null,
+                    "loginURL": null,
+                    "title": "test-queue",
+                    "dBInstanceStatus": null,
+                    "statement": null,
+                    "instanceType": null
+                }
+            },
+            {
+                "id": "arn:aws:tags::xxxxxxxxxxxx:tag/lambda-console:blueprint=sqs-poller",
+                "label": "AWS_Tags_Tag",
+                "md5Hash": "",
+                "properties": {
+                    "accountId": "xxxxxxxxxxxx",
+                    "arn": "arn:aws:tags::xxxxxxxxxxxx:tag/lambda-console:blueprint=sqs-poller",
+                    "availabilityZone": "Not Applicable",
+                    "awsRegion": "global",
+                    "configuration": "\"{}\"",
+                    "configurationItemCaptureTime": null,
+                    "configurationItemStatus": "ResourceDiscovered",
+                    "configurationStateId": null,
+                    "resourceCreationTime": null,
+                    "resourceId": "arn:aws:tags::xxxxxxxxxxxx:tag/lambda-console:blueprint=sqs-poller",
+                    "resourceName": "lambda-console:blueprint=sqs-poller",
+                    "resourceType": "AWS::Tags::Tag",
+                    "supplementaryConfiguration": null,
+                    "tags": "[]",
+                    "version": null,
+                    "vpcId": null,
+                    "subnetId": null,
+                    "subnetIds": null,
+                    "resourceValue": null,
+                    "state": null,
+                    "private": null,
+                    "loggedInURL": null,
+                    "loginURL": null,
+                    "title": "lambda-console:blueprint=sqs-poller",
+                    "dBInstanceStatus": null,
+                    "statement": null,
+                    "instanceType": null
+                }
+            }
+        ],
+        "edges": [
+            {
+                "id": "04c61a6d-f60b-4877-76cc-28744ae06d7e",
+                "label": "IS_ASSOCIATED_WITH_ROLE",
+                "source": {
+                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "label": "AWS_Lambda_Function"
+                },
+                "target": {
+                    "id": "arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda",
+                    "label": "AWS_IAM_Role"
+                }
+            },
+            {
+                "id": "cec61a6d-f60c-1aca-e359-6d2a3cbadec9",
+                "label": "IS_ASSOCIATED_WITH",
+                "source": {
+                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "label": "AWS_Lambda_Function"
+                },
+                "target": {
+                    "id": "arn:aws:sqs:eu-west-1:xxxxxxxxxxxx:test-queue",
+                    "label": "AWS_SQS_Queue"
+                }
+            },
+            {
+                "id": "c8c61a6d-ffe7-9524-a55c-a9473154e444",
+                "label": "IS_ASSOCIATED_WITH",
+                "source": {
+                    "id": "arn:aws:tags::xxxxxxxxxxxx:tag/lambda-console:blueprint=sqs-poller",
+                    "label": "AWS_Tags_Tag"
+                },
+                "target": {
+                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "label": "AWS_Lambda_Function"
+                }
+            }
+        ]
+    }
+}

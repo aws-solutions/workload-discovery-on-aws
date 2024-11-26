@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "type": "AWS::CodeBuild::Project",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with Role",
+        "path": "serviceRole",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is contained in",
+        "resourceType": "AWS::EC2::Subnet",
+        "path": "vpcConfig.subnets",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "vpcConfig.securityGroupIds",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "AWS::EFS::FileSystem",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "KmsKeyId",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

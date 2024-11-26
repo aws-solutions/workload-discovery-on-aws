@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "type": "AWS::EKS::Cluster",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with Role",
+        "path": "RoleArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is contained in",
+        "resourceType": "AWS::EC2::Subnet",
+        "path": "ResourcesVpcConfig.SubnetIds",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "ResourcesVpcConfig.SecurityGroupIds",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "ClusterSecurityGroupId",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

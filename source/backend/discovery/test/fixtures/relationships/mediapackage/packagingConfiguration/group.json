@@ -1,0 +1,25 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "packagingConfiguration": {
+      "resourceType": "AWS::MediaPackage::PackagingConfiguration"
+    }
+  },
+  "packagingGroup": {
+    "resourceId": "packagingGroupId"
+  },
+  "packagingConfiguration": {
+    "id": "${packagingConfiguration.arn}",
+    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-configurations:${packagingConfiguration.resourceId}",
+    "resourceId": "packagingConfigurationId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Regional",
+    "resourceType": "${$constants.packagingConfiguration.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "PackagingGroupId": "${packagingGroup.resourceId}"
+    }
+  }
+}

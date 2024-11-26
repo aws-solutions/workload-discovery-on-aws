@@ -1,0 +1,47 @@
+{
+  "name": "wd-export-myapplications",
+  "version": "2.2.0",
+  "description": "Lambda function that exports to myApplications",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc",
+    "pretest": "npm i && npm run typecheck",
+    "test": "vitest run --coverage",
+    "pretest:ci": "npm ci && npm run typecheck",
+    "test:ci": "vitest run --coverage --allowOnly false",
+    "clean": "rm -rf dist",
+    "build:zip": "zip -rq --exclude=test/* --exclude=package-lock.json myapplications.zip node_modules/ && zip -urj myapplications.zip src/",
+    "build:dist": "mkdir dist && mv myapplications.zip dist/",
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "2.1.1",
+    "@aws-sdk/client-resource-groups-tagging-api": "3.621.0",
+    "@aws-sdk/client-service-catalog-appregistry": "3.621.0",
+    "@aws-sdk/client-sts": "3.621.0",
+    "@aws-sdk/credential-providers": "3.624.0",
+    "@aws-sdk/util-arn-parser": "3.568.0",
+    "ramda": "0.30.0",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-directory-service": "3.621.0",
+    "@aws-sdk/types": "3.609.0",
+    "@smithy/types": "3.0.0",
+    "@types/aws-lambda": "^8.10.137",
+    "@types/node": "^20.12.12",
+    "@types/ramda": "^0.30.0",
+    "@vitest/coverage-v8": "^2.1.1",
+    "chai": "^4.4.1",
+    "rewire": "7.0.0",
+    "sinon": "^18.0.0",
+    "typescript": "^5.4.5",
+    "vitest": "^2.1.1"
+  }
+}

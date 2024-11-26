@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "type": "AWS::MSK::Cluster",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is contained in",
+        "resourceType": "AWS::EC2::Subnet",
+        "path": "BrokerNodeGroupInfo.ClientSubnets",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "path": "BrokerNodeGroupInfo.SecurityGroups",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

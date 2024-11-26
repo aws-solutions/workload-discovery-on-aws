@@ -1,0 +1,10 @@
+{
+  "euWest2": [{
+    "arn": "applicationArn1",
+    "name": "applicationName1"
+  }],
+  "usWest2": [{
+    "arn": "applicationArn2",
+    "name": "applicationName2"
+  }]
+}

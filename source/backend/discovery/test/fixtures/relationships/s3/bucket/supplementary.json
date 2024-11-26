@@ -1,0 +1,34 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "awsRegion": "eu-west-2"
+  },
+  "s3Bucket": {
+    "id": "${s3Bucket.arn}",
+    "arn": "s3BucketArnArn",
+    "resourceId": "snsLambdaResourceId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.awsRegion}",
+    "resourceType": "AWS::S3::Bucket",
+    "relationships": [],
+    "configuration": {},
+    "supplementaryConfiguration": {
+      "BucketLoggingConfiguration": {
+        "destinationBucketName": "loggingBucket"
+      },
+      "BucketNotificationConfiguration": {
+        "configurations": {
+          "LambdaFunctionConfigurationId": {
+            "functionARN": "notificationLambdaArn"
+          },
+          "SnsConfigurationId": {
+            "topicARN": "notificationSnsTopicArn"
+          },
+          "SqsFunctionConfigurationId": {
+            "queueARN": "notificationSnsQueueArn"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "AWS::AppSync::DataSource",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "lambdaConfig.lambdaFunctionArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "dynamodbConfig.tableName",
+        "identifierType": "resourceName",
+        "resourceType": "AWS::DynamoDB::Table"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "eventBridgeConfig.eventBusArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "relationalDatabaseConfig.rdsHttpEndpointConfig.dbClusterIdentifier",
+        "identifierType": "resourceId",
+        "resourceType":"AWS::RDS::DBCluster"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "elasticsearchConfig.endpoint",
+        "identifierType": "endpoint"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "openSearchServiceConfig.endpoint",
+        "identifierType": "endpoint"
+      }
+    ]
+  }
+}

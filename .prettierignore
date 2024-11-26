@@ -1,0 +1,8 @@
+package.json
+package-lock.json
+tsconfig.json
+Pipfile.lock
+
+# Frontend
+source/frontend/public
+source/frontend/src/tests/cypress/**/__file_snapshots__/

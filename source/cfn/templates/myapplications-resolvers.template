@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: Workload Discovery on AWS myApplications Export API
+
+Parameters:
+
+  NodeLambdaRuntime:
+    Type: String
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  PerspectiveAppSyncApiId:
+    Type: String
+
+  ExternalId:
+    Type: String
+
+Resources:
+
+  MyApplicationsLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: '/'
+      Policies:
+        - PolicyName: !Sub MyApplicationsAppSyncLambdaLogPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: assumeMyApplicationsRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource: !Sub arn:aws:iam::*:role/WorkloadDiscoveryMyApplicationsRole-${AWS::AccountId}-${AWS::Region}
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+  MyApplicationsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This Lambda does not connect to any resources in a VPC
+    Properties:
+      Role: !GetAtt MyApplicationsLambdaRole.Arn
+      Description: Exports diagram to myApplications
+      Runtime: !Ref NodeLambdaRuntime
+      Handler: index.handler
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Sub ${DeploymentBucketKey}/myapplications.zip
+      Timeout: 10
+      MemorySize: 512
+      LoggingConfig:
+        LogGroup: !Ref MyApplicationsLambdaLogGroup
+      Environment:
+        Variables:
+          AWS_ACCOUNT_ID: !Ref AWS::AccountId
+          EXTERNAL_ID: !Ref ExternalId
+
+  MyApplicationsLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      # Define a new log group as it must exist for 
+      # MyApplicationsOperationalMetricsFunction event filter
+      # to be created. The implicit log group is lazily created and 
+      # does not exist at stack deployment, causing an error
+      LogGroupName: !Sub 
+        - /aws/lambda/MyApplicationsFunction-${UUID}
+        - UUID: !Select [2, !Split ["/", !Ref AWS::StackId]]
+
+      RetentionInDays: 30
+
+  MyApplicationsInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub AppSyncMyApplicationsRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt MyApplicationsFunction.Arn
+
+  MyApplicationsExportLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: MyApplication_Lambda_DS9
+      Description: myApplication Export Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt MyApplicationsInvokeRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt MyApplicationsFunction.Arn
+
+  MyApplicationsExportResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+      TypeName: Mutation
+      FieldName: createApplication
+      DataSourceName: !GetAtt MyApplicationsExportLambdaDataSource.Name
+
+Outputs:
+
+  MyApplicationsLambdaRoleArn:
+    Description: ARN of role used by myApplications lambda function
+    Value: !GetAtt MyApplicationsLambdaRole.Arn
+
+  MyApplicationsLambdaLogGroup:
+    Description: The name of the myApplication lambda log group
+    Value: !Ref MyApplicationsLambdaLogGroup

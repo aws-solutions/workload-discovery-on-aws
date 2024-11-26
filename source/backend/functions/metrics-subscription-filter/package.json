@@ -1,0 +1,34 @@
+{
+  "name": "metrics-subscription-filter",
+  "version": "2.2.0",
+  "description": "Lambda function used to handle operational metrics subscription filter",
+  "main": "index.mjs",
+  "scripts": {
+    "pretest": "npm i",
+    "test": "vitest run --coverage",
+    "pretest:ci": "npm ci",
+    "test:ci": "vitest run --coverage --allowOnly false",
+    "clean": "rm -rf dist",
+    "build:zip": "zip -rq --exclude=test/* --exclude=package-lock.json metrics-subscription-filter.zip node_modules/ && zip -urj metrics-subscription-filter.zip src/",
+    "build:dist": "mkdir dist && mv metrics-subscription-filter.zip dist/",
+    "build": "npm run clean && npm ci --omit=dev && npm run build:zip && npm run build:dist"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.1",
+    "chai": "^4.3.10",
+    "msw": "2.3.1",
+    "rewire": "^7.0.0",
+    "sinon": "^18.0.0",
+    "vitest": "^2.1.1"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "2.1.1",
+    "ramda": "0.30.1",
+    "zod": "3.23.8"
+  }
+}

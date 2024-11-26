@@ -1,0 +1,107 @@
+{
+  "$constants": {
+    "accountId": "xxxxxxxxxxxx",
+    "region": "eu-west-2",
+    "packagingConfiguration": {
+      "resourceType": "AWS::MediaPackage::PackagingConfiguration"
+    }
+  },
+  "dashRole": {
+    "arn": "dashRoleArn"
+  },
+  "cmafRole": {
+    "arn": "cmafRoleArn"
+  },
+  "hlsRole": {
+    "arn": "hlsRoleArn"
+  },
+  "hlsRole": {
+    "arn": "hlsRoleArn"
+  },
+  "mssRole": {
+    "arn": "mssRoleArn"
+  },
+  "packagingGroup": {
+    "resourceId": "packagingGroupId"
+  },
+  "packagingConfigurationCmaf": {
+    "id": "${packagingConfigurationCmaf.arn}",
+    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-configurations:${packagingConfigurationCmaf.resourceId}",
+    "resourceId": "packagingConfigurationCmafId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Regional",
+    "resourceType": "${$constants.packagingConfiguration.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "PackagingGroupId": "${packagingGroup.resourceId}",
+      "CmafPackage": {
+        "Encryption": {
+          "SpekeKeyProvider": {
+            "RoleArn": "${cmafRole.arn}"
+          }
+        }
+      }
+    }
+  },
+  "packagingConfigurationDash": {
+    "id": "${packagingConfigurationDash.arn}",
+    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-configurations:${packagingConfigurationDash.resourceId}",
+    "resourceId": "packagingConfigurationDashId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Regional",
+    "resourceType": "${$constants.packagingConfiguration.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "PackagingGroupId": "${packagingGroup.resourceId}",
+      "DashPackage": {
+        "Encryption": {
+          "SpekeKeyProvider": {
+            "RoleArn": "${dashRole.arn}"
+          }
+        }
+      }
+    }
+  },
+  "packagingConfigurationHls": {
+    "id": "${packagingConfigurationHls.arn}",
+    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-configurations:${packagingConfigurationHls.resourceId}",
+    "resourceId": "packagingConfigurationHlsId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Regional",
+    "resourceType": "${$constants.packagingConfiguration.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "PackagingGroupId": "${packagingGroup.resourceId}",
+      "HlsPackage": {
+        "Encryption": {
+          "SpekeKeyProvider": {
+            "RoleArn": "${hlsRole.arn}"
+          }
+        }
+      }
+    }
+  },
+  "packagingConfigurationMss": {
+    "id": "${packagingConfigurationMss.arn}",
+    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-configurations:${packagingConfigurationMss.resourceId}",
+    "resourceId": "packagingConfigurationMssId",
+    "accountId": "${$constants.accountId}",
+    "awsRegion": "${$constants.region}",
+    "availabilityZone": "Regional",
+    "resourceType": "${$constants.packagingConfiguration.resourceType}",
+    "relationships": [],
+    "configuration": {
+      "PackagingGroupId": "${packagingGroup.resourceId}",
+      "MssPackage": {
+        "Encryption": {
+          "SpekeKeyProvider": {
+            "RoleArn": "${mssRole.arn}"
+          }
+        }
+      }
+    }
+  }
+}

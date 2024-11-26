@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Workload Discovery on AWS Application Insights Dashboard
+
+Parameters:
+
+  ApplicationResourceGroupName:
+    Type: String
+
+  ClusterArn:
+    Type: String
+
+  DiscoveryTaskLogGroup:
+    Type: String
+
+Resources:
+
+  ApplicationDashboard:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      AutoConfigurationEnabled: true
+      ResourceGroupName: !Ref ApplicationResourceGroupName
+      LogPatternSets:
+        - PatternSetName: DiscoveryPatternSet
+          LogPatterns:
+              - PatternName: IamRoleNotDeployed
+                Pattern: 'The discovery for this account will be skipped'
+                Rank: 1
+      ComponentMonitoringSettings:
+        - ComponentARN: !Ref ClusterArn
+          Tier: DEFAULT
+          ComponentConfigurationMode: DEFAULT_WITH_OVERWRITE
+          DefaultOverwriteComponentConfiguration:
+            ConfigurationDetails:
+              Logs:
+                - LogGroupName: !Ref DiscoveryTaskLogGroup
+                  LogType: APPLICATION
+                  PatternSet: DiscoveryPatternSet
