@@ -86,6 +86,10 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
         {label: 'Only Show Selected', value: false},
     ];
 
+    function createFilterDescription(type) {
+        return `Select which ${type}s to ${settings.hideSelected ? 'hide' : 'display'}`;
+    }
+
     return (
         <form onSubmit={e => e.preventDefault()}>
             <Modal
@@ -151,7 +155,7 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
                     </FormField>
                     <FormField
                         label={'Accounts'}
-                        description={'Select which accounts to display'}
+                        description={createFilterDescription('account')}
                     >
                         <Multiselect
                             placeholder="Select accounts"
@@ -173,7 +177,7 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
                     </FormField>
                     <FormField
                         label={'Regions'}
-                        description={'Select which regions to display'}
+                        description={createFilterDescription('region')}
                     >
                         <Multiselect
                             placeholder="Select regions"
@@ -195,7 +199,7 @@ const DiagramSettings = ({onSettingsChange, initialSettings}) => {
                     </FormField>
                     <FormField
                         label={'Resource Types'}
-                        description={'Select which resource types to display'}
+                        description={createFilterDescription('resource type')}
                     >
                         <Multiselect
                             placeholder="Select resource types"

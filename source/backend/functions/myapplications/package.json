@@ -1,6 +1,6 @@
 {
   "name": "wd-export-myapplications",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Lambda function that exports to myApplications",
   "main": "index.mjs",
   "type": "module",
@@ -37,11 +37,11 @@
     "@types/aws-lambda": "^8.10.137",
     "@types/node": "^20.12.12",
     "@types/ramda": "^0.30.0",
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "chai": "^4.4.1",
     "rewire": "7.0.0",
     "sinon": "^18.0.0",
     "typescript": "^5.4.5",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.9"
   }
 }

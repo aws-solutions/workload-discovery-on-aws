@@ -31,6 +31,9 @@ Parameters:
     Description: Memory size
     Type: String
 
+  DiscoveryTaskCapacityProvider:
+    Type: String
+
   DiscoveryTaskFrequency:
     Type: String
 
@@ -412,6 +415,56 @@ Resources:
         Fn::Sub: /ecs/${AppName}-task
       RetentionInDays: 30
 
+  ClusterLifecycleEventsLogGroup:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: 'Not applicable'
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/events/ecs/containerinsights/${Cluster}/performance
+      RetentionInDays: 30
+
+  CaptureEcsTaskLifeCycleEvents:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: !Sub Capture task events from ${Cluster}
+      EventPattern:
+        source:
+          - aws.ecs
+        detail-type:
+          - ECS Task State Change
+      Targets:
+        - Arn: !GetAtt ClusterLifecycleEventsLogGroup.Arn
+          Id: ClusterLifecycleEventsLogGroup
+
+  EcsLifecycleEventBridgeToCwLogsPolicy:
+    Type: AWS::Logs::ResourcePolicy
+    Properties:
+      PolicyName: EcsLifecycleEventBridgeToCwLogsPolicy
+      PolicyDocument:
+        !Sub |
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [
+                    "events.amazonaws.com",
+                    "delivery.logs.amazonaws.com"
+                  ]
+                },
+                "Action": [
+                  "logs:PutLogEvents",
+                  "logs:CreateLogStream"
+                ],
+                "Resource": "${ClusterLifecycleEventsLogGroup.Arn}"
+              }
+            ]
+          }
+
   DiscoveryTaskRuleRole:
     Type: AWS::IAM::Role
     Properties:
@@ -456,7 +509,7 @@ Resources:
           EcsParameters:
             TaskDefinitionArn: !Ref TaskDefinition
             CapacityProviderStrategy:
-              - CapacityProvider: FARGATE_SPOT
+              - CapacityProvider: !Ref DiscoveryTaskCapacityProvider
                 Base: 1
                 Weight: 1
             PlatformVersion: LATEST
@@ -481,6 +534,10 @@ Outputs:
   DiscoveryTaskLogGroup:
     Description: Log group for discovery process task
     Value: !Ref LogGroup
+
+  ClusterLifecycleEventsLogGroup:
+    Description: Log group for discovery process task
+    Value: !Ref ClusterLifecycleEventsLogGroup
 
   EcsRoleDef:
     Description: ECS Role Name

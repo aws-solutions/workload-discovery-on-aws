@@ -9,9 +9,10 @@ import logger from '../logger.mjs';
 import {parse as parseArn} from '@aws-sdk/util-arn-parser';
 import {
     ACCESS_DENIED,
+    ACCESS_DENIED_EXCEPTION,
     IAM,
     ROLE,
-    DISCOVERY_ROLE_NAME
+    DISCOVERY_ROLE_NAME,
 } from '../constants.mjs';
 
 function getDbResourcesMap(appSync) {
@@ -119,7 +120,7 @@ function addCrawledAccounts(appSync) {
                 return {
                     ...props,
                     isIamRoleDeployed,
-                    regions: regions.map(name => ({name})),
+                    regions: regions.map(R.omit(['isConfigEnabled'])),
                     lastCrawled: isIamRoleDeployed ? new Date().toISOString() : lastCrawled
                 }
             }))
@@ -165,7 +166,7 @@ async function getOrgAccounts(
                 ...(isManagementAccount ? {isManagementAccount} : {}),
                 ...(lastCrawled != null ? {lastCrawled} : {}),
                 regions: OrganizationAggregationSource.AllAwsRegions
-                    ? regions.map(x => x.name) : OrganizationAggregationSource.AwsRegions,
+                    ? regions : OrganizationAggregationSource.AwsRegions.map(name => ({name})),
                 toDelete: dbAccountsMap.has(Id) && !orgAccountsMap.has(Id)
             };
         })
@@ -175,6 +176,67 @@ async function getOrgAccounts(
 function createDiscoveryRoleArn(accountId, rootAccountId) {
     return createArn({service: IAM, accountId, resource: `${ROLE}/${DISCOVERY_ROLE_NAME}-${rootAccountId}`});
 }
+
+const addConfigStatus = R.curry(async (awsClient, accounts) => {
+    const {errors, results} = await PromisePool
+        .withConcurrency(5)
+        .for(accounts.map(({regions, ...account}) => {
+            return {
+                ...account,
+                regions: regions.map(region => {
+                    return {
+                        ...region,
+                        isConfigEnabled: null,
+                    }
+                })
+            }
+        }))
+        .process(async (account) => {
+            // don't check accounts that don't have the global resources template deployed
+            if(!account.isIamRoleDeployed) return account;
+
+            const {accountId, credentials} = account;
+
+            const regions = await Promise.resolve(account.regions)
+                .then(R.map(async region => {
+                    const configClient = awsClient.createConfigServiceClient(credentials, region.name);
+                    const isConfigEnabled = await configClient.isConfigEnabled()
+                        .catch(error => {
+                            // don't continue if IAM role doesn't have necessary permissions
+                            if (error.name === ACCESS_DENIED_EXCEPTION) throw error;
+                            logger.error(`Error verifying AWS Config is enabled in the ${region.name} of account ${accountId}: ${error}`);
+                            return null;
+                        });
+
+                    return {
+                        ...region,
+                        isConfigEnabled
+                    };
+                }))
+                .then(ps => Promise.all(ps))
+                .catch(error => {
+                    if (error.name === ACCESS_DENIED_EXCEPTION) {
+                        logger.error(`AWS Config enablement check failed, the Workload discovery role does not have permission to verify if AWS Config is enabled in account ${accountId}. Ensure that the global resources template has been updated in this account.`, {error: error.message});
+                    } else {
+                        logger.error(`Error verifying AWS Config is enabled in account ${accountId}: ${error}`);
+                    }
+
+                    return account.regions;
+                });
+
+            return {
+                ...account,
+                regions
+            };
+        });
+
+    logger.error(`There were ${errors.length} account errors when verifying if Config was enabled in accounts to be discovered.`, {errors});
+
+    return [
+        ...errors.map(e => e.item),
+        ...results
+    ];
+});
 
 const addAccountCredentials = R.curry(async ({stsClient}, rootAccountId, accounts) => {
     const {errors, results} = await PromisePool
@@ -224,10 +286,11 @@ export function createApiClient(awsClient, appSync, config) {
         getAccounts: profileAsync('Time to get accounts', () => {
             const accountsP = config.isUsingOrganizations
                 ? getOrgAccounts({ec2Client, organizationsClient, configClient}, appSync, config)
-                : appSync.getAccounts().then(R.map(R.evolve({regions: R.map(x => x.name)})));
+                : appSync.getAccounts()
 
             return accountsP
                 .then(addAccountCredentials({stsClient}, config.rootAccountId))
+                .then(addConfigStatus(awsClient))
         }),
         addCrawledAccounts: addCrawledAccounts(appSync),
         deleteAccounts: appSync.deleteAccounts,

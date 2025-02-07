@@ -15,6 +15,8 @@ import {
 } from '@aws-sdk/client-service-catalog-appregistry';
 import {
     BatchGetAggregateResourceConfigCommand,
+    DescribeConfigurationRecordersCommand,
+    DescribeDeliveryChannelsCommand,
     ConfigServiceClient,
     DescribeConfigurationAggregatorsCommand,
     ListAggregateDiscoveredResourcesCommand,
@@ -337,7 +339,96 @@ describe('awsClient', () => {
             getAllAggregatorResources,
             getAggregatorResources,
             getConfigAggregator,
+            isConfigEnabled
         } = awsClient.createConfigServiceClient(mockCredentials, EU_WEST_1);
+
+        describe('isConfigEnabled', () => {
+
+            it('should return false when recorder is present and delivery channel is not', async () => {
+                const mockConfigClient = mockClient(ConfigServiceClient);
+
+                mockConfigClient
+                    .on(DescribeConfigurationRecordersCommand)
+                    .resolves({
+                        ConfigurationRecorders: [
+                            {name: 'default'}
+                        ]
+                    });
+
+                mockConfigClient
+                    .on(DescribeDeliveryChannelsCommand)
+                    .resolves({
+                        DeliveryChannels: []
+                    });
+
+                const actual = await isConfigEnabled();
+                assert.strictEqual(actual, false);
+            });
+
+            it('should return false when delivery channel is present amd recorder is not', async () => {
+                const mockConfigClient = mockClient(ConfigServiceClient);
+
+                mockConfigClient
+                    .on(DescribeConfigurationRecordersCommand)
+                    .resolves({
+                        ConfigurationRecorders: []
+                    });
+
+                mockConfigClient
+                    .on(DescribeDeliveryChannelsCommand)
+                    .resolves({
+                        DeliveryChannels: [
+                            {name: 'delivery-channel'}
+                        ]
+                    });
+
+                const actual = await isConfigEnabled();
+                assert.strictEqual(actual, false);
+            });
+
+            it('should return false when neither recorder or delivery channel are present', async () => {
+                const mockConfigClient = mockClient(ConfigServiceClient);
+
+                mockConfigClient
+                    .on(DescribeConfigurationRecordersCommand)
+                    .resolves({
+                        ConfigurationRecorders: []
+                    });
+
+                mockConfigClient
+                    .on(DescribeDeliveryChannelsCommand)
+                    .resolves({
+                        DeliveryChannels: []
+                    });
+
+                const actual = await isConfigEnabled();
+                assert.strictEqual(actual, false);
+            });
+
+            it('should return true when recorder and delivery channel are present', async () => {
+                const mockConfigClient = mockClient(ConfigServiceClient);
+
+                mockConfigClient
+                    .on(DescribeConfigurationRecordersCommand)
+                    .resolves({
+                        ConfigurationRecorders: [
+                            {name: 'default'}
+                        ]
+                    });
+
+                mockConfigClient
+                    .on(DescribeDeliveryChannelsCommand)
+                    .resolves({
+                        DeliveryChannels: [
+                            {name: 'delivery-channel'}
+                        ]
+                    });
+
+                const actual = await isConfigEnabled();
+                assert.strictEqual(actual, true);
+            });
+
+        });
 
         describe('getAllAggregatorResources', () => {
 

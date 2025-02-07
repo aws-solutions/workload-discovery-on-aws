@@ -11,11 +11,12 @@ const logger = new Logger({serviceName: 'WdMetricsLambda'});
 
 const s3Client = new S3();
 
-const METRIC_EVENT_VERSION = '1';
+const METRIC_EVENT_VERSION = '2';
 
 type DeploymentMetric = {
     costFeatureEnabled: boolean;
     crossAccountDiscovery: string;
+    identityType: string;
     openSearchInstanceType: string;
     neptuneInstanceClass: string;
 };
@@ -55,6 +56,7 @@ const envSchema = z.object({
     CROSS_ACCOUNT_DISCOVERY: z.string(),
     DIAGRAMS_BUCKET: z.string(),
     GRAPHQL_API_ENDPOINT: z.string().url(),
+    IDENTITY_TYPE: z.enum(['Cognito', 'Google', 'OIDC', 'SAML']),
     METRICS_URL: z.string().url(),
     METRICS_UUID: z.string().uuid(),
     SOLUTION_ID: z.string(),
@@ -89,6 +91,7 @@ export async function handler(): Promise<MetricsPayload> {
         GRAPHQL_API_ENDPOINT: graphQlApiEndpoint,
         DIAGRAMS_BUCKET: diagramsBucket,
         COST_BUCKET: costBucket,
+        IDENTITY_TYPE: identityType,
         NEPTUNE_INSTANCE_CLASS: neptuneInstanceClass,
         OPENSEARCH_INSTANCE_TYPE: openSearchInstanceType,
     } = envSchema.parse(process.env);
@@ -111,6 +114,7 @@ export async function handler(): Promise<MetricsPayload> {
             totalDiagrams,
             costFeatureEnabled,
             crossAccountDiscovery,
+            identityType,
             openSearchInstanceType,
             neptuneInstanceClass,
             ...accountMetric,

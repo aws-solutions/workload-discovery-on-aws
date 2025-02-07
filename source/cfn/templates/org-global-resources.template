@@ -111,7 +111,7 @@ Resources:
                 Action:
                   - s3:GetJobTagging
                 Resource:
-                  - !Sub arn:${AWS::Partition}:s3:${AWS::Region}:${AWS::AccountId}:job/*
+                  - !Sub arn:${AWS::Partition}:s3:*:${AWS::AccountId}:job/*
         - PolicyName: MyApplicationsS3StorageLensTaggingPolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -120,7 +120,7 @@ Resources:
                 Action:
                   - s3:GetStorageLensConfigurationTagging
                 Resource:
-                  - !Sub arn:${AWS::Partition}:s3:${AWS::Region}:${AWS::AccountId}:storage-lens/*
+                  - !Sub arn:${AWS::Partition}:s3:*:${AWS::AccountId}:storage-lens/*
         - PolicyName: MyApplicationsApiGatewayTaggingPolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -146,12 +146,12 @@ Resources:
                 Action:
                   - cloudformation:DescribeStacks
                 Resource:
-                  - !Sub arn:${AWS::Partition}:cloudformation:*:*:stack/*
+                  - !Sub arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/*
               - Effect: Allow
                 Action:
                   - cloudformation:UpdateStack
                 Resource:
-                  - !Sub arn:${AWS::Partition}:cloudformation:*:*:stack/*
+                  - !Sub arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/*
                 Condition:
                   'Null':
                     'aws:RequestTag/awsApplication': false
@@ -163,7 +163,7 @@ Resources:
                 Action:
                   - codebuild:UpdateProject
                 Resource:
-                  - !Sub arn:${AWS::Partition}:codebuild:*:*:project/*
+                  - !Sub arn:${AWS::Partition}:codebuild:*:${AWS::AccountId}:project/*
                 Condition:
                   'Null':
                     'aws:RequestTag/awsApplication': false
@@ -171,7 +171,7 @@ Resources:
                 Action:
                   - codebuild:BatchGetProjects
                 Resource:
-                  - !Sub arn:${AWS::Partition}:codebuild:*:*:project/*
+                  - !Sub arn:${AWS::Partition}:codebuild:*:${AWS::AccountId}:project/*
 
   WorkloadDiscoveryRole:
     Type: AWS::IAM::Role
@@ -243,6 +243,22 @@ Resources:
                   - elasticloadbalancing:DescribeLoadBalancers
                   - elasticloadbalancing:DescribeTargetHealth
                   - elasticloadbalancing:DescribeTargetGroups
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: configReadsRecorders
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - config:DescribeConfigurationRecorders
+                Effect: Allow
+                Resource: !Sub arn:${AWS::Partition}:config:*:${AWS::AccountId}:configuration-recorder/*/*
+        - PolicyName: configReadsDeliveryChannels
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - config:DescribeDeliveryChannels
                 Effect: Allow
                 Resource: '*'
         - PolicyName: perspectiveSns
