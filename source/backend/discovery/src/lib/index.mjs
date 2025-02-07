@@ -34,7 +34,10 @@ export async function discoverResources(appSync, awsClient, config) {
         getAllConfigResources(configServiceClient, config.configAggregator)
     ]);
 
-    const accountsMap = new Map(accounts.filter(x => x.isIamRoleDeployed && !x.toDelete).map(x => [x.accountId, x]));
+    const accountsMap = new Map(accounts
+        .filter(x => x.isIamRoleDeployed && !x.toDelete)
+        .map(account => [account.accountId, R.evolve({regions: R.map(x => x.name)}, account)])
+    );
 
     const resources = await Promise.resolve(configResources)
         .then(R.filter(shouldDiscoverResource(accountsMap)))

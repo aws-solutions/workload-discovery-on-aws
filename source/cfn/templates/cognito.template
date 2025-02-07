@@ -326,8 +326,7 @@ Resources:
       ProviderType: SAML
       ProviderDetails:
         MetadataURL: !Ref SAMLMetadataURL
-      AttributeMapping:
-        email: Attribute
+      AttributeMapping: !Ref AttributeMapping
       IdpIdentifiers:
         - IdpIdentifier
   

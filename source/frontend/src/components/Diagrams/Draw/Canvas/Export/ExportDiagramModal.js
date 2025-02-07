@@ -20,7 +20,38 @@ import {exportJSON} from './JSON/CreateJSONExport';
 import * as R from 'ramda';
 import {useDrawIoUrl} from '../../../../Hooks/useDrawIoUrl';
 import {useCreateApplication} from '../../../../Hooks/useMyApplications';
+import {regionMap} from '../../../../../Utils/Dictionaries/RegionMap';
 import {PSEUDO_RESOURCE_TYPES} from '../../../../../config/constants';
+
+const regionsNoGlobal = R.reject(x => x.id === 'global', regionMap);
+
+const createAccountRegionMap = R.pipe(
+    R.filter(x => x.data.type === 'resource'),
+    R.map(({data}) => {
+        return {
+            accountId: data.properties.accountId,
+            region: data.properties.awsRegion,
+        };
+    }),
+    R.uniqBy(x => `${x.accountId}|${x.region}`),
+    R.groupBy(x => x.accountId),
+    Object.entries,
+    R.map(([accountId, regions]) => {
+        // any account that only has global resources needs to provide an option
+        // for the region where the application can be created so we allow the
+        // user pick any region
+        if(regions.length === 1 && regions[0].region === 'global') {
+            return [accountId, regionsNoGlobal.map(x => {
+                return {
+                    accountId,
+                    region: x.id,
+                };
+            })];
+        }
+        return [accountId, R.reject(x => x.region === 'global', regions)];
+    }),
+    Object.fromEntries
+);
 
 const ExportDiagramModal = ({
     canvas,
@@ -79,9 +110,11 @@ const ExportDiagramModal = ({
             json: filename == null,
             svg: filename == null,
         };
-
-        setIsExportButtonDisabled(missingValues[exportType] || error);
+        setIsExportButtonDisabled(
+            R.isEmpty(elements.nodes) || missingValues[exportType] || error
+        );
     }, [
+        elements,
         exportType,
         applicationName,
         selectedAccount,
@@ -91,27 +124,8 @@ const ExportDiagramModal = ({
     ]);
 
     useEffect(() => {
-        if (!R.isEmpty(elements)) {
-            const resources = elements.nodes
-                .filter(
-                    x =>
-                        x.data.type === 'resource' &&
-                        x.data.properties.awsRegion !== 'global'
-                )
-                .map(({data}) => {
-                    return {
-                        accountId: data.properties.accountId,
-                        region: data.properties.awsRegion,
-                    };
-                });
-
-            const accountsObj = R.groupBy(
-                x => x.accountId,
-                R.uniqBy(x => {
-                    return `${x.accountId}|${x.region}`;
-                }, resources)
-            );
-
+        if (!R.isEmpty(elements?.nodes ?? [])) {
+            const accountsObj = createAccountRegionMap(elements.nodes);
             setAccountsObj(accountsObj);
         }
     }, [elements]);

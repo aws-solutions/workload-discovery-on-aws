@@ -12,6 +12,7 @@ const AWS_ACCOUNT_ID_3 = '333333333333';
 const AWS_ACCOUNT_ID_4 = '444444444444';
 const EU_WEST_1 = 'eu-west-1';
 const EU_WEST_2 = 'eu-west-2';
+const GLOBAL = 'global';
 
 const EXTERNAL_ID = 'stsExternalId'
 
@@ -36,6 +37,10 @@ describe('index.js', () => {
     }
 
     class defaultMockResourceGroupsTaggingAPI {
+        constructor({region}) {
+            if(region === GLOBAL) throw new Error('global region cannot be used to tag resources');
+        }
+
         async tagResources() {
             return {
                 FailedResourcesMap: {},
@@ -164,12 +169,45 @@ describe('index.js', () => {
                         'Validation error for name: Application name must satisfy the following pattern: [-.\\w]+',
                         'Validation error for resources/1/id: Not a valid ARN',
                         'Validation error for resources/1/accountId: Not a valid account ID',
-                        "Validation error for resources/1/region: Invalid enum value. Expected 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'fdfvdf'",
+                        "Validation error for resources/1/region: Invalid enum value. Expected 'global' | 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'fdfvdf'",
                         'Validation error for resources/2/id: Required',
                         'Validation error for resources/2/accountId: Required',
                         'Validation error for resources/2/region: Required',
                         'Validation error for resources/3/id: String must contain at most 4096 character(s)',
                     ]);
+                });
+            });
+
+            it('should reject attempt to create application using global region', async () => {
+                return _handler(
+                    {
+                        ...defaultMockDependencies
+                    },
+                    mockEnv
+                )(
+                    {
+                        arguments: {
+                            accountId: AWS_ACCOUNT_ID_1,
+                            region: GLOBAL,
+                            name: 'globalApplication',
+                            resources: [
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET',
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                    region: EU_WEST_1,
+                                },
+                            ],
+                        },
+                        info: {
+                            fieldName: 'createApplication',
+                        },
+                    },
+                    {}
+                ).catch(err => {
+                    assert.strictEqual(
+                        err.message,
+                        "Validation error for region: Invalid enum value. Expected 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'global'"
+                    );
                 });
             });
 
@@ -400,6 +438,50 @@ describe('index.js', () => {
                 });
             });
 
+            it('should tag global resources', async () => {
+                const actual = await _handler(
+                    {
+                        ...defaultMockDependencies
+                    },
+                    mockEnv
+                )(
+                    {
+                        arguments: {
+                            accountId: AWS_ACCOUNT_ID_1,
+                            region: EU_WEST_1,
+                            name: APPLICATION_NAME,
+                            resources: [
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET',
+                                    region: EU_WEST_1,
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                },
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET1',
+                                    region: EU_WEST_1,
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                },
+                                {
+                                    id: `arn:aws:iam::${AWS_ACCOUNT_ID_1}:role/myRole`,
+                                    region: GLOBAL,
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                }
+                            ],
+                        },
+                        info: {
+                            fieldName: 'createApplication',
+                        },
+                    },
+                    {}
+                );
+
+                assert.deepEqual(actual, {
+                    applicationTag: APPLICATION_TAG,
+                    name: APPLICATION_NAME,
+                    unprocessedResources: [],
+                });
+            });
+
             it('should support china and gov-cloud regions', async () => {
                 const actual = await _handler(
                     {
@@ -448,59 +530,60 @@ describe('index.js', () => {
                     unprocessedResources: [],
                 });
             });
-        });
-        it('should support >20 resources in a diagram', async () => {
-            const MockResourceGroupsTaggingAPI = vi.fn();
-            MockResourceGroupsTaggingAPI.prototype.tagResources = vi
-                .fn()
-                .mockImplementation(() =>
-                    Promise.resolve({
-                        FailedResourcesMap: {},
-                    })
+
+            it('should support >20 resources in a diagram', async () => {
+                const MockResourceGroupsTaggingAPI = vi.fn();
+                MockResourceGroupsTaggingAPI.prototype.tagResources = vi
+                    .fn()
+                    .mockImplementation(() =>
+                        Promise.resolve({
+                            FailedResourcesMap: {},
+                        })
+                    );
+
+                const RESOURCE_COUNT = 30;
+
+                const actual = await _handler(
+                    {
+                        ServiceCatalogAppRegistry:
+                        defaultMockServiceCatalogAppRegistry,
+                        credentialProvider: defaultCredentialProvider,
+                        ResourceGroupsTaggingAPI: MockResourceGroupsTaggingAPI,
+                    },
+                    mockEnv
+                )(
+                    {
+                        arguments: {
+                            accountId: AWS_ACCOUNT_ID_1,
+                            region: EU_WEST_1,
+                            name: APPLICATION_NAME,
+                            resources: R.times(
+                                i => ({
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                    region: 'eu-west-1',
+                                    id: `arn:aws-cn:s3:::DOC-EXAMPLE-BUCKET${i}`,
+                                }),
+                                RESOURCE_COUNT
+                            ),
+                        },
+                        info: {
+                            fieldName: 'createApplication',
+                        },
+                    },
+                    {}
                 );
 
-            const RESOURCE_COUNT = 30;
+                assert.deepEqual(actual, {
+                    applicationTag: APPLICATION_TAG,
+                    name: APPLICATION_NAME,
+                    unprocessedResources: [],
+                });
 
-            const actual = await _handler(
-                {
-                    ServiceCatalogAppRegistry:
-                        defaultMockServiceCatalogAppRegistry,
-                    credentialProvider: defaultCredentialProvider,
-                    ResourceGroupsTaggingAPI: MockResourceGroupsTaggingAPI,
-                },
-                mockEnv
-            )(
-                {
-                    arguments: {
-                        accountId: AWS_ACCOUNT_ID_1,
-                        region: EU_WEST_1,
-                        name: APPLICATION_NAME,
-                        resources: R.times(
-                            i => ({
-                                accountId: AWS_ACCOUNT_ID_1,
-                                region: 'eu-west-1',
-                                id: `arn:aws-cn:s3:::DOC-EXAMPLE-BUCKET${i}`,
-                            }),
-                            RESOURCE_COUNT
-                        ),
-                    },
-                    info: {
-                        fieldName: 'createApplication',
-                    },
-                },
-                {}
-            );
+                const {calls} =
+                    MockResourceGroupsTaggingAPI.prototype.tagResources.mock;
 
-            assert.deepEqual(actual, {
-                applicationTag: APPLICATION_TAG,
-                name: APPLICATION_NAME,
-                unprocessedResources: [],
+                assert.equal(calls.length, 2);
             });
-
-            const {calls} =
-                MockResourceGroupsTaggingAPI.prototype.tagResources.mock;
-
-            assert.equal(calls.length, 2);
         });
 
         describe('unknown field', () => {

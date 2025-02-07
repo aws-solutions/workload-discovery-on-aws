@@ -3,6 +3,7 @@
 
 import boto3
 import json
+from botocore.exceptions import ClientError
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities import parameters
 from crhelper import CfnResource
@@ -44,16 +45,21 @@ def create(event: Event, _) -> None:
     logger.info('Creating identity provider')
     props: IdentityProviderProperties = event['ResourceProperties']
     provider_name = props['ProviderName']
-    client_secret_arn = props['ClientSecretArn']
+    provider_type = props['ProviderType']
     attribute_mappings = json.loads(props['AttributeMapping'])
 
-    client_secret = ssm_provider.get(client_secret_arn)
+    if provider_type == 'SAML':
+        provider_details = props['ProviderDetails']
+    else:
+        client_secret_arn = props['ClientSecretArn']
+        client_secret = ssm_provider.get(client_secret_arn)
+        provider_details = props['ProviderDetails'] | {'client_secret': client_secret}
 
     resp = cognito_client.create_identity_provider(
         UserPoolId=props['UserPoolId'],
         ProviderName=provider_name,
-        ProviderType=props['ProviderType'],
-        ProviderDetails=props['ProviderDetails'] | {'client_secret': client_secret},
+        ProviderType=provider_type,
+        ProviderDetails=provider_details,
         AttributeMapping=attribute_mappings,
         IdpIdentifiers=props['IdpIdentifiers']
     )
@@ -69,15 +75,20 @@ def update(event: Event, _) -> None:
     logger.info('Updating identity provider')
     props: IdentityProviderProperties = event['ResourceProperties']
     provider_name = props['ProviderName']
-    client_secret_arn = props['ClientSecretArn']
+    provider_type = props['ProviderType']
     attribute_mappings = json.loads(props['AttributeMapping'])
 
-    client_secret = ssm_provider.get(client_secret_arn)
+    if provider_type == 'SAML':
+        provider_details = props['ProviderDetails']
+    else:
+        client_secret_arn = props['ClientSecretArn']
+        client_secret = ssm_provider.get(client_secret_arn)
+        provider_details = props['ProviderDetails'] | {'client_secret': client_secret}
 
     resp = cognito_client.update_identity_provider(
         UserPoolId=props['UserPoolId'],
         ProviderName=provider_name,
-        ProviderDetails=props['ProviderDetails'] | {'client_secret': client_secret},
+        ProviderDetails=provider_details,
         AttributeMapping=attribute_mappings,
         IdpIdentifiers=props['IdpIdentifiers']
     )
@@ -92,13 +103,20 @@ def update(event: Event, _) -> None:
 def delete(event: Event, _) -> None:
     logger.info('Deleting identity provider')
     props: IdentityProviderProperties = event['ResourceProperties']
+    user_pool_id = props['UserPoolId']
 
-    cognito_client.delete_identity_provider(
-        UserPoolId=props['UserPoolId'],
-        ProviderName=props['ProviderName']
-    )
+    try:
+        cognito_client.delete_identity_provider(
+            UserPoolId=user_pool_id,
+            ProviderName=props['ProviderName']
+        )
 
-    logger.info('Identity provider deleted.')
+        logger.info('Identity provider deleted.')
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+            logger.info(f'{user_pool_id} has already been deleted')
+        else:
+            raise e
 
 
 @logger.inject_lambda_context

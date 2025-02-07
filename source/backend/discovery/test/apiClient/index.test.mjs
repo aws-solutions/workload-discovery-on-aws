@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {assert, afterAll, beforeAll, describe, it} from 'vitest';
+import {assert, afterAll, afterEach, beforeAll, beforeEach, describe, it, vi} from 'vitest';
+import * as R from 'ramda';
 import sinon from 'sinon';
 import createAppSync from '../../src/lib/apiClient/appSync.mjs';
 import {createApiClient} from '../../src/lib/apiClient/index.mjs';
@@ -21,7 +22,9 @@ import UpdateIndexedResourcesPartialSuccess from '../mocks/agents/UpdateIndexedR
 import {
     CONTAINS,
     AWS_LAMBDA_FUNCTION,
-    FUNCTION_RESPONSE_SIZE_TOO_LARGE, ACCESS_DENIED
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE,
+    ACCESS_DENIED,
+    ACCESS_DENIED_EXCEPTION,
 } from '../../src/lib/constants.mjs';
 import {generateBaseResource} from '../generator.mjs';
 import {UnprocessedOpenSearchResourcesError} from '../../src/lib/errors.mjs';
@@ -40,6 +43,14 @@ describe('index.mjs', () => {
         globalDispatcher = getGlobalDispatcher();
     });
 
+    beforeEach(() => {
+        vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
     const defaultMockAwsClient = {
         createEc2Client() {
             return {
@@ -49,7 +60,11 @@ describe('index.mjs', () => {
             };
         },
         createConfigServiceClient() {
-            return {}
+            return {
+                async isConfigEnabled() {
+                    return true;
+                }
+            }
         },
         createOrganizationsClient() {
             return {
@@ -83,11 +98,18 @@ describe('index.mjs', () => {
         it('should recover from premature connection closed error', async () => {
 
             setGlobalDispatcher(ConnectionClosedAgent)
-            const actual = await apiClient.storeRelationships({concurrency:10, batchSize:10}, [{
+            const resultPromise = apiClient.storeRelationships({concurrency:10, batchSize:10}, [{
                 source: 'sourceArn',
                 target: 'targetArn',
                 label: CONTAINS
             }]);
+
+            // API requests retry with a gap of a second between each try so we need to advance
+            // the Vitest fake timer by more than a second to ensure the retry completes
+            await vi.advanceTimersByTimeAsync(2000);
+
+            const actual = await resultPromise;
+
             assert.deepEqual(actual, {
                 errors: [],
                 results: [
@@ -368,9 +390,9 @@ describe('index.mjs', () => {
                 name: 'Account X',
                 isIamRoleDeployed: true,
                 regions: [
-                    EU_WEST_1,
-                    US_EAST_1
-                ]
+                    {isConfigEnabled: true, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
+                ],
             });
             assert.deepEqual(accY, {
                 accountId: ACCOUNT_Y,
@@ -381,8 +403,8 @@ describe('index.mjs', () => {
                 },
                 name: 'Account Y',
                 isIamRoleDeployed: true,
-                regions: [
-                    EU_WEST_1
+                regions: [{
+                    isConfigEnabled: true, name: EU_WEST_1}
                 ]
             });
 
@@ -401,6 +423,9 @@ describe('index.mjs', () => {
                 },
                 createConfigServiceClient() {
                     return {
+                        async isConfigEnabled() {
+                            return true;
+                        },
                         async getConfigAggregator() {
                             return {
                                 OrganizationAggregationSource: {
@@ -449,8 +474,8 @@ describe('index.mjs', () => {
                 isIamRoleDeployed: true,
                 isManagementAccount: true,
                 regions: [
-                    EU_WEST_1,
-                    US_EAST_1
+                    {isConfigEnabled: true, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
                 ],
                 toDelete: false
             });
@@ -466,8 +491,8 @@ describe('index.mjs', () => {
                 organizationId: 'o-exampleorgid',
                 isIamRoleDeployed: true,
                 regions: [
-                    EU_WEST_1,
-                    US_EAST_1
+                    {isConfigEnabled: true, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
                 ],
                 toDelete: false
             });
@@ -488,6 +513,9 @@ describe('index.mjs', () => {
                 },
                 createConfigServiceClient() {
                     return {
+                        async isConfigEnabled() {
+                            return true;
+                        },
                         async getConfigAggregator() {
                             return {
                                 OrganizationAggregationSource: {
@@ -535,7 +563,8 @@ describe('index.mjs', () => {
                 isIamRoleDeployed: true,
 
                 regions: [
-                    {name: EU_WEST_1}, {name: US_EAST_1}
+                    {isConfigEnabled: true, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
                 ],
                 toDelete: true
             });
@@ -554,6 +583,9 @@ describe('index.mjs', () => {
                 },
                 createConfigServiceClient() {
                     return {
+                        async isConfigEnabled() {
+                            return true;
+                        },
                         async getConfigAggregator() {
                             return {
                                 OrganizationAggregationSource: {
@@ -601,11 +633,278 @@ describe('index.mjs', () => {
                 isManagementAccount: true,
                 lastCrawled: "2022-10-25T00:00:00.000Z",
                 regions: [
-                    EU_WEST_1,
-                    US_EAST_1
+                    {isConfigEnabled: true, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
                 ],
                 toDelete: false
             });
+        });
+
+        it('should handle accounts where global resources role does not have Config permissions', async () => {
+            setGlobalDispatcher(GetAccountsSelfManaged);
+
+            const mockAwsClient = {
+                createStsClient() {
+                    return {
+                        getCredentials: sinon.stub()
+                            .onFirstCall().resolves({accessKeyId: 'accessKeyIdX', secretAccessKey: 'secretAccessKeyX', sessionToken: 'sessionTokenX'})
+                            .onSecondCall().resolves({accessKeyId: 'accessKeyIdY', secretAccessKey: 'secretAccessKeyY', sessionToken: 'sessionTokenY'})
+                    }
+                },
+                createConfigServiceClient(credentials, region) {
+                    const accessDeniedError = new Error('Access denied');
+                    accessDeniedError.name = ACCESS_DENIED_EXCEPTION;
+
+                    return {
+                        async isConfigEnabled() {
+                            if(credentials.accessKeyId === 'accessKeyIdX') throw  accessDeniedError;
+                            return true;
+                        }
+                    }
+                },
+                createEc2Client() {
+                    return {
+                        async getAllRegions() {
+                            return [{name: EU_WEST_1}, {name: US_EAST_1}]
+                        }
+                    };
+                }
+            };
+
+            const client = createApiClient({...defaultMockAwsClient, ...mockAwsClient}, appSync, {
+                ...defaultConfig, isUsingOrganizations: false});
+
+            const accounts = await client.getAccounts();
+
+            const accX = accounts.find(x => x.accountId === ACCOUNT_X);
+            const accY = accounts.find(x => x.accountId === ACCOUNT_Y);
+
+            assert.deepEqual(accX, {
+                accountId: ACCOUNT_X,
+                credentials: {
+                    accessKeyId: 'accessKeyIdX',
+                    secretAccessKey: 'secretAccessKeyX',
+                    sessionToken: 'sessionTokenX',
+                },
+                name: 'Account X',
+                isIamRoleDeployed: true,
+                regions: [
+                    {isConfigEnabled: null, name: EU_WEST_1,},
+                    {isConfigEnabled: null, name: US_EAST_1,}
+                ],
+            });
+            assert.deepEqual(accY, {
+                accountId: ACCOUNT_Y,
+                credentials: {
+                    accessKeyId: 'accessKeyIdY',
+                    secretAccessKey: 'secretAccessKeyY',
+                    sessionToken: 'sessionTokenY',
+                },
+                name: 'Account Y',
+                isIamRoleDeployed: true,
+                regions: [{
+                    isConfigEnabled: true, name: EU_WEST_1}
+                ]
+            });
+
+        });
+
+        it('should identify regions in accounts where Config is not enabled', async () => {
+            setGlobalDispatcher(GetAccountsSelfManaged);
+
+            const mockAwsClient = {
+                createStsClient() {
+                    return {
+                        getCredentials: sinon.stub()
+                            .onFirstCall().resolves({accessKeyId: 'accessKeyIdX', secretAccessKey: 'secretAccessKeyX', sessionToken: 'sessionTokenX'})
+                            .onSecondCall().resolves({accessKeyId: 'accessKeyIdY', secretAccessKey: 'secretAccessKeyY', sessionToken: 'sessionTokenY'})
+                    }
+                },
+                createConfigServiceClient(credentials, region) {
+                    const accessDeniedError = new Error('Access denied');
+                    accessDeniedError.name = ACCESS_DENIED_EXCEPTION;
+
+                    return {
+                        async isConfigEnabled() {
+                            return region !== EU_WEST_1;
+                        }
+                    }
+                },
+                createEc2Client() {
+                    return {
+                        async getAllRegions() {
+                            return [{name: EU_WEST_1}, {name: US_EAST_1}]
+                        }
+                    };
+                }
+            };
+
+            const client = createApiClient({...defaultMockAwsClient, ...mockAwsClient}, appSync, {
+                ...defaultConfig, isUsingOrganizations: false});
+
+            const accounts = await client.getAccounts();
+
+            const accX = accounts.find(x => x.accountId === ACCOUNT_X);
+            const accY = accounts.find(x => x.accountId === ACCOUNT_Y);
+
+            assert.deepEqual(accX, {
+                accountId: ACCOUNT_X,
+                credentials: {
+                    accessKeyId: 'accessKeyIdX',
+                    secretAccessKey: 'secretAccessKeyX',
+                    sessionToken: 'sessionTokenX',
+                },
+                name: 'Account X',
+                isIamRoleDeployed: true,
+                regions: [
+                    {isConfigEnabled: false, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
+                ],
+            });
+            assert.deepEqual(accY, {
+                accountId: ACCOUNT_Y,
+                credentials: {
+                    accessKeyId: 'accessKeyIdY',
+                    secretAccessKey: 'secretAccessKeyY',
+                    sessionToken: 'sessionTokenY',
+                },
+                name: 'Account Y',
+                isIamRoleDeployed: true,
+                regions: [{
+                    isConfigEnabled: false, name: EU_WEST_1}
+                ]
+            });
+
+        });
+
+    });
+
+    describe('addCrawledAccounts', () => {
+
+        it('should add last crawled time if account has deployed discovery IAM role', async () => {
+            const mockAddAccount = vi.fn();
+            const apiClient = createApiClient(defaultMockAwsClient, {
+                ...appSync,
+                addAccounts: mockAddAccount
+            }, defaultConfig);
+
+            const accountX = {
+                accountId: ACCOUNT_X,
+                credentials: {
+                    accessKeyId: 'accessKeyIdX',
+                    secretAccessKey: 'secretAccessKeyX',
+                    sessionToken: 'sessionTokenX',
+                },
+                toDelete: false,
+                name: 'Account X',
+                isIamRoleDeployed: true,
+                regions: [
+                    {isConfigEnabled: false, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
+                ],
+                resourcesRegionMetadata: {
+                    accountId: ACCOUNT_X,
+                    count: 2,
+                    regions: [
+                        {
+                            name: EU_WEST_1,
+                            resourceTypes: [
+                                {
+                                    count: 1,
+                                    type: 'AWS::EC2::Instance',
+                                },
+                            ],
+                        },
+                        {
+                            name: US_EAST_1,
+                            resourceTypes: [
+                                {
+                                    count: 1,
+                                    type: 'AWS::EC2::Instance',
+                                },
+                            ],
+                        }
+                    ],
+                }
+            };
+
+            const date = new Date('2024-01-01');
+            vi.setSystemTime(date)
+
+            await apiClient.addCrawledAccounts([
+                accountX
+            ]);
+
+            const calls = mockAddAccount.mock.calls;
+
+            assert.deepEqual(calls[0][0], [{
+                    ...R.omit(['credentials', 'toDelete'], accountX),
+                    regions: accountX.regions.map(R.omit(['isConfigEnabled'])),
+                    lastCrawled: '2024-01-01T00:00:00.000Z',
+                }],
+            );
+        });
+
+        it('should not update last crawled time if account has not deployed discovery IAM role', async () => {
+            const mockAddAccount = vi.fn();
+            const apiClient = createApiClient(defaultMockAwsClient, {
+                ...appSync,
+                addAccounts: mockAddAccount
+            }, defaultConfig);
+
+            const accountX = {
+                accountId: ACCOUNT_X,
+                credentials: {
+                    accessKeyId: 'accessKeyIdX',
+                    secretAccessKey: 'secretAccessKeyX',
+                    sessionToken: 'sessionTokenX',
+                },
+                lastCrawled: '2023-01-01T00:00:00.000Z',
+                toDelete: false,
+                name: 'Account X',
+                isIamRoleDeployed: false,
+                regions: [
+                    {isConfigEnabled: false, name: EU_WEST_1,},
+                    {isConfigEnabled: true, name: US_EAST_1,}
+                ],
+                resourcesRegionMetadata: {
+                    accountId: ACCOUNT_X,
+                    count: 2,
+                    regions: [
+                        {
+                            name: EU_WEST_1,
+                            resourceTypes: [
+                                {
+                                    count: 1,
+                                    type: 'AWS::EC2::Instance',
+                                },
+                            ],
+                        },
+                        {
+                            name: US_EAST_1,
+                            resourceTypes: [
+                                {
+                                    count: 1,
+                                    type: 'AWS::EC2::Instance',
+                                },
+                            ],
+                        }
+                    ],
+                }
+            };
+
+            await apiClient.addCrawledAccounts([
+                accountX
+            ]);
+
+            const calls = mockAddAccount.mock.calls;
+
+            assert.deepEqual(calls[0][0], [{
+                    ...R.omit(['credentials', 'toDelete'], accountX),
+                    regions: accountX.regions.map(R.omit(['isConfigEnabled'])),
+                    lastCrawled: '2023-01-01T00:00:00.000Z',
+                }],
+            );
         });
 
     });

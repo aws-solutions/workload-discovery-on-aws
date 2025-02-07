@@ -13,6 +13,9 @@ Parameters:
   DiscoveryTaskLogGroup:
     Type: String
 
+  ClusterLifecycleEventsLogGroup:
+    Type: String
+
 Resources:
 
   ApplicationDashboard:
@@ -23,9 +26,15 @@ Resources:
       LogPatternSets:
         - PatternSetName: DiscoveryPatternSet
           LogPatterns:
+              - PatternName: DiscoveryProcessOutOfMemory
+                Pattern: 'Container killed due to memory usage'
+                Rank: 1
               - PatternName: IamRoleNotDeployed
                 Pattern: 'The discovery for this account will be skipped'
-                Rank: 1
+                Rank: 2
+              - PatternName: ConfigEnableCheckFailed
+                Pattern: 'AWS Config enablement check failed'
+                Rank: 3
       ComponentMonitoringSettings:
         - ComponentARN: !Ref ClusterArn
           Tier: DEFAULT
@@ -34,5 +43,8 @@ Resources:
             ConfigurationDetails:
               Logs:
                 - LogGroupName: !Ref DiscoveryTaskLogGroup
+                  LogType: APPLICATION
+                  PatternSet: DiscoveryPatternSet
+                - LogGroupName: !Ref ClusterLifecycleEventsLogGroup
                   LogType: APPLICATION
                   PatternSet: DiscoveryPatternSet

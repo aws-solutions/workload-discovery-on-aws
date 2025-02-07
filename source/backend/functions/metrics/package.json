@@ -1,6 +1,6 @@
 {
   "name": "metrics",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -33,13 +33,13 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.4.1",
     "@types/ramda": "^0.30.0",
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "aws-sdk-client-mock": "^3.0.0",
     "chai": "^5.1.1",
     "msw": "^2.3.1",
     "sinon": "^18.0.0",
     "tsx": "^4.15.6",
     "typescript": "5.4.5",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.9"
   }
 }

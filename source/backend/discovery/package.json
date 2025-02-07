@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.mjs",
   "type": "module",
@@ -46,14 +46,14 @@
     "jmespath": "^0.16.0",
     "p-throttle": "6.1.0",
     "ramda": "0.28.0",
-    "undici": "6.19.8",
+    "undici": "6.21.1",
     "winston": "3.3.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "aws-sdk-client-mock": "3.0.1",
     "sinon": "^17.0.0",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.9"
   },
   "volta": {
     "node": "20.12.2"

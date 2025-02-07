@@ -401,6 +401,14 @@ export function createConfigServiceClient(credentials, region) {
             }
 
             return resources;
+        },
+        async isConfigEnabled() {
+            const [{ConfigurationRecorders}, {DeliveryChannels}] = await Promise.all([
+                configClient.describeConfigurationRecorders(),
+                configClient.describeDeliveryChannels()
+            ]);
+
+            return !R.isEmpty(ConfigurationRecorders) && !R.isEmpty(DeliveryChannels);
         }
     };
 }
