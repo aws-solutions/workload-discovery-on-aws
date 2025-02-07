@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.2.0)
+# Workload Discovery on AWS (v2.2.1)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -37,12 +37,12 @@ to learn about costs.
 
 ## Usage
 
-A web interface is included with Workload Discovery. Refer to the [documentation](https://awslabs.github.io/workload-discovery-on-aws) 
+A web interface is included with Workload Discovery. Refer to the [documentation](https://github.com/aws-solutions/workload-discovery-on-aws) 
 to learn how to use the application.
 
 ## Feature requests
 
-To submit an idea for a feature you would like to see implemented, please [create an issue](https://github.com/awslabs/workload-discovery-on-aws/issues) and use the 'enhancement' label. Your issue will be available on the [project board](https://github.com/awslabs/workload-discovery-on-aws/projects/2) for others to vote on.
+To submit an idea for a feature you would like to see implemented, please [create an issue](https://github.com/aws-solutions/workload-discovery-on-aws/issues) and use the 'enhancement' label.
 
 ## Architecture
 

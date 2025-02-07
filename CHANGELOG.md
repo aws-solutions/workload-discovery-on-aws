@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2025-02-07
+
+### Added
+- Alert in AppInsights dashboard if discovery process runs out of memory
+- Alert in AppInsights dashboard if Config not enabled in discoverable region
+
+### Fixed
+- Null pointer error in SAML identity provider custom resource [567](https://github.com/aws-solutions/workload-discovery-on-aws/issues/567)
+- Incorrect description string in diagram settings filter when hiding resources
+- Erroneous validation error when exporting diagrams with global resources to myApplications
+- Empty region dropdown list when exporting diagram with only global resources to myApplications
+- Security [vulnerability](https://github.com/advisories/GHSA-9crc-q9x8-hgqq) in `vite`.
+- Security [vulnerability](https://github.com/advisories/GHSA-vg6x-rcgg-rjx6) in `vitest`.
+- Security [vulnerability](https://github.com/advisories/GHSA-c76h-2ccp-4975) in `undici`.
+- Security [vulnerability](https://github.com/advisories/GHSA-gmj6-6f8f-6699) in `jinja`.
+- Security [vulnerability](https://github.com/advisories/GHSA-q2x7-8rv6-6q7h) in `jinja`.
+
+### Changed
+- Use of `FARGATE` or `FARGATE_SPOT` for discovery process is configurable via a CloudFormation parameter.
+
 ## [2.2.0] - 2024-11-20
 
 ### Added
@@ -44,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Failed writes to OpenSearch should stop the corresponding write being made to Neptune
 - Metrics lambda times out when hundreds of accounts have been imported
 
-## [2.1.15] - 2024-9-30
+## [2.1.15] - 2024-09-30
 
 ### Fixed
 
@@ -53,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [vulnerability](https://github.com/advisories/GHSA-9cwx-2883-4wfx) in `vite`.
 - Security [vulnerability](https://github.com/advisories/GHSA-64vr-g452-qvp3) in `vite`.
 
-## [2.1.14] - 2024-9-18
+## [2.1.14] - 2024-09-18
 
 ### Fixed
 
@@ -64,25 +84,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [vulnerability](https://github.com/advisories/GHSA-9wv6-86v2-598j) in `path-to-regexp`.
 - Security [vulnerability](https://github.com/advisories/GHSA-m6fv-jmcg-4jfg) in `send`.
 
-## [2.1.13] - 2024-8-16
+## [2.1.13] - 2024-08-16
 
 ### Fixed
 
 - Security [vulnerability](https://github.com/advisories/GHSA-8hc4-vh64-cxmj) in `axios`.
 
-## [2.1.12] - 2024-7-31
+## [2.1.12] - 2024-07-31
 
 ### Fixed
 
 - Security [vulnerability](https://github.com/advisories/GHSA-mpg4-rc92-vx8v) in `fast-xml-parser`.
 
-## [2.1.11] - 2024-7-23
+## [2.1.11] - 2024-07-23
 
 ### Changed
 
 - Use Amazon Linux 2023 as the base image for the discovery process Docker container
 
-## [2.1.10] - 2024-7-16
+## [2.1.10] - 2024-07-16
 
 ### Fixed
 
@@ -94,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Restrict egress for Neptune lambda security group to VPC IP address range. [531](https://github.com/aws-solutions/workload-discovery-on-aws/discussions/531)
 
-## [2.1.9] - 2024-6-24
+## [2.1.9] - 2024-06-24
 
 ### Fixed
 
@@ -105,14 +125,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed dev environment CDK build pipeline
 
-## [2.1.8] - 2024-6-13
+## [2.1.8] - 2024-06-13
 
 ### Fixed
 
 - Security [vulnerability](https://github.com/advisories/GHSA-2p57-rm9w-gvfp) in `ip`.
 - Security [vulnerability](https://github.com/advisories/GHSA-grv7-fg5c-xmjg) in `braces`.
 
-## [2.1.7] - 2024-5-15
+## [2.1.7] - 2024-05-15
 
 ### Fixed
 
@@ -124,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [vulnerability](https://github.com/advisories/GHSA-9qxr-qj54-h672) in `undici`.
 - Security [vulnerability](https://github.com/advisories/GHSA-m4v8-wqvr-p9f7) in `undici`.
 
-## [2.1.6] - 2024-2-22
+## [2.1.6] - 2024-02-22
 
 ### Fixed
 
@@ -132,14 +152,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [vulnerability](https://github.com/advisories/GHSA-78xj-cgh5-2h22) in `ip`.
 - Security [vulnerability](https://github.com/advisories/GHSA-3787-6prv-h9w3) in `undici`.
 
-## [2.1.5] - 2024-1-25
+## [2.1.5] - 2024-01-25
 
 ### Fixed
 
 - Security [vulnerability](https://github.com/advisories/GHSA-c24v-8rfc-w8vw) in `vite`.
 - Security [vulnerability](https://github.com/advisories/GHSA-p6mc-m468-83gw) in `lodash`.
 
-## [2.1.4] - 2024-1-18
+## [2.1.4] - 2024-01-18
 
 ### Fixed
 
@@ -159,25 +179,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comma in Service Name Results causes GraphQL type error [491](https://github.com/aws-solutions/workload-discovery-on-aws/issues/491)
 
 ### Changed
-- Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter. 
+- Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter.
 
 ## [2.1.2] - 2023-11-14
 
 ### Fixed
 
-- Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts 
-in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
+- Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts
+  in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
 - Only attempt to discover accounts from provided OU and its children, rather than whole organization.
 - Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading from the Config aggregator.
 - Remove Retain on organization-wide StackSet so IAM roles are no longer left in organization's accounts after solution is uninstalled.
-- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying 
-requests to DB if payload was too large.
+- Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying
+  requests to DB if payload was too large.
 
 ### Changed
-- Move GraphQL queries that queried whole Neptune database to use DynamoDB, significantly reducing load on Neptune and 
-improving rendering times on the frontend.
+- Move GraphQL queries that queried whole Neptune database to use DynamoDB, significantly reducing load on Neptune and
+  improving rendering times on the frontend.
 - Retrieve the following resource types from AWS Config advanced query rather than  `ListAggregateDiscoveredResources`
-and `BatchGetAggregateResourceConfig`.
+  and `BatchGetAggregateResourceConfig`.
   - `AWS::EC2::LaunchTemplate`
   - `AWS::EC2::TransitGateway`
   - `AWS::EC2::TransitGatewayAttachment`
@@ -252,31 +272,31 @@ and `BatchGetAggregateResourceConfig`.
 ### Added
 
 - Solution now ingests all resource types [supported](https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html), as well as the  following resource types
-    - `AWS::APIGateway::Resource`
-    - `AWS::APIGateway::Method`
-    - `AWS::APIGateway::Authorizer`
-    - `AWS::IAM::InlinePolicy`
-    - `AWS::IAM::ManagedPolicy`
-    - `AWS::ECS::Task`
-    - `AWS::EKS:::NodeGroup`
-    - `AWS::ElasticLoadBalancingV2::TargetGroup`
-    - `AWS::Cognito::UserPool`
-    - `AWS::EC2::Spot`
-    - `AWS::EC2::SpotFleet`
+  - `AWS::APIGateway::Resource`
+  - `AWS::APIGateway::Method`
+  - `AWS::APIGateway::Authorizer`
+  - `AWS::IAM::InlinePolicy`
+  - `AWS::IAM::ManagedPolicy`
+  - `AWS::ECS::Task`
+  - `AWS::EKS:::NodeGroup`
+  - `AWS::ElasticLoadBalancingV2::TargetGroup`
+  - `AWS::Cognito::UserPool`
+  - `AWS::EC2::Spot`
+  - `AWS::EC2::SpotFleet`
 - Large increase in number of relationships not captured by AWS Config, including, but not limited to:
-    - Lambda -> SNS/SQS/Kinesis/MSK/EFS
-    - AWS::APIGateway::Authorizer -> Cognito User Pool
-    - CloudFront -> ELB/ELBv2
-    - SecurityGroup -> SecurityGroup
-    - ELBv2 -> ELBv2 Listener -> ELBv2 Target Group -> ASG
-    - ECS Task -> EFS
-    - EKS Cluster -> NodeGroup/VPC/Subnet/SecurityGroup/IAM Role
-    - EKS NodeGroup -> ASG/VPC/Subnet/SecurityGroup/IAM Role/Launch Template
-    - Transit Gateway -> VPC/Subnet
+  - Lambda -> SNS/SQS/Kinesis/MSK/EFS
+  - AWS::APIGateway::Authorizer -> Cognito User Pool
+  - CloudFront -> ELB/ELBv2
+  - SecurityGroup -> SecurityGroup
+  - ELBv2 -> ELBv2 Listener -> ELBv2 Target Group -> ASG
+  - ECS Task -> EFS
+  - EKS Cluster -> NodeGroup/VPC/Subnet/SecurityGroup/IAM Role
+  - EKS NodeGroup -> ASG/VPC/Subnet/SecurityGroup/IAM Role/Launch Template
+  - Transit Gateway -> VPC/Subnet
 - New UI:
-    - Uses [Cloudscape Design](https://cloudscape.design/) System to make look and feel more consistent
-    - Migrated from modal dialogs to React router for page management
-    - New Views feature to allow users to scope searches to only resource types they are interested in
+  - Uses [Cloudscape Design](https://cloudscape.design/) System to make look and feel more consistent
+  - Migrated from modal dialogs to React router for page management
+  - New Views feature to allow users to scope searches to only resource types they are interested in
 
 ### Changed
 

@@ -7,6 +7,7 @@ import App from '../../../../../../App';
 import defaultResourceGraph from '../../../../../mocks/fixtures/getResourceGraph/default.json';
 import eksCluster from '../../../../../mocks/fixtures/getResourceGraph/eks-cluster.json';
 import eksNodeGroup from '../../../../../mocks/fixtures/getResourceGraph/nodegroup.json';
+import sqsLambda from '../../../../../mocks/fixtures/getResourceGraph/sqs-lambda.json';
 import {createSearchResourceHandler} from '../../../../../mocks/handlers';
 import {createSelfManagedPerspectiveMetadata} from '../../../../../vitest/testUtils';
 import {HttpResponse} from 'msw';
@@ -67,16 +68,6 @@ describe('Diagrams Page', () => {
 
         cy.findByRole('button', {name: /Diagram Settings/i}).click();
 
-        cy.findByLabelText(/accounts/i);
-
-        cy.findByLabelText(/regions/i);
-
-        cy.findByLabelText(/resource types/i);
-
-        cy.findByRole('button', {name: /Apply/i}).should('be.disabled');
-
-        cy.findByRole('button', {name: /Diagram Settings/i}).click();
-
         cy.findByRole('button', {name: /Resource search bar/i}).click();
 
         cy.findByRole('combobox').type('lambda');
@@ -94,6 +85,117 @@ describe('Diagrams Page', () => {
         cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
         cy.get('.expand-collapse-canvas').matchImage({maxDiffThreshold: 0.1});
+    });
+
+    it('has diagram settings to customise diagram', () => {
+        window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
+
+        cy.mount(<App />);
+
+        cy.findByRole('link', {name: /Manage$/, hidden: true}).click();
+
+        cy.findByRole('button', {name: /create/i}).click();
+
+        cy.findByRole('heading', {level: 2, name: /Create Diagram/i});
+
+        cy.findByRole('combobox', {name: /name/i}).type('SettingsDiagram');
+
+        cy.findByRole('button', {name: /create/i}).click();
+
+        cy.findByRole('heading', {level: 2, name: /SettingsDiagram/});
+
+        cy.findByText(/diagram saved/i);
+
+        cy.findByText(
+            /the private diagram SettingsDiagram was saved successfully/i
+        );
+
+        cy.findByRole('button', {name: /Diagram Settings/i}).click();
+
+        cy.findByLabelText(/accounts/i);
+
+        cy.findByLabelText(/regions/i);
+
+        cy.findByLabelText(/resource types/i);
+
+        cy.findByRole('button', {name: /Apply/i}).should('be.disabled');
+
+        cy.findByRole('radio', {name: /Hide Selected/i}).click();
+
+        cy.findByText(/Select which accounts to hide/i);
+
+        cy.findByText(/Select which regions to hide/i);
+
+        cy.findByText(/Select which resource types to hide/i);
+
+        cy.findByRole('radio', {name: /Only Show Selected/i}).click();
+
+        cy.findByText(/Select which accounts to display/i);
+
+        cy.findByText(/Select which regions to display/i);
+
+        cy.findByText(/Select which resource types to display/i);
+
+        cy.findByRole('button', {name: /Diagram Settings/i}).click();
+
+        cy.findByRole('button', {name: /actions/i}).click();
+
+        cy.findByRole('menuitem', {name: /delete/i}).click();
+
+        cy.findByRole('button', {name: /delete/i}).click();
+    });
+
+    it('should have resource and diagram action menu options disabled for empty canvas', () => {
+        window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
+
+        cy.mount(<App />);
+
+        cy.findByRole('link', {name: /Manage$/, hidden: true}).click();
+
+        cy.findByRole('button', {name: /create/i}).click();
+
+        cy.findByRole('heading', {level: 2, name: /Create Diagram/i});
+
+        cy.findByRole('combobox', {name: /name/i}).type('TestEmptyDiagram');
+
+        cy.findByRole('button', {name: /create/i}).click();
+
+        cy.findByRole('heading', {level: 2, name: /TestEmptyDiagram/});
+
+        cy.findByRole('button', {name: /action/i}).click();
+
+        cy.findByRole('menuitem', {name: /resource/i}).should('have.attr','aria-disabled','true');
+
+        // the aria-disabled attribute does not guarantee the element is disabled so we click on the menu item
+        // and check that the submenu does not appear
+
+        cy.findByRole('menuitem', {name: /resource/i}).click();
+
+        cy.findByRole('menuitem', {name: /expand/i}).should('not.exist');
+
+        cy.findByRole('menuitem', {name: /focus/i}).should('not.exist');
+
+        cy.findByRole('menuitem', {name: /remove/i}).should('not.exist');
+
+        // we need to click on something to dismiss the menu so we just click the action button again
+        cy.findByRole('button', {name: /action/i}).click();
+
+        cy.findByRole('button', {name: /action/i}).click();
+
+        cy.findByRole('menuitem', {name: /diagram/i}).should('have.attr','aria-disabled','true');
+
+        // the aria-disabled attribute does not guarantee the element is disabled so we click on the menu item
+        // and check that the submenu does not appear
+
+        cy.findByRole('menuitem', {name: /diagram/i}).click();
+
+        cy.findByRole('menuitem', {name: /group/i}).should('not.exist');
+
+        cy.findByRole('menuitem', {name: /fit/i}).should('not.exist');
+
+        cy.findByRole('menuitem', {name: /clear/i}).should('not.exist');
+
+        cy.findByRole('menuitem', {name: /export/i}).should('not.exist');
     });
 
     it('clears diagrams', () => {
@@ -733,12 +835,15 @@ describe('Diagrams Page', () => {
         cy.mount(<App />).then(() => {
             const {worker, graphql} = window.msw;
 
+            const lambdaIamRole =
+                defaultResourceGraph.getResourceGraph.nodes.find(x => x.label === 'AWS_IAM_Role');
+
             worker.use(
                 graphql.query(
                     'SearchResources',
                     createSearchResourceHandler([
-                        eksCluster.getResourceGraph.nodes[0],
-                        defaultResourceGraph.getResourceGraph.nodes[0],
+                        sqsLambda.getResourceGraph.nodes[0],
+                        lambdaIamRole
                     ])
                 ),
                 graphql.query('GetResourceGraph', ({variables}) => {
@@ -747,17 +852,21 @@ describe('Diagrams Page', () => {
                         pagination: {start},
                     } = variables;
 
+                    const sqsLambdaArn =
+                        sqsLambda.getResourceGraph.nodes[0].id;
+                    const lambdaIamRoleArn = lambdaIamRole.id;
+
                     let resourceGraph = null;
 
-                    const eksClusterArn =
-                        eksCluster.getResourceGraph.nodes[0].id;
-                    const lambdaArn =
-                        defaultResourceGraph.getResourceGraph.nodes[0].id;
-
-                    if (ids[0] === eksClusterArn) {
-                        resourceGraph = eksCluster;
-                    } else if (ids[0] === lambdaArn) {
-                        resourceGraph = defaultResourceGraph;
+                    if (ids[0] === sqsLambdaArn) {
+                        resourceGraph = sqsLambda;
+                    } else if (ids[0] === lambdaIamRoleArn) {
+                        resourceGraph = {
+                            getResourceGraph: {
+                                nodes: [lambdaIamRole],
+                                edges: []
+                            }
+                        }
                     }
 
                     const {
@@ -778,23 +887,38 @@ describe('Diagrams Page', () => {
                 })
             );
 
-            cy.findByRole('link', {name: /Resources$/, hidden: true}).click();
-
-            cy.findByPlaceholderText(/Find a resource type/i).type('lambda');
-
-            cy.findByRole('checkbox', {
-                name: /aws::lambda::function is not selected/i,
-            }).click();
-
-            cy.findByRole('checkbox', {
-                name: /testLambda is not selected/i,
-            }).click();
-
-            cy.findByRole('button', {name: /Add to diagram/i}).click();
-
-            cy.findByRole('combobox', {name: /name/i}).type(diagramName);
+            cy.findByRole('link', {name: /Manage$/, hidden: true}).click();
 
             cy.findByRole('button', {name: /create/i}).click();
+
+            cy.findByRole('heading', {level: 2, name: /Create Diagram/i});
+
+            cy.findByRole('combobox', {name: /name/i}).type(
+                diagramName
+            );
+
+            cy.findByRole('button', {name: /create/i}).click();
+
+            cy.findByRole('heading', {
+                level: 2,
+                name: diagramName,
+            });
+
+            cy.findByRole('button', {name: /Resource search bar/i}).click();
+
+            cy.findByRole('combobox').type('lambda');
+
+            cy.findByRole('combobox').type('{downArrow}');
+
+            cy.findByRole('combobox').type('{downArrow}');
+
+            cy.findByRole('combobox').type('{enter}');
+
+            cy.findByRole('button', {name: 'Search'}).click();
+
+            cy.findByRole('button', {name: /action/i}).click();
+
+            cy.findByRole('menuitem', {name: /save/i}).click();
 
             cy.findByText(
                 `The private diagram ${diagramName} was saved successfully`
@@ -808,9 +932,11 @@ describe('Diagrams Page', () => {
 
             cy.findByRole('button', {name: /Resource search bar/i}).click();
 
-            cy.findByRole('combobox').type('EKS');
+            cy.findByRole('combobox').type('Lambda');
 
-            cy.findAllByRole('option', 'AWS_EKS_Cluster');
+            cy.findAllByRole('option', 'AWS_IAM_Role');
+
+            cy.findByRole('combobox').type('{downArrow}');
 
             cy.findByRole('combobox').type('{downArrow}');
 
@@ -830,11 +956,10 @@ describe('Diagrams Page', () => {
 
             cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
-            cy.findByText('AWS_EKS_Cluster').should('not.exist');
-
             cy.get('.expand-collapse-canvas').matchImage({
                 maxDiffThreshold: 0.1,
             });
         });
     });
+
 });

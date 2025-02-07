@@ -74,7 +74,7 @@ def mocked_secrets_manager_client():
             yield secrets_manager_client
 
 
-def test_handler_creates_identity_provider(mocked_cognito_client, mocked_secrets_manager_client, identity_provider):
+def test_handler_creates_identity_provider_for_oidc(mocked_cognito_client, mocked_secrets_manager_client, identity_provider):
     create_user_pool_resp = mocked_cognito_client.create_user_pool(PoolName='pool_name')
 
     user_pool_id = create_user_pool_resp['UserPool']['Id']
@@ -124,8 +124,48 @@ def test_handler_creates_identity_provider(mocked_cognito_client, mocked_secrets
     assert moto_identity_provider['AttributeMapping'] == {'email': 'email', 'given_name': 'given_name'}
     assert moto_identity_provider['IdpIdentifiers'] ==  ['IdpIdentifier']
 
+def test_handler_creates_identity_provider_for_saml(mocked_cognito_client, identity_provider):
+    create_user_pool_resp = mocked_cognito_client.create_user_pool(PoolName='pool_name')
 
-def test_handler_updates_identity_provider(mocked_cognito_client, mocked_secrets_manager_client, identity_provider):
+    user_pool_id = create_user_pool_resp['UserPool']['Id']
+    provider_name = 'SamlProvider'
+
+    identity_provider.handler({
+        'RequestType': 'Create',
+        'ResponseURL' : 'http://pre-signed-S3-url-for-response',
+        'StackId' : 'arn:aws:cloudformation:us-west-2:123456789012:stack/stack-name/guid',
+        'RequestId' : 'unique id for this create request',
+        'ResourceType' : 'Custom::UserPoolIdentityProvider',
+        'LogicalResourceId' : 'MyTestResource',
+        'ResourceProperties': {
+            'UserPoolId': user_pool_id,
+            'ProviderName': provider_name,
+            'ProviderType': 'SAML',
+            'ProviderDetails': {
+                'MetadataURL': 'metadata_url'
+            },
+            'AttributeMapping': '{"email": "email"}',
+            'IdpIdentifiers': ['IdpIdentifier']
+        }
+    }, MockContext)
+
+    assert identity_provider.helper.Data == {'ProviderName': 'SamlProvider'}
+
+    resp = mocked_cognito_client.describe_identity_provider(
+        UserPoolId=user_pool_id,
+        ProviderName='SamlProvider'
+    )
+
+    moto_identity_provider = resp['IdentityProvider']
+
+    assert moto_identity_provider['UserPoolId'] == user_pool_id
+    assert moto_identity_provider['ProviderType'] == 'SAML'
+    assert moto_identity_provider['ProviderName'] == provider_name
+    assert moto_identity_provider['ProviderDetails'] == {'MetadataURL': 'metadata_url'}
+    assert moto_identity_provider['AttributeMapping'] == {'email': 'email'}
+    assert moto_identity_provider['IdpIdentifiers'] ==  ['IdpIdentifier']
+
+def test_handler_updates_identity_provider_for_oidc(mocked_cognito_client, mocked_secrets_manager_client, identity_provider):
     create_user_pool_resp = mocked_cognito_client.create_user_pool(PoolName='pool_name')
 
     user_pool_id = create_user_pool_resp['UserPool']['Id']
@@ -186,13 +226,62 @@ def test_handler_updates_identity_provider(mocked_cognito_client, mocked_secrets
     assert moto_identity_provider['IdpIdentifiers'] ==  ['IdpIdentifierUpdate']
 
 
+def test_handler_updates_identity_provider_for_saml(mocked_cognito_client, identity_provider):
+    create_user_pool_resp = mocked_cognito_client.create_user_pool(PoolName='pool_name')
+
+    user_pool_id = create_user_pool_resp['UserPool']['Id']
+
+    provider_name = 'SamlProviderUpdate'
+
+    mocked_cognito_client.create_identity_provider(UserPoolId=user_pool_id,
+                                                   ProviderName=provider_name,
+                                                   ProviderType='SAML',
+                                                   ProviderDetails={
+                                                       'MetadataURL': 'metadata_url'
+                                                   })
+
+    identity_provider.handler({
+        'RequestType': 'Update',
+        'ResponseURL' : 'http://pre-signed-S3-url-for-response',
+        'StackId' : 'arn:aws:cloudformation:us-west-2:123456789012:stack/stack-name/guid',
+        'RequestId' : 'unique id for this create request',
+        'ResourceType' : 'Custom::UserPoolIdentityProvider',
+        'LogicalResourceId' : 'MyTestResource',
+        'ResourceProperties': {
+            'UserPoolId': user_pool_id,
+            'ProviderName': provider_name,
+            'ProviderType': 'SAML',
+            'ProviderDetails': {
+                'MetadataURL': 'metadata_url_new'
+            },
+            'AttributeMapping': '{"email": "email"}',
+            'IdpIdentifiers': ['IdpIdentifierUpdate']
+        }
+    }, MockContext)
+
+    assert identity_provider.helper.Data == {'ProviderName': provider_name}
+
+    resp = mocked_cognito_client.describe_identity_provider(
+        UserPoolId=user_pool_id,
+        ProviderName=provider_name
+    )
+
+    moto_identity_provider = resp['IdentityProvider']
+
+    assert moto_identity_provider['UserPoolId'] == user_pool_id
+    assert moto_identity_provider['ProviderType'] == 'SAML'
+    assert moto_identity_provider['ProviderName'] == provider_name
+    assert moto_identity_provider['ProviderDetails'] == {'MetadataURL': 'metadata_url_new'}
+    assert moto_identity_provider['AttributeMapping'] == {'email': 'email'}
+    assert moto_identity_provider['IdpIdentifiers'] ==  ['IdpIdentifierUpdate']
+
 def test_handler_deletes_identity_provider(mocked_cognito_client, identity_provider):
 
     create_user_pool_resp = mocked_cognito_client.create_user_pool(PoolName='pool_name')
 
     user_pool_id = create_user_pool_resp['UserPool']['Id']
 
-    provider_name = 'OidcProviderUpdate'
+    provider_name = 'OidcProviderDelete'
 
     mocked_cognito_client.create_identity_provider(UserPoolId=user_pool_id,
                                                    ProviderName=provider_name,
@@ -227,3 +316,27 @@ def test_handler_deletes_identity_provider(mocked_cognito_client, identity_provi
             UserPoolId=user_pool_id,
             ProviderName=provider_name
         )
+
+
+def test_handler_handles_case_where_identity_provider_does_not_exist(mocked_cognito_client, identity_provider):
+    user_pool_id = 'deleted'
+    provider_name = 'OidcProviderDelete'
+
+    identity_provider.handler({
+        'RequestType': 'Delete',
+        'ResponseURL' : 'http://pre-signed-S3-url-for-response',
+        'StackId' : 'arn:aws:cloudformation:us-west-2:123456789012:stack/stack-name/guid',
+        'RequestId' : 'unique id for this create request',
+        'ResourceType' : 'Custom::UserPoolIdentityProvider',
+        'LogicalResourceId' : 'MyTestResource',
+        'ResourceProperties': {
+            'UserPoolId': user_pool_id,
+            'ProviderName': provider_name,
+            'ProviderType': 'OIDC',
+            'ProviderDetails': {
+                'oidc_issuer': 'oidc_issuer'
+            },
+            'AttributeMapping': '{"given_name": "given_name"}',
+            'IdpIdentifiers': ['IdpIdentifierUpdate']
+        }
+    }, MockContext)

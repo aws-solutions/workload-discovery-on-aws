@@ -328,6 +328,7 @@ const DiagramControlPanel = ({settings}) => {
                                 {text: 'Clear', id: 'clear'},
                                 {text: 'Export', id: 'export'},
                             ],
+                            disabled: R.isEmpty(canvas?.json()?.elements?.nodes ?? [])
                         },
                         {
                             id: 'save',

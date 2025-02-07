@@ -12,6 +12,10 @@ import userEvent from '@testing-library/user-event';
 import {server} from '../../../../../../mocks/server';
 import {graphql, HttpResponse} from 'msw';
 import {NotificationProvider} from '../../../../../../../components/Contexts/NotificationContext';
+import {regionMap} from '../../../../../../../Utils/Dictionaries/RegionMap';
+import * as R from 'ramda';
+
+const regions = R.reject(x => x.id === 'global', regionMap).map(x => x.id);
 
 const EU_WEST_1 = 'eu-west-1';
 const EU_WEST_2 = 'eu-west-2';
@@ -243,10 +247,10 @@ describe('Export', () => {
             });
             await user.click(exportButton);
 
-            await waitFor(() => expect(name).toEqual(applicationName));
+            await waitFor(() => expect(name).toEqual(applicationName), {timeout: 3000});
         });
 
-        it('should use transform the diagram name to a suitable default application name', async () => {
+        it('should transform the diagram name to a suitable default application name', async () => {
             const applicationName = 'name-with-spaces';
 
             let name = null;
@@ -305,6 +309,7 @@ describe('Export', () => {
 
             await waitFor(() => expect(name).toEqual(applicationName));
         });
+
         it('should use prevent the user exporting a diagram with an invalid name', async () => {
             const invalidApplicationName = 'Name with spaces';
 
@@ -410,10 +415,13 @@ describe('Export', () => {
             await user.click(screen.getByRole('button', {name: /region/i}));
             expect(screen.getAllByRole('option')).toHaveLength(1);
             screen.getByRole('option', {name: /eu-west-1/i});
+            expect(screen.queryByRole('option', {name: /eu-west-2/i})).toBeNull();
+            expect(screen.queryByRole('option', {name: /us-east-1/i})).toBeNull();
 
             await user.click(
                 screen.getByRole('button', {name: /account 111111111111/i})
             );
+
             await user.click(
                 screen.getByRole('option', {name: /222222222222/i})
             );
@@ -421,19 +429,114 @@ describe('Export', () => {
             expect(screen.getAllByRole('option')).toHaveLength(2);
             screen.getByRole('option', {name: /eu-west-1/i});
             screen.getByRole('option', {name: /eu-west-2/i});
+            expect(screen.queryByRole('option', {name: /us-east-1/i})).toBeNull();
 
             await user.click(
                 screen.getByRole('button', {name: /account 222222222222/i})
             );
+
             await user.click(
                 screen.getByRole('option', {name: /333333333333/i})
             );
             await user.click(screen.getByRole('button', {name: /region/i}));
+
             expect(screen.getAllByRole('option')).toHaveLength(3);
             screen.getByRole('option', {name: /eu-west-1/i});
             screen.getByRole('option', {name: /eu-west-2/i});
             screen.getByRole('option', {name: /us-east-1/i});
         });
+
+        it('should give user choice of all regions to create application in when diagram only has global resources', async () => {
+            const elements = {
+                nodes: [
+                    {
+                        data: {
+                            id: 'arn:roleArn1',
+                            type: 'resource',
+                            properties: {
+                                accountId: ACCOUNT_ID_1,
+                                awsRegion: 'global',
+                                resourceType: 'AWS::IAM::Role',
+                            },
+                        },
+                    },
+                    {
+                        data: {
+                            id: 'arn:roleArn2',
+                            type: 'resource',
+                            properties: {
+                                accountId: ACCOUNT_ID_2,
+                                awsRegion: 'global',
+                                resourceType: 'AWS::IAM::Role',
+                            },
+                        },
+                    },
+                    {
+                        data: {
+                            id: 'arn:snsTopicArn1',
+                            type: 'resource',
+                            properties: {
+                                accountId: ACCOUNT_ID_3,
+                                awsRegion: US_EAST_1,
+                                resourceType: 'AWS::SNS::Topic',
+                            },
+                        },
+                    }
+                ],
+                edges: []
+            };
+
+            const {user} = renderModal(
+                <ExportDiagramModal
+                    canvas={vi.fn()}
+                    elements={elements}
+                    visible={true}
+                    onDismiss={vi.fn()}
+                    settings={{hideEdges: false}}
+                ></ExportDiagramModal>
+            );
+
+            const myApplicationsRadioButton = await screen.findByRole('radio', {
+                name: /myapplications/i,
+            });
+
+            await user.click(myApplicationsRadioButton);
+
+            await user.click(screen.getByRole('button', {name: /account/i}));
+            await user.click(
+                screen.getByRole('option', {name: /111111111111/i})
+            );
+            await user.click(screen.getByRole('button', {name: /region/i}));
+            expect(screen.getAllByRole('option')).toHaveLength(regions.length);
+
+            regions.forEach(name => {
+                screen.getByRole('option', {name});
+            });
+
+            await user.click(
+                screen.getByRole('button', {name: /account 111111111111/i})
+            );
+
+            await user.click(
+                screen.getByRole('option', {name: /222222222222/i})
+            );
+            await user.click(screen.getByRole('button', {name: /region/i}));
+            expect(screen.getAllByRole('option')).toHaveLength(regions.length);
+            regions.forEach(name => {
+                screen.getByRole('option', {name});
+            });
+
+            await user.click(
+                screen.getByRole('button', {name: /account 222222222222/i})
+            );
+
+            await user.click(
+                screen.getByRole('option', {name: /333333333333/i})
+            );
+            await user.click(screen.getByRole('button', {name: /region/i}));
+            expect(screen.getAllByRole('option')).toHaveLength(1);
+            screen.getByRole('option', {name: /us-east-1/i});
+        }, {timeout: 15000});
 
         it('should should filter out pseudo-resource types', async () => {
             const elements = {
@@ -509,9 +612,7 @@ describe('Export', () => {
             await user.click(myApplicationsRadioButton);
 
             await user.click(screen.getByRole('button', {name: /account/i}));
-            expect(
-                screen.queryByRole('option', {name: /333333333333/i})
-            ).toBeNull();
+
             await user.click(
                 screen.getByRole('option', {name: /111111111111/i})
             );

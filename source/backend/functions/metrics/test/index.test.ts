@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {afterAll, describe, it, beforeAll, beforeEach} from 'vitest';
+import {afterAll, describe, it, beforeAll, beforeEach, vi} from 'vitest';
 import {assert} from 'chai';
 import {mockClient} from 'aws-sdk-client-mock';
 import {
@@ -21,8 +21,7 @@ import {
 
 const s3Mock = mockClient(S3Client);
 
-process.env = {
-    ...process.env,
+const defaultEnv = {
     METRICS_UUID,
     METRICS_URL,
     SOLUTION_ID,
@@ -30,6 +29,7 @@ process.env = {
     REGION: 'us-east-2',
     COST_BUCKET: 'testCostFeatureBucket',
     DIAGRAMS_BUCKET: 'testDiagramBucket',
+    IDENTITY_TYPE: 'SAML',
     GRAPHQL_API_ENDPOINT:
         'https://mock.appsync-api.us-east-2.amazonaws.com/graphql',
     AWS_ACCESS_KEY_ID: 'mock-access-key-id',
@@ -39,6 +39,12 @@ process.env = {
     NEPTUNE_INSTANCE_CLASS: 't3.small.search',
 };
 
+function stubEnvs(env: Record<string, string>) {
+    Object.entries(env).forEach(([key, value]) => {
+        vi.stubEnv(key, value);
+    });
+}
+
 describe('index.js', () => {
     beforeAll(() => {
         server.listen();
@@ -46,6 +52,7 @@ describe('index.js', () => {
 
     afterAll(() => {
         server.close();
+        vi.unstubAllEnvs();
     });
 
     beforeEach(() => {
@@ -54,7 +61,19 @@ describe('index.js', () => {
     });
 
     describe('handler', () => {
+
+        it('should reject identity type that is not Cognito, Google, OIDC or SAML', async () => {
+            stubEnvs({...defaultEnv,IDENTITY_TYPE: 'incorrect' });
+
+            return handler()
+                .catch(err => {
+                    assert.strictEqual(err.errors[0].message, "Invalid enum value. Expected 'Cognito' | 'Google' | 'OIDC' | 'SAML', received 'incorrect'")
+                });
+        });
+
         it('should send metric data in v2 event format', async () => {
+            stubEnvs(defaultEnv);
+
             s3Mock
                 .on(ListObjectsV2Command, {
                     Bucket: process.env.DIAGRAMS_BUCKET,
@@ -93,11 +112,12 @@ describe('index.js', () => {
                 timestamp: '2024-01-01 00:00:00.0',
                 uuid: METRICS_UUID,
                 version: SOLUTION_VERSION,
-                context_version: '1',
+                context_version: '2',
                 context: {
                     totalDiagrams: 4,
                     costFeatureEnabled: true,
                     crossAccountDiscovery: 'AWS_ORGANIZATIONS',
+                    identityType: 'SAML',
                     totalAccounts: 100,
                     totalResources: 495000,
                     medianAccountResources: 4950,

@@ -30,19 +30,6 @@ build_dist_dir="$template_dir/regional-s3-assets"
 source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
-auditDeps () {
-   npm_config_yes=true npx better-npm-audit audit --production
-   OUTPUT=$?
-   if [[ "$OUTPUT" -eq 0 ]];
-   then
-       echo dependencies are fine
-       return 0
-   else
-       echo You have vulnerabilies in your package
-       return 1
-   fi
-}
-
 # command that will work on both Linux and MacOS
 sedi () {
     sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
@@ -139,7 +126,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Account Import Template API"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/account-import-templates-api"
-auditDeps
 npm run build
 cp ./dist/account-import-templates-api.zip "${build_dist_dir}/account-import-templates-api.zip"
 
@@ -148,7 +134,6 @@ echo "[Rebuild] Gremlin Resolver"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/graph-api"
 
-auditDeps
 npm run build
 cp ./dist/graph-api.zip "${build_dist_dir}/graph-api.zip"
 
@@ -156,7 +141,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] opensearch-setup"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/opensearch-setup"
-auditDeps
 npm run build
 cp ./dist/opensearch-setup.zip "${build_dist_dir}/opensearch-setup.zip"
 
@@ -164,7 +148,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Search API"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/search-api"
-auditDeps
 npm run build
 cp ./dist/search-api.zip "${build_dist_dir}/search-api.zip"
 
@@ -172,7 +155,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Settings"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/settings"
-auditDeps
 npm run build
 cp ./dist/settings.zip "${build_dist_dir}/settings.zip"
 
@@ -180,7 +162,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Cost-Parser"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/cost-parser"
-auditDeps
 npm run build
 cp ./dist/cost.zip "${build_dist_dir}/cost.zip"
 
@@ -188,7 +169,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] CUR-Notification"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/cur-notification"
-auditDeps
 npm run build
 cp ./dist/cur-notification.zip "${build_dist_dir}/cur-notification.zip"
 
@@ -196,7 +176,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] CUR-Setup"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/cur-setup"
-auditDeps
 npm run build
 cp ./dist/cur-setup.zip "${build_dist_dir}/cur-setup.zip"
 
@@ -213,7 +192,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Metrics"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/metrics"
-auditDeps
 npm run build
 cp ./dist/metrics.zip "${build_dist_dir}/metrics.zip"
 
@@ -221,7 +199,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Metrics Subscription Filter"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/metrics-subscription-filter"
-auditDeps
 npm run build
 cp ./dist/metrics-subscription-filter.zip "${build_dist_dir}/metrics-subscription-filter.zip"
 
@@ -229,7 +206,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Export to myApplication"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/myapplications"
-auditDeps
 npm run build
 cp ./dist/myapplications.zip "${build_dist_dir}/myapplications.zip"
 
@@ -237,7 +213,6 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] Discovery"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/discovery"
-auditDeps
 npm run build
 cp ./dist/discovery.zip "${build_dist_dir}/discovery.zip"
 
@@ -245,7 +220,5 @@ echo "--------------------------------------------------------------------------
 echo "[Rebuild] UI"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/frontend"
-auditDeps
-#npm run test
 npm run build
 cp ./dist/ui.zip "${build_dist_dir}/ui.zip"

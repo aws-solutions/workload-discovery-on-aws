@@ -13,6 +13,7 @@ const logger = new Logger({serviceName: 'WdMyApplicationsExport'});
 
 const ACCESS_DENIED = 'AccessDenied';
 const ROLE_SESSION_DURATION_SECONDS = 3600;
+const GLOBAL = 'global';
 
 const AWS_REGIONS = [
     'af-south-1',
@@ -46,7 +47,7 @@ const AWS_REGIONS = [
     'us-gov-east-1',
     'us-gov-west-1',
     'us-west-1',
-    'us-west-2',
+    'us-west-2'
 ];
 
 class TypeGuardError extends Error {
@@ -214,7 +215,12 @@ async function createApplication(
             throw err;
         });
 
-    const grouped = R.groupBy(x => `${x.accountId}|${x.region}`, resources);
+    const grouped = R.groupBy(x => {
+        // we need to choose a region to tag global resources so we use the region the application
+        // is being created in as the fallback
+        const groupRegion = x.region === GLOBAL ? region : x.region;
+        return `${x.accountId}|${groupRegion}`;
+    }, resources);
 
     return (
         Promise.resolve(grouped)
@@ -309,7 +315,7 @@ const createApplicationArgumentsSchema = z.object({
                 accountId: z
                     .string(createRegexStringErrorMap('account ID'))
                     .regex(/^(\d{12})$/),
-                region: regionEnum,
+                region: z.enum([GLOBAL, ...AWS_REGIONS]),
             })
         )
         .nonempty(),

@@ -36,6 +36,9 @@ Parameters:
   CrossAccountDiscovery:
     Type: String
 
+  IdentityType:
+    Type: String
+
   PythonLambdaRuntime:
     Type: String
 
@@ -168,6 +171,7 @@ Resources:
           SOLUTION_VERSION: !Ref SolutionVersion
           GRAPHQL_API_ENDPOINT: !Ref AppSyncAPIUrl
           CROSS_ACCOUNT_DISCOVERY: !Ref CrossAccountDiscovery
+          IDENTITY_TYPE: !Ref IdentityType
           DIAGRAMS_BUCKET: !Ref AmplifyStorageBucket
           COST_BUCKET: !Ref CostAndUsageReportBucket
           NEPTUNE_INSTANCE_CLASS: !Ref NeptuneInstanceClass

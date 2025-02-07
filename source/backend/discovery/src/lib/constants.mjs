@@ -6,6 +6,7 @@ export const CONTAINS = 'Contains ';
 export const IS_CONTAINED_IN = 'Is contained in ';
 export const IS_ATTACHED_TO = 'Is attached to ';
 export const ACCESS_DENIED = 'AccessDenied';
+export const ACCESS_DENIED_EXCEPTION = 'AccessDeniedException';
 export const AWS = 'aws';
 export const AWS_API_GATEWAY_AUTHORIZER = 'AWS::ApiGateway::Authorizer';
 export const AWS_API_GATEWAY_METHOD = 'AWS::ApiGateway::Method';

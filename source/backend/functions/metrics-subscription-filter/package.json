@@ -1,6 +1,6 @@
 {
   "name": "metrics-subscription-filter",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Lambda function used to handle operational metrics subscription filter",
   "main": "index.mjs",
   "scripts": {
@@ -19,12 +19,12 @@
     "url": "https://aws.amazon.com/solutions"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "chai": "^4.3.10",
     "msw": "2.3.1",
     "rewire": "^7.0.0",
     "sinon": "^18.0.0",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "2.1.1",

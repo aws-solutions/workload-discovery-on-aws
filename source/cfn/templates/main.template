@@ -79,6 +79,14 @@ Parameters:
       - 40960
       - 49152
       - 57344
+  DiscoveryTaskCapacityProvider:
+    Type: String
+    Default: FARGATE_SPOT
+    Description:
+      The capacity provider that the discovery process ECS task will use
+    AllowedValues:
+      - FARGATE
+      - FARGATE_SPOT
   DiscoveryTaskFrequency:
     Type: String
     Description: The time interval between every run of the discovery process ECS task
@@ -371,6 +379,7 @@ Metadata:
         Parameters:
           - CpuUnits
           - Memory
+          - DiscoveryTaskCapacityProvider
           - DiscoveryTaskFrequency
       - Label:
           default: AWS Organizations Configuration
@@ -455,13 +464,14 @@ Mappings:
 Conditions:
   SetUpConfig: !Equals [!Ref AlreadyHaveConfigSetup, 'No']
   IsUsingOrganizations: !Equals [!Ref CrossAccountDiscovery, AWS_ORGANIZATIONS]
+  IsUsingCustomIdentity: !Equals [ !Ref UsesCustomIdentity, 'Yes' ]
   CreateVpc: !Equals [!Ref VpcId, '']
   CreateAnonymizedUsageMetrics: !Equals [!FindInMap [Solution, Metrics, CollectAnonymizedUsageMetrics], 'true']
   CreateOidcSecret: !And
-    - !Equals [ !Ref UsesCustomIdentity, 'Yes' ]
+    - !Condition IsUsingCustomIdentity
     - !Equals [ !Ref IdentityType, OIDC ]
   CreateGoogleSecret: !And
-    - !Equals [ !Ref UsesCustomIdentity, 'Yes' ]
+    - !Condition IsUsingCustomIdentity
     - !Equals [ !Ref IdentityType, Google ]
 
 Resources:
@@ -672,6 +682,7 @@ Resources:
         AppSyncApiUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
         Cpu: !Ref CpuUnits
         Memory: !Ref Memory
+        DiscoveryTaskCapacityProvider: !Ref DiscoveryTaskCapacityProvider
         Decorators: !GetAtt LayerStack.Outputs.Decorators
         BotoUtils: !GetAtt LayerStack.Outputs.BotoUtils
         CustomResourceHelper: !GetAtt LayerStack.Outputs.CustomResourceHelper
@@ -946,6 +957,7 @@ Resources:
         CrossAccountDiscovery: !Ref CrossAccountDiscovery
         AmplifyStorageBucket: !GetAtt S3Buckets.Outputs.AmplifyStorageBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
+        IdentityType: !If [IsUsingCustomIdentity, !Ref IdentityType, Cognito]
         AppSyncAPIUrl: !GetAtt AppSyncApiStack.Outputs.AppSyncApiUrl
         AppSyncArn: !GetAtt AppSyncApiStack.Outputs.AppSyncApiArn
         MyApplicationsLambdaLogGroup: !GetAtt MyApplicationsResolversStack.Outputs.MyApplicationsLambdaLogGroup
@@ -977,6 +989,7 @@ Resources:
         ApplicationResourceGroupName: !GetAtt AppRegistryStack.Outputs.ApplicationResourceGroupName
         ClusterArn: !GetAtt TaskStack.Outputs.ClusterArn
         DiscoveryTaskLogGroup: !GetAtt TaskStack.Outputs.DiscoveryTaskLogGroup
+        ClusterLifecycleEventsLogGroup: !GetAtt TaskStack.Outputs.ClusterLifecycleEventsLogGroup
 
 Outputs:
 
