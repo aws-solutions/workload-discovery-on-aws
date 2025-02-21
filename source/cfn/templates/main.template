@@ -233,7 +233,9 @@ Parameters:
       - 'Yes'
       - 'No'
   VpcId:
-    Description: The ID of the VPC you wish to use. If left blank, a new VPC will be provisioned.
+    Description: |
+      The ID of the VPC you wish to use. If left blank, a new VPC will be provisioned. 
+      VPCs must be able to route requests from private subnets to required AWS Services 
     Type: String
     Default: ''
   VpcCidrBlock:
@@ -275,7 +277,7 @@ Parameters:
     ConstraintDescription: This string can include only lowercase letters, numbers, and hyphens.
   CognitoAttributeMapping:
     Type: String
-    Default: '{"email": "email}'
+    Default: '{"email": "email"}'
     Description: | 
       The mapping of IdP attributes to standard and custom Cognito user pool attributes. Must be a valid JSON
       string.

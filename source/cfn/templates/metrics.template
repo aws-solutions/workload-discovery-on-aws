@@ -92,7 +92,7 @@ Resources:
                 Resource: arn:aws:logs:*:*:*
         - PolicyName: GetMetricsFromS3
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: 2012-10-17
             Statement:
               - Action:
                     - s3:GetObject
@@ -100,8 +100,8 @@ Resources:
                     - s3:ListBucket
                 Effect: Allow
                 Resource:
-                    - !Sub 'arn:${AWS::Partition}:s3:::${AmplifyStorageBucket}'
-                    - !Sub 'arn:${AWS::Partition}:s3:::${CostAndUsageReportBucket}'
+                    - !Sub arn:${AWS::Partition}:s3:::${AmplifyStorageBucket}
+                    - !Sub arn:${AWS::Partition}:s3:::${CostAndUsageReportBucket}/aws-programmatic-access-test-object
         - PolicyName: GetQueryFromAppsync
           PolicyDocument:
             Version: '2012-10-17'

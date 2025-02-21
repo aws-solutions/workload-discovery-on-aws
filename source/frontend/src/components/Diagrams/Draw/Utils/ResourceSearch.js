@@ -63,7 +63,7 @@ const ResourceSearch = () => {
                         resetSearchBar();
                     }}
                 >
-                    Search
+                    Add to diagram
                 </Button>
             </div>
         </div>

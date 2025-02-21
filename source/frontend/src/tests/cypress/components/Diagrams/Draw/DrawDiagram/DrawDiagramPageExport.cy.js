@@ -71,7 +71,7 @@ describe('Diagrams Page Local', () => {
 
         cy.findByRole('combobox').type('{enter}');
 
-        cy.findByRole('button', {name: 'Search'}).click();
+        cy.findByRole('button', {name: /Add to diagram/i}).click();
 
         cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
@@ -204,7 +204,7 @@ describe('Diagrams Page Local', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
@@ -312,7 +312,7 @@ describe('Diagrams Page Local', () => {
 
         cy.findByRole('combobox').type('{enter}');
 
-        cy.findByRole('button', {name: 'Search'}).click();
+        cy.findByRole('button', {name: /Add to diagram/i}).click();
 
         cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
@@ -402,7 +402,7 @@ describe('Diagrams Page Local', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.findByRole('button', {name: /action/i}).click();
 
@@ -514,7 +514,7 @@ describe('Diagrams Page Local', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.findByRole('button', {name: /action/i}).click();
 
@@ -627,7 +627,7 @@ describe('Diagrams Page Local', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.findByRole('button', {name: /action/i}).click();
 

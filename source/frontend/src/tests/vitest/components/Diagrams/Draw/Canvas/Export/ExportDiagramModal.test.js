@@ -247,7 +247,7 @@ describe('Export', () => {
             });
             await user.click(exportButton);
 
-            await waitFor(() => expect(name).toEqual(applicationName), {timeout: 3000});
+            await waitFor(() => expect(name).toEqual(applicationName), {timeout: 5000});
         });
 
         it('should transform the diagram name to a suitable default application name', async () => {

@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2025-02-21
+
+### Added
+- Alert in AppInsights dashboard if discovery process cannot pull image from ECR
+
+### Fixed
+- Metrics lambda always sent `false` for `costFeatureEnabled` metric
+- Invalid default value in `CognitoAttributeMapping` CloudFormation parameter
+- Large dark circle appears in canvas when user saves an empty diagram
+- Security [issue](https://github.com/advisories/GHSA-gmj6-6f8f-6699) in `jinja`.
+- Security [issue](https://github.com/advisories/GHSA-79v4-65xg-pq4g) in `cryptography`.
+
+### Changed
+- Importing accounts using form is now default setting on Accounts page
+- Account lists can now be filtered by account name [514](https://github.com/aws-solutions/workload-discovery-on-aws/issues/514)
+- Error dialog on resources page now includes link to AppInsights dashboard
+- Text for button on diagram page is now **Add to diagram** rather than **Search**
+
 ## [2.2.1] - 2025-02-07
 
 ### Added
@@ -16,11 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect description string in diagram settings filter when hiding resources
 - Erroneous validation error when exporting diagrams with global resources to myApplications
 - Empty region dropdown list when exporting diagram with only global resources to myApplications
-- Security [vulnerability](https://github.com/advisories/GHSA-9crc-q9x8-hgqq) in `vite`.
-- Security [vulnerability](https://github.com/advisories/GHSA-vg6x-rcgg-rjx6) in `vitest`.
-- Security [vulnerability](https://github.com/advisories/GHSA-c76h-2ccp-4975) in `undici`.
-- Security [vulnerability](https://github.com/advisories/GHSA-gmj6-6f8f-6699) in `jinja`.
-- Security [vulnerability](https://github.com/advisories/GHSA-q2x7-8rv6-6q7h) in `jinja`.
+- Security [issue](https://github.com/advisories/GHSA-9crc-q9x8-hgqq) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-vg6x-rcgg-rjx6) in `vitest`.
+- Security [issue](https://github.com/advisories/GHSA-c76h-2ccp-4975) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-gmj6-6f8f-6699) in `jinja`.
+- Security [issue](https://github.com/advisories/GHSA-q2x7-8rv6-6q7h) in `jinja`.
 
 ### Changed
 - Use of `FARGATE` or `FARGATE_SPOT` for discovery process is configurable via a CloudFormation parameter.
@@ -69,9 +87,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/issues/546)
-- Security [vulnerability](https://github.com/advisories/GHSA-gcx4-mw62-g8wm) in `rollup`.
-- Security [vulnerability](https://github.com/advisories/GHSA-9cwx-2883-4wfx) in `vite`.
-- Security [vulnerability](https://github.com/advisories/GHSA-64vr-g452-qvp3) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-gcx4-mw62-g8wm) in `rollup`.
+- Security [issue](https://github.com/advisories/GHSA-9cwx-2883-4wfx) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-64vr-g452-qvp3) in `vite`.
 
 ## [2.1.14] - 2024-09-18
 
@@ -80,21 +98,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cron expression for running discovery process every 24 hours. [546](https://github.com/aws-solutions/workload-discovery-on-aws/issues/546)
 - Intermittent failures in `cleanup-bucket` custom resource. [545](https://github.com/aws-solutions/workload-discovery-on-aws/issues/545)
 - SCP error relating to `putConfigAggregator` when adding accounts in an AWS organisation using Control Tower. [544](https://github.com/aws-solutions/workload-discovery-on-aws/issues/544)
-- Security [vulnerability](https://github.com/advisories/GHSA-952p-6rrq-rcjv) in `micromatch`.
-- Security [vulnerability](https://github.com/advisories/GHSA-9wv6-86v2-598j) in `path-to-regexp`.
-- Security [vulnerability](https://github.com/advisories/GHSA-m6fv-jmcg-4jfg) in `send`.
+- Security [issue](https://github.com/advisories/GHSA-952p-6rrq-rcjv) in `micromatch`.
+- Security [issue](https://github.com/advisories/GHSA-9wv6-86v2-598j) in `path-to-regexp`.
+- Security [issue](https://github.com/advisories/GHSA-m6fv-jmcg-4jfg) in `send`.
 
 ## [2.1.13] - 2024-08-16
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-8hc4-vh64-cxmj) in `axios`.
+- Security [issue](https://github.com/advisories/GHSA-8hc4-vh64-cxmj) in `axios`.
 
 ## [2.1.12] - 2024-07-31
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-mpg4-rc92-vx8v) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-mpg4-rc92-vx8v) in `fast-xml-parser`.
 
 ## [2.1.11] - 2024-07-23
 
@@ -106,9 +124,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-3q56-9cc2-46j4) in `fast-loops`.
-- Security [vulnerability](https://github.com/advisories/GHSA-jfmj-5v4g-7637) in `zipp`.
-- Security [vulnerability](https://github.com/advisories/GHSA-3g92-w8c5-73pq) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-3q56-9cc2-46j4) in `fast-loops`.
+- Security [issue](https://github.com/advisories/GHSA-jfmj-5v4g-7637) in `zipp`.
+- Security [issue](https://github.com/advisories/GHSA-3g92-w8c5-73pq) in `undici`.
 
 ### Changed
 
@@ -118,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-3h5v-q93c-6h6q) in `ws`.
+- Security [issue](https://github.com/advisories/GHSA-3h5v-q93c-6h6q) in `ws`.
 - Add better logging if individual accounts aggregator supplied when cross account discovery mode is `AWS_ORGANIZATIONS`. [529](https://github.com/aws-solutions/workload-discovery-on-aws/issues/529)
 
 ### Changed
@@ -129,8 +147,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-2p57-rm9w-gvfp) in `ip`.
-- Security [vulnerability](https://github.com/advisories/GHSA-grv7-fg5c-xmjg) in `braces`.
+- Security [issue](https://github.com/advisories/GHSA-2p57-rm9w-gvfp) in `ip`.
+- Security [issue](https://github.com/advisories/GHSA-grv7-fg5c-xmjg) in `braces`.
 
 ## [2.1.7] - 2024-05-15
 
@@ -139,33 +157,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Invalid policy error when deploying Settings resolver nested stack
 - Update Node.js runtimes to v20.x
 - Update Python runtimes to Python 3.12
-- Security [vulnerability](https://github.com/advisories/GHSA-cxjh-pqwp-8mfp) in `follow-redirects`.
-- Security [vulnerability](https://github.com/advisories/GHSA-8jhw-289h-jh2g) in `vite`.
-- Security [vulnerability](https://github.com/advisories/GHSA-9qxr-qj54-h672) in `undici`.
-- Security [vulnerability](https://github.com/advisories/GHSA-m4v8-wqvr-p9f7) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-cxjh-pqwp-8mfp) in `follow-redirects`.
+- Security [issue](https://github.com/advisories/GHSA-8jhw-289h-jh2g) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-9qxr-qj54-h672) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-m4v8-wqvr-p9f7) in `undici`.
 
 ## [2.1.6] - 2024-02-22
 
 ### Fixed
 
 - Null error when exporting to draw.io [458](https://github.com/aws-solutions/workload-discovery-on-aws/issues/458)
-- Security [vulnerability](https://github.com/advisories/GHSA-78xj-cgh5-2h22) in `ip`.
-- Security [vulnerability](https://github.com/advisories/GHSA-3787-6prv-h9w3) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-78xj-cgh5-2h22) in `ip`.
+- Security [issue](https://github.com/advisories/GHSA-3787-6prv-h9w3) in `undici`.
 
 ## [2.1.5] - 2024-01-25
 
 ### Fixed
 
-- Security [vulnerability](https://github.com/advisories/GHSA-c24v-8rfc-w8vw) in `vite`.
-- Security [vulnerability](https://github.com/advisories/GHSA-p6mc-m468-83gw) in `lodash`.
+- Security [issue](https://github.com/advisories/GHSA-c24v-8rfc-w8vw) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-p6mc-m468-83gw) in `lodash`.
 
 ## [2.1.4] - 2024-01-18
 
 ### Fixed
 
 - Discovery Process Assumes Root Account Is Management Account [496](https://github.com/aws-solutions/workload-discovery-on-aws/issues/496)
-- Security [vulnerability](https://github.com/advisories/GHSA-jchw-25xp-jwwc) in `follow-redirects`.
-- Security [vulnerability](https://github.com/advisories/GHSA-92r3-m2mg-pj97) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-jchw-25xp-jwwc) in `follow-redirects`.
+- Security [issue](https://github.com/advisories/GHSA-92r3-m2mg-pj97) in `vite`.
 
 ## [2.1.3] - 2023-12-18
 
@@ -188,7 +206,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts
   in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
 - Only attempt to discover accounts from provided OU and its children, rather than whole organization.
-- Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading from the Config aggregator.
+- Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading 
+  from the Config aggregator.
 - Remove Retain on organization-wide StackSet so IAM roles are no longer left in organization's accounts after solution is uninstalled.
 - Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying
   requests to DB if payload was too large.
@@ -212,9 +231,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.1] - 2023-10-24
 
 ### Fixed
-- Security [vulnerability](https://github.com/babel/babel/security/advisories/GHSA-67hx-6x53-jw92) in `@babel/traverse`.
-- Security [vulnerability](https://github.com/advisories/GHSA-wqq4-5wpv-mx2g)  in `undici`.
-- Security [vulnerability](https://github.com/advisories/GHSA-g4mx-q9vg-27p4) in `urllib3`.
+- Security [issue](https://github.com/babel/babel/security/advisories/GHSA-67hx-6x53-jw92) in `@babel/traverse`.
+- Security [issue](https://github.com/advisories/GHSA-wqq4-5wpv-mx2g)  in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-g4mx-q9vg-27p4) in `urllib3`.
 
 ## [2.1.0] - 2023-09-21
 
@@ -401,9 +420,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2020-09-29
 
-- Added 'Save Template' option when importing new accounts and Regions. This removes the need to enable public access objects in the AmplifyStorageBucket
-- Altered wording around visibility levels when saving architecture diagrams. 'You' and 'All users' is now used instead of 'public' and 'private'.
-- Fixed bug that was causing import configurations to become corrupt when an account or Region was deleted by the UI if a discovery was in progress.
+- Added 'Save Template' option when importing new accounts and Regions. This removes the need to enable public access 
+  objects in the  AmplifyStorageBucket
+- Altered wording around visibility levels when saving architecture diagrams. 'You' and 'All users' is now used instead 
+  of 'public' and 'private'.
+- Fixed bug that was causing import configurations to become corrupt when an account or Region was deleted by the 
+  UI if a discovery was in progress.
 - Fixed bug leading to invalid JSON being generated in CloudFormation templates for importing accounts and Regions.
 - Fixed Dependabot issues raised by GitHub
 - Fixed bug leading to RestApi icons not being displayed in Firefox.

@@ -22,7 +22,10 @@ import {
 } from '../../Hooks/useResourcesMetadata';
 import {useAccounts} from '../../Hooks/useAccounts';
 import ValueWithLabel from '../../Shared/ValueWithLabel';
-import {isUsingOrganizations} from '../../../Utils/AccountUtils';
+import {
+    getAppInsightsDashboardLink,
+    isUsingOrganizations,
+} from '../../../Utils/AccountUtils';
 
 const ResourceOverview = () => {
     const {data: resources = {accounts: []}, isLoading: loadingResources} =
@@ -159,14 +162,28 @@ const getWarningBanner = (resources, importedAccounts) => {
                 type="error"
             >
                 <TextContent>
-                    There may be an issue with the deployment configuration
+                    The resource discovery process was unable to locate any
+                    resources. This may be due to an issue with the deployment
+                    configuration.
                 </TextContent>
-                <Link
-                    external
-                    href="https://aws-solutions.github.io/workload-discovery-on-aws/workload-discovery-on-aws/2.0/debugging-the-discovery-component.html"
-                >
-                    Learn more about debugging the discovery process
-                </Link>
+                <br />
+                <TextContent>Recommended actions:</TextContent>
+                <ol>
+                    <li>
+                        <Link external href={getAppInsightsDashboardLink()}>
+                            View the Application Insights dashboard for detailed
+                            error information
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            external
+                            href="https://aws-solutions.github.io/workload-discovery-on-aws/workload-discovery-on-aws/2.0/debugging-the-discovery-component.html"
+                        >
+                            Review the discovery process debugging guide
+                        </Link>
+                    </li>
+                </ol>
             </Alert>
         );
     }

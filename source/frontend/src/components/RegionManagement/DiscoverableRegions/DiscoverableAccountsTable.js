@@ -276,7 +276,7 @@ const DiscoverableAccountsTable = ({selectedAccounts, onSelect}) => {
                 ),
                 filteringFunction: (item, filteringText) => {
                     return (
-                        item.accountId.includes(filteringText) &&
+                        (item.accountId.includes(filteringText) || item.name.includes(filteringText)) &&
                         matchesRoleStatus(item, roleStatus)
                     );
                 },

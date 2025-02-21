@@ -14,3 +14,7 @@ export const PSEUDO_RESOURCE_TYPES = new Set([
     'AWS::Tags::Tag',
     'AWS::IAM::InlinePolicy',
 ]);
+
+export const IMPORT_CSV = 'csv';
+
+export const IMPORT_INPUT = 'input';

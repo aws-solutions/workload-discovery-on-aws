@@ -9,6 +9,7 @@ import {
     useResourcesRegionMetadata,
 } from '../../../../Hooks/useResourcesMetadata';
 import {useDeepCompareEffect} from 'react-use';
+import {useAccounts} from '../../../../Hooks/useAccounts';
 
 const AccountMultiSelect = ({
     selected = [],
@@ -16,10 +17,14 @@ const AccountMultiSelect = ({
     onOptionsChange = () => ({}),
     disabled = false,
 }) => {
-    const {data: resources = {accounts: []}} = useResourcesMetadata();
-    const accountsFilter = resources.accounts.map(({accountId}) => ({
+    const {data: accounts = []} = useAccounts();
+
+    const accountsFilter = accounts.map(({accountId}) => ({
         accountId,
     }));
+
+    const accountNameToIdMap = new Map(accounts.map(x => [x.accountId, x.name]));
+
     const {data: accountsRegionMetadata = []} = useResourcesRegionMetadata(
         accountsFilter,
         {
@@ -31,11 +36,15 @@ const AccountMultiSelect = ({
         onOptionsChange(accountsRegionMetadata.map(i => i.accountId));
     }, [accountsRegionMetadata, onOptionsChange]);
 
-    const options = accountsRegionMetadata.map(i => ({
-        label: i.accountId,
-        value: i.accountId,
-        tags: [`${R.length(i.regions)} regions`, `${i.count} resources`],
-    }));
+    const options = accountsRegionMetadata.map((i, index) => {
+        const name = accountNameToIdMap.get(i.accountId );
+
+        return {
+            label: name == null ? i.accountId : `${name} (${i.accountId})`,
+            value: i.accountId,
+            tags: [`${R.length(i.regions)} regions`, `${i.count} resources`],
+        }
+    });
 
     const handleSelectAll = () => {
         onChange(R.uniq(R.map(i => i.value, options)));

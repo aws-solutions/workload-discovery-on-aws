@@ -167,13 +167,17 @@ const DiagramControlPanel = ({settings}) => {
                     R.map(e => e.data('id'), selectedResources)
                 );
                 break;
-            case 'save':
+            case 'save': {
+                const elements = R.isEmpty(canvas.json().elements)
+                    ? {nodes: [], edges: []}
+                    : canvas.json().elements;
+
                 putAsync({
                     key: canvas.data('name'),
                     level: canvas.data('visibility'),
                     type: 'application/json',
                     content: JSON.stringify({
-                        ...canvas.json().elements,
+                        ...elements,
                         settings,
                     }),
                 })
@@ -193,6 +197,7 @@ const DiagramControlPanel = ({settings}) => {
                         })
                     );
                 break;
+            }
             case 'delete':
                 setShowDeleteConfirm(true);
                 break;
@@ -328,7 +333,9 @@ const DiagramControlPanel = ({settings}) => {
                                 {text: 'Clear', id: 'clear'},
                                 {text: 'Export', id: 'export'},
                             ],
-                            disabled: R.isEmpty(canvas?.json()?.elements?.nodes ?? [])
+                            disabled: R.isEmpty(
+                                canvas?.json()?.elements?.nodes ?? []
+                            ),
                         },
                         {
                             id: 'save',
