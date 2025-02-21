@@ -35,6 +35,12 @@ Resources:
               - PatternName: ConfigEnableCheckFailed
                 Pattern: 'AWS Config enablement check failed'
                 Rank: 3
+              - PatternName: UnableToAccessElasticContainerRegistry
+                Pattern: 'unable to pull secrets or registry auth'
+                Rank: 4
+              - PatternName: CannotPullContainerFromRegistry
+                Pattern: 'CannotPullContainerError'
+                Rank: 5
       ComponentMonitoringSettings:
         - ComponentARN: !Ref ClusterArn
           Tier: DEFAULT

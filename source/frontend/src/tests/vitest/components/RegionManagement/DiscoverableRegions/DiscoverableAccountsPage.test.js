@@ -165,12 +165,12 @@ describe('Discoverable Accounts Page', () => {
                     name: /add accounts & regions using a form\./i,
                 });
 
-                await user.click(formRadio);
+                expect(formRadio).toBeChecked();
 
                 const accountCombo = screen.getByRole('combobox', {
                     name: /account id/i,
                 });
-                await userEvent.type(accountCombo, 'yyyyyyyyyyyy');
+                await userEvent.type(accountCombo, 'testAccounty');
 
                 const accountNameText = screen.getByRole('textbox', {
                     name: /account name/i,
@@ -282,7 +282,7 @@ describe('Discoverable Accounts Page', () => {
                 name: /add accounts & regions using a form\./i,
             });
 
-            await user.click(formRadio);
+            expect(formRadio).toBeChecked();
 
             const accountCombo = screen.getByRole('combobox', {
                 name: /account id/i,

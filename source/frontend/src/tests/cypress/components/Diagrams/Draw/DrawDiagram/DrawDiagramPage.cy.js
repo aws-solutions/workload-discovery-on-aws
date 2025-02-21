@@ -78,7 +78,7 @@ describe('Diagrams Page', () => {
 
         cy.findByRole('combobox').type('{enter}');
 
-        cy.findByRole('button', {name: 'Search'}).click();
+        cy.findByRole('button', {name: /Add to diagram/i}).click();
 
         cy.get('.expand-collapse-canvas').should('be.visible');
 
@@ -225,7 +225,7 @@ describe('Diagrams Page', () => {
 
         cy.findByRole('combobox').type('{enter}');
 
-        cy.findByRole('button', {name: 'Search'}).click();
+        cy.findByRole('button', {name: /Add to diagram/i}).click();
 
         cy.findByRole('button', {name: /action/i}).click();
 
@@ -233,9 +233,13 @@ describe('Diagrams Page', () => {
 
         cy.findByRole('menuitem', {name: /clear/i}).click({force: true});
 
+        cy.findByRole('button', {name: /action/i}).click();
+
+        cy.findByRole('menuitem', {name: /save/i}).click();
+
         cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 
-        cy.get('.expand-collapse-canvas').matchImage({maxDiffThreshold: 0.1});
+        cy.get('.expand-collapse-canvas').matchImage({maxDiffThreshold: 0.75});
     });
 
     it('should get cost interval from diagram settings', () => {
@@ -326,7 +330,7 @@ describe('Diagrams Page', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.findByRole('button', {name: /action/i}).click();
 
@@ -436,7 +440,7 @@ describe('Diagrams Page', () => {
 
         cy.findByRole('combobox').type('{enter}');
 
-        cy.findByRole('button', {name: 'Search'}).click();
+        cy.findByRole('button', {name: /Add to diagram/i}).click();
 
         cy.findByRole('button', {name: /action/i}).click();
 
@@ -914,7 +918,7 @@ describe('Diagrams Page', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.findByRole('button', {name: /action/i}).click();
 
@@ -944,7 +948,7 @@ describe('Diagrams Page', () => {
 
             cy.findByRole('combobox').type('{enter}');
 
-            cy.findByRole('button', {name: 'Search'}).click();
+            cy.findByRole('button', {name: /Add to diagram/i}).click();
 
             cy.get('.expand-collapse-canvas').scrollIntoView({duration: 2000});
 

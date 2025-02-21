@@ -3,9 +3,11 @@
 
 import React from 'react';
 import {RadioGroup} from '@cloudscape-design/components';
+import {IMPORT_CSV} from '../../../config/constants';
+import {IMPORT_INPUT} from '../../../config/constants';
 
 const RegionUploadMethod = ({setUploadMethod}) => {
-    const [value, setValue] = React.useState('csv');
+    const [value, setValue] = React.useState(IMPORT_INPUT);
 
     const onSelectionChange = uploadMethod => {
         setValue(uploadMethod);
@@ -17,16 +19,16 @@ const RegionUploadMethod = ({setUploadMethod}) => {
             value={value}
             items={[
                 {
-                    value: 'csv',
-                    label: 'Add Accounts & Regions using a CSV file',
-                    description:
-                        'Provide up to 50 AWS Account/Region pairs in a CSV file.',
-                },
-                {
-                    value: 'input',
+                    value: IMPORT_INPUT,
                     label: 'Add Accounts & Regions using a form.',
                     description:
                         'Provide the AWS Account and Region details using the form provided.',
+                },
+                {
+                    value: IMPORT_CSV,
+                    label: 'Add Accounts & Regions using a CSV file',
+                    description:
+                        'Provide up to 50 AWS Account/Region pairs in a CSV file.',
                 },
             ]}
         />

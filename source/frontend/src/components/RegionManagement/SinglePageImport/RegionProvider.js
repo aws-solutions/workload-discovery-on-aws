@@ -17,8 +17,8 @@ import ImportTable from './ImportTable';
 import {regionMap} from '../../../Utils/Dictionaries/RegionMap';
 
 import * as R from 'ramda';
+import {IMPORT_CSV, IMPORT_INPUT} from '../../../config/constants';
 const mapIndexed = R.addIndex(R.map);
-const CSV = 'csv';
 
 const itemHasAccountId = R.has('accountId');
 const itemHasAccountName = R.has('accountName');
@@ -42,7 +42,7 @@ const itemIsValid = R.allPass([
 ]);
 
 const RegionProvider = ({regions, setRegions}) => {
-    const [uploadMethod, setUploadMethod] = React.useState(CSV);
+    const [uploadMethod, setUploadMethod] = React.useState(IMPORT_INPUT);
     const [csvError, setCSVError] = React.useState([]);
 
     const handleChange = items => {
@@ -89,7 +89,7 @@ const RegionProvider = ({regions, setRegions}) => {
             <Container header={<Header variant="h2">Import Method</Header>}>
                 <SpaceBetween size="l">
                     <RegionUploadMethod setUploadMethod={setUploadMethod} />
-                    {R.equals(CSV, uploadMethod) ? (
+                    {R.equals(IMPORT_CSV, uploadMethod) ? (
                         <FileUploader
                             validateAndUpload={validateAndUploadCSV}
                             onError={item => setCSVError(item)}

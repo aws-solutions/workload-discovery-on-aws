@@ -383,7 +383,7 @@ Resources:
   VpcEndpointsSg:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Security group for Gremlin lambda
+      GroupDescription: Security Group for VPC Endpoints
       VpcId: !Ref VPC
       SecurityGroupEgress:
         - Description: Explicit egress group locking down outbound access for HTTPS
