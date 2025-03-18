@@ -1,6 +1,6 @@
 {
   "name": "wd-cur-setup",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -22,7 +22,7 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.9",
-    "vitest": "^2.1.9"
+    "@vitest/coverage-v8": "^3.0.8",
+    "vitest": "^3.0.8"
   }
 }

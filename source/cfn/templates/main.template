@@ -526,6 +526,11 @@ Resources:
   WdOidcClientSecret:
     Condition: CreateOidcSecret
     Type: AWS::SecretsManager::Secret
+    Metadata:
+      guard:
+        SuppressedRules:
+          - id: SECRETSMANAGER_USING_CMK
+            reason: AWS managed KMS key is sufficient for SecretsManager Secret.
     Properties:
       Description: Secret used by Workload Discovery for OIDC login
       SecretString: !Ref OIDCClientSecret
@@ -536,6 +541,11 @@ Resources:
   WdGoogleClientSecret:
     Condition: CreateGoogleSecret
     Type: AWS::SecretsManager::Secret
+    Metadata:
+      guard:
+        SuppressedRules:
+          - id: SECRETSMANAGER_USING_CMK
+            reason: AWS managed KMS key is sufficient for SecretsManager Secret.
     Properties:
       Description: Secret used by Workload Discovery for Google login
       SecretString: !Ref GoogleClientSecret

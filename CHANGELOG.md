@@ -5,12 +5,32 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.3] - 2025-03-18
+
+### Added
+
+- Alert in AppInsights dashboard if discovery process cannot route to required AWS services
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-cpwx-vrp4-4pq7) in `axios`.
+- Security [issue](https://github.com/advisories/GHSA-968p-4wvh-cqc8) in `babel`.
+- Security [issue](https://github.com/advisories/GHSA-67mh-4wv8-2f99) in `esbuild`.
+- Security [issue](https://github.com/advisories/GHSA-jr5f-v2jv-69x6) in `jinja`.
+- Security [issue](https://github.com/advisories/GHSA-3mv9-4h5g-vhg3) in `tsup`.
+
+### Changed
+
+- Discovery process now downloads accounts from Neptune concurrently
+
 ## [2.2.2] - 2025-02-21
 
 ### Added
+
 - Alert in AppInsights dashboard if discovery process cannot pull image from ECR
 
 ### Fixed
+
 - Metrics lambda always sent `false` for `costFeatureEnabled` metric
 - Invalid default value in `CognitoAttributeMapping` CloudFormation parameter
 - Large dark circle appears in canvas when user saves an empty diagram
@@ -18,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [issue](https://github.com/advisories/GHSA-79v4-65xg-pq4g) in `cryptography`.
 
 ### Changed
+
 - Importing accounts using form is now default setting on Accounts page
 - Account lists can now be filtered by account name [514](https://github.com/aws-solutions/workload-discovery-on-aws/issues/514)
 - Error dialog on resources page now includes link to AppInsights dashboard
@@ -26,10 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.1] - 2025-02-07
 
 ### Added
+
 - Alert in AppInsights dashboard if discovery process runs out of memory
 - Alert in AppInsights dashboard if Config not enabled in discoverable region
 
 ### Fixed
+
 - Null pointer error in SAML identity provider custom resource [567](https://github.com/aws-solutions/workload-discovery-on-aws/issues/567)
 - Incorrect description string in diagram settings filter when hiding resources
 - Erroneous validation error when exporting diagrams with global resources to myApplications
@@ -41,11 +64,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [issue](https://github.com/advisories/GHSA-q2x7-8rv6-6q7h) in `jinja`.
 
 ### Changed
+
 - Use of `FARGATE` or `FARGATE_SPOT` for discovery process is configurable via a CloudFormation parameter.
 
 ## [2.2.0] - 2024-11-20
 
 ### Added
+
 - Support for custom identity providers (SAML and OIDC) [61](https://github.com/aws-solutions/workload-discovery-on-aws/issues/61) [510](https://github.com/aws-solutions/workload-discovery-on-aws/issues/510)
 - Export of diagrams to myApplications
 - Export of diagrams to SVG
@@ -71,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `AWS::MediaPackage::PackagingConfiguration` -> `AWS::MediaPackage::PackagingGroup`/`AWS::IAM::Role`
 
 ### Changed
+
 - Multiple resources can now be selected in the search bar on the Diagram page
 - Migrate AppRegistry integration to myApplications for monitoring solution costs and usage.
 - Migrate JavaScript lambda functions and the discovery process from CommonJS to ESM
@@ -78,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update OpenSearch version to `2.11.0`.
 
 ### Fixed
+
 - `AWS::EC2::NetworkInterface` -> `AWS::OpenSearchService::Domain` relationships are not discovered
 - Failed writes to OpenSearch should stop the corresponding write being made to Neptune
 - Metrics lambda times out when hundreds of accounts have been imported
@@ -197,6 +224,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comma in Service Name Results causes GraphQL type error [491](https://github.com/aws-solutions/workload-discovery-on-aws/issues/491)
 
 ### Changed
+
 - Frequency at which the scheduled discovery process ECS task runs is now configurable via a CloudFormation parameter.
 
 ## [2.1.2] - 2023-11-14
@@ -206,13 +234,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Throttle `ListAccounts` API to prevent rate limiting from stopping the Discovery process discover accounts
   in large organisation. [478](https://github.com/aws-solutions/workload-discovery-on-aws/issues/478)
 - Only attempt to discover accounts from provided OU and its children, rather than whole organization.
-- Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading 
+- Throttle `SelectAggregateResourceConfig` API to prevent rate limiting from stopping discovery process from reading
   from the Config aggregator.
 - Remove Retain on organization-wide StackSet so IAM roles are no longer left in organization's accounts after solution is uninstalled.
 - Handle error message difference between AppSync VTL resolvers and JS resolvers that prevented discovery process from retrying
   requests to DB if payload was too large.
 
 ### Changed
+
 - Move GraphQL queries that queried whole Neptune database to use DynamoDB, significantly reducing load on Neptune and
   improving rendering times on the frontend.
 - Retrieve the following resource types from AWS Config advanced query rather than  `ListAggregateDiscoveredResources`
@@ -231,6 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.1] - 2023-10-24
 
 ### Fixed
+
 - Security [issue](https://github.com/babel/babel/security/advisories/GHSA-67hx-6x53-jw92) in `@babel/traverse`.
 - Security [issue](https://github.com/advisories/GHSA-wqq4-5wpv-mx2g)  in `undici`.
 - Security [issue](https://github.com/advisories/GHSA-g4mx-q9vg-27p4) in `urllib3`.
@@ -250,9 +280,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for more resource types now totalling over 250.
 
 ### Changed
+
 - Migrated from the deprecated awsui frontend framework to [Cloudscape](https://cloudscape.design).
 
 ### Fixed
+
 - Export of diagrams to JSON [426](https://github.com/aws-solutions/workload-discovery-on-aws/issues/426)
 - Export of diagrams to draw.io [329](https://github.com/aws-solutions/workload-discovery-on-aws/issues/329)
 - Outdated OpenSSL package being used [424](https://github.com/aws-solutions/workload-discovery-on-aws/issues/424)
@@ -346,9 +378,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Cost calculations to query on resourceIds as well as ARNs. https://github.com/awslabs/aws-perspective/issues/231
-- Drawio export bug that was causing diagrams with collapsed nodes to cause an error. https://github.com/awslabs/aws-perspective/issues/219
-- Hover over box when hovering over a resource it was going outside the screen. https://github.com/awslabs/aws-perspective/issues/220
+- Cost calculations to query on resourceIds as well as ARNs. [231](https://github.com/awslabs/aws-perspective/issues/231)
+- Drawio export bug that was causing diagrams with collapsed nodes to cause an error. [219](https://github.com/awslabs/aws-perspective/issues/219)
+- Hover over box when hovering over a resource it was going outside the screen. [220](Hhttps://github.com/awslabs/aws-perspective/issues/220)
 - Slow deployment step that uploads files to S3. Increase **maxSockets** in HTTPS agent within the Lambda.
 
 ## [1.1.2] - 2021-11-03
@@ -364,7 +396,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed permissions errors preventing in-place upgrades.
-- Fixed a bug causing Amazon Elasticsearch Service costs to be missed out when calculating estimated workload costs (https://github.com/awslabs/aws-perspective/issues/216).
+- Fixed a bug causing Amazon Elasticsearch Service costs to be missed out when calculating estimated workload costs [216](https://github.com/awslabs/aws-perspective/issues/216).
 - Fixed a bug causing cost query date not to update in the overview component.
 
 ## [1.1.1] - 2021-09-28
@@ -381,9 +413,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed a bug causing a blank screen when expanding nodes whilst filters are enabled - https://github.com/awslabs/aws-perspective/issues/201
-- Fixed a bug that meant the time period for cost report queries was not persisted - https://github.com/awslabs/aws-perspective/issues/200
-- Fixed a bug that could result in python files being incorrectly excluded - https://github.com/awslabs/aws-perspective/issues/64
+- Fixed a bug causing a blank screen when expanding nodes whilst filters are enabled [201](https://github.com/awslabs/aws-perspective/issues/201)
+- Fixed a bug that meant the time period for cost report queries was not persisted [200](https://github.com/awslabs/aws-perspective/issues/200)
+- Fixed a bug that could result in python files being incorrectly excluded [64](https://github.com/awslabs/aws-perspective/issues/64)
 - A bug causing some resource types to throw an exception when clicking "Show more details"
 
 ## [1.1.0] - 2021-08-26
@@ -420,11 +452,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2020-09-29
 
-- Added 'Save Template' option when importing new accounts and Regions. This removes the need to enable public access 
+- Added 'Save Template' option when importing new accounts and Regions. This removes the need to enable public access
   objects in the  AmplifyStorageBucket
-- Altered wording around visibility levels when saving architecture diagrams. 'You' and 'All users' is now used instead 
+- Altered wording around visibility levels when saving architecture diagrams. 'You' and 'All users' is now used instead
   of 'public' and 'private'.
-- Fixed bug that was causing import configurations to become corrupt when an account or Region was deleted by the 
+- Fixed bug that was causing import configurations to become corrupt when an account or Region was deleted by the
   UI if a discovery was in progress.
 - Fixed bug leading to invalid JSON being generated in CloudFormation templates for importing accounts and Regions.
 - Fixed Dependabot issues raised by GitHub

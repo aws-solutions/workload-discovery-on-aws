@@ -24,3 +24,11 @@ export class OrgAggregatorValidationError extends Error {
         this.aggregator = aggregator;
     }
 }
+
+export class RequiredServicesTimeoutError extends Error {
+    constructor(services) {
+        super('Error connecting to one or more required AWS services.');
+        this.name = 'VpcConfigurationValidationError';
+        this.services = services;
+    }
+}

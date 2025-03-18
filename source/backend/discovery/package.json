@@ -52,6 +52,7 @@
   "devDependencies": {
     "@vitest/coverage-v8": "^2.1.9",
     "aws-sdk-client-mock": "3.0.1",
+    "msw": "^2.7.3",
     "sinon": "^17.0.0",
     "vitest": "^2.1.9"
   },

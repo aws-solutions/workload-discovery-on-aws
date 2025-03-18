@@ -27,6 +27,7 @@ import {
     DynamoDBStreamsClient
 } from '@aws-sdk/client-dynamodb-streams';
 import {
+    DescribeNatGatewaysCommand,
     DescribeRegionsCommand,
     DescribeSpotFleetRequestsCommand,
     DescribeSpotInstanceRequestsCommand,
@@ -705,6 +706,7 @@ describe('awsClient', () => {
     describe('ec2Client', () => {
         const {
             getAllRegions,
+            getNatGateways,
             getAllSpotFleetRequests,
             getAllSpotInstanceRequests,
             getAllTransitGatewayAttachments
@@ -738,6 +740,46 @@ describe('awsClient', () => {
                         name: 'us-east-1'
                     }
                 ]);
+            });
+
+        });
+
+        describe('getNatGateway', () => {
+
+            it('should get nat gateways for a specific vpc', async () => {
+                const mockEc2Client = mockClient(EC2Client);
+
+                const vpcNatGateways = {
+                    'vpc-test123': {
+                        NatGateways: [
+                            {
+                                NatGatewayId: 'nat-12345678',
+                                VpcId: 'vpc-test123',
+                                State: 'available',
+                                SubnetId: 'subnet-1a2b3c4d'
+                            },
+                            {
+                                NatGatewayId: 'nat-87654321',
+                                VpcId: 'vpc-test123',
+                                State: 'available',
+                                SubnetId: 'subnet-5e6f7g8h'
+                            }
+                        ]
+                    }
+                };
+
+                mockEc2Client
+                    .on(DescribeNatGatewaysCommand)
+                    .callsFake((params) => {
+                        const vpcId = params.Filter.find(filter =>
+                            filter.Name === 'vpc-id'
+                        )?.Values[0];
+
+                        return vpcNatGateways[vpcId] ?? { NatGateways: [] };
+                    });
+
+                const actual = await getNatGateways('vpc-test123');
+                assert.deepEqual(actual, vpcNatGateways['vpc-test123'].NatGateways);
             });
 
         });

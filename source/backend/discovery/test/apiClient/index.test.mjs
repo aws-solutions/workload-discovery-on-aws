@@ -14,6 +14,7 @@ import GetAccountsOrgsEmpty from '../mocks/agents/GetAccountsOrgsEmpty.mjs';
 import GetAccountsOrgsLastCrawled from '../mocks/agents/GetAccountsOrgsLastCrawled.mjs';
 import GetAccountsOrgsDeleted from '../mocks/agents/GetAccountsOrgsDeleted.mjs';
 import GetDbResourcesMapPagination from '../mocks/agents/GetDbResourcesMapPagination.mjs';
+import GetDbResourcesMapParallel from '../mocks/agents/GetDbResourcesMapParallel.mjs';
 import GetDbRelationshipsMapPagination from '../mocks/agents/GetDbRelationshipsMapPagination.mjs';
 import GenericError from '../mocks/agents/GenericError.mjs';
 import IndexResourcesPartialSuccess from '../mocks/agents/IndexResourcesPartialSuccess.mjs';
@@ -145,6 +146,63 @@ describe('index.mjs', () => {
                     }
                 }
             }]]));
+        });
+
+        it('should page through server results in parallel when accounts specified', async () => {
+            setGlobalDispatcher(GetDbResourcesMapParallel);
+            const actual = await apiClient.getDbResourcesMap(
+                {accounts: [{accountId: ACCOUNT_X}, {accountId: ACCOUNT_Y}]}
+            );
+
+            assert.deepEqual(
+                actual,
+                new Map([
+                    [
+                        'arn1',
+                        {
+                            id: 'arn1',
+                            label: 'label',
+                            md5Hash: '',
+                            properties: {
+                                id: 'arn1',
+                                resourceId: 'resourceId1',
+                                resourceName: 'resourceName1',
+                                resourceType: 'AWS::Lambda::Function',
+                                accountId: ACCOUNT_X,
+                                arn: 'arn1',
+                                awsRegion: 'eu-west-1',
+                                relationships: [],
+                                tags: [],
+                                configuration: {
+                                    a: 1,
+                                },
+                            },
+                        },
+                    ],
+                    [
+                        'arn2',
+                        {
+                            id: 'arn2',
+                            label: 'label',
+                            md5Hash: '',
+                            properties: {
+                                id: 'arn2',
+                                resourceId: 'resourceId2',
+                                resourceName: 'resourceName2',
+                                resourceType: 'AWS::Lambda::Function',
+                                accountId: ACCOUNT_Y,
+                                arn: 'arn2',
+                                awsRegion: 'us-west-1',
+                                relationships: [],
+                                tags: [],
+                                configuration: {
+                                    a: 2,
+                                },
+                            },
+                        },
+                    ],
+                ]),
+            );
         });
 
         it('should handle resource to large errors', async () => {

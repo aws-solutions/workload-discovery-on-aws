@@ -34,6 +34,7 @@ source/frontend/cypress/videos
 # package-lock.json
 **/.vscode/settings.json
 **/setenv.sh
+source/frontend/.eslintcache
 
 #IntelliJ
 .idea

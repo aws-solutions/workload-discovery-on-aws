@@ -27,10 +27,11 @@ export async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
     const {apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
 
-    const [accounts, dbLinksMap, dbResourcesMap, configResources] = await Promise.all([
-        apiClient.getAccounts(),
+    const accounts = await apiClient.getAccounts();
+
+    const [dbLinksMap, dbResourcesMap, configResources] = await Promise.all([
         apiClient.getDbRelationshipsMap(),
-        apiClient.getDbResourcesMap(),
+        apiClient.getDbResourcesMap(accounts),
         getAllConfigResources(configServiceClient, config.configAggregator)
     ]);
 

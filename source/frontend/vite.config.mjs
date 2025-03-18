@@ -1,8 +1,7 @@
-import {defineConfig} from 'vite';
+import {defineConfig, transformWithEsbuild} from 'vite';
 import eslint from 'vite-plugin-eslint2';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import esbuild from 'esbuild';
 import react from '@vitejs/plugin-react';
 import svgrPlugin from 'vite-plugin-svgr';
 import istanbul from 'vite-plugin-istanbul';
@@ -49,14 +48,16 @@ export default defineConfig({
         react(),
         svgrPlugin(),
         {
-            name: 'load-js-files-as-jsx',
-            async load(id) {
-                if (!id.match(/src\/.*\.js$/)) {
-                    return;
+            name: 'load+transform-js-files-as-jsx',
+            async transform(code, id) {
+                if (!id.match(/src\/.*\.m?js$/)) {
+                    return null;
                 }
 
-                const file = await fs.readFile(id, 'utf-8');
-                return esbuild.transformSync(file, {loader: 'jsx'});
+                return transformWithEsbuild(code, id, {
+                    loader: 'jsx',
+                    jsx: 'automatic',
+                });
             },
         },
         // this plugin is require to instrument the code running in a browser for

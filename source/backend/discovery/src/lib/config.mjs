@@ -13,3 +13,4 @@ export const organizationUnitId = process.env.ORGANIZATION_UNIT_ID;
 export const region = process.env.AWS_REGION;
 export const rootAccountId = process.env.AWS_ACCOUNT_ID;
 export const rootAccountRole = process.env.DISCOVERY_ROLE;
+export const vpcId = process.env.VPC_ID;
