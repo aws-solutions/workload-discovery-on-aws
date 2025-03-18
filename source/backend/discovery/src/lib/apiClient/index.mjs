@@ -19,19 +19,35 @@ function getDbResourcesMap(appSync) {
     const {createPaginator, getResources} = appSync;
     const getResourcesPaginator = createPaginator(getResources, 1000);
 
-    return async () => {
+    return async ({accounts} = {}) => {
         const resourcesMap = new Map();
 
-        for await (const resources of getResourcesPaginator({})) {
-            resources.forEach(r => resourcesMap.set(r.id, {
-                id: r.id,
-                label: r.label,
-                md5Hash: r.md5Hash,
-                // gql will return `null` for missing properties which will break the hashing
-                // comparison for sdk discovered resources
-                properties: R.reject(R.isNil, r.properties)
-            }));
-        }
+        // if `accounts` is not specified we create a single paginator that will page through the results
+        // serially, else we create a paginator per account and execute them concurrently up to the
+        // limit defined for the promise pool
+        const paginators = accounts == null ?
+            [getResourcesPaginator({})] :
+            accounts.map(({accountId}) => getResourcesPaginator({accounts: [{accountId}]}));
+
+        await PromisePool
+            .withConcurrency(20)
+            .for(paginators)
+            .handleError(async (error) => {
+                logger.error(`There was a problem downloading accounts from Neptune: ${error}.`);
+                throw error;
+            })
+            .process(async paginator => {
+                for await (const resources of paginator) {
+                    resources.forEach(r => resourcesMap.set(r.id, {
+                        id: r.id,
+                        label: r.label,
+                        md5Hash: r.md5Hash,
+                        // gql will return `null` for missing properties which will break the hashing
+                        // comparison for sdk discovered resources
+                        properties: R.reject(R.isNil, r.properties),
+                    }));
+                }
+            });
 
         return resourcesMap;
     };

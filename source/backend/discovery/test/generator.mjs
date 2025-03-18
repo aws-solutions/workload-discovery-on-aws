@@ -28,7 +28,10 @@ export function generate(schema) {
                 const matches = input.match(stringInterpolationRegex);
                 if(matches != null) {
                     return matches.reduce((acc, match) => {
-                        return acc.replace('${' + match + '}', getRel(schema, match));
+                        return acc.replace(
+                            '${' + match + '}',
+                            getRel(schema, match),
+                        );
                     }, input);
                 }
             }
@@ -75,4 +78,36 @@ export function generateBaseResource(accountId, awsRegion, resourceType, num) {
 
 export function generateRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export function generateAwsApiEndpoints(region) {
+    const endpoints = [
+        {url: 'https://iam.amazonaws.com', service: 'IAM'},
+        {url: 'https://organizations.us-east-1.amazonaws.com', service: 'AWS Organizations'},
+        {url: 'https://sts.{region}.amazonaws.com', service: 'STS'},
+        {url: 'https://config.{region}.amazonaws.com', service: 'AWS Config'},
+        {url: 'https://apigateway.{region}.amazonaws.com', service: 'API Gateway'},
+        {url: 'https://dynamodb.{region}.amazonaws.com', service: 'DynamoDB'},
+        {url: 'https://ec2.{region}.amazonaws.com', service: 'EC2'},
+        {url: 'https://ecs.{region}.amazonaws.com', service: 'ECS'},
+        {url: 'https://elasticloadbalancing.{region}.amazonaws.com', service: 'ELB'},
+        {url: 'https://eks.{region}.amazonaws.com', service: 'EKS'},
+        {url: 'https://lambda.{region}.amazonaws.com', service: 'Lambda'},
+        {url: 'https://mediaconnect.{region}.amazonaws.com', service: 'MediaConnect'},
+        {url: 'https://es.{region}.amazonaws.com', service: 'OpenSearch'},
+        {url: 'https://sns.{region}.amazonaws.com', service: 'SNS'},
+        {
+            url: 'https://servicecatalog-appregistry.{region}.amazonaws.com',
+            service: 'Service Catalog App Registry',
+        },
+        {url: 'https://logs.{region}.amazonaws.com', service: 'CloudWatch'},
+        {url: 'https://appsync.{region}.amazonaws.com/graphql', service: 'AppSync API'},
+    ];
+
+    return endpoints.map(({url, service}) => {
+        return {
+            service,
+            url: url.replace('{region}', region),
+        };
+    });
 }

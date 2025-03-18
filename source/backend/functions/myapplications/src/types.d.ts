@@ -1,3 +1,6 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 declare type NonEmptyArray<T> = import('ramda').NonEmptyArray<T>;
 
 declare type AppSyncResolverEvent<T> =

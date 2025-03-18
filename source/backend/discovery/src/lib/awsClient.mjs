@@ -456,6 +456,18 @@ export function createEc2Client(credentials, region) {
             const { Regions } = await ec2Client.describeRegions({});
             return Regions.map(x => ({name: x.RegionName}));
         },
+        async getNatGateways(vpcId) {
+            const {NatGateways} = await ec2Client.describeNatGateways({
+                    Filter: [
+                        {
+                            Name: 'vpc-id',
+                            Values: [vpcId],
+                        },
+                    ],
+                },
+            );
+            return NatGateways;
+        },
         async getAllSpotInstanceRequests() {
             const siPaginator = paginateDescribeSpotInstanceRequests(ec2PaginatorConfig, {});
 

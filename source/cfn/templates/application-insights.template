@@ -41,6 +41,12 @@ Resources:
               - PatternName: CannotPullContainerFromRegistry
                 Pattern: 'CannotPullContainerError'
                 Rank: 5
+              - PatternName: VpcConfigurationAwsServiceCheck
+                Pattern: 'Could not connect to [A-Za-z0-9\s]+ API.'
+                Rank: 6
+              - PatternName: VpcConfigurationNatGatewayCheck
+                Pattern: 'Failed to list NAT Gateways in vpc-[a-f0-9]{8,}'
+                Rank: 7
       ComponentMonitoringSettings:
         - ComponentARN: !Ref ClusterArn
           Tier: DEFAULT

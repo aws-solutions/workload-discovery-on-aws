@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.2.2)
+# Workload Discovery on AWS (v2.2.3)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -171,7 +171,7 @@ diagnose and rectify common issues.
 
 ## License
 
-See license [here](./LICENSE.txt).
+See license [here](./LICENSE).
 
 ## Anonymized data collection
 
@@ -191,4 +191,4 @@ by the [Info Visualization Research Lab](https://www.cs.bilkent.edu.tr/~ivis/) a
 
 Copyright 2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
-Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at https://www.apache.org/licenses/ or in the "[license](LICENSE.txt)" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
+Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at https://www.apache.org/licenses/ or in the "[license](LICENSE)" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.

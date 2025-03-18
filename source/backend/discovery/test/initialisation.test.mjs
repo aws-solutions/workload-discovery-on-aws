@@ -1,10 +1,15 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {assert, describe, it} from 'vitest';
+import {afterEach, assert, describe, it, vi} from 'vitest';
 import {initialise} from '../src/lib/intialisation.mjs';
 import {AWS_ORGANIZATIONS} from '../src/lib/constants.mjs';
-import {AggregatorNotFoundError, OrgAggregatorValidationError} from '../src/lib/errors.mjs';
+import {
+    AggregatorNotFoundError,
+    OrgAggregatorValidationError,
+    RequiredServicesTimeoutError,
+} from '../src/lib/errors.mjs';
+import {generateAwsApiEndpoints} from './generator.mjs';
 
 describe('initialisation', () => {
     const ACCOUNT_X = 'xxxxxxxxxxxx';
@@ -13,6 +18,10 @@ describe('initialisation', () => {
     const US_EAST_1= 'us-east-1';
 
     describe('initialise', () => {
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
 
         const defaultMockAwsClient = {
             createEcsClient() {
@@ -25,8 +34,14 @@ describe('initialisation', () => {
             createEc2Client() {
                 return {
                     async getAllRegions() {
-                        return []
-                    }
+                        return [];
+                    },
+                    async getNatGateways() {
+                        return [
+                            {NatGatewayId: 'nat-11111111'},
+                            {NatGatewayId: 'nat-22222222'},
+                        ];
+                    },
                 };
             },
             createConfigServiceClient() {
@@ -57,9 +72,13 @@ describe('initialisation', () => {
         const defaultAppSync = () => {
             return {
                 getAccounts: async () => [
-                    {accountId: ACCOUNT_X, regions: [{name: EU_WEST_1}]}
-                ]
-            }
+                    {accountId: ACCOUNT_X, regions: [{name: EU_WEST_1}]},
+                ],
+                createPaginator: async function* () {
+                    yield [];
+                },
+                getResources: async () => []
+            };
         };
 
         const defaultConfig = {
@@ -68,6 +87,85 @@ describe('initialisation', () => {
             cluster: 'testCluster',
             configAggregator: 'configAggregator'
         };
+
+        describe('VPC connectivity checks', () => {
+            const endpoints = generateAwsApiEndpoints(EU_WEST_1);
+            const graphgQlUrl = endpoints.find(x => x.service === 'AppSync API').url;
+
+            function createTimeoutSignal() {
+                const abortController = new AbortController();
+                const error = new Error();
+                error.name = 'TimeoutError';
+                abortController.abort(error);
+                return abortController.signal;
+            }
+
+            it('should not throw when all AWS API test requests respond successfully', async () => {
+                return initialise(
+                    {...defaultMockAwsClient},
+                    defaultAppSync,
+                    {...defaultConfig, graphgQlUrl, isUsingOrganizations: true},
+                );
+            });
+
+            it('should not throw on TimeoutError when listing NAT Gateways', async () => {
+                const mockAwsClient = {
+                    createEc2Client: () => ({
+                        async getNatGateways() {
+                            const error = new Error();
+                            error.name = 'TimeoutError';
+                            throw error;
+                        },
+                    }),
+                };
+
+                return initialise(
+                    {...defaultMockAwsClient, ...mockAwsClient},
+                    defaultAppSync,
+                    {...defaultConfig, graphgQlUrl, isUsingOrganizations: true},
+                );
+            });
+
+            it('should throw on non TimeoutError when listing NAT Gateways', async () => {
+                const mockAwsClient = {
+                    createEc2Client: () => ({
+                        async getNatGateways() {
+                            const error = new Error();
+                            error.name = 'NotTimeoutError';
+                            throw error;
+                        },
+                    }),
+                };
+
+                return initialise(
+                    {...defaultMockAwsClient, ...mockAwsClient},
+                    defaultAppSync,
+                    {...defaultConfig, graphgQlUrl, isUsingOrganizations: true},
+                ).then(() => {
+                    throw new Error('Expected error not thrown.');
+                }).catch(err => {
+                    assert.strictEqual(err.name, 'NotTimeoutError');
+                });
+            });
+
+            it('should throw RequiredServicesTimeoutError if AWS API test requests time out',
+                async () => {
+                    vi.spyOn(AbortSignal, 'timeout').mockReturnValue(createTimeoutSignal());
+
+                    return initialise(
+                        {...defaultMockAwsClient},
+                        defaultAppSync,
+                        {...defaultConfig, graphgQlUrl, isUsingOrganizations: true},
+                    )
+                        .then(() => {
+                            throw new Error('Expected function to throw but it did not');
+                        })
+                        .catch(err => {
+                            assert.instanceOf(err, RequiredServicesTimeoutError);
+                            assert.deepEqual(err.services.toSorted(), endpoints.map(x => x.service).toSorted());
+                        });
+                });
+        });
 
         it('should throw if another copy of the ECS task is running', async () => {
             const mockAwsClient = {

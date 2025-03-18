@@ -333,7 +333,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - ec2:DescribeRegions
+                  - ec2:DescribeNatGateways
                 Resource: '*'
+                Condition:
+                  StringEquals:
+                    'ec2:Region': !Ref AWS::Region
         - PolicyName: config-policy
           PolicyDocument:
             Version: '2012-10-17'
@@ -377,6 +381,8 @@ Resources:
               Value: !Ref AWS::AccountId
             - Name: AWS_REGION
               Value: !Ref AWS::Region
+            - Name: VPC_ID
+              Value: !Ref VpcId
             - Name: CLUSTER
               Value: !Ref Cluster
             - Name: NODE_OPTIONS
