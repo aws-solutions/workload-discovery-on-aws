@@ -63,11 +63,28 @@ const columns = [
         header: 'Role Status',
         cell: e => {
             if (e.isIamRoleDeployed == null)
-                return <StatusIndicator type="info">Unknown</StatusIndicator>;
+                return (
+                    <StatusIndicator
+                        type="info"
+                        iconAriaLabel={`Role deployment status info`}
+                    >
+                        Unknown
+                    </StatusIndicator>
+                );
             return e.isIamRoleDeployed === false ? (
-                <StatusIndicator type="error">Not Deployed</StatusIndicator>
+                <StatusIndicator
+                    type="error"
+                    iconAriaLabel={`Role deployment status error`}
+                >
+                    Not Deployed
+                </StatusIndicator>
             ) : (
-                <StatusIndicator type="success">Deployed</StatusIndicator>
+                <StatusIndicator
+                    type="success"
+                    iconAriaLabel={`Role deployment status success`}
+                >
+                    Deployed
+                </StatusIndicator>
             );
         },
         width: 200,
@@ -276,7 +293,8 @@ const DiscoverableAccountsTable = ({selectedAccounts, onSelect}) => {
                 ),
                 filteringFunction: (item, filteringText) => {
                     return (
-                        (item.accountId.includes(filteringText) || item.name.includes(filteringText)) &&
+                        (item.accountId.includes(filteringText) ||
+                            item.name.includes(filteringText)) &&
                         matchesRoleStatus(item, roleStatus)
                     );
                 },

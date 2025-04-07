@@ -54,7 +54,7 @@ const defaultResources = accounts.flatMap(({accountId, regions}) => {
 export function createSearchResourceHandler(initialResources) {
     return ({variables}) => {
         const {
-            pagination: {start},
+            pagination: {start, end},
             accounts = [],
             resourceTypes,
             text,
@@ -93,7 +93,7 @@ export function createSearchResourceHandler(initialResources) {
         return HttpResponse.json({
             data: {
                 searchResources: {
-                    resources,
+                    resources: resources.slice(start, end),
                     count: resources.length,
                 },
             },

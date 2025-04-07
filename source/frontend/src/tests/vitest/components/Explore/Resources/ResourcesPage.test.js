@@ -4,7 +4,13 @@
 import React from 'react';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import {describe, expect, it} from 'vitest';
-import {findByText, getByText, render, screen} from '@testing-library/react';
+import {
+    findByText,
+    getByText,
+    render,
+    screen,
+    within,
+} from '@testing-library/react';
 import {TableWrapper} from '@cloudscape-design/components/test-utils/dom';
 
 import ResourcesPage from '../../../../../components/Explore/Resources/ResourcesPage';
@@ -15,7 +21,10 @@ import {DiagramSettingsProvider} from '../../../../../components/Contexts/Diagra
 import userEvent from '@testing-library/user-event';
 import {server} from '../../../../mocks/server';
 import {graphql, HttpResponse} from 'msw';
-import {createOrganizationsPerspectiveMetadata, createSelfManagedPerspectiveMetadata} from '../../../testUtils';
+import {
+    createOrganizationsPerspectiveMetadata,
+    createSelfManagedPerspectiveMetadata,
+} from '../../../testUtils';
 
 function renderResourcesPage() {
     const queryClient = new QueryClient({
@@ -117,12 +126,106 @@ describe('Resource Page', () => {
             name: /Resources types \(12\)/,
         });
 
+        const pageSizeSelector = await screen.findByRole('button', {
+            name: /search results page size/i,
+        });
+
+        await userEvent.click(pageSizeSelector);
+
+        const paginationOption250 = await screen.findByRole('option', {
+            name: /250/i,
+        });
+
+        await userEvent.click(paginationOption250);
+
         // this value is the number of resources returned by the mocked
         // `SearchResources` GQL query
         await screen.findByRole('heading', {
             level: 2,
             name: /Resources \(29\)/,
         });
+    });
+
+    it('should show warning when selecting more than 150 resources', async () => {
+        window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
+
+        server.use(
+            graphql.query('SearchResources', () => {
+                const resources = [];
+
+                // Generate 200 mock resources using forEach
+                Array.from({length: 151}).forEach((_, i) => {
+                    resources.push({
+                        id: `arn:aws:kms:eu-west-1:123456789012:key/mock-key-${i}`,
+                        label: 'AWS_KMS_Key',
+                        md5Hash: null,
+                        properties: {
+                            arn: `arn:aws:kms:eu-west-1:123456789012:key/mock-key-${i}`,
+                            accountId: '123456789012',
+                            availabilityZone: 'Regional',
+                            awsRegion: 'eu-west-1',
+                            resourceId: `mock-key-${i}`,
+                            resourceName: `mock-key-${i}`,
+                            resourceType: 'AWS::KMS::Key',
+                            title: `Mock KMS Key ${i}`,
+                            state: 'Enabled',
+                            tags: '[]',
+                            configuration: `{"KeyId":"mock-key-${i}"}`,
+                        },
+                    });
+                });
+
+                return HttpResponse.json({
+                    data: {
+                        searchResources: {
+                            count: resources.length,
+                            resources: resources,
+                        },
+                    },
+                });
+            })
+        );
+
+        const user = userEvent.setup();
+        renderResourcesPage();
+
+        // Wait for resources to load
+        await screen.findByRole('heading', {
+            level: 2,
+            name: /Resources \(151\)/,
+        });
+
+        const pageSizeSelector = await screen.findByRole('button', {
+            name: /search results page size/i,
+        });
+
+        await user.click(pageSizeSelector);
+
+        const paginationOption = await screen.findByRole('option', {
+            name: /250/i,
+        });
+        await user.click(paginationOption);
+
+        const resourcesTable = await screen.findByRole('table', {
+            name: /resources$/i,
+        });
+
+        const resourcesTableWrapper = new TableWrapper(
+            resourcesTable.parentElement
+        );
+
+        // performance of getByRole degrades significantly when there are 150 checkboxes
+        // so we need to fall back to Cloudscape testing utilities that are more performant
+        // for this use case
+        const selectAll = resourcesTableWrapper
+            .findSelectAllTrigger()
+            .getElement();
+
+        await user.click(selectAll);
+
+        await screen.findByText(
+            /selecting this many resources will add hundreds, or potentially thousands, of resources to the diagram once the selected resources' relationships have been traversed\. this may impact performance\./i
+        );
     });
 
     it('should retrieve account metadata in batches of 50', async () => {

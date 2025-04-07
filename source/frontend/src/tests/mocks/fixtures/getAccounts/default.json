@@ -3,7 +3,7 @@
         {
             "accountId": "xxxxxxxxxxxx",
             "name": "testAccountx",
-            "isIamRoleDeployed": false,
+            "isIamRoleDeployed": true,
             "isManagementAccount": null,
             "regions": [
                 {
