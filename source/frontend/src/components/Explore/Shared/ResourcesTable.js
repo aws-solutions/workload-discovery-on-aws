@@ -4,10 +4,13 @@
 import {fetchImage} from '../../../Utils/ImageSelector';
 import {useCollection} from '@cloudscape-design/collection-hooks';
 import {
+    Alert,
     Box,
     Button,
+    Grid,
     Header,
     Pagination,
+    Select,
     SpaceBetween,
     Table,
     TextFilter,
@@ -32,11 +35,12 @@ function ImageCell(item) {
     );
 }
 
-function ResourcesTable({accounts, resourceTypes, pageSize}) {
+function ResourcesTable({accounts, resourceTypes}) {
     const [debouncedValue, setDebouncedValue] = React.useState('');
     const [selectedItems, setSelectedItems] = React.useState([]);
     const [filterText, setFilterText] = React.useState('');
     const [currentPageIndex, setCurrentPageIndex] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState(20);
     const [paginationToken, setPaginationToken] = React.useState({
         start: 0,
         end: pageSize,
@@ -117,7 +121,7 @@ function ResourcesTable({accounts, resourceTypes, pageSize}) {
                     </Box>
                 ),
             },
-            pagination: {pageSize: pageSize},
+            pagination: {pageSize},
             sorting: {sortingColumn: 'name'},
         });
 
@@ -166,20 +170,49 @@ function ResourcesTable({accounts, resourceTypes, pageSize}) {
             header={
                 <Header
                     actions={
-                        <SpaceBetween size={'s'} direction={'horizontal'}>
-                            <Button
-                                disabled={R.isEmpty(selectedItems)}
-                                loading={isLoading}
-                                onClick={loadSelected}
-                                variant="primary"
-                            >
-                                Add to diagram
-                            </Button>
-                        </SpaceBetween>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                gap: '12px',
+                            }}
+                        >
+                            {selectedItems.length > 150 && (
+                                <div
+                                    style={{
+                                        flexGrow: 1,
+                                        maxWidth: 'calc(100% - 160px)',
+                                    }}
+                                >
+                                    <Alert
+                                        type="warning"
+                                        dismissible={false}
+                                        statusIconAriaLabel="too many selected resources warning"
+                                    >
+                                        Selecting this many resources will add
+                                        hundreds, or potentially thousands, of
+                                        resources to the diagram once the
+                                        selected resources&apos; relationships
+                                        have been traversed. This may impact
+                                        performance.
+                                    </Alert>
+                                </div>
+                            )}
+                            <div style={{width: '160px', flexShrink: 0}}>
+                                <Button
+                                    disabled={R.isEmpty(selectedItems)}
+                                    loading={isLoading}
+                                    onClick={loadSelected}
+                                    variant="primary"
+                                >
+                                    Add to diagram
+                                </Button>
+                            </div>
+                        </div>
                     }
-                    counter={`(${resourceCount})`}
                 >
-                    Resources
+                    {`Resources (${resourceCount})`}
                 </Header>
             }
             columnDefinitions={[
@@ -219,19 +252,49 @@ function ResourcesTable({accounts, resourceTypes, pageSize}) {
                 },
             ]}
             pagination={
-                <Pagination
-                    {...paginationProps}
-                    ariaLabels={{
-                        nextPageLabel: 'Next page',
-                        previousPageLabel: 'Previous page',
-                        pageLabel: pageNumber =>
-                            `Page ${pageNumber} of all pages`,
-                    }}
-                    currentPageIndex={currentPageIndex}
-                    onChange={({detail}) => handlePageChange(detail)}
-                    pagesCount={Math.ceil(resourceCount / pageSize)}
-                    openEnd
-                />
+                <Box textAlign="right">
+                    <SpaceBetween direction="horizontal" size="xs">
+                        <Select
+                            ariaLabel="search results page size"
+                            selectedOption={{
+                                label: `${pageSize} items`,
+                                value: `${pageSize}`,
+                            }}
+                            onChange={({detail}) => {
+                                const newPageSize = parseInt(
+                                    detail.selectedOption.value
+                                );
+                                setPageSize(newPageSize);
+                                setCurrentPageIndex(1);
+                                setPaginationToken({
+                                    start: 0,
+                                    end: newPageSize,
+                                });
+                            }}
+                            options={[
+                                {label: '10', value: '10'},
+                                {label: '25', value: '25'},
+                                {label: '50', value: '50'},
+                                {label: '100', value: '100'},
+                                {label: '250', value: '250'},
+                                {label: '500', value: '500'},
+                            ]}
+                        />
+                        <Pagination
+                            {...paginationProps}
+                            ariaLabels={{
+                                nextPageLabel: 'Next page',
+                                previousPageLabel: 'Previous page',
+                                pageLabel: pageNumber =>
+                                    `Page ${pageNumber} of all pages`,
+                            }}
+                            currentPageIndex={currentPageIndex}
+                            onChange={({detail}) => handlePageChange(detail)}
+                            pagesCount={Math.ceil(resourceCount / pageSize)}
+                            openEnd
+                        />
+                    </SpaceBetween>
+                </Box>
             }
             items={items}
         />

@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.4] - 2025-04-07
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-m5qc-5hw7-8vg7) in `image-size`.
+- Security [issue](https://github.com/advisories/GHSA-4r4m-qw57-chr8) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-x574-m823-4x7w) in `vite`.
+
+### Changed
+
+- Pagination size in resource table on Resources page is now configurable
+
 ## [2.2.3] - 2025-03-18
 
 ### Added

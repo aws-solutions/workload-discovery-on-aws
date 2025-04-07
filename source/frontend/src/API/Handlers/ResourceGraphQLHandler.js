@@ -14,7 +14,7 @@ export const getResourceGraph = params => {
     return API.graphql(graphqlOperation(queries.getResourceGraph, params));
 };
 
-export const getResourceGraphPaginated = ({ids, pageSize = 500}) => {
+export const getResourceGraphPaginated = ({ids, pageSize = 250}) => {
     async function getResourceGraphRec(
         pagination,
         resourceGraph = {nodes: [], edges: []}

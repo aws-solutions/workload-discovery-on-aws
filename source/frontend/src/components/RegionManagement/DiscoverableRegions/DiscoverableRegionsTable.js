@@ -54,7 +54,12 @@ const columns = [
             e.count ? (
                 e.count
             ) : (
-                <StatusIndicator type="warning">Not discovered</StatusIndicator>
+                <StatusIndicator
+                    type="warning"
+                    iconAriaLabel={`Resource count warning`}
+                >
+                    Not discovered
+                </StatusIndicator>
             ),
         width: 150,
         minWidth: 150,
