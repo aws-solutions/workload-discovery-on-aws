@@ -24,6 +24,8 @@ import * as R from 'ramda';
 import {useAccounts} from '../../Hooks/useAccounts';
 import CostTable from './CostTable';
 import {useGetResourceGraph} from '../../Hooks/useGetResourceGraph';
+import {useGetCostReportProcessingStatus} from '../../Hooks/useCosts';
+import {CostStatus} from './CostStatus';
 
 const processCosts = (response, queryType) =>
     R.pathOr([], [queryType, 'costItems'], response).map((e, index) => {
@@ -269,6 +271,7 @@ const CostsPage = () => {
                 }
             >
                 <SpaceBetween size="l">
+                    <CostStatus></CostStatus>
                     <CostQueryTypeSelector
                         queryType={queryType}
                         setQueryType={setQueryType}

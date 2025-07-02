@@ -28,12 +28,12 @@ const PureCytoscape = ({name, visibility, setRendered}) => {
     const [{selectedResources}, dispatchCanvas] = useDiagramSettingsState();
     const [{graphResources}] = useResourceState();
     const {height} = useWindowSize();
-    const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 400);
+    const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 325);
     const expandAPI = React.useRef();
     const cyRef = React.useRef();
 
     useEffect(() => {
-        setCanvasHeight(height - 400);
+        setCanvasHeight(height - 325);
     }, [height, setCanvasHeight]);
 
     // cleanup cytoscape listeners on unmount
@@ -230,21 +230,23 @@ const PureCytoscape = ({name, visibility, setRendered}) => {
     );
 
     return (
-        <CytoscapeComponent
-            cy={cyCallback}
-            elements={CytoscapeComponent.normalizeElements([])}
-            boxSelectionEnabled
-            stylesheet={graphStyle}
-            style={{
-                maxWidth: '100%',
-                maxHeight: `${canvasHeight}px`,
-                width: '100%',
-                height: `${canvasHeight}px`,
-                boxSizing: 'border-box',
-                zIndex: 0,
-                border: '1px solid #dedede',
-            }}
-        />
+        <div data-testid="wd-cytoscape-canvas">
+            <CytoscapeComponent
+                cy={cyCallback}
+                elements={CytoscapeComponent.normalizeElements([])}
+                boxSelectionEnabled
+                stylesheet={graphStyle}
+                style={{
+                    maxWidth: '100%',
+                    maxHeight: `${canvasHeight}px`,
+                    width: '100%',
+                    height: `${canvasHeight}px`,
+                    boxSizing: 'border-box',
+                    zIndex: 0,
+                    border: '1px solid #dedede',
+                }}
+            />
+        </div>
     );
 };
 

@@ -1,66 +1,66 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "lambda": {
+            "resourceType": "AWS::Lambda::Function"
+        },
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "id2": "subnet-9876543210fedcba",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
+        }
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "${$constants.subnet.id1}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}b",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "${$constants.subnet.id2}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
     "lambda": {
-      "resourceType": "AWS::Lambda::Function"
-    },
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "id2": "subnet-9876543210fedcba",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
+        "id": "${lambda.arn}",
+        "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:${lambda.resourceId}",
+        "resourceId": "testLambdaFunc",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Not Applicable",
+        "resourceType": "${$constants.lambda.resourceType}",
+        "relationships": [
+            {
+                "resourceId": "${subnet1.resourceId}",
+                "resourceType": "${$constants.subnet.resourceType}",
+                "relationshipName": "${$constants.subnet.relationshipName}"
+            },
+            {
+                "resourceId": "${subnet2.resourceId}",
+                "resourceType": "${$constants.subnet.resourceType}",
+                "relationshipName": "${$constants.subnet.relationshipName}"
+            }
+        ],
+        "configuration": {}
     }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "${$constants.subnet.id1}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
-    },
-    "relationships": []
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}b",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "${$constants.subnet.id2}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
-    },
-    "relationships": []
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:${lambda.resourceId}",
-    "resourceId": "testLambdaFunc",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Not Applicable",
-    "resourceType": "${$constants.lambda.resourceType}",
-    "relationships": [
-      {
-        "resourceId": "${subnet1.resourceId}",
-        "resourceType": "${$constants.subnet.resourceType}",
-        "relationshipName": "${$constants.subnet.relationshipName}"
-      },
-      {
-        "resourceId": "${subnet2.resourceId}",
-        "resourceType": "${$constants.subnet.resourceType}",
-        "relationshipName": "${$constants.subnet.relationshipName}"
-      }
-    ],
-    "configuration": {}
-  }
 }

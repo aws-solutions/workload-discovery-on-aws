@@ -1,69 +1,64 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "id2": "subnet-9876543210fedcba",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
-    }
-  },
-  "vpc": {
-    "resourceId": "vpcResourceId"
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "${$constants.subnet.id1}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "id2": "subnet-9876543210fedcba",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
+        }
     },
-    "relationships": []
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}b",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "${$constants.subnet.id2}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "vpc": {
+        "resourceId": "vpcResourceId"
     },
-    "relationships": []
-  },
-  "securityGroup": {
-    "resourceId": "sgResourceId"
-  },
-  "project": {
-    "id": "${project.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "codebuildProjectArn",
-    "resourceType": "AWS::CodeBuild::Project",
-    "resourceId": "codebuildProjectResourceId",
-    "availabilityZone": "Not Applicable",
-    "relatedEvents": [],
-    "relationships": [],
-    "configuration": {
-      "vpcConfig": {
-        "vpcId": "${vpc.resourceId}",
-        "subnets": [
-          "${subnet1.resourceId}",
-          "${subnet2.resourceId}"
-        ],
-        "securityGroupIds": [
-          "${securityGroup.resourceId}"
-        ]
-      },
-      "serviceRole": "serviceRoleArn",
-      "tags": []
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "${$constants.subnet.id1}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}b",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "${$constants.subnet.id2}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "securityGroup": {
+        "resourceId": "sgResourceId"
+    },
+    "project": {
+        "id": "${project.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "codebuildProjectArn",
+        "resourceType": "AWS::CodeBuild::Project",
+        "resourceId": "codebuildProjectResourceId",
+        "availabilityZone": "Not Applicable",
+        "relatedEvents": [],
+        "relationships": [],
+        "configuration": {
+            "vpcConfig": {
+                "vpcId": "${vpc.resourceId}",
+                "subnets": ["${subnet1.resourceId}", "${subnet2.resourceId}"],
+                "securityGroupIds": ["${securityGroup.resourceId}"]
+            },
+            "serviceRole": "serviceRoleArn",
+            "tags": []
+        }
     }
-  }
 }

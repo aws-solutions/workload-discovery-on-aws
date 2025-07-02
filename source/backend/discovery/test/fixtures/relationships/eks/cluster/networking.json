@@ -1,75 +1,71 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "subnet": {
-      "id1": "subnet-11111111111111111",
-      "id2": "subnet-22222222222222222",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
-    }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0",
-    "configuration": {}
-  },
-  "clusterRole": {
-    "id": "${clusterRole.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/myClusterRole",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "myClusterRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
-    }
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "availabilityZone": "${$constants.region}a",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "vpcId": "${vpc.resourceId}",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "subnet": {
+            "id1": "subnet-11111111111111111",
+            "id2": "subnet-22222222222222222",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
+        }
     },
-    "relationships": [
-    ]
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "resourceId": "${$constants.subnet.id2}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}b",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0",
+        "configuration": {}
     },
-    "relationships": []
-  },
-  "cluster": {
-    "id": "${cluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:cluster/my-eks-cluster",
-    "resourceType": "AWS::EKS::Cluster",
-    "resourceId": "${cluster.arn}",
-    "resourceName": "my-eks-cluster",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Regional",
-    "relationships": [],
-    "configuration": {
-      "ResourcesVpcConfig": {
-        "SecurityGroupIds": [],
-        "SubnetIds": [
-          "${subnet1.resourceId}",
-          "${subnet2.resourceId}"
-        ]
-      },
-      "RoleArn": "${clusterRole.arn}"
+    "clusterRole": {
+        "id": "${clusterRole.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/myClusterRole",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "myClusterRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
+        }
+    },
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "availabilityZone": "${$constants.region}a",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "vpcId": "${vpc.resourceId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "resourceId": "${$constants.subnet.id2}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}b",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "cluster": {
+        "id": "${cluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:cluster/my-eks-cluster",
+        "resourceType": "AWS::EKS::Cluster",
+        "resourceId": "${cluster.arn}",
+        "resourceName": "my-eks-cluster",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Regional",
+        "relationships": [],
+        "configuration": {
+            "ResourcesVpcConfig": {
+                "SecurityGroupIds": [],
+                "SubnetIds": ["${subnet1.resourceId}", "${subnet2.resourceId}"]
+            },
+            "RoleArn": "${clusterRole.arn}"
+        }
     }
-  }
 }

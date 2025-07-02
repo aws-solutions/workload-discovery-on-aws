@@ -15,3 +15,5 @@ export const getAppInsightsDashboardLink = () => {
 
     return `${cloudWatchUrl}?region=${region}#settings:AppInsightsSettings/applicationDetails?resourceGroup=${resourceGroup}&accountId=${accountId}`;
 };
+
+export const isUsingSSO = () => window.amplify?.Auth?.federatedIdpResource != null;

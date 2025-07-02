@@ -178,6 +178,15 @@ const getWarningBanner = (resources, importedAccounts) => {
                     <li>
                         <Link
                             external
+                            href="https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/troubleshooting.html#resources-not-discovered-after-account-imported"
+                        >
+                            Review the troubleshooting section of the
+                            implementation guide
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            external
                             href="https://aws-solutions.github.io/workload-discovery-on-aws/workload-discovery-on-aws/2.0/debugging-the-discovery-component.html"
                         >
                             Review the discovery process debugging guide

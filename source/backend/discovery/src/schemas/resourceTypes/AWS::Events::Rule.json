@@ -1,18 +1,18 @@
 {
-  "version": 1,
-  "type": "AWS::Events::Rule",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with Role",
-        "path": "Targets[*].RoleArn",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "Targets[*].[Arn, EcsParameters.TaskDefinitionArn]",
-        "identifierType": "arn"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::Events::Rule",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with Role",
+                "path": "Targets[*].RoleArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "Targets[*].[Arn, EcsParameters.TaskDefinitionArn]",
+                "identifierType": "arn"
+            }
+        ]
+    }
 }

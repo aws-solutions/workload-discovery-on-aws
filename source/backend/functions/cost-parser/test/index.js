@@ -90,6 +90,218 @@ describe('testing the lambda handler', () => {
             assert.deepEqual(actual, {costItems, queryDetails});
         });
     });
+
+    describe('getCostReportProcessingStatus', () => {
+
+        it('should return status when cost report delivery is enabled', async () => {
+            const index = rewire('../src/index.js');
+            const getCostReportProcessingStatus = index.__get__('getCostReportProcessingStatus');
+
+            const lastModifiedDate = new Date('2023-01-01');
+            const crawlStartTime = new Date('2023-01-02');
+
+            const mockS3Client = {
+                async getObject() {
+                    return {
+                        LastModified: lastModifiedDate
+                    };
+                }
+            };
+
+            const mockGlueClient = {
+                async getCrawler() {
+                    return {
+                        Crawler: {
+                            LastCrawl: {
+                                Status: 'SUCCEEDED',
+                                LogGroup: '/aws-glue/crawlers',
+                                StartTime: crawlStartTime
+                            }
+                        }
+                    };
+                }
+            };
+
+            const actual = await getCostReportProcessingStatus(
+                { s3: mockS3Client, glue: mockGlueClient },
+                {
+                    awsCurProcessorLambdaArn: 'curProcessorLambdaArn',
+                    costAndUsageReportBucket: 'test-bucket',
+                    awsCurCrawler: 'test-crawler',
+                    accountId: '123456789012',
+                    region: 'us-east-1'
+                }
+            );
+
+            assert.deepEqual(actual, {
+                isEnabled: true,
+                reports: {
+                    curBucketArn: 'arn:aws:s3:::test-bucket',
+                    lastDelivered: lastModifiedDate
+                },
+                crawler: {
+                    curProcessorLambdaArn: 'curProcessorLambdaArn',
+                    status: 'SUCCEEDED',
+                    errorMessage: void 0,
+                    logGroupArn: 'arn:aws:logs:us-east-1:123456789012:log-group:/aws-glue/crawlers',
+                    lastCrawled: crawlStartTime
+                }
+            });
+        });
+
+        it('should return status when cost report is enabled but crawler has not run', async () => {
+            const index = rewire('../src/index.js');
+            const getCostReportProcessingStatus = index.__get__('getCostReportProcessingStatus');
+
+            const lastModifiedDate = new Date('2023-01-01');
+
+            const mockS3Client = {
+                async getObject() {
+                    return {
+                        LastModified: lastModifiedDate
+                    };
+                }
+            };
+
+            const mockGlueClient = {
+                async getCrawler() {
+                    return {
+                        Crawler: {
+                            LastCrawl: null
+                        }
+                    };
+                }
+            };
+
+            const actual = await getCostReportProcessingStatus(
+                { s3: mockS3Client, glue: mockGlueClient },
+                {
+                    costAndUsageReportBucket: 'test-bucket',
+                    awsCurCrawler: 'test-crawler',
+                    accountId: '123456789012',
+                    region: 'us-east-1'
+                }
+            );
+
+            assert.deepEqual(actual, {
+                isEnabled: true,
+                reports: {
+                    curBucketArn: 'arn:aws:s3:::test-bucket',
+                    lastDelivered: lastModifiedDate
+                }
+            });
+        });
+
+        it('should return status when cost report delivery is enabled and crawler failed', async () => {
+            const index = rewire('../src/index.js');
+            const getCostReportProcessingStatus = index.__get__('getCostReportProcessingStatus');
+
+            const lastModifiedDate = new Date('2023-01-01');
+            const crawlStartTime = new Date('2023-01-02');
+            const errorMessage = 'Crawler failed!';
+
+            const mockS3Client = {
+                async getObject() {
+                    return {
+                        LastModified: lastModifiedDate
+                    };
+                }
+            };
+
+            const mockGlueClient = {
+                async getCrawler() {
+                    return {
+                        Crawler: {
+                            LastCrawl: {
+                                Status: 'FAILED',
+                                LogGroup: '/aws-glue/crawlers',
+                                StartTime: crawlStartTime,
+                                ErrorMessage: errorMessage
+                            }
+                        }
+                    };
+                }
+            };
+
+            const actual = await getCostReportProcessingStatus(
+                { s3: mockS3Client, glue: mockGlueClient },
+                {
+                    awsCurProcessorLambdaArn: 'curProcessorLambdaArn',
+                    costAndUsageReportBucket: 'test-bucket',
+                    awsCurCrawler: 'test-crawler',
+                    accountId: '123456789012',
+                    region: 'us-east-1'
+                }
+            );
+
+            assert.deepEqual(actual, {
+                isEnabled: true,
+                reports: {
+                    curBucketArn: 'arn:aws:s3:::test-bucket',
+                    lastDelivered: lastModifiedDate
+                },
+                crawler: {
+                    curProcessorLambdaArn: 'curProcessorLambdaArn',
+                    status: 'FAILED',
+                    errorMessage: errorMessage,
+                    logGroupArn: 'arn:aws:logs:us-east-1:123456789012:log-group:/aws-glue/crawlers',
+                    lastCrawled: crawlStartTime
+                }
+            });
+        });
+
+        it('should return disabled status when cost report delivery is not enabled', async () => {
+            const index = rewire('../src/index.js');
+            const getCostReportProcessingStatus = index.__get__('getCostReportProcessingStatus');
+
+            const mockS3Client = {
+                async getObject() {
+                    const error = new Error('The specified key does not exist.');
+                    error.name = 'NoSuchKey';
+                    throw error;
+                }
+            };
+
+            const mockGlueClient = {};
+
+            const actual = await getCostReportProcessingStatus(
+                { s3: mockS3Client, glue: mockGlueClient },
+                {
+                    costAndUsageReportBucket: 'test-bucket',
+                    awsCurCrawler: 'test-crawler'
+                }
+            );
+
+            assert.deepEqual(actual, {
+                isEnabled: false
+            });
+        });
+
+        it('should propagate other errors', async () => {
+            const index = rewire('../src/index.js');
+            const getCostReportProcessingStatus = index.__get__('getCostReportProcessingStatus');
+
+            const mockS3Client = {
+                async getObject() {
+                    const error = new Error('Some error');
+                    throw error;
+                },
+            };
+
+            const mockGlueClient = {};
+
+            return getCostReportProcessingStatus(
+                {s3: mockS3Client, glue: mockGlueClient},
+                {
+                    costAndUsageReportBucket: 'test-bucket',
+                    awsCurCrawler: 'test-crawler',
+                },
+            )
+                .then(() => assert.fail('Expected error was not thrown'))
+                .catch(err => assert.equal(err.message, 'Some error'));
+        });
+
+    });
 });
 
 describe('testing the athena query builder', () => {

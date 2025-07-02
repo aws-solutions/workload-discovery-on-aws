@@ -1,37 +1,37 @@
 {
-  "version": 1,
-  "type": "AWS::EKS::Nodegroup",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with Role",
-        "path": "nodeRole",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is contained in",
-        "resourceType": "AWS::EC2::Subnet",
-        "path": "subnets",
-        "identifierType": "resourceId"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "resourceType": "AWS::EC2::SecurityGroup",
-        "path": "resources.remoteAccessSecurityGroup",
-        "identifierType": "resourceId"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "resourceType": "AWS::EC2::SecurityGroup",
-        "path": "remoteAccess.sourceSecurityGroups",
-        "identifierType": "resourceId"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "resourceType": "AWS::EC2::LaunchTemplate",
-        "path": "launchTemplate.id",
-        "identifierType": "resourceId"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::EKS::Nodegroup",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with Role",
+                "path": "nodeRole",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is contained in",
+                "resourceType": "AWS::EC2::Subnet",
+                "path": "subnets",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::SecurityGroup",
+                "path": "resources.remoteAccessSecurityGroup",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::SecurityGroup",
+                "path": "remoteAccess.sourceSecurityGroups",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::LaunchTemplate",
+                "path": "launchTemplate.id",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
 }

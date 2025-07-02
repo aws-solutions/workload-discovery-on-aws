@@ -1,0 +1,18 @@
+{
+  "version": 3,
+  "type": "AWS::Bedrock::ImportedModel",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "modelKmsKeyArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "modelDataSource.s3DataSource.s3Uri",
+        "identifierType": "s3Uri"
+      }
+    ]
+  }
+}

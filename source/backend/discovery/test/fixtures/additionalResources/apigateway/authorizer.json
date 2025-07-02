@@ -1,27 +1,25 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "restApi": {
-    "id": "restApiArn",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Not Applicable",
-    "resourceType": "AWS::ApiGateway::RestApi",
-    "resourceId": "restApiId",
-    "relationships": [],
-    "configuration": {
-      "id": "${restApi.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "restApi": {
+        "id": "restApiArn",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Not Applicable",
+        "resourceType": "AWS::ApiGateway::RestApi",
+        "resourceId": "restApiId",
+        "relationships": [],
+        "configuration": {
+            "id": "${restApi.resourceId}"
+        }
+    },
+    "cognito": {
+        "arn": "cognitoArn"
+    },
+    "apiGwAuthorizer": {
+        "id": "apiGwAuthorizerId",
+        "providerARNs": ["${cognito.arn}"]
     }
-  },
-  "cognito": {
-    "arn": "cognitoArn"
-  },
-  "apiGwAuthorizer": {
-    "id": "apiGwAuthorizerId",
-    "providerARNs": [
-      "${cognito.arn}"
-    ]
-  }
 }

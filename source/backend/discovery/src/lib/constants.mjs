@@ -15,9 +15,18 @@ export const AWS_API_GATEWAY_RESOURCE = 'AWS::ApiGateway::Resource';
 export const AWS_APPSYNC_GRAPHQLAPI = 'AWS::AppSync::GraphQLApi';
 export const AWS_APPSYNC_DATASOURCE = 'AWS::AppSync::DataSource';
 export const AWS_APPSYNC_RESOLVER = 'AWS::AppSync::Resolver';
+export const AWS_BEDROCK_AGENT = 'AWS::Bedrock::Agent';
+export const AWS_BEDROCK_AGENT_VERSION = 'AWS::Bedrock::AgentVersion';
+export const AWS_BEDROCK_CUSTOM_MODEL = 'AWS::Bedrock::CustomModel';
+export const AWS_BEDROCK_DATA_SOURCE = 'AWS::Bedrock::DataSource';
+export const AWS_BEDROCK_FOUNDATION_MODEL = 'AWS::Bedrock::FoundationModel';
+export const AWS_BEDROCK_IMPORTED_MODEL = 'AWS::Bedrock::ImportedModel';
+export const AWS_BEDROCK_INFERENCE_PROFILE = 'AWS::Bedrock::InferenceProfile';
+export const AWS_BEDROCK_KNOWLEDGE_BASE = 'AWS::Bedrock::KnowledgeBase';
 export const AWS_CLOUDFORMATION_STACK = 'AWS::CloudFormation::Stack';
 export const AWS_CLOUDFRONT_DISTRIBUTION = 'AWS::CloudFront::Distribution';
-export const AWS_CLOUDFRONT_STREAMING_DISTRIBUTION = 'AWS::CloudFront::StreamingDistribution';
+export const AWS_CLOUDFRONT_STREAMING_DISTRIBUTION =
+    'AWS::CloudFront::StreamingDistribution';
 export const AWS_COGNITO_USER_POOL = 'AWS::Cognito::UserPool';
 export const AWS_CONFIG_RESOURCE_COMPLIANCE = 'AWS::Config::ResourceCompliance';
 export const AWS_DYNAMODB_STREAM = 'AWS::DynamoDB::Stream';
@@ -34,12 +43,13 @@ export const AWS_EC2_SPOT_FLEET = 'AWS::EC2::SpotFleet';
 export const AWS_EC2_SUBNET = 'AWS::EC2::Subnet';
 export const AWS_EC2_SECURITY_GROUP = 'AWS::EC2::SecurityGroup';
 export const AWS_EC2_TRANSIT_GATEWAY = 'AWS::EC2::TransitGateway';
-export const AWS_EC2_TRANSIT_GATEWAY_ATTACHMENT = 'AWS::EC2::TransitGatewayAttachment';
-export const AWS_EC2_TRANSIT_GATEWAY_ROUTE_TABLE = 'AWS::EC2::TransitGatewayRouteTable';
+export const AWS_EC2_TRANSIT_GATEWAY_ATTACHMENT =
+    'AWS::EC2::TransitGatewayAttachment';
+export const AWS_EC2_TRANSIT_GATEWAY_ROUTE_TABLE =
+    'AWS::EC2::TransitGatewayRouteTable';
 export const AWS_EC2_VOLUME = 'AWS::EC2::Volume';
 export const AWS_EC2_VPC = 'AWS::EC2::VPC';
 export const AWS_EC2_VPC_ENDPOINT = 'AWS::EC2::VPCEndpoint';
-export const AWS_ECR_REPOSITORY = 'AWS::ECR::Repository';
 export const AWS_ECS_CLUSTER = 'AWS::ECS::Cluster';
 export const AWS_ECS_SERVICE = 'AWS::ECS::Service';
 export const AWS_ECS_TASK = 'AWS::ECS::Task';
@@ -47,14 +57,22 @@ export const AWS_ECS_TASK_DEFINITION = 'AWS::ECS::TaskDefinition';
 export const AWS_ELASTICSEARCH_DOMAIN = 'AWS::Elasticsearch::Domain';
 export const AWS_EVENT_EVENT_BUS = 'AWS::Events::EventBus';
 export const AWS_EVENT_RULE = 'AWS::Events::Rule';
-export const AWS_KMS_KEY = 'AWS::KMS::Key';
+export const AWS_GLUE_CONNECTION = 'AWS::Glue::Connection';
+export const AWS_GLUE_CRAWLER = 'AWS::Glue::Crawler';
+export const AWS_GLUE_DATABASE = 'AWS::Glue::Database';
+export const AWS_GLUE_JOB = 'AWS::Glue::Job';
+export const AWS_GLUE_TABLE = 'AWS::Glue::Table';
 export const AWS_OPENSEARCH_DOMAIN = 'AWS::OpenSearch::Domain';
-export const AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER = 'AWS::ElasticLoadBalancing::LoadBalancer';
-export const AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER = 'AWS::ElasticLoadBalancingV2::LoadBalancer';
-export const AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP = 'AWS::ElasticLoadBalancingV2::TargetGroup';
-export const AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER = 'AWS::ElasticLoadBalancingV2::Listener';
+export const AWS_OPENSEARCH_SERVERLESS_COLLECTION = 'AWS::OpenSearchServerless::Collection';
+export const AWS_ELASTIC_LOAD_BALANCING_LOADBALANCER =
+    'AWS::ElasticLoadBalancing::LoadBalancer';
+export const AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER =
+    'AWS::ElasticLoadBalancingV2::LoadBalancer';
+export const AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP =
+    'AWS::ElasticLoadBalancingV2::TargetGroup';
+export const AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER =
+    'AWS::ElasticLoadBalancingV2::Listener';
 export const AWS_LAMBDA_FUNCTION = 'AWS::Lambda::Function';
-export const AWS_RDS_DB_SUBNET_GROUP = 'AWS::RDS::DBSubnetGroup';
 export const AWS_RDS_DB_CLUSTER = 'AWS::RDS::DBCluster';
 export const AWS_RDS_DB_INSTANCE = 'AWS::RDS::DBInstance';
 export const AWS_IAM_GROUP = 'AWS::IAM::Group';
@@ -65,33 +83,44 @@ export const AWS_IAM_INLINE_POLICY = 'AWS::IAM::InlinePolicy';
 export const AWS_IAM_INSTANCE_PROFILE = 'AWS::IAM::InstanceProfile';
 export const AWS_IAM_POLICY = 'AWS::IAM::Policy';
 export const AWS_CODEBUILD_PROJECT = 'AWS::CodeBuild::Project';
-export const AWS_CODE_PIPELINE_PIPELINE = 'AWS::CodePipeline::Pipeline';
 export const AWS_EC2_EIP = 'AWS::EC2::EIP';
 export const AWS_EFS_FILE_SYSTEM = 'AWS::EFS::FileSystem';
 export const AWS_EFS_ACCESS_POINT = 'AWS::EFS::AccessPoint';
-export const AWS_ELASTIC_BEANSTALK_APPLICATION_VERSION = 'AWS::ElasticBeanstalk::ApplicationVersion';
+export const AWS_ELASTIC_BEANSTALK_APPLICATION_VERSION =
+    'AWS::ElasticBeanstalk::ApplicationVersion';
 export const AWS_EKS_CLUSTER = 'AWS::EKS::Cluster';
 export const AWS_EKS_NODE_GROUP = 'AWS::EKS::Nodegroup';
-export const AWS_AUTOSCALING_AUTOSCALING_GROUP = 'AWS::AutoScaling::AutoScalingGroup';
+export const AWS_AUTOSCALING_AUTOSCALING_GROUP =
+    'AWS::AutoScaling::AutoScalingGroup';
 export const AWS_AUTOSCALING_SCALING_POLICY = 'AWS::AutoScaling::ScalingPolicy';
-export const AWS_AUTOSCALING_LAUNCH_CONFIGURATION = 'AWS::AutoScaling::LaunchConfiguration';
+export const AWS_AUTOSCALING_LAUNCH_CONFIGURATION =
+    'AWS::AutoScaling::LaunchConfiguration';
 export const AWS_AUTOSCALING_WARM_POOL = 'AWS::AutoScaling::WarmPool';
 export const AWS_KINESIS_STREAM = 'AWS::Kinesis::Stream';
 export const AWS_MEDIA_CONNECT_FLOW = 'AWS::MediaConnect::Flow';
-export const AWS_MEDIA_CONNECT_FLOW_ENTITLEMENT = 'AWS::MediaConnect::FlowEntitlement';
+export const AWS_MEDIA_CONNECT_FLOW_ENTITLEMENT =
+    'AWS::MediaConnect::FlowEntitlement';
 export const AWS_MEDIA_CONNECT_FLOW_SOURCE = 'AWS::MediaConnect::FlowSource';
-export const AWS_MEDIA_CONNECT_FLOW_VPC_INTERFACE = 'AWS::MediaConnect::FlowVpcInterface';
-export const AWS_MEDIA_PACKAGE_PACKAGING_CONFIGURATION = 'AWS::MediaPackage::PackagingConfiguration';
-export const AWS_MEDIA_PACKAGE_PACKAGING_GROUP = 'AWS::MediaPackage::PackagingGroup';
-export const AWS_MEDIA_TAILOR_FLOW_ENTITLEMENT = 'AWS::MediaTailor::PlaybackConfiguration';
+export const AWS_MEDIA_CONNECT_FLOW_VPC_INTERFACE =
+    'AWS::MediaConnect::FlowVpcInterface';
+export const AWS_MEDIA_PACKAGE_PACKAGING_CONFIGURATION =
+    'AWS::MediaPackage::PackagingConfiguration';
+export const AWS_MEDIA_PACKAGE_PACKAGING_GROUP =
+    'AWS::MediaPackage::PackagingGroup';
+export const AWS_MEDIA_TAILOR_FLOW_ENTITLEMENT =
+    'AWS::MediaTailor::PlaybackConfiguration';
 export const AWS_MSK_CLUSTER = 'AWS::MSK::Cluster';
 export const AWS_REDSHIFT_CLUSTER = 'AWS::Redshift::Cluster';
-export const AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION = 'AWS::ServiceCatalogAppRegistry::Application';
+export const AWS_SECRETS_MANAGER_SECRET = 'AWS::SecretsManager::Secret';
+export const AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION =
+    'AWS::ServiceCatalogAppRegistry::Application';
 export const AWS_S3_BUCKET = 'AWS::S3::Bucket';
-export const AWS_S3_ACCOUNT_PUBLIC_ACCESS_BLOCK = 'AWS::S3::AccountPublicAccessBlock';
+export const AWS_S3_ACCOUNT_PUBLIC_ACCESS_BLOCK =
+    'AWS::S3::AccountPublicAccessBlock';
 export const AWS_SNS_TOPIC = 'AWS::SNS::Topic';
 export const AWS_SQS_QUEUE = 'AWS::SQS::Queue';
-export const AWS_SSM_MANAGED_INSTANCE_INVENTORY = 'AWS::SSM::ManagedInstanceInventory';
+export const AWS_SSM_MANAGED_INSTANCE_INVENTORY =
+    'AWS::SSM::ManagedInstanceInventory';
 export const AWS_TAGS_TAG = 'AWS::Tags::Tag';
 export const APPLICATION_TAG_NAME = 'awsApplication';
 export const AWS_ORGANIZATIONS = 'AWS_ORGANIZATIONS';
@@ -124,8 +153,8 @@ export const DELETE = 'DELETE';
 export const SUBNET = 'Subnet';
 export const OPENSEARCH = 'OpenSearch';
 export const SECURITY_GROUP = 'SecurityGroup';
-export const RESOURCE_DISCOVERED =  'ResourceDiscovered';
-export const RESOURCE_NOT_RECORDED =  'ResourceNotRecorded';
+export const RESOURCE_DISCOVERED = 'ResourceDiscovered';
+export const RESOURCE_NOT_RECORDED = 'ResourceNotRecorded';
 export const EC2 = 'ec2';
 export const SPOT_FLEET_REQUEST = 'spot-fleet-request';
 export const SPOT_INSTANCE_REQUEST = 'spot-instance-request';
@@ -149,17 +178,20 @@ export const US_GOV_WEST_1 = 'us-gov-west-1';
 export const AWS_CN = 'aws-cn';
 export const AWS_US_GOV = 'aws-us-gov';
 export const CONNECTION_CLOSED_PREMATURELY = 'Connection closed prematurely';
-export const RESOLVER_CODE_SIZE_ERROR = 'Reached evaluated resolver code size limit.';
+export const RESOLVER_CODE_SIZE_ERROR =
+    'Reached evaluated resolver code size limit.';
 export const PERSPECTIVE = 'perspective';
 export const TASK_DEFINITION = 'task-definition';
 export const TRANSIT_GATEWAY_ATTACHMENT = 'transit-gateway-attachment';
 export const UNKNOWN = 'unknown';
-export const DISCOVERY_PROCESS_RUNNING = 'Discovery process ECS task is already running in cluster.';
+export const DISCOVERY_PROCESS_RUNNING =
+    'Discovery process ECS task is already running in cluster.';
 export const CONSOLE = 'console';
 export const SIGN_IN = 'signin';
 export const AWS_AMAZON_COM = 'aws.amazon.com';
 export const S3 = 's3';
 export const HOME = 'home';
 export const FULFILLED = 'fulfilled';
-export const FUNCTION_RESPONSE_SIZE_TOO_LARGE = 'Response payload size exceeded maximum allowed payload size (6291556 bytes).';
+export const FUNCTION_RESPONSE_SIZE_TOO_LARGE =
+    'Response payload size exceeded maximum allowed payload size (6291556 bytes).';
 export const WORKLOAD_DISCOVERY_TASKGROUP = 'workload-discovery-taskgroup';

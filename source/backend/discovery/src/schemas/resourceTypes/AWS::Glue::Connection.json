@@ -1,0 +1,53 @@
+{
+    "version": 1,
+    "type": "AWS::Glue::Connection",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is contained in",
+                "resourceType": "AWS::EC2::Subnet",
+                "path": "PhysicalConnectionRequirements.SubnetId",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::SecurityGroup",
+                "path": "PhysicalConnectionRequirements.SecurityGroups",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::Instance",
+                "path": "ConnectionProperties.INSTANCE_ID",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::SecretsManager::Secret",
+                "path": "ConnectionProperties.SECRET_ID",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "ConnectionProperties.HOST",
+                "identifierType": "endpoint"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "AuthenticationConfiguration.SecretArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "ConnectionProperties.ROLE_ARN",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::Glue::Connection",
+                "path": "Connections.Connections",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
+}

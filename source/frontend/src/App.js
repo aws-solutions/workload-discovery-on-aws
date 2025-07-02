@@ -14,6 +14,7 @@ import '@aws-amplify/ui-react/styles.css';
 import Main from './Main';
 import {Box, SpaceBetween} from '@cloudscape-design/components';
 import * as awsui from '@cloudscape-design/design-tokens';
+import {isUsingSSO} from './Utils/AccountUtils';
 
 const components = {
     Header() {
@@ -39,7 +40,7 @@ const components = {
         );
     },
     Footer() {
-        return window.amplify.Auth?.federatedIdpResource != null ? (
+        return isUsingSSO() ? (
             <SpaceBetween size={'xs'}>
                 <Box margin={{vertical: 'm'}} textAlign={'center'}>
                     <Button

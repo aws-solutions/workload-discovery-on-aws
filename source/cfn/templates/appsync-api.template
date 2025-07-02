@@ -70,6 +70,16 @@ Resources:
         AwsRegion: !Sub ${AWS::Region}
         DefaultAction: ALLOW
 
+  AppSyncCache:
+    Type: AWS::AppSync::ApiCache
+    Properties:
+      ApiId: !GetAtt PerspectiveAppSyncApi.ApiId
+      Type: SMALL
+      ApiCachingBehavior: PER_RESOLVER_CACHING
+      Ttl: 10
+      TransitEncryptionEnabled: true
+      AtRestEncryptionEnabled: true
+
   AppSyncSchema:
     Type: AWS::AppSync::GraphQLSchema
     Properties:

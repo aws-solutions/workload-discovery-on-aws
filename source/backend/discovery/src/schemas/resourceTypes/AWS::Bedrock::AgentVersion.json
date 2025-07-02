@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "type": "AWS::Bedrock::AgentVersion",
+  "relationships": {
+    "descriptors": [
+      {
+        "resourceType": "AWS::Bedrock::KnowledgeBase",
+        "relationshipName": "Is associated with",
+        "sdkClient": {
+          "type": "bedrockAgent",
+          "method": "getAllAgentKnowledgeBases",
+          "argumentPaths": ["@.configuration.agentId", "@.configuration.agentVersion"]
+        },
+        "path": "@",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

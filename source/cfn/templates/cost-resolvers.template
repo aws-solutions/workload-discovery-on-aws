@@ -24,6 +24,12 @@ Parameters:
   NodeLambdaRuntime:
     Type: String
 
+  AwsCurProcessorLambdaArn:
+    Type: String
+
+  AwsCurCrawler:
+    Type: String
+
   AthenaDatabaseName: 
     Type: String
     Default: athenacurcfn_aws_perspective_cost_and_usage
@@ -99,6 +105,11 @@ Resources:
                   - !Sub arn:aws:s3:::${CostAndUsageResultsBucket}*
               - Effect: Allow
                 Action:
+                  - glue:GetCrawler
+                Resource:
+                  - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:crawler/${AwsCurCrawler}
+              - Effect: Allow
+                Action:
                   - glue:CreateDatabase
                   - glue:DeleteDatabase
                   - glue:GetDatabase
@@ -123,6 +134,14 @@ Resources:
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/${AthenaDatabaseName}
                   - !Sub arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/${AthenaDatabaseName}/${AthenaTableName}
 
+  CostLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub
+        - /aws/lambda/PerspectiveCostFunction-${UUID}
+        - UUID: !Select [ 2, !Split [ "/", !Ref AWS::StackId ] ]
+      RetentionInDays: 365
+
   PerspectiveCostFunction:
     Metadata:
       cfn_nag:
@@ -142,12 +161,18 @@ Resources:
       Description: Lambda for Appsync Cost API resolvers
       Timeout: 300
       MemorySize: 1024
+      LoggingConfig:
+        LogGroup: !Ref CostLambdaLogGroup
       Tracing: Active
       Environment:
         Variables:
+          AccountId: !Ref AWS::AccountId
           AthenaDatabaseName: !Sub ${AthenaDatabaseName}
           AthenaTableName: !Sub ${AthenaTableName}
           AthenaResultsBucketName: !Sub s3://${CostAndUsageResultsBucket}
+          CostAndUsageReportBucket: !Ref CostAndUsageReportBucket
+          AwsCurProcessorLambdaArn: !Ref AwsCurProcessorLambdaArn
+          AwsCurCrawler: !Ref AwsCurCrawler
           AthenaWorkgroup: !Ref AthenaWorkgroup
           CustomUserAgent: !Ref CustomUserAgent
 
@@ -242,4 +267,16 @@ Resources:
       CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
       TypeName: Query
       FieldName: getResourcesByCost
+      DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name
+
+  PerspectiveAppSyncGetCostReportProcessingStatusResponseyResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+      TypeName: Query
+      FieldName: getCostReportProcessingStatus
       DataSourceName: !GetAtt PerspectiveAppSyncCostLambdaDataSource.Name

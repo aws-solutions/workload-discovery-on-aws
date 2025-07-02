@@ -14,6 +14,7 @@ import {
     AppLayout,
     Box,
     Button,
+    Link,
     SideNavigation,
     SpaceBetween,
 } from '@cloudscape-design/components';
@@ -35,9 +36,9 @@ import {ErrorBoundary} from 'react-error-boundary';
 import * as R from 'ramda';
 import ErrorFallback from './components/Errors/ErrorFallback';
 import {useAuthenticator} from '@aws-amplify/ui-react';
-import {useFirstMountState, useLocalStorage} from 'react-use';
 import {useNotificationDispatch} from './components/Contexts/NotificationContext';
 import Notifications from './Utils/Notifications';
+import {useGetApplicationProblems} from './components/Hooks/useGetApplicationProblems';
 import {useResourceState} from './components/Contexts/ResourceContext';
 import {useDiagramSettingsState} from './components/Contexts/DiagramSettingsContext';
 
@@ -105,14 +106,26 @@ const Navigation = ({onNavigate}) => {
         {type: 'divider'},
         {
             type: 'link',
+            text: 'GitHub Repository',
+            href: 'https://github.com/aws-solutions/workload-discovery-on-aws',
+            external: true,
+        },
+        {
+            type: 'link',
             text: 'Feature request',
-            href: 'https://github.com/awslabs/aws-perspective/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=',
+            href: 'https://github.com/aws-solutions/workload-discovery-on-aws/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=',
             external: true,
         },
         {
             type: 'link',
             text: 'Raise an issue',
-            href: 'https://github.com/awslabs/aws-perspective/issues/new?assignees=&labels=bug&template=bug_report.md&title=',
+            href: 'https://github.com/aws-solutions/workload-discovery-on-aws/issues/new?assignees=&labels=bug&template=bug_report.md&title=',
+            external: true,
+        },
+        {
+            type: 'link',
+            text: 'Implementation Guide',
+            href: 'https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/welcome.html',
             external: true,
         },
         {type: 'divider'},
@@ -235,14 +248,13 @@ function isOpenDiagram(pathname) {
 export function PolarisLayout() {
     const history = useHistory();
     const location = useLocation();
-    const isFirstMount = useFirstMountState();
-    const {clearAllNotifications} = useNotificationDispatch();
-    const [isFirstVisit, setIsFirstVisit] = useLocalStorage('firstVisit', true);
+    const {addNotification, clearAllNotifications} = useNotificationDispatch();
+    const {data: appProblems = {}} = useGetApplicationProblems();
     const [navigationOpen, setNavigationOpen] = useState(
         location.pathname !== '/'
     );
     const [toolsOpen, setToolsOpen] = useState(false);
-    const [currentPath, setCurrentPath] = useState();
+    const [, setCurrentPath] = useState();
     const [schema, setSchema] = useState();
     const [, dispatch] = useResourceState();
     const [, dispatchCanvas] = useDiagramSettingsState();
@@ -257,7 +269,7 @@ export function PolarisLayout() {
 
             if (pathname === CREATE_DIAGRAM || isOpenDiagram(pathname)) return;
 
-            clearAllNotifications();
+            clearAllNotifications({except: ['DeploymentHealthcheckErrors']});
             dispatch({
                 type: 'select',
                 resources: {},
@@ -278,18 +290,34 @@ export function PolarisLayout() {
     }, [clearAllNotifications, dispatch, dispatchCanvas, history]);
 
     useEffect(() => {
-        if (isFirstVisit) {
-            setIsFirstVisit(false);
-        } else if (location.pathname === '/' && isFirstMount) {
-            history.push(RESOURCES);
+        const logProblems = appProblems?.logProblems ?? [];
+        if (!R.isEmpty(logProblems)) {
+            addNotification({
+                code: 'DeploymentHealthcheckErrors',
+                header: 'Deployment Healthcheck Errors Detected',
+                content:
+                    location.pathname === HOMEPAGE_PATH ? (
+                        'There are issues with the Workload Discovery deployment'
+                    ) : (
+                        <Box>
+                            There are issues with the Workload Discovery
+                            deployment. Check the errors section on the{' '}
+                            <Link
+                                href={HOMEPAGE_PATH}
+                                onFollow={e => {
+                                    e.preventDefault();
+                                    history.push(HOMEPAGE_PATH);
+                                }}
+                            >
+                                homepage
+                            </Link>{' '}
+                            for more information.
+                        </Box>
+                    ),
+                type: 'error',
+            });
         }
-    }, [
-        history,
-        isFirstMount,
-        isFirstVisit,
-        location.pathname,
-        setIsFirstVisit,
-    ]);
+    }, [appProblems]);
 
     const {
         splitPanelOpen,
@@ -312,8 +340,12 @@ export function PolarisLayout() {
             }}
         >
             <AppLayout
-                content={<Pages schema={schema} setSchema={setSchema} />}
-                disableContentPaddings={currentPath === '/'}
+                content={
+                    <Box padding={'s'}>
+                        <Pages schema={schema} setSchema={setSchema} />
+                    </Box>
+                }
+                disableContentPaddings={true}
                 navigation={
                     <Navigation onNavigate={handleNavigation} activeHref="/" />
                 }

@@ -1,14 +1,14 @@
 {
-  "version": 1,
-  "type": "AWS::AutoScaling::WarmPool",
-  "relationships": {
-    "descriptors": [
-      {
-        "resourceType": "AWS::AutoScaling::AutoScalingGroup",
-        "relationshipName": "Is associated with",
-        "path": "AutoScalingGroupName",
-        "identifierType": "resourceName"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::AutoScaling::WarmPool",
+    "relationships": {
+        "descriptors": [
+            {
+                "resourceType": "AWS::AutoScaling::AutoScalingGroup",
+                "relationshipName": "Is associated with",
+                "path": "AutoScalingGroupName",
+                "identifierType": "resourceName"
+            }
+        ]
+    }
 }

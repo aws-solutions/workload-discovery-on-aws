@@ -71,7 +71,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             resourceTypes: [],
                         },
@@ -92,7 +92,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {},
                     },
                     {}
@@ -111,7 +111,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {username: 'iam:f1f5b46a233d4b1f9e70a6465992ec02'},
                         arguments: {
                             resourceTypes: ['AWS::Lambda::Function'],
                             accounts: [
@@ -142,7 +142,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'deleteResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             resourceIds: ids,
                         },
@@ -166,7 +166,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'deleteResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             resourceIds: ids,
                         },
@@ -191,7 +191,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'deleteRelationships',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             relationshipIds: ids,
                         },
@@ -214,7 +214,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'addRelationships',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             relationships: [],
                         },
@@ -235,7 +235,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'addRelationships',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             relationships: [
                                 {
@@ -264,7 +264,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getRelationships',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {},
                     },
                     {}
@@ -289,7 +289,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'updateResources',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             resources: [
                                 {
@@ -319,7 +319,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResourceGraph',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             ids: ['notArn1', 'notArn2'],
                         },
@@ -343,7 +343,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResourceGraph',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             ids: [],
                         },
@@ -416,7 +416,7 @@ describe('index.js', () => {
                         info: {
                             fieldName: 'getResourceGraph',
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         arguments: {
                             ids,
                         },
@@ -485,7 +485,7 @@ describe('index.js', () => {
 
                 return _handler(mockGremlinClient)(
                     {
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'foo',
                         },
@@ -514,7 +514,7 @@ describe('index.js', () => {
                                 end: 3000,
                             },
                         },
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'getResources',
                         },

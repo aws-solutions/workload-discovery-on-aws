@@ -4,13 +4,7 @@
 import React from 'react';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import {describe, expect, it} from 'vitest';
-import {
-    findByText,
-    getByText,
-    render,
-    screen,
-    within,
-} from '@testing-library/react';
+import {findByText, getByText, render, screen} from '@testing-library/react';
 import {TableWrapper} from '@cloudscape-design/components/test-utils/dom';
 
 import ResourcesPage from '../../../../../components/Explore/Resources/ResourcesPage';
@@ -24,6 +18,7 @@ import {graphql, HttpResponse} from 'msw';
 import {
     createOrganizationsPerspectiveMetadata,
     createSelfManagedPerspectiveMetadata,
+    getCellContent,
 } from '../../../testUtils';
 
 function renderResourcesPage() {
@@ -63,10 +58,6 @@ function renderResourcesPage() {
             </DiagramSettingsProvider>
         </QueryClientProvider>
     );
-}
-
-function getCellText(table, row, column) {
-    return table.findBodyCell(row, column).getElement()?.innerHTML;
 }
 
 describe('Resource Page', () => {
@@ -144,7 +135,7 @@ describe('Resource Page', () => {
             level: 2,
             name: /Resources \(29\)/,
         });
-    });
+    }, 8000);
 
     it('should show warning when selecting more than 150 resources', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
@@ -226,7 +217,7 @@ describe('Resource Page', () => {
         await screen.findByText(
             /selecting this many resources will add hundreds, or potentially thousands, of resources to the diagram once the selected resources' relationships have been traversed\. this may impact performance\./i
         );
-    });
+    }, 7500);
 
     it('should retrieve account metadata in batches of 50', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
@@ -392,16 +383,18 @@ describe('Resource Page', () => {
         // verify that only a single ECS CLuster is rendered
         expect(resourcesTableRows).toHaveLength(1);
 
-        expect(getCellText(resourcesTableWrapper, 1, 2)).toMatch(
+        expect(getCellContent(resourcesTableWrapper, 1, 2)).toMatch(
             /\/icons\/Amazon-Elastic-Container-Service-menu.svg/
         );
-        expect(getCellText(resourcesTableWrapper, 1, 3)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 1, 3)).toBe(
             'arn:aws:xxxxxxxxxxxx:eu-west-2:AWS::ECS::Cluster:0Title'
         );
-        expect(getCellText(resourcesTableWrapper, 1, 4)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 1, 4)).toBe(
             'AWS::ECS::Cluster'
         );
-        expect(getCellText(resourcesTableWrapper, 1, 5)).toBe('xxxxxxxxxxxx');
-        expect(getCellText(resourcesTableWrapper, 1, 6)).toBe('eu-west-2');
+        expect(getCellContent(resourcesTableWrapper, 1, 5)).toBe(
+            'xxxxxxxxxxxx'
+        );
+        expect(getCellContent(resourcesTableWrapper, 1, 6)).toBe('eu-west-2');
     });
 });

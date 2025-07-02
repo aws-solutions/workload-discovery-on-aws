@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "type": "AWS::Bedrock::KnowledgeBase",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with Role",
+        "path": "roleArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "knowledgeBaseConfiguration.kendraIndexArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "storageConfiguration.rdsConfiguration.resourceArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "storageConfiguration.opensearchServerlessConfiguration.collectionArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "vectorKnowledgeBaseConfiguration.supplementalDataStorageConfiguration.storageLocations[*].s3Location",
+        "identifierType": "s3Uri"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "resourceType": "AWS::Redshift::Cluster",
+        "path": "sqlKnowledgeBaseConfiguration.redshiftConfiguration.queryEngineConfiguration.clusterIdentifier",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

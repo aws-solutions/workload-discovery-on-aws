@@ -1,80 +1,80 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "dbRelationships": {
-    "AWS::EC2::Instance": {
-      "id": "instanceLinkId",
-      "source": "${resources.AWS::EC2::Instance.id}",
-      "target": "${resources.AWS::EC2::VPC.id}",
-      "label": "IS_CONTAINED_IN_VPC"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "AWS::EC2::VPC": {
-      "id": "instanceLinkId",
-      "source": "${resources.AWS::EC2::VPC.id}",
-      "target": "${resources.AWS::EC2::Instance.id}",
-      "label": "CONTAINS"
-    }
-  },
-  "dbResources": {
-    "AWS::EC2::Instance": {
-      "id": "instanceArn",
-      "resourceId": "instanceResourceId",
-      "resourceType": "AWS::EC2::Instance",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "a": "instanceProp"
-      },
-      "relationships": [
-        {
-          "resourceId": "${resources.AWS::EC2::VPC.resourceId}",
-          "resourceType": "${resources.AWS::EC2::VPC.resourceType}",
-          "relationshipName": "is contained in VPC"
+    "dbRelationships": {
+        "AWS::EC2::Instance": {
+            "id": "instanceLinkId",
+            "source": "${resources.AWS::EC2::Instance.id}",
+            "target": "${resources.AWS::EC2::VPC.id}",
+            "label": "IS_CONTAINED_IN_VPC"
+        },
+        "AWS::EC2::VPC": {
+            "id": "instanceLinkId",
+            "source": "${resources.AWS::EC2::VPC.id}",
+            "target": "${resources.AWS::EC2::Instance.id}",
+            "label": "CONTAINS"
         }
-      ]
     },
-    "AWS::EC2::VPC": {
-      "id": "vpcArn",
-      "resourceId": "vpcResourceId",
-      "resourceType": "AWS::EC2::VPC",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "b": "vpcProp"
-      },
-      "relationships": [
-        {
-          "resourceId": "${resources.AWS::EC2::Instance.resourceId}",
-          "resourceType": "${resources.AWS::EC2::Instance.resourceType}",
-          "relationshipName": "contains"
+    "dbResources": {
+        "AWS::EC2::Instance": {
+            "id": "instanceArn",
+            "resourceId": "instanceResourceId",
+            "resourceType": "AWS::EC2::Instance",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "a": "instanceProp"
+            },
+            "relationships": [
+                {
+                    "resourceId": "${resources.AWS::EC2::VPC.resourceId}",
+                    "resourceType": "${resources.AWS::EC2::VPC.resourceType}",
+                    "relationshipName": "is contained in VPC"
+                }
+            ]
+        },
+        "AWS::EC2::VPC": {
+            "id": "vpcArn",
+            "resourceId": "vpcResourceId",
+            "resourceType": "AWS::EC2::VPC",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "b": "vpcProp"
+            },
+            "relationships": [
+                {
+                    "resourceId": "${resources.AWS::EC2::Instance.resourceId}",
+                    "resourceType": "${resources.AWS::EC2::Instance.resourceType}",
+                    "relationshipName": "contains"
+                }
+            ]
         }
-      ]
-    }
-  },
-  "resources": {
-    "AWS::EC2::Instance": {
-      "id": "instanceArn",
-      "resourceId": "instanceResourceId",
-      "resourceType": "AWS::EC2::Instance",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "a": "instanceProp"
-      },
-      "relationships": []
     },
-    "AWS::EC2::VPC": {
-      "id": "vpcArn",
-      "resourceId": "vpcResourceId",
-      "resourceType": "AWS::EC2::VPC",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "b": "vpcProp"
-      },
-      "relationships": []
+    "resources": {
+        "AWS::EC2::Instance": {
+            "id": "instanceArn",
+            "resourceId": "instanceResourceId",
+            "resourceType": "AWS::EC2::Instance",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "a": "instanceProp"
+            },
+            "relationships": []
+        },
+        "AWS::EC2::VPC": {
+            "id": "vpcArn",
+            "resourceId": "vpcResourceId",
+            "resourceType": "AWS::EC2::VPC",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "b": "vpcProp"
+            },
+            "relationships": []
+        }
     }
-  }
 }

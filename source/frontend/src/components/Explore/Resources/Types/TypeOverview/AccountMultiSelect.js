@@ -4,10 +4,7 @@
 import React from 'react';
 import {Button, FormField, Multiselect} from '@cloudscape-design/components';
 import * as R from 'ramda';
-import {
-    useResourcesMetadata,
-    useResourcesRegionMetadata,
-} from '../../../../Hooks/useResourcesMetadata';
+import {useResourcesRegionMetadata} from '../../../../Hooks/useResourcesMetadata';
 import {useDeepCompareEffect} from 'react-use';
 import {useAccounts} from '../../../../Hooks/useAccounts';
 
@@ -23,7 +20,9 @@ const AccountMultiSelect = ({
         accountId,
     }));
 
-    const accountNameToIdMap = new Map(accounts.map(x => [x.accountId, x.name]));
+    const accountNameToIdMap = new Map(
+        accounts.map(x => [x.accountId, x.name])
+    );
 
     const {data: accountsRegionMetadata = []} = useResourcesRegionMetadata(
         accountsFilter,
@@ -36,14 +35,14 @@ const AccountMultiSelect = ({
         onOptionsChange(accountsRegionMetadata.map(i => i.accountId));
     }, [accountsRegionMetadata, onOptionsChange]);
 
-    const options = accountsRegionMetadata.map((i, index) => {
-        const name = accountNameToIdMap.get(i.accountId );
+    const options = accountsRegionMetadata.map(i => {
+        const name = accountNameToIdMap.get(i.accountId);
 
         return {
             label: name == null ? i.accountId : `${name} (${i.accountId})`,
             value: i.accountId,
             tags: [`${R.length(i.regions)} regions`, `${i.count} resources`],
-        }
+        };
     });
 
     const handleSelectAll = () => {

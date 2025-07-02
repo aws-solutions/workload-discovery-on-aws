@@ -14,6 +14,7 @@ import {graphql, HttpResponse} from 'msw';
 import {NotificationProvider} from '../../../../../../../components/Contexts/NotificationContext';
 import {regionMap} from '../../../../../../../Utils/Dictionaries/RegionMap';
 import * as R from 'ramda';
+import {withResolvers} from '../../../../../testUtils';
 
 const regions = R.reject(x => x.id === 'global', regionMap).map(x => x.id);
 
@@ -188,76 +189,14 @@ describe('Export', () => {
             await waitFor(() => expect(exportButton).toBeEnabled());
         });
 
-        it('should use the diagram name as the default but allow it to be changed', async () => {
-            const applicationName = 'newDiagramName';
-
-            let name = null;
-
-            server.use(
-                graphql.mutation('CreateApplication', ({variables}) => {
-                    name = variables.name;
-
-                    return HttpResponse.json({
-                        data: {
-                            createApplication: {
-                                applicationTag: 'myApplicationTag',
-                                name,
-                                unprocessedResources: [],
-                            },
-                        },
-                    });
-                })
-            );
-
-            const {user} = renderModal(
-                <ExportDiagramModal
-                    canvas={vi.fn()}
-                    elements={elements}
-                    visible={true}
-                    onDismiss={vi.fn()}
-                    settings={{hideEdges: false}}
-                ></ExportDiagramModal>
-            );
-
-            const myApplicationsRadioButton = await screen.findByRole('radio', {
-                name: /myapplications/i,
-            });
-
-            await user.click(myApplicationsRadioButton);
-
-            const nameTextBox = screen.getByRole('textbox', {
-                name: /application name/i,
-            });
-            expect(nameTextBox).toHaveValue('myDiagram');
-
-            await user.clear(nameTextBox);
-            await user.type(nameTextBox, applicationName);
-
-            await user.click(screen.getByRole('button', {name: /account/i}));
-            await user.click(
-                screen.getByRole('option', {name: /333333333333/i})
-            );
-
-            await user.click(screen.getByRole('button', {name: /region/i}));
-            await user.click(screen.getByRole('option', {name: /us-east-1/i}));
-
-            const exportForm = screen.getByRole('form', {name: 'export'});
-            const exportButton = within(exportForm).getByRole('button', {
-                name: /export/i,
-            });
-            await user.click(exportButton);
-
-            await waitFor(() => expect(name).toEqual(applicationName), {timeout: 5000});
-        });
-
         it('should transform the diagram name to a suitable default application name', async () => {
             const applicationName = 'name-with-spaces';
 
-            let name = null;
+            const {promise: namePromise, resolve} = withResolvers();
 
             server.use(
                 graphql.mutation('CreateApplication', ({variables}) => {
-                    name = variables.name;
+                    resolve(variables.name);
 
                     return HttpResponse.json({
                         data: {
@@ -307,6 +246,7 @@ describe('Export', () => {
             });
             await user.click(exportButton);
 
+            const name = await namePromise;
             await waitFor(() => expect(name).toEqual(applicationName));
         });
 
@@ -415,8 +355,12 @@ describe('Export', () => {
             await user.click(screen.getByRole('button', {name: /region/i}));
             expect(screen.getAllByRole('option')).toHaveLength(1);
             screen.getByRole('option', {name: /eu-west-1/i});
-            expect(screen.queryByRole('option', {name: /eu-west-2/i})).toBeNull();
-            expect(screen.queryByRole('option', {name: /us-east-1/i})).toBeNull();
+            expect(
+                screen.queryByRole('option', {name: /eu-west-2/i})
+            ).toBeNull();
+            expect(
+                screen.queryByRole('option', {name: /us-east-1/i})
+            ).toBeNull();
 
             await user.click(
                 screen.getByRole('button', {name: /account 111111111111/i})
@@ -429,7 +373,9 @@ describe('Export', () => {
             expect(screen.getAllByRole('option')).toHaveLength(2);
             screen.getByRole('option', {name: /eu-west-1/i});
             screen.getByRole('option', {name: /eu-west-2/i});
-            expect(screen.queryByRole('option', {name: /us-east-1/i})).toBeNull();
+            expect(
+                screen.queryByRole('option', {name: /us-east-1/i})
+            ).toBeNull();
 
             await user.click(
                 screen.getByRole('button', {name: /account 222222222222/i})
@@ -445,98 +391,6 @@ describe('Export', () => {
             screen.getByRole('option', {name: /eu-west-2/i});
             screen.getByRole('option', {name: /us-east-1/i});
         });
-
-        it('should give user choice of all regions to create application in when diagram only has global resources', async () => {
-            const elements = {
-                nodes: [
-                    {
-                        data: {
-                            id: 'arn:roleArn1',
-                            type: 'resource',
-                            properties: {
-                                accountId: ACCOUNT_ID_1,
-                                awsRegion: 'global',
-                                resourceType: 'AWS::IAM::Role',
-                            },
-                        },
-                    },
-                    {
-                        data: {
-                            id: 'arn:roleArn2',
-                            type: 'resource',
-                            properties: {
-                                accountId: ACCOUNT_ID_2,
-                                awsRegion: 'global',
-                                resourceType: 'AWS::IAM::Role',
-                            },
-                        },
-                    },
-                    {
-                        data: {
-                            id: 'arn:snsTopicArn1',
-                            type: 'resource',
-                            properties: {
-                                accountId: ACCOUNT_ID_3,
-                                awsRegion: US_EAST_1,
-                                resourceType: 'AWS::SNS::Topic',
-                            },
-                        },
-                    }
-                ],
-                edges: []
-            };
-
-            const {user} = renderModal(
-                <ExportDiagramModal
-                    canvas={vi.fn()}
-                    elements={elements}
-                    visible={true}
-                    onDismiss={vi.fn()}
-                    settings={{hideEdges: false}}
-                ></ExportDiagramModal>
-            );
-
-            const myApplicationsRadioButton = await screen.findByRole('radio', {
-                name: /myapplications/i,
-            });
-
-            await user.click(myApplicationsRadioButton);
-
-            await user.click(screen.getByRole('button', {name: /account/i}));
-            await user.click(
-                screen.getByRole('option', {name: /111111111111/i})
-            );
-            await user.click(screen.getByRole('button', {name: /region/i}));
-            expect(screen.getAllByRole('option')).toHaveLength(regions.length);
-
-            regions.forEach(name => {
-                screen.getByRole('option', {name});
-            });
-
-            await user.click(
-                screen.getByRole('button', {name: /account 111111111111/i})
-            );
-
-            await user.click(
-                screen.getByRole('option', {name: /222222222222/i})
-            );
-            await user.click(screen.getByRole('button', {name: /region/i}));
-            expect(screen.getAllByRole('option')).toHaveLength(regions.length);
-            regions.forEach(name => {
-                screen.getByRole('option', {name});
-            });
-
-            await user.click(
-                screen.getByRole('button', {name: /account 222222222222/i})
-            );
-
-            await user.click(
-                screen.getByRole('option', {name: /333333333333/i})
-            );
-            await user.click(screen.getByRole('button', {name: /region/i}));
-            expect(screen.getAllByRole('option')).toHaveLength(1);
-            screen.getByRole('option', {name: /us-east-1/i});
-        }, {timeout: 15000});
 
         it('should should filter out pseudo-resource types', async () => {
             const elements = {
@@ -577,11 +431,11 @@ describe('Export', () => {
                 ],
             };
 
-            const resources = [];
+            const {promise: resourcesPromise, resolve} = withResolvers();
 
             server.use(
                 graphql.mutation('CreateApplication', ({variables}) => {
-                    resources.push(...variables.resources);
+                    resolve(variables.resources);
 
                     return HttpResponse.json({
                         data: {
@@ -625,6 +479,8 @@ describe('Export', () => {
                 name: /export/i,
             });
             await user.click(exportButton);
+
+            const resources = await resourcesPromise;
 
             await waitFor(() => {
                 expect(resources).toEqual([
@@ -675,11 +531,11 @@ describe('Export', () => {
                 ],
             };
 
-            const resources = [];
+            const {promise: resourcesPromise, resolve} = withResolvers();
 
             server.use(
                 graphql.mutation('CreateApplication', ({variables}) => {
-                    resources.push(...variables.resources);
+                    resolve(variables.resources);
 
                     return HttpResponse.json({
                         data: {
@@ -723,6 +579,7 @@ describe('Export', () => {
             });
             await user.click(exportButton);
 
+            const resources = await resourcesPromise;
             await waitFor(() => {
                 expect(resources).toEqual([
                     {

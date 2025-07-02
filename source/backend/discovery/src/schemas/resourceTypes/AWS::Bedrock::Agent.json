@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "type": "AWS::Bedrock::Agent",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with Role",
+        "path": "agentResourceRoleArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "foundationModel",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "foundationModel",
+        "identifierType": "resourceId",
+        "resourceType": "AWS::Bedrock::FoundationModel"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "promptOverrideConfiguration.promptConfigurations[*].foundationModel",
+        "identifierType": "resourceId",
+        "resourceType": "AWS::Bedrock::FoundationModel"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "promptOverrideConfiguration.promptConfigurations[*].foundationModel",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "promptOverrideConfiguration.overrideLambda",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "customerEncryptionKeyArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "customOrchestration.executor.lambda",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}

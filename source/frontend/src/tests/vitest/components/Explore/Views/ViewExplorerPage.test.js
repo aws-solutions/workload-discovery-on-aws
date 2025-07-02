@@ -3,17 +3,13 @@
 
 import {screen} from '@testing-library/react';
 import {TableWrapper} from '@cloudscape-design/components/test-utils/dom';
-import React from 'react';
 import {describe, expect, vi, it} from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
     createSelfManagedPerspectiveMetadata,
     renderPolarisLayout,
+    getCellContent,
 } from '../../../testUtils';
-
-function getCellText(table, row, column) {
-    return table.findBodyCell(row, column).getElement()?.innerHTML;
-}
 
 describe('View Page', () => {
     it('should create new view', async () => {
@@ -90,7 +86,9 @@ describe('View Page', () => {
 
         expect(accountsTableRows).toHaveLength(1);
 
-        expect(getCellText(accountsTableWrapper, 1, 1)).toMatch(/xxxxxxxxxxxx/);
+        expect(getCellContent(accountsTableWrapper, 1, 1)).toMatch(
+            /xxxxxxxxxxxx/
+        );
 
         const resourcesTypeTable = screen.getByRole('table', {
             name: /resources types/i,
@@ -103,10 +101,10 @@ describe('View Page', () => {
 
         expect(resourcesTypeTableRows).toHaveLength(1);
 
-        expect(getCellText(resourcesTypeTableWrapper, 1, 1)).toMatch(
+        expect(getCellContent(resourcesTypeTableWrapper, 1, 1)).toMatch(
             /\/icons\/VPC-subnet-private_light-bg-menu.svg/
         );
-        expect(getCellText(resourcesTypeTableWrapper, 1, 2)).toMatch(
+        expect(getCellContent(resourcesTypeTableWrapper, 1, 2)).toMatch(
             /AWS::EC2::Subnet/
         );
 
@@ -120,28 +118,32 @@ describe('View Page', () => {
 
         expect(resourcesTableRows).toHaveLength(2);
 
-        expect(getCellText(resourcesTableWrapper, 1, 2)).toMatch(
+        expect(getCellContent(resourcesTableWrapper, 1, 2)).toMatch(
             /\/icons\/VPC-subnet-private_light-bg-menu.svg/
         );
-        expect(getCellText(resourcesTableWrapper, 1, 3)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 1, 3)).toBe(
             'arn:aws:xxxxxxxxxxxx:eu-west-2:AWS::EC2::Subnet:0Title'
         );
-        expect(getCellText(resourcesTableWrapper, 1, 4)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 1, 4)).toBe(
             'AWS::EC2::Subnet'
         );
-        expect(getCellText(resourcesTableWrapper, 1, 5)).toBe('xxxxxxxxxxxx');
-        expect(getCellText(resourcesTableWrapper, 1, 6)).toBe('eu-west-2');
+        expect(getCellContent(resourcesTableWrapper, 1, 5)).toBe(
+            'xxxxxxxxxxxx'
+        );
+        expect(getCellContent(resourcesTableWrapper, 1, 6)).toBe('eu-west-2');
 
-        expect(getCellText(resourcesTableWrapper, 2, 2)).toMatch(
+        expect(getCellContent(resourcesTableWrapper, 2, 2)).toMatch(
             /\/icons\/VPC-subnet-private_light-bg-menu.svg/
         );
-        expect(getCellText(resourcesTableWrapper, 2, 3)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 2, 3)).toBe(
             'arn:aws:xxxxxxxxxxxx:eu-west-2:AWS::EC2::Subnet:1Title'
         );
-        expect(getCellText(resourcesTableWrapper, 2, 4)).toBe(
+        expect(getCellContent(resourcesTableWrapper, 2, 4)).toBe(
             'AWS::EC2::Subnet'
         );
-        expect(getCellText(resourcesTableWrapper, 2, 5)).toBe('xxxxxxxxxxxx');
-        expect(getCellText(resourcesTableWrapper, 2, 6)).toBe('eu-west-2');
+        expect(getCellContent(resourcesTableWrapper, 2, 5)).toBe(
+            'xxxxxxxxxxxx'
+        );
+        expect(getCellContent(resourcesTableWrapper, 2, 6)).toBe('eu-west-2');
     }, 8000);
 });

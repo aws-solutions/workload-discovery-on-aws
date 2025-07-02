@@ -1,31 +1,31 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:test-function",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Lambda::Function",
-    "resourceId": "test-function",
-    "relationships": [],
-    "configuration": {}
-  },
-  "method": {
-    "id": "${method.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:apigateway:${$constants.awsRegion}::/restapis/abcde12345/resources/abc123/methods/POST",
-    "availabilityZone": "Not Applicable",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceId": "${method.arn}",
-    "resourceType": "AWS::ApiGateway::Method",
-    "relationships": [],
-    "configuration": {
-      "methodIntegration": {
-        "uri": "arn:aws:apigateway:${$constants.awsRegion}:lambda:path/2015-03-31/functions/${lambda.arn}/invocations"
-      }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "lambda": {
+        "id": "${lambda.arn}",
+        "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:test-function",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Lambda::Function",
+        "resourceId": "test-function",
+        "relationships": [],
+        "configuration": {}
+    },
+    "method": {
+        "id": "${method.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:apigateway:${$constants.awsRegion}::/restapis/abcde12345/resources/abc123/methods/POST",
+        "availabilityZone": "Not Applicable",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceId": "${method.arn}",
+        "resourceType": "AWS::ApiGateway::Method",
+        "relationships": [],
+        "configuration": {
+            "methodIntegration": {
+                "uri": "arn:aws:apigateway:${$constants.awsRegion}:lambda:path/2015-03-31/functions/${lambda.arn}/invocations"
+            }
+        }
     }
-  }
 }

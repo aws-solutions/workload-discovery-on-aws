@@ -389,9 +389,19 @@ export function wrappedCredentialProvider(
  * This will always be there as the system is only configured to use IAM and Cognito authentication
  * but we need to inform the compiler of this.
  *
- * @type {(identity: AppSyncIdentity) => identity is AppSyncIdentityCognito | AppSyncIdentityIAM} */
-function hasUsername(identity) {
-    return identity != null && ('username' in identity);
+ * @type {(identity: AppSyncIdentity) => identity is AppSyncIdentityCognito} */
+function isCognitoIdentity(identity) {
+    return identity != null && ('sub' in identity);
+}
+
+/**
+ * A type guard to validate ensure the username variable exists in the AppSync resolver identity field.
+ * This will always be there as the system is only configured to use IAM and Cognito authentication
+ * but we need to inform the compiler of this.
+ *
+ * @type {(identity: AppSyncIdentity) => identity is AppSyncIdentityIAM} */
+function isIamIdentity(identity) {
+    return identity != null && !('sub' in identity) && ('username' in identity);
 }
 
 /**
@@ -406,7 +416,9 @@ export function _handler(
 ) {
     return async (event, context) => {
         const fieldName = event.info.fieldName;
-        if(hasUsername(event.identity)) {
+        if(isCognitoIdentity(event.identity)) {
+            logger.info(`User ${event.identity.sub} invoked the ${fieldName} operation.`);
+        } else if(isIamIdentity(event.identity)) {
             logger.info(`User ${event.identity.username} invoked the ${fieldName} operation.`);
         }
 

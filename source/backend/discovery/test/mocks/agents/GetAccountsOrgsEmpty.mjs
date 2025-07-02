@@ -5,12 +5,16 @@ agent.disableNetConnect();
 
 const client = agent.get('https://www.workload-discovery');
 
-client.intercept({
-    path: '/graphql',
-    method: 'POST'
-})
-    .reply(200, {data: {
-            getAccounts: []
-        }}).persist();
+client
+    .intercept({
+        path: '/graphql',
+        method: 'POST',
+    })
+    .reply(200, {
+        data: {
+            getAccounts: [],
+        },
+    })
+    .persist();
 
 export default agent;

@@ -1,29 +1,29 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet": {
-    "resourceId": "subnet-0123456789abcdef0"
-  },
-  "alb": {
-    "qualifier": "app/my-alb/1feef78b6a10bcd5",
-    "arn": "arn:aws:elasticloadbalancing:${$constants.awsRegion}:${$constants.accountId}:loadbalancer/${alb.qualifier}"
-  },
-  "eni": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "${$constants.awsRegion}",
-    "relationships": [],
-    "resourceType": "AWS::EC2::NetworkInterface",
-    "resourceId": "eni-0123456789abcdef0",
-    "configuration": {
-      "requesterId": "amazon-elasticsearch",
-      "description": "ELB ${alb.qualifier}",
-      "vpcId": "${vpc.resourceId}",
-      "subnetId": "${subnet.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet": {
+        "resourceId": "subnet-0123456789abcdef0"
+    },
+    "alb": {
+        "qualifier": "app/my-alb/1feef78b6a10bcd5",
+        "arn": "arn:aws:elasticloadbalancing:${$constants.awsRegion}:${$constants.accountId}:loadbalancer/${alb.qualifier}"
+    },
+    "eni": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "${$constants.awsRegion}",
+        "relationships": [],
+        "resourceType": "AWS::EC2::NetworkInterface",
+        "resourceId": "eni-0123456789abcdef0",
+        "configuration": {
+            "requesterId": "amazon-elasticsearch",
+            "description": "ELB ${alb.qualifier}",
+            "vpcId": "${vpc.resourceId}",
+            "subnetId": "${subnet.resourceId}"
+        }
     }
-  }
 }

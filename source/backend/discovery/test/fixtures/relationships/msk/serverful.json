@@ -1,66 +1,64 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "subnet": {
-      "id1": "subnet-11111111111111111",
-      "id2": "subnet-22222222222222222",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
-    }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "availabilityZone": "${$constants.region}a",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "subnet": {
+            "id1": "subnet-11111111111111111",
+            "id2": "subnet-22222222222222222",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
+        }
     },
-    "relationships": []
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "resourceId": "${$constants.subnet.id2}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}b",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
     },
-    "relationships": []
-  },
-  "securityGroup": {
-    "resourceId": "sg-0123456789abcdef"
-  },
-  "cluster": {
-    "id": "${cluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "kafkaArn",
-    "resourceType": "AWS::MSK::Cluster",
-    "resourceId": "${cluster.arn}",
-    "resourceName": "serverful",
-    "availabilityZone": "Regional",
-    "relationships": [],
-    "configuration": {
-      "BrokerNodeGroupInfo": {
-        "ClientSubnets": [
-          "${subnet1.resourceId}",
-          "${subnet2.resourceId}"
-        ],
-        "SecurityGroups": [
-          "${securityGroup.resourceId}"
-        ]
-      }
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "availabilityZone": "${$constants.region}a",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "resourceId": "${$constants.subnet.id2}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}b",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "securityGroup": {
+        "resourceId": "sg-0123456789abcdef"
+    },
+    "cluster": {
+        "id": "${cluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "kafkaArn",
+        "resourceType": "AWS::MSK::Cluster",
+        "resourceId": "${cluster.arn}",
+        "resourceName": "serverful",
+        "availabilityZone": "Regional",
+        "relationships": [],
+        "configuration": {
+            "BrokerNodeGroupInfo": {
+                "ClientSubnets": [
+                    "${subnet1.resourceId}",
+                    "${subnet2.resourceId}"
+                ],
+                "SecurityGroups": ["${securityGroup.resourceId}"]
+            }
+        }
     }
-  }
 }

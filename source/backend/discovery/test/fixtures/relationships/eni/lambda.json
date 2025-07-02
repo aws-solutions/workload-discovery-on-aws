@@ -1,20 +1,20 @@
 {
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet": {
-    "resourceId": "subnet-0123456789abcdef0"
-  },
-  "eni": {
-    "accountId": "xxxxxxxxxxxx",
-    "relationships": [],
-    "resourceType": "AWS::EC2::NetworkInterface",
-    "resourceId": "eni-0123456789abcdef0",
-    "configuration": {
-      "interfaceType": "lambda",
-      "description": "AWS Lambda VPC ENI-testLambda-458e1eda-f888-4a08-8e67-73d429ce5ea2",
-      "vpcId": "${vpc.resourceId}",
-      "subnetId": "${subnet.resourceId}"
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet": {
+        "resourceId": "subnet-0123456789abcdef0"
+    },
+    "eni": {
+        "accountId": "xxxxxxxxxxxx",
+        "relationships": [],
+        "resourceType": "AWS::EC2::NetworkInterface",
+        "resourceId": "eni-0123456789abcdef0",
+        "configuration": {
+            "interfaceType": "lambda",
+            "description": "AWS Lambda VPC ENI-testLambda-458e1eda-f888-4a08-8e67-73d429ce5ea2",
+            "vpcId": "${vpc.resourceId}",
+            "subnetId": "${subnet.resourceId}"
+        }
     }
-  }
 }

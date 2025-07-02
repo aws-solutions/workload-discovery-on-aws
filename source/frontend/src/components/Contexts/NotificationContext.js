@@ -35,7 +35,9 @@ const reducer = (state, action) => {
         case CLEAR_ALL_NOTIFICATIONS:
             return {
                 ...state,
-                notifications: [],
+                notifications: state.notifications.filter(({code}) => {
+                    return action.payload.except.includes(code);
+                }),
             };
         default:
             throw new Error(`Unknown action type: ${action.type}`);
@@ -60,10 +62,10 @@ export const useNotificationDispatch = () => {
                     index,
                 },
             }),
-        clearAllNotifications: () =>
+        clearAllNotifications: payload =>
             dispatch({
                 type: CLEAR_ALL_NOTIFICATIONS,
-                payload: {},
+                payload,
             }),
     };
 };

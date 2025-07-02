@@ -24,7 +24,7 @@ const ImportContent = () => {
     const history = useHistory();
     const {addAsync: addAccounts, isLoading} = useAddAccounts();
     const {data: accounts = []} = useAccounts();
-    const [regions, setRegions] = React.useState([]);
+    const [regionsToAdd, setRegionsToAdd] = React.useState([]);
     const [submitting, setSubmitting] = React.useState(false);
     const [showConfirm, setShowConfirm] = React.useState(false);
     const [hasConfirmed, setHasConfirmed] = React.useState({
@@ -53,8 +53,18 @@ const ImportContent = () => {
     const importAccounts = async () => {
         const mergedRegions = R.mergeWith(
             R.concat,
-            byAccount(regions),
+            byAccount(regionsToAdd),
             byAccount(importedRegions)
+        );
+
+        // users can update the name of the account when importing new regions
+        // so we create a map of the most up-to-date name for each account
+        const accountNameMap = regionsToAdd.reduce(
+            (acc, {accountId, accountName}) => {
+                acc[accountId] = accountName;
+                return acc;
+            },
+            {}
         );
 
         const accounts = Object.values(mergedRegions).map(accInfo => {
@@ -70,7 +80,9 @@ const ImportContent = () => {
                     } = item;
                     return {
                         accountId,
-                        name: accountName ?? acc.name,
+                        // we have a fallback here because only a subset of imported accounts
+                        // will likely be updated so we won't have names for them all
+                        name: accountNameMap[accountId] ?? accountName,
                         isManagementAccount:
                             isManagementAccount ?? acc.isManagementAccount,
                         isIamRoleDeployed:
@@ -105,7 +117,7 @@ const ImportContent = () => {
                         Cancel
                     </Button>
                     <Button
-                        disabled={regions.length === 0}
+                        disabled={regionsToAdd.length === 0}
                         loading={isLoading || submitting}
                         onClick={() => setShowConfirm(true)}
                         variant="primary"
@@ -122,7 +134,10 @@ const ImportContent = () => {
                         {text: 'Import', href: IMPORT},
                     ]}
                 />
-                <RegionProvider regions={regions} setRegions={setRegions} />
+                <RegionProvider
+                    regions={regionsToAdd}
+                    setRegions={setRegionsToAdd}
+                />
                 <Modal
                     onDismiss={() => setShowConfirm(false)}
                     visible={showConfirm}

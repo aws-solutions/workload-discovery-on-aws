@@ -3,8 +3,7 @@
 
 import React from 'react';
 import {RadioGroup} from '@cloudscape-design/components';
-import {IMPORT_CSV} from '../../../config/constants';
-import {IMPORT_INPUT} from '../../../config/constants';
+import {IMPORT_CSV, IMPORT_INPUT} from '../../../config/constants';
 
 const RegionUploadMethod = ({setUploadMethod}) => {
     const [value, setValue] = React.useState(IMPORT_INPUT);

@@ -40,13 +40,16 @@ const createAccountRegionMap = R.pipe(
         // any account that only has global resources needs to provide an option
         // for the region where the application can be created so we allow the
         // user pick any region
-        if(regions.length === 1 && regions[0].region === 'global') {
-            return [accountId, regionsNoGlobal.map(x => {
-                return {
-                    accountId,
-                    region: x.id,
-                };
-            })];
+        if (regions.length === 1 && regions[0].region === 'global') {
+            return [
+                accountId,
+                regionsNoGlobal.map(x => {
+                    return {
+                        accountId,
+                        region: x.id,
+                    };
+                }),
+            ];
         }
         return [accountId, R.reject(x => x.region === 'global', regions)];
     }),
@@ -258,7 +261,7 @@ const ExportDiagramModal = ({
                                     Cancel
                                 </Button>
                                 <Button
-                                    data-testid="export-diagram-modal-button"
+                                    aria-label="Export diagram"
                                     variant="primary"
                                     loading={
                                         (exportType === 'drawio' &&

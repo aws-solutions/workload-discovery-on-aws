@@ -1,26 +1,26 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "snsLambdaArn",
-    "resourceId": "snsLambdaResourceId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Lambda::Function",
-    "relationships": [],
-    "configuration": {}
-  },
-  "snsTopic": {
-    "id": "${snsTopic.arn}",
-    "arn": "snsTopicArn",
-    "resourceId": "${snsTopic.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::SNS::Topic",
-    "relationships": [],
-    "configuration": {}
-  }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "lambda": {
+        "id": "${lambda.arn}",
+        "arn": "snsLambdaArn",
+        "resourceId": "snsLambdaResourceId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Lambda::Function",
+        "relationships": [],
+        "configuration": {}
+    },
+    "snsTopic": {
+        "id": "${snsTopic.arn}",
+        "arn": "snsTopicArn",
+        "resourceId": "${snsTopic.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::SNS::Topic",
+        "relationships": [],
+        "configuration": {}
+    }
 }

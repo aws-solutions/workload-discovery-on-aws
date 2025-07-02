@@ -4,16 +4,23 @@
 const add = require('add');
 const {parse} = require('csv-parse');
 const {Athena} = require('@aws-sdk/client-athena');
+const {Glue} = require('@aws-sdk/client-glue');
 const {S3} = require('@aws-sdk/client-s3');
 const {EC2} = require('@aws-sdk/client-ec2');
 const {Logger} = require('@aws-lambda-powertools/logger');
+const {build: buildArn} = require('@aws-sdk/util-arn-parser');
 const R = require('ramda');
 const athenaQueryBuilder = require('./athenaQueryBuilder');
 
 const {
+    AccountId: accountId,
+    AWS_REGION: region,
     AthenaDatabaseName: athenaDatabaseName,
     AthenaTableName: athenaTableName,
     AthenaResultsBucketName: athenaResultsBucketName,
+    CostAndUsageReportBucket: costAndUsageReportBucket,
+    AwsCurProcessorLambdaArn: awsCurProcessorLambdaArn,
+    AwsCurCrawler: awsCurCrawler,
     AthenaWorkgroup: athenaWorkgroup,
     CustomUserAgent: customUserAgent,
 } = process.env;
@@ -21,6 +28,8 @@ const {
 const athena = new Athena({});
 
 const logger = new Logger({serviceName: 'WdCostQuery'});
+
+const glue = new Glue({customUserAgent: customUserAgent})
 
 const s3 = new S3({
     customUserAgent: customUserAgent,
@@ -137,8 +146,8 @@ const getCostItems = async (s3, query) => {
     return result;
 };
 
-/* 
-  If queryDetails exists then we enrich it with more data about what is being returned else 
+/*
+  If queryDetails exists then we enrich it with more data about what is being returned else
   it will return the data to be used as the queryDetails response attribute.
 */
 const enrichQueryDetails = async (s3, query, queryDetails) => {
@@ -231,6 +240,53 @@ function getCost(sqlQuery, {pagination = {start: 0, end: 10}}, attempts = 0) {
         });
 }
 
+async function getCostReportProcessingStatus({s3, glue}, {
+    costAndUsageReportBucket,
+    awsCurProcessorLambdaArn,
+    awsCurCrawler,
+    accountId,
+    region,
+}) {
+    return s3
+        .getObject({
+            Bucket: costAndUsageReportBucket,
+            Key: 'aws-programmatic-access-test-object',
+        })
+        .then(async object => {
+            const {Crawler} = await glue.getCrawler({Name: awsCurCrawler});
+
+            const res = {
+                isEnabled: true,
+                reports: {
+                    curBucketArn: buildArn({
+                        region: '', accountId: '', service: 's3', resource: costAndUsageReportBucket
+                    }),
+                    lastDelivered: object.LastModified
+                }
+            }
+
+            if(Crawler.LastCrawl != null) {
+                const {LastCrawl} = Crawler;
+
+                res.crawler = {
+                    status: LastCrawl.Status,
+                    errorMessage: LastCrawl.ErrorMessage,
+                    curProcessorLambdaArn: awsCurProcessorLambdaArn,
+                    logGroupArn: buildArn({
+                        region, accountId, service: 'logs', resource: `log-group:${LastCrawl.LogGroup}`
+                    }),
+                    lastCrawled: LastCrawl.StartTime
+                }
+            }
+
+            return res;
+        })
+        .catch((err) => {
+            if(err.name === 'NoSuchKey') return {isEnabled: false};
+            throw err;
+        })
+}
+
 const cache = {};
 
 async function getRegions() {
@@ -242,8 +298,8 @@ async function getRegions() {
 exports.handler = async (event, context) => {
     const fieldName = event.info.fieldName;
 
-    const {username} = event.identity;
-    logger.info(`User ${username} invoked the ${fieldName} operation.`);
+    const userId = event.identity.sub ?? event.identity.username;
+    logger.info(`User ${userId} invoked the ${fieldName} operation.`);
 
     const args = event.arguments;
     logger.info(
@@ -254,47 +310,62 @@ exports.handler = async (event, context) => {
     if (R.isNil(cache.regions)) cache.regions = await getRegions();
 
     switch (fieldName) {
-        case 'readResultsFromS3':
+        case 'readResultsFromS3': {
             return fetchPaginatedResults(s3, {...args.s3Query});
-        case 'getResourcesByCostByDay':
+        }
+        case 'getResourcesByCostByDay': {
             return getCost(
                 athenaQueryBuilder.byResourceIdOrderedByDayQuery({
                     cache,
                     athenaTableName,
                     ...args.costForResourceQueryByDay,
                 }),
-                {athenaTableName, ...args.costForResourceQueryByDay}
+                {athenaTableName, ...args.costForResourceQueryByDay},
             );
-        case 'getResourcesByCost':
+        }
+        case 'getResourcesByCost': {
             return getCost(
                 athenaQueryBuilder.getResourcesByCostQuery({
                     cache,
                     athenaTableName,
                     ...args.resourcesByCostQuery,
                 }),
-                {athenaTableName, ...args.resourcesByCostQuery}
+                {athenaTableName, ...args.resourcesByCostQuery},
             );
-        case 'getCostForResource':
+        }
+        case 'getCostForResource': {
             return getCost(
                 athenaQueryBuilder.byResourceIdQuery({
                     cache,
                     athenaTableName,
                     ...args.costForResourceQuery,
                 }),
-                {athenaTableName, ...args.costForResourceQuery}
+                {athenaTableName, ...args.costForResourceQuery},
             );
-        case 'getCostForService':
+        }
+        case 'getCostForService': {
             return getCost(
                 athenaQueryBuilder.byServiceQuery({
                     cache,
                     athenaTableName,
                     ...args.costForServiceQuery,
                 }),
-                {athenaTableName, ...args.costForServiceQuery}
+                {athenaTableName, ...args.costForServiceQuery},
             );
-        default:
+        }
+        case 'getCostReportProcessingStatus': {
+            return getCostReportProcessingStatus({s3, glue}, {
+                accountId,
+                region,
+                costAndUsageReportBucket,
+                awsCurProcessorLambdaArn,
+                awsCurCrawler
+            });
+        }
+        default: {
             return Promise.reject(
-                'Unknown field, unable to resolve ' + fieldName
+                'Unknown field, unable to resolve ' + fieldName,
             );
+        }
     }
 };

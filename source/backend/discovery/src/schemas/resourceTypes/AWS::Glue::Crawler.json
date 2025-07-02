@@ -1,0 +1,47 @@
+{
+    "version": 3,
+    "type": "AWS::Glue::Crawler",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with",
+                "path": "Targets.S3Targets[*].[EventQueueArn, DlqEventQueueArn]",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "Targets.CatalogTargets[*].[EventQueueArn, DlqEventQueueArn]",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "Targets.S3Targets[*].Path",
+                "identifierType": "s3Uri"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::Glue::Database",
+                "path": "Targets.CatalogTargets[*].DatabaseName",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::Glue::Connection",
+                "path": "Targets.*[*].ConnectionName",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::Glue::Database",
+                "path": "DatabaseName",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::DynamoDB::Table",
+                "path": "Targets.DynamoDBTargets[*].Path",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
+}

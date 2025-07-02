@@ -15,7 +15,6 @@ import {
 import getAllConfigResources from '../src/lib/aggregator/getAllConfigResources.mjs';
 
 describe('getAllConfigResources', () => {
-
     const ACCOUNT_IDX = 'xxxxxxxxxxxx';
     const EU_WEST_1 = 'eu-west-1';
 
@@ -29,81 +28,133 @@ describe('getAllConfigResources', () => {
             async getAllAggregatorResources() {
                 return [
                     {
-                        accountId: ACCOUNT_IDX, awsRegion: GLOBAL, resourceType: AWS_IAM_ROLE,
-                        arn: 'roleArn', resourceId: 'roleResourceId', configuration: {},
-                        configurationItemCaptureTime: DATE1
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: GLOBAL,
+                        resourceType: AWS_IAM_ROLE,
+                        arn: 'roleArn',
+                        resourceId: 'roleResourceId',
+                        configuration: {},
+                        configurationItemCaptureTime: DATE1,
                     },
                     {
-                        accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_EC2_INSTANCE,
-                        arn: 'ec2InstanceArn', resourceId: 'ec2InstanceResourceId', configuration: {},
-                        configurationItemCaptureTime: DATE2
-                    }
-                ]
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: EU_WEST_1,
+                        resourceType: AWS_EC2_INSTANCE,
+                        arn: 'ec2InstanceArn',
+                        resourceId: 'ec2InstanceResourceId',
+                        configuration: {},
+                        configurationItemCaptureTime: DATE2,
+                    },
+                ];
             },
-            getAggregatorResources: () => []
-        }
+            getAggregatorResources: () => [],
+        };
 
-        const actual = await getAllConfigResources(mockConfigClient, aggregatorName);
+        const actual = await getAllConfigResources(
+            mockConfigClient,
+            aggregatorName
+        );
         assert.lengthOf(actual, 2);
     });
 
     it('should normalise resources', async () => {
         const mockConfigClient = {
             async getAllAggregatorResources() {
-                return []
+                return [];
             },
-            getAggregatorResources: sinon.stub().onFirstCall().resolves([
-                {
-                    accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_ECS_SERVICE,
-                    arn: 'ecsServiceArn', resourceId: 'ecsServiceResourceId', configuration: '{"a": 1}',
-                    configurationItemCaptureTime: new Date(DATE1)
-                }
-            ]).resolves([])
-        }
+            getAggregatorResources: sinon
+                .stub()
+                .onFirstCall()
+                .resolves([
+                    {
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: EU_WEST_1,
+                        resourceType: AWS_ECS_SERVICE,
+                        arn: 'ecsServiceArn',
+                        resourceId: 'ecsServiceResourceId',
+                        configuration: '{"a": 1}',
+                        configurationItemCaptureTime: new Date(DATE1),
+                    },
+                ])
+                .resolves([]),
+        };
 
-        const actual = await getAllConfigResources(mockConfigClient, aggregatorName);
+        const actual = await getAllConfigResources(
+            mockConfigClient,
+            aggregatorName
+        );
         const actualEcsService = actual.find(x => x.arn === 'ecsServiceArn');
         assert.deepEqual(actualEcsService, {
-            id: "ecsServiceArn", accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_ECS_SERVICE,
-            arn: 'ecsServiceArn', resourceId: 'ecsServiceResourceId', configuration: {a: 1},
-            configurationItemCaptureTime: DATE1, relationships: [], tags: []
+            id: 'ecsServiceArn',
+            accountId: ACCOUNT_IDX,
+            awsRegion: EU_WEST_1,
+            resourceType: AWS_ECS_SERVICE,
+            arn: 'ecsServiceArn',
+            resourceId: 'ecsServiceResourceId',
+            configuration: {a: 1},
+            configurationItemCaptureTime: DATE1,
+            relationships: [],
+            tags: [],
         });
     });
-
 
     it('should create a unique resourceId for Kinesis streams, EKS Clusters and ECS Task definitions', async () => {
         const mockConfigClient = {
             async getAllAggregatorResources() {
-                return []
+                return [];
             },
-            getAggregatorResources: sinon.stub().onFirstCall().resolves([
-                {
-                    accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_KINESIS_STREAM,
-                    arn: 'kinesisArn', resourceId: 'kinesisResourceId', configuration: '{"a": 1}',
-                    configurationItemCaptureTime: new Date(DATE1)
-                },
-                {
-                    accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_EKS_CLUSTER,
-                    arn: 'eksClusterArn', resourceId: 'eksClusterResourceId', configuration: '{"b": 1}',
-                    configurationItemCaptureTime: new Date(DATE2)
-                },
-                {
-                    accountId: ACCOUNT_IDX, awsRegion: EU_WEST_1, resourceType: AWS_ECS_TASK_DEFINITION,
-                    arn: 'ecsTaskDefArn', resourceId: 'ecsTaskDefResourceId', configuration: '{"c": 1}',
-                    configurationItemCaptureTime: new Date(DATE2)
-                }
-            ]).resolves([])
-        }
+            getAggregatorResources: sinon
+                .stub()
+                .onFirstCall()
+                .resolves([
+                    {
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: EU_WEST_1,
+                        resourceType: AWS_KINESIS_STREAM,
+                        arn: 'kinesisArn',
+                        resourceId: 'kinesisResourceId',
+                        configuration: '{"a": 1}',
+                        configurationItemCaptureTime: new Date(DATE1),
+                    },
+                    {
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: EU_WEST_1,
+                        resourceType: AWS_EKS_CLUSTER,
+                        arn: 'eksClusterArn',
+                        resourceId: 'eksClusterResourceId',
+                        configuration: '{"b": 1}',
+                        configurationItemCaptureTime: new Date(DATE2),
+                    },
+                    {
+                        accountId: ACCOUNT_IDX,
+                        awsRegion: EU_WEST_1,
+                        resourceType: AWS_ECS_TASK_DEFINITION,
+                        arn: 'ecsTaskDefArn',
+                        resourceId: 'ecsTaskDefResourceId',
+                        configuration: '{"c": 1}',
+                        configurationItemCaptureTime: new Date(DATE2),
+                    },
+                ])
+                .resolves([]),
+        };
 
-        const actual = await getAllConfigResources(mockConfigClient, aggregatorName);
+        const actual = await getAllConfigResources(
+            mockConfigClient,
+            aggregatorName
+        );
 
-        const actualKinesis = actual.find(x => x.resourceType === AWS_KINESIS_STREAM);
-        const actualEcsCluster = actual.find(x => x.resourceType === AWS_EKS_CLUSTER);
-        const actualEcsTaskDef = actual.find(x => x.resourceType === AWS_ECS_TASK_DEFINITION);
+        const actualKinesis = actual.find(
+            x => x.resourceType === AWS_KINESIS_STREAM
+        );
+        const actualEcsCluster = actual.find(
+            x => x.resourceType === AWS_EKS_CLUSTER
+        );
+        const actualEcsTaskDef = actual.find(
+            x => x.resourceType === AWS_ECS_TASK_DEFINITION
+        );
 
         assert.strictEqual(actualKinesis.resourceId, 'kinesisArn');
         assert.strictEqual(actualEcsCluster.resourceId, 'eksClusterArn');
         assert.strictEqual(actualEcsTaskDef.resourceId, 'ecsTaskDefArn');
     });
-
 });

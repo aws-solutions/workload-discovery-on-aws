@@ -106,7 +106,7 @@ Resources:
         SecurityHeadersConfig:
           ContentSecurityPolicy:
             ContentSecurityPolicy: |-
-              default-src 'none'; font-src https://*.cloudfront.net data:; img-src 'self' data:; script-src 'self';manifest-src 'self'; style-src 'unsafe-inline' 'self'; style-src-elem 'unsafe-inline' 'self'; object-src 'none'; connect-src https://*.amazoncognito.com https://*.amazonaws.com; upgrade-insecure-requests; frame-ancestors 'none'; base-uri 'none';
+              default-src 'none'; font-src 'self' data:; img-src 'self' data:; script-src 'self';manifest-src 'self'; style-src 'unsafe-inline' 'self'; style-src-elem 'unsafe-inline' 'self'; object-src 'none'; connect-src https://*.amazoncognito.com https://*.amazonaws.com; upgrade-insecure-requests; frame-ancestors 'none'; base-uri 'none';
             Override: True
           ContentTypeOptions:
             Override: True

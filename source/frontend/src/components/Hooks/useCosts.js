@@ -8,10 +8,14 @@ import * as R from 'ramda';
 import {
     getCostForResource,
     getResourcesByCostByDay,
+    getCostReportProcessingStatus,
 } from '../../API/Handlers/CostsGraphQLHandler';
 import {getStatus} from '../../Utils/StatusUtils';
 import {wrapRequest} from '../../Utils/API/HandlerUtils';
-import {processAccountsError} from '../../Utils/ErrorHandlingUtils';
+import {
+    processAccountsError,
+    processResourcesError,
+} from '../../Utils/ErrorHandlingUtils';
 
 export const useResourceCosts = (
     resources = [],
@@ -114,6 +118,37 @@ export const useDailyResourceCosts = (
                 resources.length > 0 &&
                 'startDate' in dateInterval &&
                 'endDate' in dateInterval,
+            onError: handleError,
+            refetchInterval: false,
+            ...config,
+        }
+    );
+
+    return {
+        data,
+        isLoading,
+        isError,
+        refetch,
+        status: getStatus(isFetching, isError),
+    };
+};
+
+export const useGetCostReportProcessingStatus = (params = {}, config = {}) => {
+    const {handleError} = useQueryErrorHandler();
+
+    const {isLoading, isError, data, refetch, isFetching} = useQuery(
+        ['getCostReportProcessingStatus'],
+        () => {
+            return wrapRequest(
+                processResourcesError,
+                getCostReportProcessingStatus,
+                params
+            ).then(
+                R.pathOr({}, ['body', 'data', 'getCostReportProcessingStatus'])
+            );
+        },
+        {
+            staleTime: 10 * 1000,
             onError: handleError,
             refetchInterval: false,
             ...config,

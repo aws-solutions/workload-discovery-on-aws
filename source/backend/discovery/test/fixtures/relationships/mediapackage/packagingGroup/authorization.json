@@ -1,31 +1,31 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "packagingGroup": {
+            "resourceType": "AWS::MediaPackage::PackagingGroup"
+        }
+    },
+    "role": {
+        "arn": "roleArn"
+    },
+    "secret": {
+        "arn": "secretArn"
+    },
     "packagingGroup": {
-      "resourceType": "AWS::MediaPackage::PackagingGroup"
+        "id": "${packagingGroup.arn}",
+        "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-groups:${packagingGroup.resourceId}",
+        "resourceId": "packagingGroupId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Regional",
+        "resourceType": "${$constants.packagingGroup.resourceType}",
+        "relationships": [],
+        "configuration": {
+            "Authorization": {
+                "CdnIdentifierSecret": "${secret.arn}",
+                "SecretsRoleArn": "${role.arn}"
+            }
+        }
     }
-  },
-  "role": {
-    "arn": "roleArn"
-  },
-  "secret": {
-    "arn": "secretArn"
-  },
-  "packagingGroup": {
-    "id": "${packagingGroup.arn}",
-    "arn": "arn:aws:mediapackage:${$constants.region}:${$constants.accountId}:packaging-groups:${packagingGroup.resourceId}",
-    "resourceId": "packagingGroupId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Regional",
-    "resourceType": "${$constants.packagingGroup.resourceType}",
-    "relationships": [],
-    "configuration": {
-      "Authorization": {
-        "CdnIdentifierSecret": "${secret.arn}",
-        "SecretsRoleArn": "${role.arn}"
-      }
-    }
-  }
 }

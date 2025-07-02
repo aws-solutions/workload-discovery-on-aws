@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "type": "AWS::Bedrock::CustomModel",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "baseModelArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "modelKmsKeyArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "trainingDataConfig.s3Uri",
+        "identifierType": "s3Uri"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "validationDataConfig.validators[*].s3Uri",
+        "identifierType": "s3Uri"
+      }
+    ]
+  }
+}

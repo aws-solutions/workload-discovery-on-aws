@@ -27,7 +27,7 @@ describe('index.js', () => {
             it('should incorporate account id into global template', async () => {
                 const actual = await handler({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getGlobalTemplate',
                     },
@@ -64,7 +64,7 @@ describe('index.js', () => {
             it('should incorporate account id and region into global template', async () => {
                 const actual = await handler({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {username: 'iam:f1f5b46a233d4b1f9e70a6465992ec02'},
                     info: {
                         fieldName: 'getRegionalTemplate',
                     },
@@ -89,7 +89,7 @@ describe('index.js', () => {
             it('should reject payloads with unknown query', async () => {
                 const actual = await handler({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'foo',
                     },

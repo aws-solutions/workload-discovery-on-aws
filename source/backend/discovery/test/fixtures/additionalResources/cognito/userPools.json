@@ -1,8 +1,12 @@
 {
-  "euWest2": [{
-    "Arn": "cognitoArn1"
-  }],
-  "usWest2": [{
-    "Arn": "cognitoArn2"
-  }]
+    "euWest2": [
+        {
+            "Arn": "cognitoArn1"
+        }
+    ],
+    "usWest2": [
+        {
+            "Arn": "cognitoArn2"
+        }
+    ]
 }

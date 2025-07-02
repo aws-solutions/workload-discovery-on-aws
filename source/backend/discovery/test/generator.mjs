@@ -16,17 +16,17 @@ function getRel(schema, rel) {
 
 export function generate(schema) {
     function interpolate(input) {
-        if(isObject(input)) {
+        if (isObject(input)) {
             return Object.entries(input).reduce((acc, [key, val]) => {
                 acc[key] = interpolate(val);
                 return acc;
             }, {});
-        } else if(Array.isArray(input)) {
+        } else if (Array.isArray(input)) {
             return input.map(interpolate);
         } else {
-            if(typeof input === 'string') {
+            if (typeof input === 'string') {
                 const matches = input.match(stringInterpolationRegex);
-                if(matches != null) {
+                if (matches != null) {
                     return matches.reduce((acc, match) => {
                         return acc.replace(
                             '${' + match + '}',
@@ -42,8 +42,8 @@ export function generate(schema) {
     const interpolated = R.map(interpolate, R.map(interpolate, schema));
 
     function generateRec(input) {
-        if(isObject(input)) {
-            if(input.$rel != null) {
+        if (isObject(input)) {
+            if (input.$rel != null) {
                 return getRel(interpolated, input.$rel);
             } else {
                 return Object.entries(input).reduce((acc, [key, val]) => {
@@ -51,7 +51,7 @@ export function generate(schema) {
                     return acc;
                 }, {});
             }
-        } else if(Array.isArray(input)) {
+        } else if (Array.isArray(input)) {
             return input.map(generateRec);
         } else {
             return input;
@@ -72,7 +72,7 @@ export function generateBaseResource(accountId, awsRegion, resourceType, num) {
         awsRegion,
         relationships: [],
         tags: [],
-        configuration: {a: +num}
+        configuration: {a: +num},
     };
 }
 

@@ -20,7 +20,8 @@ import {
     AWS_API_GATEWAY_AUTHORIZER,
     AWS_DYNAMODB_STREAM,
     AWS_DYNAMODB_TABLE,
-    AWS_ECS_TASK, AWS_ECS_SERVICE,
+    AWS_ECS_TASK,
+    AWS_ECS_SERVICE,
     AWS_EKS_NODE_GROUP,
     AWS_EKS_CLUSTER,
     AWS_IAM_INLINE_POLICY,
@@ -36,10 +37,12 @@ import {
     AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION,
     AWS_APPSYNC_GRAPHQLAPI,
     AWS_APPSYNC_DATASOURCE,
-    AWS_APPSYNC_RESOLVER, AWS_MEDIA_CONNECT_FLOW
+    AWS_APPSYNC_RESOLVER,
+    AWS_MEDIA_CONNECT_FLOW,
 } from '../src/lib/constants.mjs';
 import * as sdkResources from '../src/lib/sdkResources/index.mjs';
-import {generate} from "./generator.mjs";
+import {generate} from './generator.mjs';
+import {createOpenSearchServerlessClient} from '../src/lib/awsClient/opensearchServerless.mjs';
 
 const EU_WEST_2 = 'eu-west-2';
 const EU_WEST_2_A = EU_WEST_2 + 'a';
@@ -48,122 +51,165 @@ const US_WEST_2 = 'us-west-2';
 const ACCESS_KEY_X = 'accessKeyIdX';
 const ACCESS_KEY_Z = 'accessKeyIdz';
 
-const ACCOUNT_X = 'xxxxxxxxxxxx';
-const ACCOUNT_Z = 'zzzzzzzzzzzz';
+export const ACCOUNT_X = 'xxxxxxxxxxxx';
+export const ACCOUNT_Z = 'zzzzzzzzzzzz';
+
+export const mockAwsClient = {
+    createAppSyncClient() {
+        return {
+            listDataSources: async () => [],
+            listResolvers: async () => [],
+        };
+    },
+    createBedrockClient() {
+        return {
+            getAllCustomModels: async () => [],
+            getAllFoundationModels: async () => [],
+            getAllImportedModels: async () => [],
+            listAllInferenceProfiles: async () => [],
+        };
+    },
+    createBedrockAgentClient() {
+        return {
+            getAllAgents: async () => [],
+            getAllDataSources: async () => [],
+            getAllKnowledgeBases: async () => [],
+        };
+    },
+    createIamClient() {
+        return {
+            getAllAttachedAwsManagedPolices: async () => [],
+        };
+    },
+    createElbV2Client() {
+        return {
+            describeTargetHealth: async arn => [],
+            getAllTargetGroups: async arn => [],
+        };
+    },
+    createEc2Client() {
+        return {
+            getAllSpotInstanceRequests: async () => [],
+            getAllSpotFleetRequests: async () => [],
+        };
+    },
+    createEcsClient() {
+        return {
+            getAllClusterInstances: async arn => [],
+            getAllServiceTasks: async () => [],
+        };
+    },
+    createEksClient() {
+        return {
+            listNodeGroups: async arn => [],
+        };
+    },
+    createApiGatewayClient(accountId, credentials, region) {
+        return {
+            getResources: async () => [],
+            getAuthorizers: async () => [],
+        };
+    },
+    createDynamoDBStreamsClient(credentials, region) {
+        return {
+            describeStream: async streamArn => [],
+        };
+    },
+    createGlueClient(credentials, region) {
+        return {
+            getAllCrawlers: () => [],
+            getAllConnections: () => [],
+            getAllDatabases: () => [],
+        }
+    },
+    createMediaConnectClient(credentials, region) {
+        return {
+            getAllFlows: async streamArn => [],
+        };
+    },
+    createOpenSearchClient(credentials, region) {
+        return {
+            getAllOpenSearchDomains: async streamArn => [],
+        };
+    },
+    createOpenSearchServerlessClient(credentials, region) {
+        return {
+            getAllCollections: async streamArn => [],
+        };
+    },
+    createServiceCatalogAppRegistryClient(credentials, region) {
+        return {
+            getAllApplications: async streamArn => [],
+        };
+    },
+};
+
+export const credentialsX = {
+    accessKeyId: ACCESS_KEY_X,
+    secretAccessKey: 'secretAccessKey',
+    sessionToken: 'sessionToken',
+};
+
+export const credentialsZ = {
+    accessKeyId: ACCESS_KEY_Z,
+    secretAccessKey: 'secretAccessKey',
+    sessionToken: 'sessionToken',
+};
 
 describe('getAllSdkResources', () => {
 
-    const credentialsX = {accessKeyId: ACCESS_KEY_X, secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
-    const credentialsZ = {accessKeyId: ACCESS_KEY_Z, secretAccessKey: 'secretAccessKey', sessionToken: 'sessionToken'};
-
-    const mockAwsClient = {
-        createAppSyncClient(){
-            return {
-                listDataSources: async ()=> [],
-                listResolvers: async ()=> [],
-            }
-        },
-        createIamClient() {
-            return {
-                getAllAttachedAwsManagedPolices: async () => [],
-            }
-        },
-        createElbV2Client() {
-            return {
-                describeTargetHealth: async arn => [],
-                getAllTargetGroups: async arn => []
-            }
-        },
-        createEc2Client() {
-            return {
-                getAllSpotInstanceRequests: async () => [],
-                getAllSpotFleetRequests: async () => []
-            }
-        },
-        createEcsClient() {
-            return {
-                getAllClusterInstances: async arn => [],
-                getAllServiceTasks: async () => []
-            }
-        },
-        createEksClient() {
-            return {
-                listNodeGroups: async arn => []
-            }
-        },
-        createApiGatewayClient(accountId, credentials, region) {
-            return {
-                getResources: async () => [],
-                getAuthorizers: async () => []
-            }
-        },
-        createDynamoDBStreamsClient(credentials, region) {
-            return {
-                describeStream: async (streamArn) => [],
-            }
-        },
-        createMediaConnectClient(credentials, region) {
-            return {
-                getAllFlows: async (streamArn) => [],
-            }
-        },
-        createOpenSearchClient(credentials, region) {
-            return {
-                getAllOpenSearchDomains: async (streamArn) => []
-            }
-        },
-        createServiceCatalogAppRegistryClient(credentials, region) {
-            return {
-                getAllApplications: async (streamArn) => []
-            }
-        }
-    };
-
     describe('getAdditionalResources', () => {
-
-        const getAllSdkResources = sdkResources.getAllSdkResources(new Map(
-            [[
-                ACCOUNT_X,
-                {
-                    credentials: credentialsX,
-                    regions: [
-                        'eu-west-2'
-                    ]
-                }
-            ], [
-                ACCOUNT_Z,
-                {
-                    credentials: credentialsZ,
-                    regions: [
-                        'us-west-2'
-                    ]
-                }
-            ]]
-        ));
+        const getAllSdkResources = sdkResources.getAllSdkResources(
+            new Map([
+                [
+                    ACCOUNT_X,
+                    {
+                        credentials: credentialsX,
+                        regions: ['eu-west-2'],
+                    },
+                ],
+                [
+                    ACCOUNT_Z,
+                    {
+                        credentials: credentialsZ,
+                        regions: ['us-west-2'],
+                    },
+                ],
+            ])
+        );
 
         describe(AWS_IAM_AWS_MANAGED_POLICY, () => {
-
             it('should discover AWS managed policy resources', async () => {
-                const {default: {euWest2, usWest2}} = await import('./fixtures/additionalResources/iam/awsManagedPolicy.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2, usWest2},
+                } = await import(
+                    './fixtures/additionalResources/iam/awsManagedPolicy.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockIamClient = {
                     createIamClient(credentials, region) {
                         return {
                             async getAllAttachedAwsManagedPolices() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X) {
+                                if (credentials.accessKeyId === ACCESS_KEY_X) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z
+                                ) {
                                     return usWest2;
                                 }
-                            }
+                            },
                         };
-                    }
-                }
+                    },
+                };
 
-                const arn1 = 'managedPolicyArn1'
-                const arn2 = 'managedPolicyArn2'
+                const arn1 = 'managedPolicyArn1';
+                const arn2 = 'managedPolicyArn2';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockIamClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockIamClient},
+                    []
+                );
 
                 const actualRole1 = actual.find(x => x.arn === arn1);
                 const actualRole2 = actual.find(x => x.arn === arn2);
@@ -176,14 +222,14 @@ describe('getAllSdkResources', () => {
                     awsRegion: GLOBAL,
                     configuration: {
                         Arn: arn1,
-                        PolicyName: 'policyName1'
+                        PolicyName: 'policyName1',
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: 'policyName1',
                     resourceType: AWS_IAM_AWS_MANAGED_POLICY,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
 
                 assert.deepEqual(actualRole2, {
@@ -194,37 +240,47 @@ describe('getAllSdkResources', () => {
                     awsRegion: GLOBAL,
                     configuration: {
                         Arn: arn2,
-                        PolicyName: 'policyName2'
+                        PolicyName: 'policyName2',
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
                     resourceName: 'policyName2',
                     resourceType: AWS_IAM_AWS_MANAGED_POLICY,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
             });
 
             it('should discover AWS managed policy resources when some regions fail', async () => {
-                const {default: {euWest2}} = await import('./fixtures/additionalResources/iam/awsManagedPolicy.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2},
+                } = await import(
+                    './fixtures/additionalResources/iam/awsManagedPolicy.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockIamClient = {
                     createIamClient(credentials, region) {
                         return {
                             async getAllAttachedAwsManagedPolices() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X) {
+                                if (credentials.accessKeyId === ACCESS_KEY_X) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z
+                                ) {
                                     throw new Error();
                                 }
-                            }
+                            },
                         };
-                    }
-                }
+                    },
+                };
 
-                const arn1 = 'managedPolicyArn1'
+                const arn1 = 'managedPolicyArn1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockIamClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockIamClient},
+                    []
+                );
 
                 const actualRole1 = actual.find(x => x.arn === arn1);
 
@@ -237,44 +293,55 @@ describe('getAllSdkResources', () => {
                     awsRegion: GLOBAL,
                     configuration: {
                         Arn: arn1,
-                        PolicyName: 'policyName1'
+                        PolicyName: 'policyName1',
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: 'policyName1',
                     resourceType: AWS_IAM_AWS_MANAGED_POLICY,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
-
         });
 
         describe(AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP, () => {
-
             it('should discover ALB target groups', async () => {
-                const {default: {euWest2, usWest2}} = await import('./fixtures//additionalResources/alb/targetGroups.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2, usWest2},
+                } = await import(
+                    './fixtures//additionalResources/alb/targetGroups.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockElbV2Client = {
                     createElbV2Client(credentials, region) {
                         return {
                             describeTargetHealth: async arn => [],
                             async getAllTargetGroups() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return usWest2;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = 'targetGroupArn1';
                 const arn2 = 'targetGroupArn2';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockElbV2Client}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockElbV2Client},
+                    []
+                );
 
                 const actualTg1 = actual.find(x => x.arn === arn1);
                 const actualTg2 = actual.find(x => x.arn === arn2);
@@ -286,14 +353,14 @@ describe('getAllSdkResources', () => {
                     availabilityZone: MULTIPLE_AVAILABILITY_ZONES,
                     awsRegion: EU_WEST_2,
                     configuration: {
-                        TargetGroupArn: arn1
+                        TargetGroupArn: arn1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: arn1,
                     resourceType: AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
 
                 assert.deepEqual(actualTg2, {
@@ -303,39 +370,52 @@ describe('getAllSdkResources', () => {
                     availabilityZone: MULTIPLE_AVAILABILITY_ZONES,
                     awsRegion: US_WEST_2,
                     configuration: {
-                        TargetGroupArn: arn2
+                        TargetGroupArn: arn2,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
                     resourceName: arn2,
                     resourceType: AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
 
             it('should discover ALB target groups when some regions fail', async () => {
-                const {default: {euWest2}} = await import('./fixtures//additionalResources/alb/targetGroups.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2},
+                } = await import(
+                    './fixtures//additionalResources/alb/targetGroups.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockElbV2Client = {
                     createElbV2Client(credentials, region) {
                         return {
                             describeTargetHealth: async arn => [],
                             async getAllTargetGroups() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     throw new Error();
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = 'targetGroupArn1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockElbV2Client}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockElbV2Client},
+                    []
+                );
 
                 const actualTg1 = actual.find(x => x.arn === arn1);
 
@@ -347,41 +427,49 @@ describe('getAllSdkResources', () => {
                     availabilityZone: MULTIPLE_AVAILABILITY_ZONES,
                     awsRegion: EU_WEST_2,
                     configuration: {
-                        TargetGroupArn: arn1
+                        TargetGroupArn: arn1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: arn1,
                     resourceType: AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
-
         });
 
         describe(AWS_EC2_SPOT, () => {
-
             it('should discover spot instances', async () => {
-                const {default: {instanceRequests}} = await import('./fixtures//additionalResources/spot/instance.json', {with: {type: 'json' }});
+                const {
+                    default: {instanceRequests},
+                } = await import(
+                    './fixtures//additionalResources/spot/instance.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockEc2Client = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return instanceRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return instanceRequests.usWest2;
                                 }
                             },
                             async getAllSpotFleetRequests() {
                                 return [];
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const spotInstanceRequestId1 = 'spotInstanceRequestId1';
                 const spotInstanceRequestId2 = 'spotInstanceRequestId2';
@@ -389,10 +477,13 @@ describe('getAllSdkResources', () => {
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-instance-request/${spotInstanceRequestId1}`;
                 const arn2 = `arn:aws:ec2:${US_WEST_2}:${ACCOUNT_Z}:spot-instance-request/${spotInstanceRequestId2}`;
 
-                const instanceId1 = "instanceId1";
-                const instanceId2 = "instanceId2";
+                const instanceId1 = 'instanceId1';
+                const instanceId2 = 'instanceId2';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2Client}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEc2Client},
+                    []
+                );
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualSpotFleet2 = actual.find(x => x.arn === arn2);
@@ -406,7 +497,7 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         InstanceId: instanceId1,
                         SpotInstanceRequestId: spotInstanceRequestId1,
-                        Tags: []
+                        Tags: [],
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -417,9 +508,9 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: instanceId1,
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualSpotFleet2, {
@@ -431,7 +522,7 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         InstanceId: instanceId2,
                         SpotInstanceRequestId: spotInstanceRequestId2,
-                        Tags: []
+                        Tags: [],
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
@@ -442,40 +533,53 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: instanceId2,
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
-
             });
 
             it('should discover spot instances when some regions fail', async () => {
-                const {default: {instanceRequests}} = await import('./fixtures//additionalResources/spot/instance.json', {with: {type: 'json' }});
+                const {
+                    default: {instanceRequests},
+                } = await import(
+                    './fixtures//additionalResources/spot/instance.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockEc2lient = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return instanceRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     throw new Error();
                                 }
                             },
                             async getAllSpotFleetRequests() {
                                 return [];
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const spotInstanceRequestId1 = 'spotInstanceRequestId1';
 
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-instance-request/${spotInstanceRequestId1}`;
 
-                const instanceId1 = "instanceId1";
+                const instanceId1 = 'instanceId1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEc2lient},
+                    []
+                );
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
 
@@ -489,7 +593,7 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         InstanceId: instanceId1,
                         SpotInstanceRequestId: spotInstanceRequestId1,
-                        Tags: []
+                        Tags: [],
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -500,44 +604,62 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: instanceId1,
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
             });
-
         });
 
         describe(AWS_EC2_SPOT_FLEET, () => {
-
             it('should discover spot fleets', async () => {
-                const {default: {fleetRequests, instanceRequests}} = await import('./fixtures//additionalResources/spot/fleet.json', {with: {type: 'json' }});
+                const {
+                    default: {fleetRequests, instanceRequests},
+                } = await import(
+                    './fixtures//additionalResources/spot/fleet.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockEc2lient = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return instanceRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return instanceRequests.usWest2;
                                 }
                             },
                             async getAllSpotFleetRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return fleetRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return fleetRequests.usWest2;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-fleet-request/spotFleetRequestId1`;
                 const arn2 = `arn:aws:ec2:${US_WEST_2}:${ACCOUNT_Z}:spot-fleet-request/spotFleetRequestId2`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEc2lient},
+                    []
+                );
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualSpotFleet2 = actual.find(x => x.arn === arn2);
@@ -551,8 +673,8 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         SpotFleetRequestId: 'spotFleetRequestId1',
                         SpotFleetRequestConfig: {
-                            OnDemandFulfilledCapacity: 0
-                        }
+                            OnDemandFulfilledCapacity: 0,
+                        },
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -563,9 +685,9 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: 'instanceId1',
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualSpotFleet2, {
@@ -577,8 +699,8 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         SpotFleetRequestId: 'spotFleetRequestId2',
                         SpotFleetRequestConfig: {
-                            OnDemandFulfilledCapacity: 1
-                        }
+                            OnDemandFulfilledCapacity: 1,
+                        },
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
@@ -589,40 +711,59 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: 'instanceId2',
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
-
             });
 
             it('should discover spot fleets if some regions fail', async () => {
-                const {default: {fleetRequests, instanceRequests}} = await import('./fixtures//additionalResources/spot/fleet.json', {with: {type: 'json' }});
+                const {
+                    default: {fleetRequests, instanceRequests},
+                } = await import(
+                    './fixtures//additionalResources/spot/fleet.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockEc2lient = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return instanceRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     throw new Error();
                                 }
                             },
                             async getAllSpotFleetRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return fleetRequests.euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return fleetRequests.usWest2;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-fleet-request/spotFleetRequestId1`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2lient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEc2lient},
+                    []
+                );
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
 
@@ -636,8 +777,8 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         SpotFleetRequestId: 'spotFleetRequestId1',
                         SpotFleetRequestConfig: {
-                            OnDemandFulfilledCapacity: 0
-                        }
+                            OnDemandFulfilledCapacity: 0,
+                        },
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -648,18 +789,19 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: 'instanceId1',
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
             });
-
         });
 
         describe(AWS_API_GATEWAY_RESOURCE, () => {
-
             it('should discover API Gateway resources', async () => {
-                const {default: schema} = await import('./fixtures//additionalResources/apigateway/resources.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures//additionalResources/apigateway/resources.json',
+                    {with: {type: 'json'}}
+                );
                 const {restApi, apiGwResource} = generate(schema);
 
                 const mockApiGatewayClient = {
@@ -667,7 +809,10 @@ describe('getAllSdkResources', () => {
                         return {
                             getAuthorizers: async restApi => [],
                             async getResources() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [apiGwResource];
                                 }
                             },
@@ -675,14 +820,17 @@ describe('getAllSdkResources', () => {
                                 const notFoundError = new Error();
                                 notFoundError.name = NOT_FOUND_EXCEPTION;
                                 throw notFoundError;
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockApiGatewayClient},
+                    [restApi]
+                );
 
                 const actualApiGwResource = actual.find(x => x.arn === arn);
 
@@ -694,7 +842,7 @@ describe('getAllSdkResources', () => {
                     awsRegion: EU_WEST_2,
                     configuration: {
                         RestApiId: restApi.configuration.id,
-                        id: apiGwResource.id
+                        id: apiGwResource.id,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -705,81 +853,110 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: restApi.configuration.id,
-                            resourceType: AWS_API_GATEWAY_REST_API
-                        }
-                    ]
+                            resourceType: AWS_API_GATEWAY_REST_API,
+                        },
+                    ],
                 });
-
             });
-
         });
 
         describe(AWS_API_GATEWAY_METHOD, () => {
-
             it('should handle resources that have unsupported http verbs', async () => {
-                const {default: schema} = await import('./fixtures//additionalResources/apigateway/method.json', {with: {type: 'json' }});
-                const {restApi, apiGwResource, getMethod, postMethod} = generate(schema);
+                const {default: schema} = await import(
+                    './fixtures//additionalResources/apigateway/method.json',
+                    {with: {type: 'json'}}
+                );
+                const {restApi, apiGwResource, getMethod, postMethod} =
+                    generate(schema);
 
                 const mockApiGatewayClient = {
                     createApiGatewayClient(accountId, credentials, region) {
                         return {
                             getResources: async restApi => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [apiGwResource];
                                 }
                             },
                             getAuthorizers: async restApi => [],
                             async getMethod(httpMethod) {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     const notFoundError = new Error();
                                     notFoundError.name = NOT_FOUND_EXCEPTION;
                                     throw notFoundError;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockApiGatewayClient},
+                    [restApi]
+                );
 
-                assert.deepEqual(actual.filter(x => x.resourceType === AWS_API_GATEWAY_METHOD), []);
+                assert.deepEqual(
+                    actual.filter(
+                        x => x.resourceType === AWS_API_GATEWAY_METHOD
+                    ),
+                    []
+                );
             });
 
             it('should discover API Gateway methods', async () => {
-                const {default: schema} = await import('./fixtures//additionalResources/apigateway/method.json', {with: {type: 'json' }});
-                const {restApi, apiGwResource, getMethod, postMethod} = generate(schema);
+                const {default: schema} = await import(
+                    './fixtures//additionalResources/apigateway/method.json',
+                    {with: {type: 'json'}}
+                );
+                const {restApi, apiGwResource, getMethod, postMethod} =
+                    generate(schema);
 
                 const mockApiGatewayClient = {
                     createApiGatewayClient(credentials, region) {
                         return {
                             getResources: async restApi => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [apiGwResource];
                                 }
                             },
                             getAuthorizers: async restApi => [],
                             async getMethod(httpMethod) {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                    if(httpMethod === GET) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
+                                    if (httpMethod === GET) {
                                         return getMethod;
-                                    } else if(httpMethod === POST) {
+                                    } else if (httpMethod === POST) {
                                         return postMethod;
                                     } else {
                                         const notFoundError = new Error();
-                                        notFoundError.name = 'NotFoundException';
+                                        notFoundError.name =
+                                            'NotFoundException';
                                         throw notFoundError;
                                     }
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const apiGatewayResourceArn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}`;
                 const arn1 = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}/methods/${GET}`;
                 const arn2 = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/resources/${apiGwResource.id}/methods/${POST}`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockApiGatewayClient},
+                    [restApi]
+                );
 
                 const actualGetMethod = actual.find(x => x.arn === arn1);
                 const actualPostMethod = actual.find(x => x.arn === arn2);
@@ -793,7 +970,7 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         RestApiId: restApi.configuration.id,
                         ResourceId: apiGwResource.id,
-                        httpMethod: GET
+                        httpMethod: GET,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -804,9 +981,9 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: apiGatewayResourceArn,
-                            resourceType: AWS_API_GATEWAY_RESOURCE
-                        }
-                    ]
+                            resourceType: AWS_API_GATEWAY_RESOURCE,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualPostMethod, {
@@ -818,7 +995,7 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         RestApiId: restApi.configuration.id,
                         ResourceId: apiGwResource.id,
-                        httpMethod: POST
+                        httpMethod: POST,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
@@ -829,19 +1006,19 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: apiGatewayResourceArn,
-                            resourceType: AWS_API_GATEWAY_RESOURCE
-                        }
-                    ]
+                            resourceType: AWS_API_GATEWAY_RESOURCE,
+                        },
+                    ],
                 });
-
             });
-
         });
 
         describe(AWS_API_GATEWAY_AUTHORIZER, () => {
-
             it('should discover API Gateway authorizers with no providers', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/apigateway/authorizerNoProvider.json', {with: { type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/apigateway/authorizerNoProvider.json',
+                    {with: {type: 'json'}}
+                );
                 const {restApi, apiGwAuthorizer} = generate(schema);
 
                 const mockApiGatewayClient = {
@@ -849,66 +1026,23 @@ describe('getAllSdkResources', () => {
                         return {
                             getResources: async restApi => [],
                             async getAuthorizers(restApi) {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [apiGwAuthorizer];
                                 }
-                            }
-                        }
-                    }
-                }
-
-                const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
-
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
-
-                const actualApiGwResource = actual.find(x => x.arn === arn);
-
-                assert.deepEqual(actualApiGwResource, {
-                    id: arn,
-                    accountId: ACCOUNT_X,
-                    arn: arn,
-                    availabilityZone: NOT_APPLICABLE,
-                    awsRegion: EU_WEST_2,
-                    configuration: {
-                        RestApiId: restApi.configuration.id,
-                        id: apiGwAuthorizer.id
+                            },
+                        };
                     },
-                    configurationItemStatus: RESOURCE_DISCOVERED,
-                    resourceId: arn,
-                    resourceName: arn,
-                    resourceType: AWS_API_GATEWAY_AUTHORIZER,
-                    tags: [],
-                    relationships: [
-                        {
-                            relationshipName: IS_CONTAINED_IN,
-                            resourceId: restApi.configuration.id,
-                            resourceType: AWS_API_GATEWAY_REST_API
-                        }
-                    ]
-                });
-
-            });
-
-            it('should discover API Gateway Cognito authorizers', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/apigateway/authorizer.json', {with: {type: 'json' }});
-                const {restApi, cognito, apiGwAuthorizer} = generate(schema);
-
-                const mockApiGatewayClient = {
-                    createApiGatewayClient(credentials, region) {
-                        return {
-                            getResources: async restApi => [],
-                            async getAuthorizers(restApi) {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                    return [apiGwAuthorizer];
-                                }
-                            }
-                        }
-                    }
-                }
+                };
 
                 const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockApiGatewayClient}, [restApi]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockApiGatewayClient},
+                    [restApi]
+                );
 
                 const actualApiGwResource = actual.find(x => x.arn === arn);
 
@@ -921,9 +1055,6 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         RestApiId: restApi.configuration.id,
                         id: apiGwAuthorizer.id,
-                        providerARNs: [
-                            'cognitoArn'
-                        ]
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -934,40 +1065,104 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: restApi.configuration.id,
-                            resourceType: AWS_API_GATEWAY_REST_API
+                            resourceType: AWS_API_GATEWAY_REST_API,
+                        },
+                    ],
+                });
+            });
+
+            it('should discover API Gateway Cognito authorizers', async () => {
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/apigateway/authorizer.json',
+                    {with: {type: 'json'}}
+                );
+                const {restApi, cognito, apiGwAuthorizer} = generate(schema);
+
+                const mockApiGatewayClient = {
+                    createApiGatewayClient(credentials, region) {
+                        return {
+                            getResources: async restApi => [],
+                            async getAuthorizers(restApi) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
+                                    return [apiGwAuthorizer];
+                                }
+                            },
+                        };
+                    },
+                };
+
+                const arn = `arn:aws:apigateway:${EU_WEST_2}::/restapis/${restApi.configuration.id}/authorizers/${apiGwAuthorizer.id}`;
+
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockApiGatewayClient},
+                    [restApi]
+                );
+
+                const actualApiGwResource = actual.find(x => x.arn === arn);
+
+                assert.deepEqual(actualApiGwResource, {
+                    id: arn,
+                    accountId: ACCOUNT_X,
+                    arn: arn,
+                    availabilityZone: NOT_APPLICABLE,
+                    awsRegion: EU_WEST_2,
+                    configuration: {
+                        RestApiId: restApi.configuration.id,
+                        id: apiGwAuthorizer.id,
+                        providerARNs: ['cognitoArn'],
+                    },
+                    configurationItemStatus: RESOURCE_DISCOVERED,
+                    resourceId: arn,
+                    resourceName: arn,
+                    resourceType: AWS_API_GATEWAY_AUTHORIZER,
+                    tags: [],
+                    relationships: [
+                        {
+                            relationshipName: IS_CONTAINED_IN,
+                            resourceId: restApi.configuration.id,
+                            resourceType: AWS_API_GATEWAY_REST_API,
                         },
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
-                            arn: cognito.arn
-                        }
-                    ]
+                            arn: cognito.arn,
+                        },
+                    ],
                 });
-
             });
-
         });
 
         describe(AWS_ECS_TASK, () => {
-
             it('should discover ECS tasks', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/ecs/task.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/ecs/task.json',
+                    {with: {type: 'json'}}
+                );
                 const {ecsService, ecsTask} = generate(schema);
 
                 const mockEcsClientClient = {
                     createEcsClient(credentials, region) {
                         return {
                             async getAllServiceTasks() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [ecsTask];
                                 }
-                            }
-                        }
+                            },
+                        };
                     },
-                }
+                };
 
                 const arn = ecsTask.taskArn;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEcsClientClient}, [ecsService]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEcsClientClient},
+                    [ecsService]
+                );
 
                 const actualEcsTask = actual.find(x => x.arn === arn);
 
@@ -975,11 +1170,11 @@ describe('getAllSdkResources', () => {
                     id: arn,
                     accountId: ACCOUNT_X,
                     arn: arn,
-                    availabilityZone: EU_WEST_2_A ,
+                    availabilityZone: EU_WEST_2_A,
                     awsRegion: EU_WEST_2,
                     configuration: {
-                        availabilityZone: EU_WEST_2_A ,
-                        taskArn: arn
+                        availabilityZone: EU_WEST_2_A,
+                        taskArn: arn,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -990,36 +1185,42 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: ecsService.resourceId,
-                            resourceType: AWS_ECS_SERVICE
-                        }
-                    ]
+                            resourceType: AWS_ECS_SERVICE,
+                        },
+                    ],
                 });
-
             });
-
         });
 
         describe(AWS_EKS_NODE_GROUP, () => {
-
             it('should discover EKS node groups', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/eks/nodeGroup.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/eks/nodeGroup.json',
+                    {with: {type: 'json'}}
+                );
                 const {eksCluster, nodeGroup} = generate(schema);
 
                 const mockEksClientClient = {
                     createEksClient(credentials, region) {
                         return {
                             async listNodeGroups() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [nodeGroup];
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn = nodeGroup.nodegroupArn;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEksClientClient},
+                    [eksCluster]
+                );
 
                 const actualEksNodeGroup = actual.find(x => x.arn === arn);
 
@@ -1031,7 +1232,7 @@ describe('getAllSdkResources', () => {
                     awsRegion: EU_WEST_2,
                     configuration: {
                         nodegroupArn: nodeGroup.nodegroupArn,
-                        nodegroupName: nodeGroup.nodegroupName
+                        nodegroupName: nodeGroup.nodegroupName,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -1042,40 +1243,51 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: eksCluster.resourceId,
-                            resourceType: AWS_EKS_CLUSTER
-                        }
-                    ]
+                            resourceType: AWS_EKS_CLUSTER,
+                        },
+                    ],
                 });
-
             });
-
         });
 
         describe(AWS_MEDIA_CONNECT_FLOW, () => {
-
             it('should discover Media Connect flows', async () => {
-                const {default: {euWest2, usWest2}} = await import('./fixtures/additionalResources/mediaconnect/flows.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2, usWest2},
+                } = await import(
+                    './fixtures/additionalResources/mediaconnect/flows.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockMediaConnectClient = {
                     createMediaConnectClient(credentials, region) {
                         return {
                             getAllFlows: async () => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return usWest2;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = 'flowArn1';
                 const name1 = 'flowName1';
                 const arn2 = 'flowArn2';
                 const name2 = 'flowName2';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockMediaConnectClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockMediaConnectClient},
+                    []
+                );
 
                 const actualFlow1 = actual.find(x => x.arn === arn1);
                 const actualFlow2 = actual.find(x => x.arn === arn2);
@@ -1089,14 +1301,14 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         FlowArn: arn1,
                         AvailabilityZone: EU_WEST_2 + 'a',
-                        Name: name1
+                        Name: name1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: name1,
                     resourceType: AWS_MEDIA_CONNECT_FLOW,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
 
                 assert.deepEqual(actualFlow2, {
@@ -1108,39 +1320,52 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         FlowArn: arn2,
                         AvailabilityZone: US_WEST_2 + 'a',
-                        Name: name2
+                        Name: name2,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
                     resourceName: name2,
                     resourceType: AWS_MEDIA_CONNECT_FLOW,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
 
             it('should discover Media Connect flows some regions fail', async () => {
-                const {default: {euWest2}} = await import('./fixtures/additionalResources/mediaconnect/flows.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2},
+                } = await import(
+                    './fixtures/additionalResources/mediaconnect/flows.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockMediaConnectClient = {
                     createMediaConnectClient(credentials, region) {
                         return {
                             getAllFlows: async () => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     throw new Error();
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn1 = 'flowArn1';
                 const name1 = 'flowName1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockMediaConnectClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockMediaConnectClient},
+                    []
+                );
 
                 const actualPool1 = actual.find(x => x.arn === arn1);
 
@@ -1153,41 +1378,47 @@ describe('getAllSdkResources', () => {
                     configuration: {
                         FlowArn: arn1,
                         AvailabilityZone: EU_WEST_2 + 'a',
-                        Name: name1
+                        Name: name1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: name1,
                     resourceType: AWS_MEDIA_CONNECT_FLOW,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
-
         });
 
         describe(AWS_OPENSEARCH_DOMAIN, () => {
-
             it('should discover OpenSearch domains', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/opensearch/domain.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/opensearch/domain.json',
+                    {with: {type: 'json'}}
+                );
                 const {domain} = generate(schema);
 
                 const mockOpenSearchClientClient = {
                     createOpenSearchClient(credentials, region) {
                         return {
                             async getAllOpenSearchDomains() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [domain];
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const arn = domain.ARN;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockOpenSearchClientClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockOpenSearchClientClient},
+                    []
+                );
 
                 const actualDomain = actual.find(x => x.arn === arn);
 
@@ -1199,24 +1430,24 @@ describe('getAllSdkResources', () => {
                     awsRegion: EU_WEST_2,
                     configuration: {
                         ARN: domain.ARN,
-                        DomainName: domain.DomainName
+                        DomainName: domain.DomainName,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: domain.DomainName,
                     resourceName: domain.DomainName,
                     resourceType: AWS_OPENSEARCH_DOMAIN,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
-
         });
 
         describe(AWS_IAM_INLINE_POLICY, () => {
-
             it('should create inline iam policy from iam role', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/iam/inlinePolicy/role.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/iam/inlinePolicy/role.json',
+                    {with: {type: 'json'}}
+                );
                 const {inlinePolicy1, inlinePolicy2, role} = generate(schema);
 
                 const actual = await getAllSdkResources(mockAwsClient, [role]);
@@ -1234,7 +1465,7 @@ describe('getAllSdkResources', () => {
                     availabilityZone: NOT_APPLICABLE,
                     awsRegion: GLOBAL,
                     configuration: {
-                        ...inlinePolicy1
+                        ...inlinePolicy1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -1245,9 +1476,9 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceName: role.resourceName,
-                            resourceType: AWS_IAM_ROLE
-                        }
-                    ]
+                            resourceType: AWS_IAM_ROLE,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualInlinePolcy2, {
@@ -1257,7 +1488,7 @@ describe('getAllSdkResources', () => {
                     availabilityZone: NOT_APPLICABLE,
                     awsRegion: GLOBAL,
                     configuration: {
-                        ...inlinePolicy2
+                        ...inlinePolicy2,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
@@ -1268,15 +1499,17 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceName: role.resourceName,
-                            resourceType: AWS_IAM_ROLE
-                        }
-                    ]
+                            resourceType: AWS_IAM_ROLE,
+                        },
+                    ],
                 });
-
             });
 
             it('should create inline iam policy from iam uder', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/iam/inlinePolicy/user.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/iam/inlinePolicy/user.json',
+                    {with: {type: 'json'}}
+                );
                 const {inlinePolicy, user} = generate(schema);
 
                 const actual = await getAllSdkResources(mockAwsClient, [user]);
@@ -1292,7 +1525,7 @@ describe('getAllSdkResources', () => {
                     availabilityZone: NOT_APPLICABLE,
                     awsRegion: GLOBAL,
                     configuration: {
-                        ...inlinePolicy
+                        ...inlinePolicy,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -1303,40 +1536,52 @@ describe('getAllSdkResources', () => {
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceName: user.resourceName,
-                            resourceType: AWS_IAM_USER
-                        }
-                    ]
+                            resourceType: AWS_IAM_USER,
+                        },
+                    ],
                 });
             });
-
         });
 
         describe(AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION, () => {
-
             it('should discover App Registry applications', async () => {
-                const {default: {euWest2, usWest2}} = await import('./fixtures/additionalResources/appregistry/application.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2, usWest2},
+                } = await import(
+                    './fixtures/additionalResources/appregistry/application.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockAppRegistryClient = {
                     createServiceCatalogAppRegistryClient(credentials, region) {
                         return {
                             getAllApplications: async () => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     return usWest2;
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
-                const arn1 = 'applicationArn1'
-                const arn2 = 'applicationArn2'
+                const arn1 = 'applicationArn1';
+                const arn2 = 'applicationArn2';
 
-                const name1 = 'applicationName1'
-                const name2 = 'applicationName2'
+                const name1 = 'applicationName1';
+                const name2 = 'applicationName2';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockAppRegistryClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockAppRegistryClient},
+                    []
+                );
 
                 const actualApplication1 = actual.find(x => x.arn === arn1);
                 const actualApplication2 = actual.find(x => x.arn === arn2);
@@ -1349,14 +1594,14 @@ describe('getAllSdkResources', () => {
                     awsRegion: EU_WEST_2,
                     configuration: {
                         arn: arn1,
-                        name: name1
+                        name: name1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: name1,
                     resourceType: AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
 
                 assert.deepEqual(actualApplication2, {
@@ -1367,39 +1612,52 @@ describe('getAllSdkResources', () => {
                     awsRegion: US_WEST_2,
                     configuration: {
                         arn: arn2,
-                        name: name2
+                        name: name2,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn2,
                     resourceName: name2,
                     resourceType: AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
 
             it('should discover App Registry applications even when some regions fail', async () => {
-                const {default: {euWest2}} = await import('./fixtures/additionalResources/appregistry/application.json', {with: {type: 'json' }});
+                const {
+                    default: {euWest2},
+                } = await import(
+                    './fixtures/additionalResources/appregistry/application.json',
+                    {with: {type: 'json'}}
+                );
 
                 const mockAppRegistryClient = {
                     createServiceCatalogAppRegistryClient(credentials, region) {
                         return {
                             getAllApplications: async () => {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return euWest2;
-                                } else if(credentials.accessKeyId === ACCESS_KEY_Z && region === US_WEST_2) {
+                                } else if (
+                                    credentials.accessKeyId === ACCESS_KEY_Z &&
+                                    region === US_WEST_2
+                                ) {
                                     throw new Error();
                                 }
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
-                const arn1 = 'applicationArn1'
-                const name1 = 'applicationName1'
+                const arn1 = 'applicationArn1';
+                const name1 = 'applicationName1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockAppRegistryClient}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockAppRegistryClient},
+                    []
+                );
 
                 assert.strictEqual(actual.length, 1);
 
@@ -1413,27 +1671,32 @@ describe('getAllSdkResources', () => {
                     awsRegion: EU_WEST_2,
                     configuration: {
                         arn: arn1,
-                        name: name1
+                        name: name1,
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
                     resourceName: name1,
                     resourceType: AWS_SERVICE_CATALOG_APP_REGISTRY_APPLICATION,
                     tags: [],
-                    relationships: []
+                    relationships: [],
                 });
-
             });
-
         });
 
         describe(AWS_TAGS_TAG, () => {
-
             it('should create tags from resources', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/tags/tag.json', {with: {type: 'json' }});
-                const {tagInfo, ec2Instance, sqsQueue, forecast} = generate(schema);
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/tags/tag.json',
+                    {with: {type: 'json'}}
+                );
+                const {tagInfo, ec2Instance, sqsQueue, forecast} =
+                    generate(schema);
 
-                const actual = await getAllSdkResources(mockAwsClient, [ec2Instance, sqsQueue, forecast]);
+                const actual = await getAllSdkResources(mockAwsClient, [
+                    ec2Instance,
+                    sqsQueue,
+                    forecast,
+                ]);
 
                 const arn1 = `arn:aws:tags::${ACCOUNT_X}:tag/${tagInfo.applicationName}=${tagInfo.applicationValue}`;
                 const arn2 = `arn:aws:tags::${ACCOUNT_X}:tag/${tagInfo.sqsName}=${tagInfo.sqsValue}`;
@@ -1459,16 +1722,16 @@ describe('getAllSdkResources', () => {
                             resourceId: ec2Instance.resourceId,
                             resourceName: ec2Instance.resourceName,
                             resourceType: AWS_EC2_INSTANCE,
-                            awsRegion: EU_WEST_2
+                            awsRegion: EU_WEST_2,
                         },
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: sqsQueue.resourceId,
                             resourceName: sqsQueue.resourceName,
                             resourceType: AWS_SQS_QUEUE,
-                            awsRegion: EU_WEST_2
-                        }
-                    ]
+                            awsRegion: EU_WEST_2,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualTag2, {
@@ -1489,33 +1752,42 @@ describe('getAllSdkResources', () => {
                             resourceId: sqsQueue.resourceId,
                             resourceName: sqsQueue.resourceName,
                             resourceType: AWS_SQS_QUEUE,
-                            awsRegion: EU_WEST_2
-                        }
-                    ]
+                            awsRegion: EU_WEST_2,
+                        },
+                    ],
                 });
             });
 
             it('should handle tags field that is an object', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/tags/object.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/tags/object.json',
+                    {with: {type: 'json'}}
+                );
                 const {eksCluster, nodeGroup} = generate(schema);
 
                 const mockEksClientClient = {
                     createEksClient(credentials, region) {
                         return {
                             async listNodeGroups() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return [nodeGroup];
                                 }
-                            }
-                        }
+                            },
+                        };
                     },
-                }
+                };
 
                 const arn = nodeGroup.nodegroupArn;
                 const tagArn1 = `arn:aws:tags::${ACCOUNT_X}:tag/tag1=value1`;
                 const tagArn2 = `arn:aws:tags::${ACCOUNT_X}:tag/tag2=value2`;
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEksClientClient}, [eksCluster]);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEksClientClient},
+                    [eksCluster]
+                );
 
                 const actualEksNodeGroup = actual.find(x => x.arn === arn);
                 const actualTag1 = actual.find(x => x.arn === tagArn1);
@@ -1532,8 +1804,8 @@ describe('getAllSdkResources', () => {
                         nodegroupName: nodeGroup.nodegroupName,
                         tags: {
                             tag1: 'value1',
-                            tag2: 'value2'
-                        }
+                            tag2: 'value2',
+                        },
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn,
@@ -1542,20 +1814,20 @@ describe('getAllSdkResources', () => {
                     tags: [
                         {
                             key: 'tag1',
-                            value: 'value1'
+                            value: 'value1',
                         },
                         {
                             key: 'tag2',
-                            value: 'value2'
-                        }
+                            value: 'value2',
+                        },
                     ],
                     relationships: [
                         {
                             relationshipName: IS_CONTAINED_IN,
                             resourceId: eksCluster.resourceId,
-                            resourceType: AWS_EKS_CLUSTER
-                        }
-                    ]
+                            resourceType: AWS_EKS_CLUSTER,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualTag1, {
@@ -1576,9 +1848,9 @@ describe('getAllSdkResources', () => {
                             resourceId: actualEksNodeGroup.resourceId,
                             resourceName: actualEksNodeGroup.resourceName,
                             resourceType: AWS_EKS_NODE_GROUP,
-                            awsRegion: EU_WEST_2
-                        }
-                    ]
+                            awsRegion: EU_WEST_2,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualTag2, {
@@ -1599,40 +1871,48 @@ describe('getAllSdkResources', () => {
                             resourceId: actualEksNodeGroup.resourceId,
                             resourceName: actualEksNodeGroup.resourceName,
                             resourceType: AWS_EKS_NODE_GROUP,
-                            awsRegion: EU_WEST_2
-                        }
-                    ]
+                            awsRegion: EU_WEST_2,
+                        },
+                    ],
                 });
-
             });
 
             it('should handle Tags field in upper camel case', async () => {
-                const {default: schema} = await import('./fixtures/additionalResources/tags/camelCase.json', {with: {type: 'json' }});
+                const {default: schema} = await import(
+                    './fixtures/additionalResources/tags/camelCase.json',
+                    {with: {type: 'json'}}
+                );
                 const {tagInfo, instanceRequests} = generate(schema);
 
                 const mockEc2Client = {
                     createEc2Client(credentials, region) {
                         return {
                             async getAllSpotInstanceRequests() {
-                                if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                if (
+                                    credentials.accessKeyId === ACCESS_KEY_X &&
+                                    region === EU_WEST_2
+                                ) {
                                     return instanceRequests.euWest2;
                                 }
                             },
                             async getAllSpotFleetRequests() {
                                 return [];
-                            }
-                        }
-                    }
-                }
+                            },
+                        };
+                    },
+                };
 
                 const spotInstanceRequestId1 = 'spotInstanceRequestId1';
 
                 const arn1 = `arn:aws:ec2:${EU_WEST_2}:${ACCOUNT_X}:spot-instance-request/${spotInstanceRequestId1}`;
                 const tagArn = `arn:aws:tags::${ACCOUNT_X}:tag/${tagInfo.testTagKey}=${tagInfo.testTagValue}`;
 
-                const instanceId1 = "instanceId1";
+                const instanceId1 = 'instanceId1';
 
-                const actual = await getAllSdkResources({...mockAwsClient, ...mockEc2Client}, []);
+                const actual = await getAllSdkResources(
+                    {...mockAwsClient, ...mockEc2Client},
+                    []
+                );
 
                 const actualSpotFleet1 = actual.find(x => x.arn === arn1);
                 const actualTag = actual.find(x => x.arn === tagArn);
@@ -1649,9 +1929,9 @@ describe('getAllSdkResources', () => {
                         Tags: [
                             {
                                 Key: tagInfo.testTagKey,
-                                Value: tagInfo.testTagValue
-                            }
-                        ]
+                                Value: tagInfo.testTagValue,
+                            },
+                        ],
                     },
                     configurationItemStatus: RESOURCE_DISCOVERED,
                     resourceId: arn1,
@@ -1660,16 +1940,16 @@ describe('getAllSdkResources', () => {
                     tags: [
                         {
                             key: tagInfo.testTagKey,
-                            value: tagInfo.testTagValue
-                        }
+                            value: tagInfo.testTagValue,
+                        },
                     ],
                     relationships: [
                         {
                             relationshipName: IS_ASSOCIATED_WITH,
                             resourceId: instanceId1,
-                            resourceType: AWS_EC2_INSTANCE
-                        }
-                    ]
+                            resourceType: AWS_EC2_INSTANCE,
+                        },
+                    ],
                 });
 
                 assert.deepEqual(actualTag, {
@@ -1690,33 +1970,44 @@ describe('getAllSdkResources', () => {
                             resourceId: actualSpotFleet1.resourceId,
                             resourceName: actualSpotFleet1.resourceName,
                             resourceType: AWS_EC2_SPOT,
-                            awsRegion: EU_WEST_2
-                        }
-                    ]
+                            awsRegion: EU_WEST_2,
+                        },
+                    ],
                 });
             });
             describe(AWS_DYNAMODB_STREAM, () => {
-
                 it('should discover DynamoDB Streams', async () => {
-                    const {default: schema} = await import('./fixtures/additionalResources/dynamodb/stream.json', {with: {type: 'json' }});
+                    const {default: schema} = await import(
+                        './fixtures/additionalResources/dynamodb/stream.json',
+                        {with: {type: 'json'}}
+                    );
                     const {table, stream} = generate(schema);
 
                     const mockDynamoDBStreamsClient = {
                         createDynamoDBStreamsClient(credentials, region) {
                             return {
                                 async describeStream(streamArn) {
-                                    if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
-                                        return { StreamArn: stream.arn }
+                                    if (
+                                        credentials.accessKeyId ===
+                                            ACCESS_KEY_X &&
+                                        region === EU_WEST_2
+                                    ) {
+                                        return {StreamArn: stream.arn};
                                     }
-                                }
-                            }
-                        }
-                    }
+                                },
+                            };
+                        },
+                    };
                     const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test/stream`;
 
-                    const actual = await getAllSdkResources({...mockAwsClient, ...mockDynamoDBStreamsClient}, [table]);
+                    const actual = await getAllSdkResources(
+                        {...mockAwsClient, ...mockDynamoDBStreamsClient},
+                        [table]
+                    );
 
-                    const actualDynamoDBStreamResource = actual.find(x => x.arn === arn);
+                    const actualDynamoDBStreamResource = actual.find(
+                        x => x.arn === arn
+                    );
 
                     assert.deepEqual(actualDynamoDBStreamResource, {
                         id: arn,
@@ -1729,26 +2020,32 @@ describe('getAllSdkResources', () => {
                         resourceType: AWS_DYNAMODB_STREAM,
                         relationships: [],
                         configuration: {
-                            StreamArn: "arn:aws:dynamodb:eu-west-2:xxxxxxxxxxxx:table/test/stream"
+                            StreamArn:
+                                'arn:aws:dynamodb:eu-west-2:xxxxxxxxxxxx:table/test/stream',
                         },
-                        configurationItemStatus: "ResourceDiscovered",
-                        tags: []
+                        configurationItemStatus: 'ResourceDiscovered',
+                        tags: [],
                     });
-
                 });
-
             });
 
             describe(AWS_DYNAMODB_TABLE, () => {
-
                 it('should discover DynamoDB Tables without streams', async () => {
-                    const {default: schema} = await import('./fixtures/relationships/dynamodb/table.json', {with: {type: 'json' }});
+                    const {default: schema} = await import(
+                        './fixtures/relationships/dynamodb/table.json',
+                        {with: {type: 'json'}}
+                    );
                     const {tableNoStream} = generate(schema);
 
                     const arn = `arn:aws:dynamodb:${EU_WEST_2}:${ACCOUNT_X}:table/test`;
 
-                    const actual = await getAllSdkResources({...mockAwsClient}, [tableNoStream]);
-                    const actualDynamoDBTableResource = actual.find(x => x.arn === arn);
+                    const actual = await getAllSdkResources(
+                        {...mockAwsClient},
+                        [tableNoStream]
+                    );
+                    const actualDynamoDBTableResource = actual.find(
+                        x => x.arn === arn
+                    );
 
                     assert.lengthOf(actual, 1);
 
@@ -1762,37 +2059,45 @@ describe('getAllSdkResources', () => {
                         resourceName: arn,
                         resourceType: AWS_DYNAMODB_TABLE,
                         relationships: [],
-                        configuration: {}
+                        configuration: {},
                     });
-
                 });
-
             });
 
             describe(AWS_APPSYNC_GRAPHQLAPI, () => {
                 it('should discover GraphQL Data Sources', async () => {
-                    const {default: schema} = await import('./fixtures/additionalResources/appsync/graphQlApi.json', {with: {type: 'json' }});
+                    const {default: schema} = await import(
+                        './fixtures/additionalResources/appsync/graphQlApi.json',
+                        {with: {type: 'json'}}
+                    );
                     const {graphQLApi, dataSource} = generate(schema);
-    
+
                     const mockAppSyncClient = {
                         createAppSyncClient(credentials, region) {
                             return {
                                 async listDataSources() {
-                                    if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                    if (
+                                        credentials.accessKeyId ===
+                                            ACCESS_KEY_X &&
+                                        region === EU_WEST_2
+                                    ) {
                                         return [dataSource];
                                     }
                                 },
-                                listResolvers : async () => [],
-                            }
-                        }
-                    }
-    
+                                listResolvers: async () => [],
+                            };
+                        },
+                    };
+
                     const arn = dataSource.dataSourceArn;
-                    const actual = await getAllSdkResources({...mockAwsClient, ...mockAppSyncClient}, [graphQLApi]);
-                    const actualAppSyncDataSource = actual.find(x => x.arn === arn);
+                    const actual = await getAllSdkResources(
+                        {...mockAwsClient, ...mockAppSyncClient},
+                        [graphQLApi]
+                    );
+                    const actualAppSyncDataSource = actual.find(
+                        x => x.arn === arn
+                    );
 
-
-                    
                     assert.deepEqual(actualAppSyncDataSource, {
                         id: arn,
                         accountId: ACCOUNT_X,
@@ -1800,39 +2105,48 @@ describe('getAllSdkResources', () => {
                         availabilityZone: NOT_APPLICABLE,
                         awsRegion: EU_WEST_2,
                         configuration: {
-                            dataSourceArn: "DataSourceArn",
-                            name: "DataSourceArn",
-                            apiId: "random-id"
+                            dataSourceArn: 'DataSourceArn',
+                            name: 'DataSourceArn',
+                            apiId: 'random-id',
                         },
                         configurationItemStatus: RESOURCE_DISCOVERED,
                         resourceId: arn,
                         resourceName: dataSource.name,
                         resourceType: AWS_APPSYNC_DATASOURCE,
                         tags: [],
-                        relationships: []
+                        relationships: [],
                     });
-    
                 });
 
                 it('should discover GraphQL Query Resolvers', async () => {
-                    const {default: schema} = await import('./fixtures/additionalResources/appsync/graphQlApi.json', {with: {type: 'json' }});
+                    const {default: schema} = await import(
+                        './fixtures/additionalResources/appsync/graphQlApi.json',
+                        {with: {type: 'json'}}
+                    );
                     const {graphQLApi, queryResolver} = generate(schema);
-    
+
                     const mockAppSyncClient = {
                         createAppSyncClient(credentials, region) {
                             return {
                                 async listResolvers() {
-                                    if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                    if (
+                                        credentials.accessKeyId ===
+                                            ACCESS_KEY_X &&
+                                        region === EU_WEST_2
+                                    ) {
                                         return [queryResolver];
                                     }
                                 },
-                                listDataSources : async () => [],
-                            }
-                        }
-                    }
+                                listDataSources: async () => [],
+                            };
+                        },
+                    };
 
                     const arn = queryResolver.resolverArn;
-                    const actual = await getAllSdkResources({...mockAwsClient, ...mockAppSyncClient}, [graphQLApi]);
+                    const actual = await getAllSdkResources(
+                        {...mockAwsClient, ...mockAppSyncClient},
+                        [graphQLApi]
+                    );
                     const actualQueryResolver = actual.find(x => x.arn === arn);
 
                     assert.deepEqual(actualQueryResolver, {
@@ -1842,11 +2156,11 @@ describe('getAllSdkResources', () => {
                         availabilityZone: NOT_APPLICABLE,
                         awsRegion: EU_WEST_2,
                         configuration: {
-                            fieldName: "QueryFieldName",
-                            resolverArn: "ResolverArn",
-                            typeName: "Query",
-                            apiId: "random-id",
-                            dataSourceName: "DataSourceName"
+                            fieldName: 'QueryFieldName',
+                            resolverArn: 'ResolverArn',
+                            typeName: 'Query',
+                            apiId: 'random-id',
+                            dataSourceName: 'DataSourceName',
                         },
                         configurationItemStatus: RESOURCE_DISCOVERED,
                         resourceId: arn,
@@ -1857,37 +2171,49 @@ describe('getAllSdkResources', () => {
                             {
                                 relationshipName: IS_CONTAINED_IN,
                                 resourceId: graphQLApi.resourceId,
-                                resourceType: AWS_APPSYNC_GRAPHQLAPI
+                                resourceType: AWS_APPSYNC_GRAPHQLAPI,
                             },
                             {
                                 relationshipName: IS_ASSOCIATED_WITH,
-                                resourceName: "DataSourceName",
-                                resourceType: AWS_APPSYNC_DATASOURCE
-                            }
-                        ]
+                                resourceName: 'DataSourceName',
+                                resourceType: AWS_APPSYNC_DATASOURCE,
+                            },
+                        ],
                     });
                 });
 
                 it('should discover GraphQL Mutation Resolvers', async () => {
-                    const {default: schema} = await import('./fixtures/additionalResources/appsync/graphQlApi.json', {with: {type: 'json' }});
+                    const {default: schema} = await import(
+                        './fixtures/additionalResources/appsync/graphQlApi.json',
+                        {with: {type: 'json'}}
+                    );
                     const {graphQLApi, mutationResolver} = generate(schema);
-    
+
                     const mockAppSyncClient = {
                         createAppSyncClient(credentials, region) {
                             return {
                                 async listResolvers() {
-                                    if(credentials.accessKeyId === ACCESS_KEY_X && region === EU_WEST_2) {
+                                    if (
+                                        credentials.accessKeyId ===
+                                            ACCESS_KEY_X &&
+                                        region === EU_WEST_2
+                                    ) {
                                         return [mutationResolver];
                                     }
                                 },
-                                listDataSources : async () => [],
-                            }
-                        }
-                    }
+                                listDataSources: async () => [],
+                            };
+                        },
+                    };
 
                     const arn = mutationResolver.resolverArn;
-                    const actual = await getAllSdkResources({...mockAwsClient, ...mockAppSyncClient}, [graphQLApi]);
-                    const actualMutationResolver = actual.find(x => x.arn === arn);
+                    const actual = await getAllSdkResources(
+                        {...mockAwsClient, ...mockAppSyncClient},
+                        [graphQLApi]
+                    );
+                    const actualMutationResolver = actual.find(
+                        x => x.arn === arn
+                    );
 
                     assert.deepEqual(actualMutationResolver, {
                         id: arn,
@@ -1896,11 +2222,11 @@ describe('getAllSdkResources', () => {
                         availabilityZone: NOT_APPLICABLE,
                         awsRegion: EU_WEST_2,
                         configuration: {
-                            fieldName: "MutationFieldName",
-                            resolverArn: "ResolverArn",
-                            typeName: "Mutation",
-                            apiId: "random-id",
-                            dataSourceName: "DataSourceName"
+                            fieldName: 'MutationFieldName',
+                            resolverArn: 'ResolverArn',
+                            typeName: 'Mutation',
+                            apiId: 'random-id',
+                            dataSourceName: 'DataSourceName',
                         },
                         configurationItemStatus: RESOURCE_DISCOVERED,
                         resourceId: arn,
@@ -1911,22 +2237,17 @@ describe('getAllSdkResources', () => {
                             {
                                 relationshipName: IS_CONTAINED_IN,
                                 resourceId: graphQLApi.resourceId,
-                                resourceType: AWS_APPSYNC_GRAPHQLAPI
+                                resourceType: AWS_APPSYNC_GRAPHQLAPI,
                             },
                             {
                                 relationshipName: IS_ASSOCIATED_WITH,
-                                resourceName: "DataSourceName",
-                                resourceType: AWS_APPSYNC_DATASOURCE
-                            }
-                        ]
+                                resourceName: 'DataSourceName',
+                                resourceType: AWS_APPSYNC_DATASOURCE,
+                            },
+                        ],
                     });
-    
                 });
-    
             });
-
         });
-
     });
-
 });

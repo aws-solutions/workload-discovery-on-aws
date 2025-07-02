@@ -92,10 +92,6 @@ Resources:
                 Action:
                   - config:PutConfigurationAggregator
                 Resource: !Sub arn:aws:config:${AWS::Region}:${AWS::AccountId}:config-aggregator/*
-              - Effect: Allow
-                Action:
-                  - ec2:DescribeRegions
-                Resource: '*'
 
   PerspectiveSettingsFunction:
     Metadata:

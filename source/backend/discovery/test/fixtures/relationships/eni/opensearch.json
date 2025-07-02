@@ -1,29 +1,29 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet": {
-    "resourceId": "subnet-0123456789abcdef0"
-  },
-  "opensearch": {
-    "resourceId": "test-cluster",
-    "arn": "arn:aws:es:${$constants.awsRegion}:${$constants.accountId}:domain/${opensearch.resourceId}"
-  },
-  "eni": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "${$constants.awsRegion}",
-    "relationships": [],
-    "resourceType": "AWS::EC2::NetworkInterface",
-    "resourceId": "eni-0123456789abcdef0",
-    "configuration": {
-      "requesterId": "amazon-elasticsearch",
-      "description": "ES ${opensearch.resourceId}",
-      "vpcId": "${vpc.resourceId}",
-      "subnetId": "${subnet.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet": {
+        "resourceId": "subnet-0123456789abcdef0"
+    },
+    "opensearch": {
+        "resourceId": "test-cluster",
+        "arn": "arn:aws:es:${$constants.awsRegion}:${$constants.accountId}:domain/${opensearch.resourceId}"
+    },
+    "eni": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "${$constants.awsRegion}",
+        "relationships": [],
+        "resourceType": "AWS::EC2::NetworkInterface",
+        "resourceId": "eni-0123456789abcdef0",
+        "configuration": {
+            "requesterId": "amazon-elasticsearch",
+            "description": "ES ${opensearch.resourceId}",
+            "vpcId": "${vpc.resourceId}",
+            "subnetId": "${subnet.resourceId}"
+        }
     }
-  }
 }

@@ -112,7 +112,7 @@ Parameters:
   NeptuneInstanceClass:
     Type: String
     Description: Neptune DB instance class that will be used for primary and all replicas. Changing this will affect the cost of running this solution.
-    Default: db.r5.large
+    Default: db.r7g.large
     AllowedValues:
       - db.serverless
       - db.t3.medium
@@ -138,6 +138,22 @@ Parameters:
       - db.r6g.8xlarge
       - db.r6g.12xlarge
       - db.r6g.16xlarge
+      - db.r7g.large
+      - db.r7g.xlarge
+      - db.r7g.2xlarge
+      - db.r7g.4xlarge
+      - db.r7g.8xlarge
+      - db.r7g.12xlarge
+      - db.r7g.16xlarge
+      - db.r8g.large
+      - db.r8g.xlarge
+      - db.r8g.2xlarge
+      - db.r8g.4xlarge
+      - db.r8g.8xlarge
+      - db.r8g.12xlarge
+      - db.r8g.16xlarge
+      - db.r8g.24xlarge
+      - db.r8g.48xlarge
   MinNCUs:
     Type: String
     Default: 1
@@ -450,8 +466,8 @@ Mappings:
       DeploymentBucketKey: <SOLUTION_NAME>/<VERSION>
       ImageVersion: <IMAGE_VERSION>
       SolutionVersion: <VERSION>
-      NodeLambdaRuntime: nodejs20.x
-      PythonLambdaRuntime: python3.12
+      NodeLambdaRuntime: nodejs22.x
+      PythonLambdaRuntime: python3.13
     DiscoveryTaskFrequency:
       '15mins': cron(0/15 * * * ? *)
       '1hr': cron(0 * * * ? *)
@@ -875,6 +891,8 @@ Resources:
         CustomUserAgent: !GetAtt Variables.CustomUserAgent
         CostAndUsageResultsBucket: !GetAtt S3Buckets.Outputs.CostAndUsageAthenaResultsBucket
         CostAndUsageReportBucket: !GetAtt S3Buckets.Outputs.CostAndUsageReportBucket
+        AwsCurProcessorLambdaArn: !GetAtt AthenaGlueCrawlerStack.Outputs.AwsCurProcessorLambdaArn
+        AwsCurCrawler: !GetAtt AthenaGlueCrawlerStack.Outputs.AwsCurCrawler
         PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
@@ -1001,7 +1019,12 @@ Resources:
         ApplicationResourceGroupName: !GetAtt AppRegistryStack.Outputs.ApplicationResourceGroupName
         ClusterArn: !GetAtt TaskStack.Outputs.ClusterArn
         DiscoveryTaskLogGroup: !GetAtt TaskStack.Outputs.DiscoveryTaskLogGroup
+        DiscoveryTaskFrequency: !Ref DiscoveryTaskFrequency
         ClusterLifecycleEventsLogGroup: !GetAtt TaskStack.Outputs.ClusterLifecycleEventsLogGroup
+        NodeLambdaRuntime: !GetAtt Variables.NodeLambdaRuntime
+        PerspectiveAppSyncApiId: !GetAtt AppSyncApiStack.Outputs.AppSyncApiId
+        DeploymentBucket: !GetAtt Variables.DeploymentBucketName
+        DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
 Outputs:
 

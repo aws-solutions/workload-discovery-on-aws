@@ -1,114 +1,100 @@
 {
-  "type": "object",
-  "properties": {
-    "version": {
-      "type": "integer"
-    },
-    "rootPath": {
-      "type": "string"
-    },
-    "type": {
-      "type": "string",
-      "pattern": "^[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}$"
-    },
-    "relationships": {
-      "type": "object",
-      "properties": {
-        "descriptors": {
-          "type": "array",
-          "items": {
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "integer"
+        },
+        "rootPath": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}$"
+        },
+        "relationships": {
             "type": "object",
             "properties": {
-              "resourceType": {
-                "type": "string",
-                "pattern": "^[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}$"
-              },
-              "relationshipName": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "enum": [
-                      "Is associated with",
-                      "Is contained in",
-                      "Contains",
-                      "Is attached to"
-                    ]
-                  },
-                  {
-                    "type": "string",
-                    "pattern": "^Is associated with(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
-                  },
-                  {
-                    "type": "string",
-                    "pattern": "^Is contained in(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
-                  },
-                  {
-                    "type": "string",
-                    "pattern": "^Contains(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
-                  },
-                  {
-                    "type": "string",
-                    "pattern": "^Is attached to(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
-                  }
-                ]
-              },
-              "sdkClient": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "ecs",
-                      "elbV1",
-                      "elbV2"
-                    ]
-                  },
-                  "method": {
-                    "type": "string"
-                  },
-                  "argumentPaths": {
+                "descriptors": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                        "type": "object",
+                        "properties": {
+                            "resourceType": {
+                                "type": "string",
+                                "pattern": "^[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}::[a-zA-Z0-9]{2,64}$"
+                            },
+                            "relationshipName": {
+                                "anyOf": [
+                                    {
+                                        "type": "string",
+                                        "enum": [
+                                            "Is associated with",
+                                            "Is contained in",
+                                            "Contains",
+                                            "Is attached to"
+                                        ]
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "^Is associated with(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "^Is contained in(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "^Contains(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "^Is attached to(\\s(Vpc|Subnet|NetworkInterface|SecurityGroup|Role|Volume))?$"
+                                    }
+                                ]
+                            },
+                            "sdkClient": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["ecs", "elbV1", "elbV2", "bedrockAgent"]
+                                    },
+                                    "method": {
+                                        "type": "string"
+                                    },
+                                    "argumentPaths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": ["type", "method", "argumentPaths"]
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "identifierType": {
+                                "type": "string",
+                                "enum": [
+                                    "arn",
+                                    "resourceId",
+                                    "resourceName",
+                                    "endpoint",
+                                    "s3Uri"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "relationshipName",
+                            "path",
+                            "identifierType"
+                        ]
                     }
-                  }
-                },
-                "required": [
-                  "type",
-                  "method",
-                  "argumentPaths"
-                ]
-              },
-              "path": {
-                "type": "string"
-              },
-              "identifierType": {
-                "type": "string",
-                "enum": [
-                  "arn",
-                  "resourceId",
-                  "resourceName",
-                  "endpoint"
-
-                ]
-              }
+                }
             },
-            "required": [
-              "relationshipName",
-              "path",
-              "identifierType"
-            ]
-          }
+            "required": ["descriptors"]
         }
-      },
-      "required": [
-        "descriptors"
-      ]
-    }
-  },
-  "required": [
-    "version",
-    "type",
-    "relationships"
-  ]
+    },
+    "required": ["version", "type", "relationships"]
 }

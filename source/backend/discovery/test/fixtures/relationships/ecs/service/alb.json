@@ -1,56 +1,56 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "alb": {
-    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/app/test-alb/625c448c55eae07c"
-  },
-  "ecsServiceRole": {
-    "id": "${ecsServiceRole.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "testRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
-    }
-  },
-  "ecsCluster": {
-    "id": "${ecsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
-    "resourceType": "AWS::ECS::Cluster",
-    "resourceId": "testCluster",
-    "relationships": [],
-    "configuration": {}
-  },
-  "ecsService": {
-    "id": "${ecsService.arn}",
-    "resourceId": "${ecsService.arn}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
-    "resourceType": "AWS::ECS::Service",
-    "relationships": [],
-    "configuration": {
-      "Role": "${ecsServiceRole.arn}",
-      "Cluster": "${ecsCluster.arn}",
-      "TaskDefinition": "${ecsTaskDefinition.arn}",
-      "LoadBalancers": [
-        {
-          "TargetGroupArn": "${alb.arn}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "alb": {
+        "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/app/test-alb/625c448c55eae07c"
+    },
+    "ecsServiceRole": {
+        "id": "${ecsServiceRole.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "testRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
         }
-      ]
+    },
+    "ecsCluster": {
+        "id": "${ecsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+        "resourceType": "AWS::ECS::Cluster",
+        "resourceId": "testCluster",
+        "relationships": [],
+        "configuration": {}
+    },
+    "ecsService": {
+        "id": "${ecsService.arn}",
+        "resourceId": "${ecsService.arn}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
+        "resourceType": "AWS::ECS::Service",
+        "relationships": [],
+        "configuration": {
+            "Role": "${ecsServiceRole.arn}",
+            "Cluster": "${ecsCluster.arn}",
+            "TaskDefinition": "${ecsTaskDefinition.arn}",
+            "LoadBalancers": [
+                {
+                    "TargetGroupArn": "${alb.arn}"
+                }
+            ]
+        }
+    },
+    "ecsTaskDefinition": {
+        "id": "${ecsTaskDefinition.arn}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
+        "resourceId": "testDefinition:1",
+        "resourceType": "AWS::ECS::TaskDefinition",
+        "relationships": [],
+        "configuration": {
+            "ContainerDefinitions": [],
+            "Volumes": []
+        }
     }
-  },
-  "ecsTaskDefinition": {
-    "id": "${ecsTaskDefinition.arn}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
-    "resourceId": "testDefinition:1",
-    "resourceType": "AWS::ECS::TaskDefinition",
-    "relationships": [],
-    "configuration": {
-      "ContainerDefinitions": [],
-      "Volumes": []
-    }
-  }
 }

@@ -1,19 +1,19 @@
 {
-  "version": 1,
-  "type": "AWS::MediaPackage::PackagingConfiguration",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with",
-        "path": "PackagingGroupId",
-        "identifierType": "resourceId",
-        "resourceType":"AWS::MediaPackage::PackagingGroup"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "*.Encryption.SpekeKeyProvider.RoleArn",
-        "identifierType": "arn"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::MediaPackage::PackagingConfiguration",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with",
+                "path": "PackagingGroupId",
+                "identifierType": "resourceId",
+                "resourceType": "AWS::MediaPackage::PackagingGroup"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "*.Encryption.SpekeKeyProvider.RoleArn",
+                "identifierType": "arn"
+            }
+        ]
+    }
 }

@@ -1,23 +1,23 @@
 {
-  "version": 1,
-  "type": "AWS::Lambda::Function",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with",
-        "path": "deadLetterConfig.targetArn",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "kmsKeyArn",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "fileSystemConfigs[*].arn",
-        "identifierType": "arn"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::Lambda::Function",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with",
+                "path": "deadLetterConfig.targetArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "kmsKeyArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "fileSystemConfigs[*].arn",
+                "identifierType": "arn"
+            }
+        ]
+    }
 }

@@ -8,24 +8,38 @@ import getAllConfigResources from './aggregator/getAllConfigResources.mjs';
 import {getAllSdkResources} from './sdkResources/index.mjs';
 import {addAdditionalRelationships} from './additionalRelationships/index.mjs';
 import createResourceAndRelationshipDeltas from './createResourceAndRelationshipDeltas.mjs';
-import {createSaveObject, createResourcesRegionMetadata} from './persistence/transformers.mjs';
-import {persistResourcesAndRelationships, persistAccounts, processPersistenceFailures} from './persistence/index.mjs';
-import {GLOBAL, RESOURCE_NOT_RECORDED} from "./constants.mjs";
+import {
+    createSaveObject,
+    createResourcesRegionMetadata,
+} from './persistence/transformers.mjs';
+import {
+    persistResourcesAndRelationships,
+    persistAccounts,
+    processPersistenceFailures,
+} from './persistence/index.mjs';
+import {GLOBAL, RESOURCE_NOT_RECORDED} from './constants.mjs';
 
 const shouldDiscoverResource = R.curry((accountsMap, resource) => {
     const {accountId, awsRegion, configurationItemStatus} = resource;
 
-    if(configurationItemStatus === RESOURCE_NOT_RECORDED) {
+    if (configurationItemStatus === RESOURCE_NOT_RECORDED) {
         return false;
     }
     // resources from removed accounts/regions can take a while to be deleted from the Config aggregator
     const regions = accountsMap.get(accountId)?.regions ?? [];
-    return (accountsMap.has(accountId) && awsRegion === GLOBAL) || regions.includes(awsRegion);
+    return (
+        (accountsMap.has(accountId) && awsRegion === GLOBAL) ||
+        regions.includes(awsRegion)
+    );
 });
 
 export async function discoverResources(appSync, awsClient, config) {
     logger.info('Beginning discovery of resources');
-    const {apiClient, configServiceClient} = await initialise(awsClient, appSync, config);
+    const {apiClient, configServiceClient} = await initialise(
+        awsClient,
+        appSync,
+        config
+    );
 
     const accounts = await apiClient.getAccounts();
 
@@ -35,9 +49,13 @@ export async function discoverResources(appSync, awsClient, config) {
         getAllConfigResources(configServiceClient, config.configAggregator)
     ]);
 
-    const accountsMap = new Map(accounts
-        .filter(x => x.isIamRoleDeployed && !x.toDelete)
-        .map(account => [account.accountId, R.evolve({regions: R.map(x => x.name)}, account)])
+    const accountsMap = new Map(
+        accounts
+            .filter(x => x.isIamRoleDeployed && !x.toDelete)
+            .map(account => [
+                account.accountId,
+                R.evolve({regions: R.map(x => x.name)}, account),
+            ])
     );
 
     const resources = await Promise.resolve(configResources)

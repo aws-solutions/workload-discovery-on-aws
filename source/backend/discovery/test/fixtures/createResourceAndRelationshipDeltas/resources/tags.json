@@ -1,20 +1,20 @@
 {
-  "dbResources": {
-    "AWS::TAGS::TAG": {
-      "id": "tagArn",
-      "resourceType": "AWS::TAGS::TAG",
-      "properties": {
-        "a": "tagProp"
-      }
+    "dbResources": {
+        "AWS::TAGS::TAG": {
+            "id": "tagArn",
+            "resourceType": "AWS::TAGS::TAG",
+            "properties": {
+                "a": "tagProp"
+            }
+        }
+    },
+    "resources": {
+        "AWS::TAGS::TAG": {
+            "id": "tagArn",
+            "resourceType": "AWS::TAGS::TAG",
+            "properties": {
+                "a": "tagChangedProp"
+            }
+        }
     }
-  },
-  "resources": {
-    "AWS::TAGS::TAG": {
-      "id": "tagArn",
-      "resourceType": "AWS::TAGS::TAG",
-      "properties": {
-        "a": "tagChangedProp"
-      }
-    }
-  }
 }

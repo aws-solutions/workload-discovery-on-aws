@@ -19,10 +19,13 @@
 **/cypress-coverage
 **/vitest-coverage
 source/frontend/reports
+source/frontend/src/tests/browser/**/__image_diffs__/*
+source/frontend/src/tests/browser/**/__screenshots__/*
 source/frontend/cypress/downloads
 source/frontend/cypress/screenshots
 source/frontend/cypress/snapshots/diff
 source/frontend/cypress/videos
+source/frontend/.cert
 
 # e2e
 **/e2e/*.js
@@ -35,6 +38,8 @@ source/frontend/cypress/videos
 **/.vscode/settings.json
 **/setenv.sh
 source/frontend/.eslintcache
+.temp_redpencil
+bom.json
 
 #IntelliJ
 .idea

@@ -1,24 +1,24 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "vpcEndpoint": {
-    "resourceId": "vpce-0123456789abcdef0"
-  },
-  "eni": {
-    "id": "${eni.arn}",
-    "resourceId": "eniResourceId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "eniArn",
-    "resourceType": "AWS::EC2::NetworkInterface",
-    "configuration": {
-      "description": "VPC Endpoint Interface ${vpcEndpoint.resourceId}",
-      "interfaceType": "vpc_endpoint"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "configurationItemCaptureTime": "2022-06-18T13:06:20.495Z",
-    "tags": [],
-    "relationships": []
-  }
+    "vpcEndpoint": {
+        "resourceId": "vpce-0123456789abcdef0"
+    },
+    "eni": {
+        "id": "${eni.arn}",
+        "resourceId": "eniResourceId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "eniArn",
+        "resourceType": "AWS::EC2::NetworkInterface",
+        "configuration": {
+            "description": "VPC Endpoint Interface ${vpcEndpoint.resourceId}",
+            "interfaceType": "vpc_endpoint"
+        },
+        "configurationItemCaptureTime": "2022-06-18T13:06:20.495Z",
+        "tags": [],
+        "relationships": []
+    }
 }

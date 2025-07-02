@@ -1,28 +1,28 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "ec2Instance1": {
-    "resourceId": "i-0123456789acdef0",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "configuration": {}
-  },
-  "ec2Instance2": {
-    "resourceId": "i-9876543210abcdef9",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "configuration": {}
-  },
-  "ecsCluster": {
-    "id": "${ecsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
-    "resourceType": "AWS::ECS::Cluster",
-    "resourceId": "testCluster",
-    "relationships": [],
-    "configuration": {}
-  }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "ec2Instance1": {
+        "resourceId": "i-0123456789acdef0",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "configuration": {}
+    },
+    "ec2Instance2": {
+        "resourceId": "i-9876543210abcdef9",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "configuration": {}
+    },
+    "ecsCluster": {
+        "id": "${ecsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+        "resourceType": "AWS::ECS::Cluster",
+        "resourceId": "testCluster",
+        "relationships": [],
+        "configuration": {}
+    }
 }

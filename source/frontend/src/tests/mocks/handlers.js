@@ -191,9 +191,45 @@ const handlers = [
             data: {getRegionalTemplate: 'Regional Template'},
         });
     }),
+    graphql.query('GetCostReportProcessingStatus', () => {
+        return HttpResponse.json({
+            data: {
+                getCostReportProcessingStatus: {
+                    isEnabled: true,
+                    crawler: {
+                        errorMessage: null,
+                        curProcessorLambdaArn:
+                            'arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:curProcessor',
+                        logGroupArn:
+                            'arn:aws:logs:eu-west-1:xxxxxxxxxxxx:log-group:/aws-glue/crawlers',
+                        lastCrawled: '2025-03-18T15:23:25.000Z',
+                        status: 'SUCCEEDED',
+                    },
+                    reports: {
+                        curBucketArn: 'arn:aws:s3:::costandusagereportbucke',
+                        lastDelivered: '2025-03-18T15:21:35.000Z',
+                    },
+                },
+            },
+        });
+    }),
     graphql.query('GetRegionalTemplate', () => {
         return HttpResponse.json({
             data: {getRegionalTemplate: 'Regional Template'},
+        });
+    }),
+    graphql.query('ExportToDrawIo', () => {
+        return HttpResponse.json({
+            data: {exportToDrawIo: 'https://app.diagrams.net/?src=about'},
+        });
+    }),
+    graphql.query('GetApplicationProblems', () => {
+        return HttpResponse.json({
+            data: {
+                getApplicationProblems: {
+                    logProblems: [],
+                },
+            },
         });
     }),
     graphql.mutation('CreateApplication', ({variables}) => {

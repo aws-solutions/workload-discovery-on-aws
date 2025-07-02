@@ -1,70 +1,70 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "global": "global"
-  },
-  "dbRelationships": {},
-  "dbResources": {},
-  "resources": {
-    "AWS::Lambda::Function": {
-      "id": "lambdaArn",
-      "resourceId": "lambdaResourceId",
-      "resourceType": "AWS::Lambda::Function",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "a": "lambdaProp"
-      },
-      "relationships": [
-        {
-          "resourceName": "${resources.AWS::IAM::Role.resourceName}",
-          "resourceType": "${resources.AWS::IAM::Role.resourceType}",
-          "relationshipName": "Is associated with Role"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "global": "global"
+    },
+    "dbRelationships": {},
+    "dbResources": {},
+    "resources": {
+        "AWS::Lambda::Function": {
+            "id": "lambdaArn",
+            "resourceId": "lambdaResourceId",
+            "resourceType": "AWS::Lambda::Function",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "a": "lambdaProp"
+            },
+            "relationships": [
+                {
+                    "resourceName": "${resources.AWS::IAM::Role.resourceName}",
+                    "resourceType": "${resources.AWS::IAM::Role.resourceType}",
+                    "relationshipName": "Is associated with Role"
+                }
+            ]
+        },
+        "AWS::IAM::Role": {
+            "id": "roleArn",
+            "resourceId": "roleResourceId",
+            "resourceName": "roleResourceName",
+            "resourceType": "AWS::IAM::Role",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.global}",
+            "properties": {
+                "b": "roleProp"
+            },
+            "relationships": []
+        },
+        "AWS::RDS::DBCluster": {
+            "id": "dbClusterArn",
+            "resourceId": "dbClusterId",
+            "resourceName": "dbClusterName",
+            "resourceType": "AWS::RDS::DBCluster",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "b": "dbClusterProp"
+            },
+            "relationships": [
+                {
+                    "resourceName": "${resources.AWS::RDS::DBInstance.resourceName}",
+                    "resourceType": "${resources.AWS::RDS::DBInstance.resourceType}",
+                    "relationshipName": "Contains"
+                }
+            ]
+        },
+        "AWS::RDS::DBInstance": {
+            "id": "dbInstanceArn",
+            "resourceId": "dbInstanceId",
+            "resourceName": "dbInstanceName",
+            "resourceType": "AWS::RDS::DBInstance",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "b": "dbInstanceProp"
+            },
+            "relationships": []
         }
-      ]
-    },
-    "AWS::IAM::Role": {
-      "id": "roleArn",
-      "resourceId": "roleResourceId",
-      "resourceName": "roleResourceName",
-      "resourceType": "AWS::IAM::Role",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.global}",
-      "properties": {
-        "b": "roleProp"
-      },
-      "relationships": []
-    },
-    "AWS::RDS::DBCluster": {
-      "id": "dbClusterArn",
-      "resourceId": "dbClusterId",
-      "resourceName": "dbClusterName",
-      "resourceType": "AWS::RDS::DBCluster",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "b": "dbClusterProp"
-      },
-      "relationships": [
-        {
-          "resourceName": "${resources.AWS::RDS::DBInstance.resourceName}",
-          "resourceType": "${resources.AWS::RDS::DBInstance.resourceType}",
-          "relationshipName": "Contains"
-        }
-      ]
-    },
-    "AWS::RDS::DBInstance": {
-      "id": "dbInstanceArn",
-      "resourceId": "dbInstanceId",
-      "resourceName": "dbInstanceName",
-      "resourceType": "AWS::RDS::DBInstance",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "b": "dbInstanceProp"
-      },
-      "relationships": []
     }
-  }
 }

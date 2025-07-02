@@ -1,32 +1,32 @@
 {
-  "dbResources": {},
-  "resources": {
-    "AWS::EC2::Instance": {
-      "id": "instanceArn",
-      "md5Hash": "",
-      "resourceType": "AWS::EC2::Instance",
-      "properties": {
-        "a": "instanceProp",
-        "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
-      }
-    },
-    "AWS::EC2::VPC": {
-      "id": "vpcMethodArn",
-      "md5Hash": "",
-      "resourceType": "AWS::EC2::VPC",
-      "properties": {
-        "b": "vpcProp",
-        "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
-      }
-    },
-    "AWS::IAM::Role": {
-      "id": "roleArn",
-      "md5Hash": "",
-      "resourceType": "AWS::IAM::Role",
-      "properties": {
-        "c": "roleProp",
-        "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
-      }
+    "dbResources": {},
+    "resources": {
+        "AWS::EC2::Instance": {
+            "id": "instanceArn",
+            "md5Hash": "",
+            "resourceType": "AWS::EC2::Instance",
+            "properties": {
+                "a": "instanceProp",
+                "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
+            }
+        },
+        "AWS::EC2::VPC": {
+            "id": "vpcMethodArn",
+            "md5Hash": "",
+            "resourceType": "AWS::EC2::VPC",
+            "properties": {
+                "b": "vpcProp",
+                "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
+            }
+        },
+        "AWS::IAM::Role": {
+            "id": "roleArn",
+            "md5Hash": "",
+            "resourceType": "AWS::IAM::Role",
+            "properties": {
+                "c": "roleProp",
+                "configurationItemCaptureTime": "2022-04-09T01:37:53.652Z"
+            }
+        }
     }
-  }
 }

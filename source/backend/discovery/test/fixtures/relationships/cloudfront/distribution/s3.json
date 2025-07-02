@@ -1,45 +1,45 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "cfResourceId": "E11XXXXXXXXXXXX",
-    "domainName": "mytestelb.${$constants.region}.elb.amazonaws.com"
-  },
-  "s3": {
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:s3:::bucketName",
-    "resourceType": "AWS::S3::Bucket",
-    "resourceId": "bucketName",
-    "resourceName": "bucketName",
-    "awsRegion": "${$constants.region}",
-    "relationships": [],
-    "configuration": {}
-  },
-  "cfDistro": {
-    "id": "id1",
-    "arn": "arn:aws:cloudfront::${$constants.accountId}:distribution/${$constants.cfResourceId}",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::CloudFront::Distribution",
-    "resourceId": "${$constants.cfResourceId}",
-    "awsRegion": "global",
-    "availabilityZone": "Not Applicable",
-    "relationships": [
-      {
-        "resourceId": "${s3.resourceId}",
-        "relationshipName": "Is associated with ",
-        "resourceType": "${s3.resourceType}"
-      }
-    ],
-    "configuration": {
-      "distributionConfig": {
-        "origins": {
-          "items": [
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "cfResourceId": "E11XXXXXXXXXXXX",
+        "domainName": "mytestelb.${$constants.region}.elb.amazonaws.com"
+    },
+    "s3": {
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:s3:::bucketName",
+        "resourceType": "AWS::S3::Bucket",
+        "resourceId": "bucketName",
+        "resourceName": "bucketName",
+        "awsRegion": "${$constants.region}",
+        "relationships": [],
+        "configuration": {}
+    },
+    "cfDistro": {
+        "id": "id1",
+        "arn": "arn:aws:cloudfront::${$constants.accountId}:distribution/${$constants.cfResourceId}",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::CloudFront::Distribution",
+        "resourceId": "${$constants.cfResourceId}",
+        "awsRegion": "global",
+        "availabilityZone": "Not Applicable",
+        "relationships": [
             {
-              "domainName": "${$constants.domainName}"
+                "resourceId": "${s3.resourceId}",
+                "relationshipName": "Is associated with ",
+                "resourceType": "${s3.resourceType}"
             }
-          ]
+        ],
+        "configuration": {
+            "distributionConfig": {
+                "origins": {
+                    "items": [
+                        {
+                            "domainName": "${$constants.domainName}"
+                        }
+                    ]
+                }
+            }
         }
-      }
     }
-  }
 }

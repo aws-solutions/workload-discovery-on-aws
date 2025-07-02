@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -12,24 +12,21 @@ import {
     SpaceBetween,
     Modal,
     StatusIndicator,
-    Alert,
     Select,
     Grid,
+    Popover,
 } from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 import {IMPORT} from '../../../routes';
 import {useCollection} from '@cloudscape-design/collection-hooks';
 import {useHistory} from 'react-router-dom';
-import {useAccounts, useRemoveAccount} from '../../Hooks/useAccounts';
-import {GLOBAL_TEMPLATE, useTemplate} from '../../Hooks/useTemplate';
+import {useRemoveAccount} from '../../Hooks/useAccounts';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as R from 'ramda';
 import {useDeepCompareEffect} from 'react-use';
 import {isUsingOrganizations} from '../../../Utils/AccountUtils';
-import fileDownload from 'js-file-download';
-import {GLOBAL_RESOURCES_TEMPLATE_FILENAME} from '../../../config/constants';
 import {createTableAriaLabels} from '../../../Utils/AccessibilityUtils';
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -64,20 +61,36 @@ const columns = [
         cell: e => {
             if (e.isIamRoleDeployed == null)
                 return (
-                    <StatusIndicator
-                        type="info"
-                        iconAriaLabel={`Role deployment status info`}
+                    <Popover
+                        dismissButton={false}
+                        size="small"
+                        content={
+                            'The deployment status of the role will be updated on the next successful run of the discovery process.'
+                        }
                     >
-                        Unknown
-                    </StatusIndicator>
+                        <StatusIndicator
+                            type="info"
+                            iconAriaLabel={`Role deployment status info`}
+                        >
+                            Unknown
+                        </StatusIndicator>
+                    </Popover>
                 );
             return e.isIamRoleDeployed === false ? (
-                <StatusIndicator
-                    type="error"
-                    iconAriaLabel={`Role deployment status error`}
+                <Popover
+                    dismissButton={false}
+                    size="small"
+                    content={
+                        'The Workload Discovery IAM role has not been deployed to this account.'
+                    }
                 >
-                    Not Deployed
-                </StatusIndicator>
+                    <StatusIndicator
+                        type="error"
+                        iconAriaLabel={`Role deployment status error`}
+                    >
+                        Not Deployed
+                    </StatusIndicator>
+                </Popover>
             ) : (
                 <StatusIndicator
                     type="success"
@@ -86,6 +99,49 @@ const columns = [
                     Deployed
                 </StatusIndicator>
             );
+        },
+        width: 200,
+        minWidth: 200,
+    },
+    {
+        id: 'configStatus',
+        header: 'AWS Config Status',
+        cell: e => {
+            const numDisabledRegions =
+                e.regions.length -
+                e.regions.filter(r => r.isConfigEnabled).length;
+            if (numDisabledRegions === 0) {
+                return (
+                    <StatusIndicator
+                        type="success"
+                        iconAriaLabel={`Config enabled status success`}
+                    >
+                        All regions enabled
+                    </StatusIndicator>
+                );
+            } else {
+                // This is always an error when in self-managed mode as it means user has not
+                // deployed the regional-resources template. In AWS Organisation mode, not every
+                // region in all accounts in the organisation will necessarily have Config enabled
+                const type = isUsingOrganizations() ? 'info' : 'error';
+
+                return (
+                    <Popover
+                        dismissButton={false}
+                        size="small"
+                        content={
+                            'Select the checkbox for this account to see which regions do not have AWS Config enabled'
+                        }
+                    >
+                        <StatusIndicator
+                            type={type}
+                            iconAriaLabel={`Config enabled status ${type}`}
+                        >
+                            {`${numDisabledRegions} region${numDisabledRegions === 1 ? '' : 's'} not enabled`}
+                        </StatusIndicator>
+                    </Popover>
+                );
+            }
         },
         width: 200,
         minWidth: 200,
@@ -137,128 +193,24 @@ function matchesRoleStatus(item, selectedRoleStatus) {
     }
 }
 
-function DownloadButton({globalTemplate}) {
-    return (
-        <Button
-            iconName="download"
-            onClick={async () =>
-                fileDownload(globalTemplate, GLOBAL_RESOURCES_TEMPLATE_FILENAME)
-            }
-        >
-            Download global resources template
-        </Button>
-    );
-}
-
-function SelfManagedAccountsAlert({globalTemplate}) {
-    return (
-        <Alert
-            type="warning"
-            statusIconAriaLabel="Warning"
-            action={DownloadButton({globalTemplate})}
-            header="Undiscovered Accounts"
-        >
-            The global resources CloudFormation templates have not been deployed
-            to one or more accounts. You must provision this template in these
-            accounts to make them discoverable by Workload Discovery. You can
-            filter the account list by selecting <b>Not Deployed</b> from the
-            Role Status dropdown menu to determine which accounts must be
-            updated. Choose <b>Download global resources template</b> and deploy
-            the template in each of the affected accounts.
-        </Alert>
-    );
-}
-
-function OrganizationsManagedAccounts({globalTemplate, accounts}) {
-    const managementAccount = accounts.find(
-        x => x.isManagementAccount === true
-    );
-    const noIamDeployedAccounts = accounts.filter(
-        x => x.isIamRoleDeployed === false && !x.isManagementAccount
-    );
-
-    return (
-        <SpaceBetween size="xxs">
-            {R.isEmpty(noIamDeployedAccounts) ? (
-                void 0
-            ) : (
-                <Alert
-                    type="warning"
-                    statusIconAriaLabel="Warning"
-                    header="Undiscovered Accounts"
-                >
-                    The global resources CloudFormation templates have not been
-                    deployed to one or more accounts. These are provisioned by
-                    the <b>WdGlobalResources</b> StackSet in the account and
-                    region that Workload Discovery has been deployed to. Verify
-                    that all the stack instances in the <b>WdGlobalResources</b>{' '}
-                    StackSet have deployed successfully.
-                </Alert>
-            )}
-            {managementAccount == null ||
-            managementAccount.isIamRoleDeployed === true ? (
-                void 0
-            ) : (
-                <Alert
-                    type="warning"
-                    statusIconAriaLabel="Warning"
-                    action={DownloadButton({globalTemplate})}
-                    header="Management Account Undiscovered"
-                >
-                    The global resources CloudFormation template has not been
-                    deployed to the AWS Organizations management account. You
-                    must provision this template to make this account
-                    discoverable by Workload Discovery. Choose{' '}
-                    <b>Download global resources template</b> and deploy the
-                    template to the management account.
-                </Alert>
-            )}
-        </SpaceBetween>
-    );
-}
-
-function AccountAlert({globalTemplate, accounts}) {
-    return isUsingOrganizations() ? (
-        <OrganizationsManagedAccounts
-            globalTemplate={globalTemplate}
-            accounts={accounts}
-        />
-    ) : (
-        <SelfManagedAccountsAlert globalTemplate={globalTemplate} />
-    );
-}
-
-const DiscoverableAccountsTable = ({selectedAccounts, onSelect}) => {
+const DiscoverableAccountsTable = ({
+    accounts,
+    isLoadingAccounts,
+    selectedAccounts,
+    onSelect,
+}) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [roleStatus, setRoleStatus] = useState(defaultRoleStatus);
-    const {data = [], isLoading} = useAccounts();
-    const {data: globalTemplate} = useTemplate(GLOBAL_TEMPLATE);
     const {removeAsync} = useRemoveAccount();
     const history = useHistory();
 
     useDeepCompareEffect(() => {
         onSelect(
             selectedAccounts.filter(i =>
-                data.find(j => i.accountId === j.accountId)
+                accounts.find(j => i.accountId === j.accountId)
             )
         );
-    }, [data, onSelect, selectedAccounts]);
-
-    const accounts = R.map(
-        ({accountId, name, regions, ...props}) => ({
-            id: accountId + name,
-            accountId,
-            name,
-            regionCount: R.length(regions),
-            regions,
-            ...props,
-        }),
-        data
-    );
-
-    const noIamDeployedAccounts = accounts.filter(
-        x => x.isIamRoleDeployed === false
-    );
+    }, [accounts, onSelect, selectedAccounts]);
 
     const onSelectionChange = items => {
         onSelect(items);
@@ -341,14 +293,6 @@ const DiscoverableAccountsTable = ({selectedAccounts, onSelect}) => {
                 ?
             </Modal>
             <SpaceBetween size="s">
-                {R.isEmpty(noIamDeployedAccounts) ? (
-                    void 0
-                ) : (
-                    <AccountAlert
-                        globalTemplate={globalTemplate}
-                        accounts={accounts}
-                    />
-                )}
                 <Table
                     ariaLabels={createTableAriaLabels(
                         'account',
@@ -399,7 +343,7 @@ const DiscoverableAccountsTable = ({selectedAccounts, onSelect}) => {
                             Accounts
                         </Header>
                     }
-                    loading={isLoading}
+                    loading={isLoadingAccounts}
                     trackBy={'id'}
                     resizableColumns
                     columnDefinitions={columns}

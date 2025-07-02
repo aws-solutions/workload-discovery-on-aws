@@ -253,7 +253,7 @@ Resources:
   WDNeptuneDBCluster:
     Type: AWS::Neptune::DBCluster
     Properties:
-      EngineVersion: 1.3.1.0
+      EngineVersion: 1.4.5.0
       ServerlessScalingConfiguration:
         MinCapacity: !Ref MinNCUs
         MaxCapacity: !Ref MaxNCUs

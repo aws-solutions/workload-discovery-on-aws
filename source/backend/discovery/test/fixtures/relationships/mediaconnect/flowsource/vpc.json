@@ -1,32 +1,32 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "source": {
+            "resourceType": "AWS::MediaConnect::FlowSource"
+        }
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "flow": {
+        "arn": "flowArn"
+    },
+    "vpcInterface": {
+        "resourceName": "vpcInterfaceName"
+    },
     "source": {
-      "resourceType": "AWS::MediaConnect::FlowSource"
+        "id": "${source.arn}",
+        "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:source:${source.resourceId}",
+        "resourceId": "sourceId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.source.resourceType}",
+        "relationships": [],
+        "configuration": {
+            "VpcInterfaceName": "${vpcInterface.resourceName}",
+            "FlowArn": "${flow.arn}"
+        }
     }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "flow": {
-    "arn": "flowArn"
-  },
-  "vpcInterface": {
-    "resourceName": "vpcInterfaceName"
-  },
-  "source": {
-    "id": "${source.arn}",
-    "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:source:${source.resourceId}",
-    "resourceId": "sourceId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.source.resourceType}",
-    "relationships": [],
-    "configuration": {
-      "VpcInterfaceName": "${vpcInterface.resourceName}",
-      "FlowArn": "${flow.arn}"
-    }
-  }
 }

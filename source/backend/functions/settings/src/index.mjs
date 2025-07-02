@@ -7,14 +7,22 @@ import {Logger} from '@aws-lambda-powertools/logger';
 import AWSXRay from 'aws-xray-sdk-core';
 import {ConfigService} from '@aws-sdk/client-config-service';
 import {DynamoDB} from '@aws-sdk/client-dynamodb';
-import {EC2} from '@aws-sdk/client-ec2';
 import {DynamoDBDocument} from '@aws-sdk/lib-dynamodb';
+import {
+    AddAccountSchema,
+    AddRegionsSchema,
+    DeleteAccountsSchema,
+    DeleteRegionsSchema,
+    GetAccountSchema,
+    GetResourcesAccountMetadataSchema,
+    GetResourcesRegionMetadata,
+    UpdateAccountSchema,
+    UpdateRegionsSchema,
+} from './schemas.mjs';
 
 const {CUSTOM_USER_AGENT: customUserAgent} = process.env;
 
 const configService = new ConfigService({customUserAgent});
-
-const ec2Client = new EC2({customUserAgent});
 
 const logger = new Logger({serviceName: 'WdSettingsApi'});
 
@@ -691,56 +699,30 @@ function getResourcesRegionMetadata(
         );
 }
 
-const isAccountNumber = R.test(/^(\d{12})$/);
-
-function validateAccountIds({accountId, accountIds, accounts}) {
-    if (accountId != null && !isAccountNumber(accountId)) {
-        throw new Error(`${accountId} is not a valid AWS account id.`);
-    }
-
-    const invalidAccountIds = (
-        accountIds ??
-        accounts?.map(x => x.accountId) ??
-        []
-    ).filter(accountId => {
-        // this is a special account where AWS managed policies live
-        if (accountId === 'aws') return false;
-        return !isAccountNumber(accountId);
-    });
-
-    if (!R.isEmpty(invalidAccountIds)) {
-        throw new Error(
-            'The following account ids are invalid: ' + invalidAccountIds
-        );
+class ValidationError extends Error {
+    constructor(message, options) {
+        super(message, options);
+        this.name = 'ValidationError';
     }
 }
 
-function validateRegions(regionSet, {accounts, regions}) {
-    const invalidRegions = (
-        regions ??
-        accounts?.flatMap(a => a.regions ?? []) ??
-        []
-    )
-        .map(r => r.name)
-        .filter(r => !regionSet.has(r));
+function validateArguments(schema, args) {
+    const {data, error, success} =
+        schema.safeParse(args);
 
-    if (!R.isEmpty(invalidRegions)) {
-        throw new Error('The following regions are invalid: ' + invalidRegions);
+    if (!success) {
+        const message = error.issues
+            .map(({path, message}) => {
+                return `Validation error for ${path.join('/')}: ${message}`;
+            })
+            .join('\n');
+        throw new ValidationError(message, {cause: error});
     }
-}
 
-async function getRegions(ec2Client) {
-    // make call to aws api to get regions
-    const {Regions} = await ec2Client.describeRegions({});
-    const regionsSet = new Set(R.pluck('RegionName', Regions));
-    regionsSet.add('global');
-    return regionsSet;
+    return data;
 }
-
-const cache = {};
 
 export function _handler(
-    ec2Client,
     docClient,
     configService,
     {
@@ -761,68 +743,81 @@ export function _handler(
             {arguments: args, operation: fieldName}
         );
 
-        const {username} = event.identity;
-        logger.info(`User ${username} invoked the ${fieldName} operation.`);
-
-        if (R.isNil(cache.regions)) cache.regions = await getRegions(ec2Client);
+        const userId = event.identity.sub ?? event.identity.username;
+        logger.info(`User ${userId} invoked the ${fieldName} operation.`);
 
         const isUsingOrganizations = crossAccountDiscovery === AWS_ORGANIZATIONS;
 
-        validateAccountIds(args);
-        validateRegions(cache.regions, args);
-
         switch (fieldName) {
-            case 'addAccounts':
+            case 'addAccounts': {
+                const parsedArgs = validateArguments(AddAccountSchema, args);
                 return addAccounts(docClient, configService, TableName, {
                     configAggregator,
                     isUsingOrganizations,
                     retryTime,
                     ...R.evolve(
                         {accounts: R.uniqBy(R.prop('accountId'))},
-                        args
+                        parsedArgs
                     ),
                 });
-            case 'addRegions':
+            }
+            case 'addRegions': {
+                const parsedArgs = validateArguments(AddRegionsSchema, args);
                 return addRegions(docClient, configService, TableName, {
                     configAggregator,
                     isUsingOrganizations,
-                    ...args,
+                    ...parsedArgs,
                 });
-            case 'deleteAccounts':
+            }
+            case 'deleteAccounts': {
+                const parsedArgs = validateArguments(DeleteAccountsSchema, args);
                 return deleteAccounts(docClient, configService, TableName, {
                     defaultAccountId,
                     defaultRegion,
                     configAggregator,
                     isUsingOrganizations,
                     retryTime,
-                    ...args,
+                    ...parsedArgs,
                 });
-            case 'deleteRegions':
+            }
+            case 'deleteRegions': {
+                const parsedArgs = validateArguments(DeleteRegionsSchema, args);
                 return deleteRegions(docClient, configService, TableName, {
                     configAggregator,
                     isUsingOrganizations,
-                    ...args,
+                    ...parsedArgs,
                 });
-            case 'getAccount':
-                return getAccount(docClient, TableName, args);
+            }
+            case 'getAccount': {
+                const parsedArgs = validateArguments(GetAccountSchema, args);
+                return getAccount(docClient, TableName, parsedArgs);
+            }
             case 'getAccounts':
                 return getAccounts(docClient, TableName);
-            case 'updateAccount':
-                return updateAccount(docClient, TableName, args);
-            case 'updateRegions':
-                return updateRegions(docClient, TableName, args);
+            case 'updateAccount': {
+                const parsedArgs = validateArguments(UpdateAccountSchema, args);
+                return updateAccount(docClient, TableName, parsedArgs);
+            }
+            case 'updateRegions': {
+                const parsedArgs = validateArguments(UpdateRegionsSchema, args);
+                return updateRegions(docClient, TableName, parsedArgs);
+            }
             case 'getResourcesMetadata':
                 return getResourcesMetadata(docClient, TableName, {retryTime});
-            case 'getResourcesAccountMetadata':
+            case 'getResourcesAccountMetadata': {
+                const parsedArgs = validateArguments(GetResourcesAccountMetadataSchema, args);
                 return getResourcesAccountMetadata(docClient, TableName, {
                     retryTime,
-                    ...args,
+                    ...parsedArgs,
                 });
-            case 'getResourcesRegionMetadata':
+            }
+            case 'getResourcesRegionMetadata': {
+                const parsedArgs = validateArguments(GetResourcesRegionMetadata, args);
                 return getResourcesRegionMetadata(docClient, TableName, {
                     retryTime,
-                    ...args,
+                    ...parsedArgs,
                 });
+            }
             default:
                 return Promise.reject(
                     new Error(`Unknown field, unable to resolve ${fieldName}.`)
@@ -832,7 +827,6 @@ export function _handler(
 }
 
 export const handler = _handler(
-    ec2Client,
     docClient,
     configService,
     process.env

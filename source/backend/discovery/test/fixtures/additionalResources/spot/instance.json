@@ -1,18 +1,18 @@
 {
-  "instanceRequests": {
-    "euWest2": [
-      {
-        "SpotInstanceRequestId": "spotInstanceRequestId1",
-        "InstanceId": "instanceId1",
-        "Tags": []
-      }
-    ],
-    "usWest2": [
-      {
-        "SpotInstanceRequestId": "spotInstanceRequestId2",
-        "InstanceId": "instanceId2",
-        "Tags": []
-      }
-    ]
-  }
+    "instanceRequests": {
+        "euWest2": [
+            {
+                "SpotInstanceRequestId": "spotInstanceRequestId1",
+                "InstanceId": "instanceId1",
+                "Tags": []
+            }
+        ],
+        "usWest2": [
+            {
+                "SpotInstanceRequestId": "spotInstanceRequestId2",
+                "InstanceId": "instanceId2",
+                "Tags": []
+            }
+        ]
+    }
 }

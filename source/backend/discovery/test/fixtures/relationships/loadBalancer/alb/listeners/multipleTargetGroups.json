@@ -1,42 +1,42 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "targetGroup1": {
-    "resourceId": "${targetGroup1.arn}",
-    "arn": "targetGroupArn1"
-  },
-  "targetGroup2": {
-    "resourceId": "${targetGroup2.arn}",
-    "arn": "targetGroupArn2"
-  },
-  "listener": {
-    "id": "${listener.arn}}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "listenerArn",
-    "resourceId": "${listener.arn}}",
-    "resourceName": "${listener.arn}}",
-    "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
-    "availabilityZone": "Multiple Availability Zones",
-    "configuration": {
-      "DefaultActions": [
-        {
-          "ForwardConfig": {
-            "TargetGroups": [
-              {
-                "TargetGroupArn": "${targetGroup1.arn}"
-              },
-              {
-                "TargetGroupArn": "${targetGroup2.arn}"
-              }
-            ]
-          }
-        }
-      ]
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "tags": [],
-    "relationships": []
-  }
+    "targetGroup1": {
+        "resourceId": "${targetGroup1.arn}",
+        "arn": "targetGroupArn1"
+    },
+    "targetGroup2": {
+        "resourceId": "${targetGroup2.arn}",
+        "arn": "targetGroupArn2"
+    },
+    "listener": {
+        "id": "${listener.arn}}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "listenerArn",
+        "resourceId": "${listener.arn}}",
+        "resourceName": "${listener.arn}}",
+        "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
+        "availabilityZone": "Multiple Availability Zones",
+        "configuration": {
+            "DefaultActions": [
+                {
+                    "ForwardConfig": {
+                        "TargetGroups": [
+                            {
+                                "TargetGroupArn": "${targetGroup1.arn}"
+                            },
+                            {
+                                "TargetGroupArn": "${targetGroup2.arn}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "tags": [],
+        "relationships": []
+    }
 }

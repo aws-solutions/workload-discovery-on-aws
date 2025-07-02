@@ -1,20 +1,20 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "ecsCluster": {
-    "id": "${ecsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
-    "resourceType": "AWS::ECS::Cluster",
-    "resourceId": "testCluster",
-    "relationships": [],
-    "configuration": {
-      "LogConfiguration": {
-        "S3BucketName": "LogsBucket"
-      }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "ecsCluster": {
+        "id": "${ecsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+        "resourceType": "AWS::ECS::Cluster",
+        "resourceId": "testCluster",
+        "relationships": [],
+        "configuration": {
+            "LogConfiguration": {
+                "S3BucketName": "LogsBucket"
+            }
+        }
     }
-  }
 }

@@ -1,0 +1,19 @@
+{
+    "version": 3,
+    "type": "AWS::Glue::Database",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::Glue::Connection",
+                "path": "FederatedDatabase.ConnectionName",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "LocationUri",
+                "identifierType": "s3Uri"
+            }
+        ]
+    }
+}

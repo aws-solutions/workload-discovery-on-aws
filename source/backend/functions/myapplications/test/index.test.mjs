@@ -73,6 +73,7 @@ describe('index.js', () => {
                             name: 'sameNameApplication',
                             resources: [],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -95,6 +96,7 @@ describe('index.js', () => {
                             name: 'sameNameApplication',
                             resources: [],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -112,6 +114,7 @@ describe('index.js', () => {
                 return _handler(defaultMockDependencies, mockEnv)(
                     {
                         arguments: {},
+                        identity: {username: 'iam:f1f5b46a233d4b1f9e70a6465992ec02'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -155,6 +158,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -198,6 +202,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -241,6 +246,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -290,6 +296,7 @@ describe('index.js', () => {
                                 }
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -349,6 +356,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -421,6 +429,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -468,6 +477,7 @@ describe('index.js', () => {
                                 }
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -517,6 +527,7 @@ describe('index.js', () => {
                                 },
                             ],
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -566,6 +577,7 @@ describe('index.js', () => {
                                 RESOURCE_COUNT
                             ),
                         },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'createApplication',
                         },
@@ -591,6 +603,7 @@ describe('index.js', () => {
                 const actual = await _handler(defaultMockDependencies, mockEnv)(
                     {
                         arguments: {},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'foo',
                         },

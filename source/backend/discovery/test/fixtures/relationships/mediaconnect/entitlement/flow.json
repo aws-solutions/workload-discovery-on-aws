@@ -1,25 +1,25 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "entitlement": {
+            "resourceType": "AWS::MediaConnect::FlowEntitlement"
+        }
+    },
+    "flow": {
+        "arn": "flowArn"
+    },
     "entitlement": {
-      "resourceType": "AWS::MediaConnect::FlowEntitlement"
+        "id": "${entitlement.arn}",
+        "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:entitlement:${entitlement.resourceId}",
+        "resourceId": "entitlementId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.entitlement.resourceType}",
+        "relationships": [],
+        "configuration": {
+            "FlowArn": "${flow.arn}"
+        }
     }
-  },
-  "flow": {
-    "arn": "flowArn"
-  },
-  "entitlement": {
-    "id": "${entitlement.arn}",
-    "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:entitlement:${entitlement.resourceId}",
-    "resourceId": "entitlementId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.entitlement.resourceType}",
-    "relationships": [],
-    "configuration": {
-      "FlowArn": "${flow.arn}"
-    }
-  }
 }
