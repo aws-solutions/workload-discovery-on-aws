@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "type": "AWS::Glue::Table",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is associated with",
+        "path": "StorageDescriptor.Parameters.streamName",
+        "resourceType": "AWS::Kinesis::Stream",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "StorageDescriptor.Parameters.streamARN",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "StorageDescriptor.Location",
+        "identifierType": "s3Uri"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "StorageDescriptor.Parameters.Connection",
+        "resourceType": "AWS::Glue::Connection",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is contained in",
+        "path": "DatabaseName",
+        "resourceType": "AWS::Glue::Database",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "FederatedTable.ConnectionName",
+        "resourceType": "AWS::Glue::Connection",
+        "identifierType": "resourceId"
+      }
+    ]
+  }
+}

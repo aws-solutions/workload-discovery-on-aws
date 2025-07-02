@@ -19,7 +19,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["account", "removeAll"]
+        "classes": [
+            "account",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -42,7 +45,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["region", "removeAll"]
+        "classes": [
+            "region",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -65,7 +71,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["region", "removeAll"]
+        "classes": [
+            "region",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -88,7 +97,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["availabilityZone", "removeAll"]
+        "classes": [
+            "availabilityZone",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -111,7 +123,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["availabilityZone", "removeAll"]
+        "classes": [
+            "availabilityZone",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -176,7 +191,10 @@
                 "accountId": "yyyyyyyyyyyy"
             }
         },
-        "classes": ["vpc", "removeAll"]
+        "classes": [
+            "vpc",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -199,7 +217,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#147eba"
         },
-        "classes": ["availabilityZone", "removeAll"]
+        "classes": [
+            "availabilityZone",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -264,7 +285,10 @@
                 "accountId": "yyyyyyyyyyyy"
             }
         },
-        "classes": ["subnet", "removeAll"]
+        "classes": [
+            "subnet",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -287,7 +311,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#147eba"
         },
-        "classes": ["availabilityZone", "removeAll"]
+        "classes": [
+            "availabilityZone",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -351,7 +378,10 @@
                 "accountId": "yyyyyyyyyyyy"
             }
         },
-        "classes": ["subnet", "removeAll"]
+        "classes": [
+            "subnet",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -373,7 +403,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -395,7 +428,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -417,7 +453,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -439,7 +478,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -461,7 +503,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -483,7 +528,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -505,7 +553,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -527,7 +578,10 @@
             "aZColour": "#00A1C9",
             "subnetColour": "#248814"
         },
-        "classes": ["type", "removeAll"]
+        "classes": [
+            "type",
+            "removeAll"
+        ]
     },
     {
         "group": "nodes",
@@ -604,7 +658,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -616,8 +676,8 @@
             ],
             "parent": "Role-yyyyyyyyyyyy-global",
             "id": "arn:aws:iam::yyyyyyyyyyyy:role/testRole",
-            "title": "testRole",
-            "label": "testRole",
+            "title": "arn:aws:iam::yyyyyyyyyyyy:role/testRole-Title",
+            "label": "arn:aws:iam:...",
             "shape": "image",
             "type": "resource",
             "accountColour": "rgba(234, 220, 23, 0.5)",
@@ -671,13 +731,19 @@
                 "private": null,
                 "loggedInURL": "https://console.aws.amazon.com/iam/home?#/roles",
                 "loginURL": "https://yyyyyyyyyyyy.signin.aws.amazon.com/console/iam?home?#/roles",
-                "title": "testRole",
+                "title": "arn:aws:iam::yyyyyyyyyyyy:role/testRole-Title",
                 "dBInstanceStatus": null,
                 "statement": null,
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -750,7 +816,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -823,7 +895,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -896,7 +974,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -969,7 +1053,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1042,7 +1132,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1115,7 +1211,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1188,7 +1290,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1265,7 +1373,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1277,8 +1391,8 @@
             ],
             "parent": "Role-yyyyyyyyyyyy-global",
             "id": "arn:aws:iam::yyyyyyyyyyyy:role/testRole",
-            "title": "testRole",
-            "label": "testRole",
+            "title": "arn:aws:iam::yyyyyyyyyyyy:role/testRole-Title",
+            "label": "arn:aws:iam:...",
             "shape": "image",
             "type": "resource",
             "accountColour": "rgba(234, 220, 23, 0.5)",
@@ -1332,13 +1446,19 @@
                 "private": null,
                 "loggedInURL": "https://console.aws.amazon.com/iam/home?#/roles",
                 "loginURL": "https://yyyyyyyyyyyy.signin.aws.amazon.com/console/iam?home?#/roles",
-                "title": "testRole",
+                "title": "arn:aws:iam::yyyyyyyyyyyy:role/testRole-Title",
                 "dBInstanceStatus": null,
                 "statement": null,
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1411,7 +1531,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "nodes",
@@ -1484,7 +1610,13 @@
                 "instanceType": null
             }
         },
-        "classes": ["resource", "highlight", "image", "selectable", "hoverover"]
+        "classes": [
+            "resource",
+            "highlight",
+            "image",
+            "selectable",
+            "hoverover"
+        ]
     },
     {
         "group": "edges",

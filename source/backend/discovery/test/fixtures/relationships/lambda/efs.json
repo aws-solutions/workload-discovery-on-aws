@@ -1,91 +1,91 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "lambda": {
-      "resourceType": "AWS::Lambda::Function"
-    },
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "id2": "subnet-9876543210fedcba",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
-    }
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-0123456789abcdef",
-    "configuration": {
-      "vpcId": "vpc-0123456789abcdef0"
-    },
-    "relationships": []
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}b",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-9876543210fedcba",
-    "configuration": {
-      "vpcId": "vpc-0123456789abcdef0"
-    },
-    "relationships": []
-  },
-  "efs1": {
-    "id": "${efs.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "efsApArn1",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "fsap-0123456789abcdef0",
-    "resourceType": "AWS::EFS::AccessPoint",
-    "relationships": [],
-    "configuration": {}
-  },
-  "efs2": {
-    "id": "${efs.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "efsApArn2",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "fsap-0123456789abcdef0",
-    "resourceType": "AWS::EFS::AccessPoint",
-    "relationships": [],
-    "configuration": {}
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "lambdaArn",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "testLambdaFunc",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "${$constants.lambda.resourceType}",
-    "relationships": [
-      {
-        "resourceId": "${subnet1.resourceId}",
-        "resourceType": "${$constants.subnet.resourceType}",
-        "relationshipName": "${$constants.subnet.relationshipName}"
-      },
-      {
-        "resourceId": "${subnet2.resourceId}",
-        "resourceType": "${$constants.subnet.resourceType}",
-        "relationshipName": "${$constants.subnet.relationshipName}"
-      }
-    ],
-    "configuration": {
-      "fileSystemConfigs": [
-        {
-          "arn": "${efs1.arn}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "lambda": {
+            "resourceType": "AWS::Lambda::Function"
         },
-        {
-          "arn": "${efs2.arn}"
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "id2": "subnet-9876543210fedcba",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
         }
-      ]
+    },
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "subnet-0123456789abcdef",
+        "configuration": {
+            "vpcId": "vpc-0123456789abcdef0"
+        },
+        "relationships": []
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}b",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "subnet-9876543210fedcba",
+        "configuration": {
+            "vpcId": "vpc-0123456789abcdef0"
+        },
+        "relationships": []
+    },
+    "efs1": {
+        "id": "${efs.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "efsApArn1",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "fsap-0123456789abcdef0",
+        "resourceType": "AWS::EFS::AccessPoint",
+        "relationships": [],
+        "configuration": {}
+    },
+    "efs2": {
+        "id": "${efs.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "efsApArn2",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "fsap-0123456789abcdef0",
+        "resourceType": "AWS::EFS::AccessPoint",
+        "relationships": [],
+        "configuration": {}
+    },
+    "lambda": {
+        "id": "${lambda.arn}",
+        "arn": "lambdaArn",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "testLambdaFunc",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "${$constants.lambda.resourceType}",
+        "relationships": [
+            {
+                "resourceId": "${subnet1.resourceId}",
+                "resourceType": "${$constants.subnet.resourceType}",
+                "relationshipName": "${$constants.subnet.relationshipName}"
+            },
+            {
+                "resourceId": "${subnet2.resourceId}",
+                "resourceType": "${$constants.subnet.resourceType}",
+                "relationshipName": "${$constants.subnet.relationshipName}"
+            }
+        ],
+        "configuration": {
+            "fileSystemConfigs": [
+                {
+                    "arn": "${efs1.arn}"
+                },
+                {
+                    "arn": "${efs2.arn}"
+                }
+            ]
+        }
     }
-  }
 }

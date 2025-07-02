@@ -1,25 +1,25 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx"
-  },
-  "routeTable": {
-    "accountId": "${$constants.accountId}",
-    "vpcId": "vpc-0123456789abcdef0",
-    "resourceType": "AWS::EC2::RouteTable",
-    "resourceId": "rtb-0123456789abcdef0",
-    "relationships": [],
-    "configuration": {
-      "routes": [
-        {
-          "gatewayId": "igw-0123456789abcdef0"
-        },
-        {
-          "gatewayId": "vpce-0123456789abcdef0"
-        },
-        {
-          "natGatewayId": "nat-0123456789abcdef0"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx"
+    },
+    "routeTable": {
+        "accountId": "${$constants.accountId}",
+        "vpcId": "vpc-0123456789abcdef0",
+        "resourceType": "AWS::EC2::RouteTable",
+        "resourceId": "rtb-0123456789abcdef0",
+        "relationships": [],
+        "configuration": {
+            "routes": [
+                {
+                    "gatewayId": "igw-0123456789abcdef0"
+                },
+                {
+                    "gatewayId": "vpce-0123456789abcdef0"
+                },
+                {
+                    "natGatewayId": "nat-0123456789abcdef0"
+                }
+            ]
         }
-      ]
     }
-  }
 }

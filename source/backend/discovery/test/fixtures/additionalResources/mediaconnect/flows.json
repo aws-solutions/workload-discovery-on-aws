@@ -1,12 +1,16 @@
 {
-  "euWest2": [{
-    "FlowArn": "flowArn1",
-    "AvailabilityZone": "eu-west-2a",
-    "Name": "flowName1"
-  }],
-  "usWest2": [{
-    "FlowArn": "flowArn2",
-    "AvailabilityZone": "us-west-2a",
-    "Name": "flowName2"
-  }]
+    "euWest2": [
+        {
+            "FlowArn": "flowArn1",
+            "AvailabilityZone": "eu-west-2a",
+            "Name": "flowName1"
+        }
+    ],
+    "usWest2": [
+        {
+            "FlowArn": "flowArn2",
+            "AvailabilityZone": "us-west-2a",
+            "Name": "flowName2"
+        }
+    ]
 }

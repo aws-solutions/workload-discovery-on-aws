@@ -1,51 +1,51 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx"
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0",
-    "resourceType": "AWS::EC2::VPC",
-    "configuration": {}
-  },
-  "routeTable": {
-    "id": "${routeTable.arn}",
-    "arn": "routeTableArn",
-    "accountId": "${$constants.accountId}",
-    "vpcId": "${vpc.resourceId}",
-    "resourceType": "AWS::EC2::RouteTable",
-    "resourceId": "rtb-0123456789abcdef0",
-    "relationships": [],
-    "configuration": {
-      "routes": [
-        {
-          "gatewayId": "local"
-        }
-      ]
-    }
-  },
-  "subnet": {
-    "id": "${subnet.arn}",
-    "arn": "subnetArn",
-    "availabilityZone": "${$constants.region}a",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "subnet-11111111111111111",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::EC2::Subnet",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}",
-      "subnetId": "${subnet.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx"
     },
-    "relationships": [
-      {
-        "relationshipName": "Is contained in RouteTable",
-        "resourceId": "${routeTable.resourceId}",
-        "resourceType": "${routeTable.resourceType}"
-      },
-      {
-        "relationshipName": "Is contained in VPC",
-        "resourceId": "${vpc.resourceId}",
-        "resourceType": "${vpc.resourceType}"
-      }
-    ]
-  }
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0",
+        "resourceType": "AWS::EC2::VPC",
+        "configuration": {}
+    },
+    "routeTable": {
+        "id": "${routeTable.arn}",
+        "arn": "routeTableArn",
+        "accountId": "${$constants.accountId}",
+        "vpcId": "${vpc.resourceId}",
+        "resourceType": "AWS::EC2::RouteTable",
+        "resourceId": "rtb-0123456789abcdef0",
+        "relationships": [],
+        "configuration": {
+            "routes": [
+                {
+                    "gatewayId": "local"
+                }
+            ]
+        }
+    },
+    "subnet": {
+        "id": "${subnet.arn}",
+        "arn": "subnetArn",
+        "availabilityZone": "${$constants.region}a",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "subnet-11111111111111111",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::EC2::Subnet",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}",
+            "subnetId": "${subnet.resourceId}"
+        },
+        "relationships": [
+            {
+                "relationshipName": "Is contained in RouteTable",
+                "resourceId": "${routeTable.resourceId}",
+                "resourceType": "${routeTable.resourceType}"
+            },
+            {
+                "relationshipName": "Is contained in VPC",
+                "resourceId": "${vpc.resourceId}",
+                "resourceType": "${vpc.resourceType}"
+            }
+        ]
+    }
 }

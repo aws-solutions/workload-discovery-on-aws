@@ -79,20 +79,6 @@ async function isDynamoHealthy(attempts = 0) {
 describe('index.js', () => {
 
     describe('handler', () => {
-        const mockEc2Client = {
-            async describeRegions() {
-                return {
-                    Regions: [
-                        {RegionName: 'eu-west-1'},
-                        {RegionName: 'eu-west-2'},
-                        {RegionName: 'eu-central-1'},
-                        {RegionName: 'us-east-1'},
-                        {RegionName: 'us-east-2'},
-                    ],
-                };
-            },
-        };
-
         let dynamoDbLocalProcess;
         beforeAll(async function () {
             dynamoDbLocalProcess = dynamoDbLocal.spawn({port: 4567});
@@ -114,8 +100,74 @@ describe('index.js', () => {
                 await createTable(DB_TABLE);
             });
 
+            it('should reject payload invalid fields', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: 'invalid-account-id',
+                                name: 'a'.repeat(101),
+                                organizationId: 'invalid-org-id',
+                                isIamRoleDeployed: 'not-a-boolean',
+                                isManagementAccount: 'not-a-boolean',
+                                lastCrawled: 'not-a-date',
+                                regions: [
+                                    {
+                                        name: 'invalid-region',
+                                        isConfigEnabled: 'not-a-boolean',
+                                        lastCrawled: 'not-a-date'
+                                    }
+                                ],
+                                resourcesRegionMetadata: {
+                                    accountId: 'invalid-account-id',
+                                    count: 'not-a-number',
+                                    regions: [
+                                        {
+                                            count: 'not-a-number',
+                                            name: 123,
+                                            resourceTypes: [
+                                                {
+                                                    count: 'not-a-number',
+                                                    type: 123
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'addAccounts',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(messages, [
+                        'Validation error for accounts/0/accountId: Not a valid account ID',
+                        'Validation error for accounts/0/name: String must contain at most 100 character(s)',
+                        'Validation error for accounts/0/organizationId: Not a valid organizarion ID',
+                        'Validation error for accounts/0/isIamRoleDeployed: Expected boolean, received string',
+                        'Validation error for accounts/0/isManagementAccount: Expected boolean, received string',
+                        'Validation error for accounts/0/lastCrawled: Invalid datetime',
+                        'Validation error for accounts/0/regions/0/name: Invalid enum value. Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received \'invalid-region\'',
+                        'Validation error for accounts/0/regions/0/isConfigEnabled: Expected boolean, received string',
+                        'Validation error for accounts/0/regions/0/lastCrawled: Invalid datetime',
+                        'Validation error for accounts/0/resourcesRegionMetadata/accountId: Not a valid account ID',
+                        'Validation error for accounts/0/resourcesRegionMetadata/count: Expected number, received string',
+                        'Validation error for accounts/0/resourcesRegionMetadata/regions/0/count: Expected number, received string',
+                        'Validation error for accounts/0/resourcesRegionMetadata/regions/0/name: Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received number',
+                        'Validation error for accounts/0/resourcesRegionMetadata/regions/0/resourceTypes/0/count: Expected number, received string',
+                        'Validation error for accounts/0/resourcesRegionMetadata/regions/0/resourceTypes/0/type: Expected string, received number',
+                    ]);
+                });
+            });
+
             it('should reject invalid account ids in accounts field', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
+                return _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -147,20 +199,20 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 }).catch(err => {
                     assert.strictEqual(
                         err.message,
-                        'The following account ids are invalid: xxx'
+                        'Validation error for accounts/1/accountId: Not a valid account ID'
                     );
                 });
             });
 
             it('should reject invalid regions in accounts field', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
+                return _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -192,21 +244,20 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 }).catch(err => {
                     assert.strictEqual(
                         err.message,
-                        'The following regions are invalid: invalid-region'
+                        "Validation error for accounts/0/regions/1/name: Invalid enum value. Expected 'global' | 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'invalid-region'"
                     );
                 });
             });
 
             it('should add account', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -239,7 +290,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -314,7 +365,6 @@ describe('index.js', () => {
                 };
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'}
@@ -326,7 +376,7 @@ describe('index.js', () => {
                                 name: 'test',
                                 isManagementAccount: true,
                                 isIamRoleDeployed: true,
-                                organizationId: 'test-org',
+                                organizationId: 'o-1111111111',
                                 lastCrawled: new Date(
                                     '2011-06-21'
                                 ).toISOString(),
@@ -344,7 +394,7 @@ describe('index.js', () => {
                                 name: 'test',
                                 isManagementAccount: false,
                                 isIamRoleDeployed: true,
-                                organizationId: 'test-org',
+                                organizationId: 'o-1111111111',
                                 lastCrawled: new Date(
                                     '2014-04-09'
                                 ).toISOString(),
@@ -359,7 +409,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -387,7 +437,7 @@ describe('index.js', () => {
                         PK: 'Account',
                         isManagementAccount: true,
                         isIamRoleDeployed: true,
-                        organizationId: 'test-org',
+                        organizationId: 'o-1111111111',
                         lastCrawled: '2011-06-21T00:00:00.000Z',
                         regions: [
                             {
@@ -406,7 +456,7 @@ describe('index.js', () => {
                         PK: 'Account',
                         isManagementAccount: false,
                         isIamRoleDeployed: true,
-                        organizationId: 'test-org',
+                        organizationId: 'o-1111111111',
                         lastCrawled: '2014-04-09T00:00:00.000Z',
                         regions: [
                             {
@@ -423,7 +473,6 @@ describe('index.js', () => {
 
             it('should remove duplicate regions before adding account', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -447,7 +496,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {username: 'iam:f1f5b46a233d4b1f9e70a6465992ec02'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -515,7 +564,6 @@ describe('index.js', () => {
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -536,7 +584,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -586,7 +634,6 @@ describe('index.js', () => {
 
             it('should ignore duplicate accounts', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -619,7 +666,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -729,7 +776,6 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', RETRY_TIME: 10}
@@ -762,7 +808,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -892,7 +938,6 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -929,7 +974,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
@@ -1002,9 +1047,41 @@ describe('index.js', () => {
                 });
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id',
+                        regions: [
+                            {
+                                name: 'invalid-region',
+                                isConfigEnabled: 'not-a-boolean',
+                                lastCrawled: 'not-a-date'
+                            }
+                        ]
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'addRegions',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            'Validation error for regions/0/name: Invalid enum value. Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received \'invalid-region\'',
+                            'Validation error for regions/0/isConfigEnabled: Expected boolean, received string',
+                            'Validation error for regions/0/lastCrawled: Invalid datetime'
+                        ]
+                    );
+                });
+            });
+
             it('should add regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -1013,7 +1090,7 @@ describe('index.js', () => {
                         accountId: '111111111111',
                         regions: [{name: 'eu-central-1'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addRegions',
                     },
@@ -1080,7 +1157,6 @@ describe('index.js', () => {
                 };
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'}
@@ -1089,7 +1165,7 @@ describe('index.js', () => {
                         accountId: '111111111111',
                         regions: [{name: 'eu-central-1'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addRegions',
                     },
@@ -1139,7 +1215,6 @@ describe('index.js', () => {
 
             it('should ignore duplicates regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -1151,7 +1226,7 @@ describe('index.js', () => {
                             {name: 'eu-central-1'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addRegions',
                     },
@@ -1265,7 +1340,7 @@ describe('index.js', () => {
             });
 
             it('should reject invalid account ids in the accountIds field', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
+                return _handler(docClient, mockConfig, {
                     ACCOUNT_ID,
                     AWS_REGION,
                     DB_TABLE,
@@ -1275,21 +1350,23 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['xxx', '222222222222', 'aws'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
                 }).catch(err => {
-                    assert.strictEqual(
-                        err.message,
-                        'The following account ids are invalid: xxx'
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountIds/0: Not a valid account ID',
+                        ],
                     );
                 });
             });
 
             it('should delete account', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -1302,7 +1379,7 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['222222222222'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
@@ -1356,7 +1433,6 @@ describe('index.js', () => {
                 };
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -1370,7 +1446,7 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['222222222222'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
@@ -1410,7 +1486,6 @@ describe('index.js', () => {
 
             it('should supply default account and region to aggregator when all accounts removed', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -1423,7 +1498,7 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['111111111111', '222222222222'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
@@ -1487,7 +1562,6 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -1501,7 +1575,7 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['222222222222'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
@@ -1579,7 +1653,6 @@ describe('index.js', () => {
                 ddbMock.send.callThrough();
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {
@@ -1593,7 +1666,7 @@ describe('index.js', () => {
                     arguments: {
                         accountIds: ['222222222222'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteAccounts',
                     },
@@ -1690,53 +1763,37 @@ describe('index.js', () => {
                 });
             });
 
-            it('should reject invalid account id in accountId field', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
                     arguments: {
-                        accountId: 'xxx',
-                        regions: [{name: 'eu-west-2'}, {name: 'eu-central-1'}],
-                    },
-                    identity: {username: 'testUser'},
-                    info: {
-                        fieldName: 'deleteRegions',
-                    },
-                }).catch(err => {
-                    assert.strictEqual(
-                        err.message,
-                        'xxx is not a valid AWS account id.'
-                    );
-                });
-            });
-
-            it('should reject invalid region in regions field', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
-                    DB_TABLE,
-                    CONFIG_AGGREGATOR: 'aggregator',
-                })({
-                    arguments: {
-                        accountId: '111111111111',
+                        accountId: 'invalid-account-id',
                         regions: [
-                            {name: 'invalid-region'},
-                            {name: 'eu-central-1'},
-                        ],
+                            {
+                                name: 'invalid-region'
+                            }
+                        ]
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteRegions',
                     },
                 }).catch(err => {
-                    assert.strictEqual(
-                        err.message,
-                        'The following regions are invalid: invalid-region'
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            'Validation error for regions/0/name: Invalid enum value. Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received \'invalid-region\'',
+                        ]
                     );
                 });
             });
 
             it('should reject deletions that remove all regions', async () => {
-                return _handler(mockEc2Client, docClient, mockConfig, {
+                return _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -1754,7 +1811,7 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteRegions',
                     },
@@ -1768,7 +1825,6 @@ describe('index.js', () => {
 
             it('should delete regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -1777,7 +1833,7 @@ describe('index.js', () => {
                         accountId: '111111111111',
                         regions: [{name: 'eu-west-2'}, {name: 'eu-central-1'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteRegions',
                     },
@@ -1826,7 +1882,6 @@ describe('index.js', () => {
                 };
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', CROSS_ACCOUNT_DISCOVERY: 'AWS_ORGANIZATIONS'}
@@ -1835,7 +1890,7 @@ describe('index.js', () => {
                         accountId: '111111111111',
                         regions: [{name: 'eu-west-2'}, {name: 'eu-central-1'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteRegions',
                     },
@@ -1871,7 +1926,6 @@ describe('index.js', () => {
 
             it('should ignore duplicate regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -1884,7 +1938,7 @@ describe('index.js', () => {
                             {name: 'eu-central-1'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteRegions',
                     },
@@ -1979,7 +2033,6 @@ describe('index.js', () => {
 
             it('should get accounts', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -1987,7 +2040,7 @@ describe('index.js', () => {
                     info: {
                         fieldName: 'getAccounts',
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     arguments: {},
                 });
 
@@ -2050,9 +2103,31 @@ describe('index.js', () => {
                 });
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id'
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'getAccount',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID'
+                        ]
+                    );
+                });
+            });
+
             it('should get account', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2060,7 +2135,7 @@ describe('index.js', () => {
                     arguments: {
                         accountId: '111111111111',
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getAccount',
                     },
@@ -2112,18 +2187,68 @@ describe('index.js', () => {
                 });
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id',
+                        lastCrawled: 'not-a-date',
+                        name: '<account>',
+                        isIamRoleDeployed: 'not-a-boolean',
+                        resourcesRegionMetadata: {
+                            accountId: 'invalid-account-id',
+                            count: 'not-a-number',
+                            regions: [
+                                {
+                                    count: 'not-a-number',
+                                    name: 123,
+                                    resourceTypes: [
+                                        {
+                                            count: 'not-a-number',
+                                            type: 123
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'updateAccount',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            'Validation error for lastCrawled: Invalid datetime',
+                            'Validation error for name: Account names may not contain \'<\' or \'>\' character',
+                            'Validation error for isIamRoleDeployed: Expected boolean, received string',
+                            'Validation error for resourcesRegionMetadata/accountId: Not a valid account ID',
+                            'Validation error for resourcesRegionMetadata/count: Expected number, received string',
+                            'Validation error for resourcesRegionMetadata/regions/0/count: Expected number, received string',
+                            'Validation error for resourcesRegionMetadata/regions/0/name: Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received number',
+                            'Validation error for resourcesRegionMetadata/regions/0/resourceTypes/0/count: Expected number, received string',
+                            'Validation error for resourcesRegionMetadata/regions/0/resourceTypes/0/type: Expected string, received number'
+                        ]
+                    );
+                });
+            });
+
             it('should update account', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {
                         accountId: '111111111111',
-                        lastCrawled: 'new Date()',
+                        lastCrawled: new Date('2025-01-01').toISOString(),
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'updateAccount',
                     },
@@ -2131,7 +2256,7 @@ describe('index.js', () => {
 
                 assert.deepEqual(actual, {
                     accountId: '111111111111',
-                    lastCrawled: 'new Date()',
+                    lastCrawled: '2025-01-01T00:00:00.000Z',
                 });
 
                 const {Item: actualDb} = await docClient.get({
@@ -2146,7 +2271,7 @@ describe('index.js', () => {
                     SK: '111111111111',
                     accountId: '111111111111',
                     PK: 'Account',
-                    lastCrawled: 'new Date()',
+                    lastCrawled: '2025-01-01T00:00:00.000Z',
                     regions: [
                         {
                             name: 'eu-west-1',
@@ -2192,9 +2317,41 @@ describe('index.js', () => {
                 });
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id',
+                        regions: [
+                            {
+                                name: 'invalid-region',
+                                isConfigEnabled: 'not-a-boolean',
+                                lastCrawled: 'not-a-date'
+                            }
+                        ]
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'updateRegions',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            'Validation error for regions/0/name: Invalid enum value. Expected \'global\' | \'af-south-1\' | \'ap-east-1\' | \'ap-northeast-1\' | \'ap-northeast-2\' | \'ap-northeast-3\' | \'ap-south-1\' | \'ap-south-2\' | \'ap-southeast-1\' | \'ap-southeast-2\' | \'ap-southeast-3\' | \'ap-southeast-4\' | \'ca-central-1\' | \'ca-west-1\' | \'cn-north-1\' | \'cn-northwest-1\' | \'eu-central-1\' | \'eu-central-2\' | \'eu-north-1\' | \'eu-south-1\' | \'eu-south-2\' | \'eu-west-1\' | \'eu-west-2\' | \'eu-west-3\' | \'me-central-1\' | \'me-south-1\' | \'sa-east-1\' | \'us-east-1\' | \'us-east-2\' | \'us-gov-east-1\' | \'us-gov-west-1\' | \'us-west-1\' | \'us-west-2\', received \'invalid-region\'',
+                            'Validation error for regions/0/isConfigEnabled: Expected boolean, received string',
+                            'Validation error for regions/0/lastCrawled: Invalid datetime'
+                        ]
+                    );
+                });
+            });
+
             it('should update regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2202,11 +2359,11 @@ describe('index.js', () => {
                     arguments: {
                         accountId: '111111111111',
                         regions: [
-                            {name: 'eu-west-1', lastCrawled: 'new Date()1'},
-                            {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                            {name: 'eu-west-1', lastCrawled: new Date('2025-01-01').toISOString()},
+                            {name: 'eu-west-2', lastCrawled: new Date('2025-01-02').toISOString()},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'updateRegions',
                     },
@@ -2215,8 +2372,8 @@ describe('index.js', () => {
                 assert.deepEqual(actual, {
                     accountId: '111111111111',
                     regions: [
-                        {name: 'eu-west-1', lastCrawled: 'new Date()1'},
-                        {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                        {name: 'eu-west-1', lastCrawled: '2025-01-01T00:00:00.000Z'},
+                        {name: 'eu-west-2', lastCrawled: '2025-01-02T00:00:00.000Z'},
                     ],
                 });
 
@@ -2235,11 +2392,11 @@ describe('index.js', () => {
                     regions: [
                         {
                             name: 'eu-west-1',
-                            lastCrawled: 'new Date()1',
+                            lastCrawled: '2025-01-01T00:00:00.000Z',
                         },
                         {
                             name: 'eu-west-2',
-                            lastCrawled: 'new Date()2',
+                            lastCrawled: '2025-01-02T00:00:00.000Z',
                         },
                     ],
                     type: 'account',
@@ -2248,7 +2405,6 @@ describe('index.js', () => {
 
             it('should ignore duplicate regions', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2256,12 +2412,12 @@ describe('index.js', () => {
                     arguments: {
                         accountId: '111111111111',
                         regions: [
-                            {name: 'eu-west-1', lastCrawled: 'new Date()1'},
-                            {name: 'eu-west-2', lastCrawled: 'new Date()2'},
-                            {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                            {name: 'eu-west-1', lastCrawled: new Date('2025-01-01').toISOString()},
+                            {name: 'eu-west-2', lastCrawled: new Date('2025-01-02').toISOString()},
+                            {name: 'eu-west-2', lastCrawled: new Date('2025-01-02').toISOString()},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'updateRegions',
                     },
@@ -2270,9 +2426,9 @@ describe('index.js', () => {
                 assert.deepEqual(actual, {
                     accountId: '111111111111',
                     regions: [
-                        {name: 'eu-west-1', lastCrawled: 'new Date()1'},
-                        {name: 'eu-west-2', lastCrawled: 'new Date()2'},
-                        {name: 'eu-west-2', lastCrawled: 'new Date()2'},
+                        {name: 'eu-west-1', lastCrawled: '2025-01-01T00:00:00.000Z'},
+                        {name: 'eu-west-2', lastCrawled: '2025-01-02T00:00:00.000Z'},
+                        {name: 'eu-west-2', lastCrawled: '2025-01-02T00:00:00.000Z'},
                     ],
                 });
 
@@ -2291,11 +2447,11 @@ describe('index.js', () => {
                     regions: [
                         {
                             name: 'eu-west-1',
-                            lastCrawled: 'new Date()1',
+                            lastCrawled: '2025-01-01T00:00:00.000Z',
                         },
                         {
                             name: 'eu-west-2',
-                            lastCrawled: 'new Date()2',
+                            lastCrawled: '2025-01-02T00:00:00.000Z',
                         },
                     ],
                     type: 'account',
@@ -2324,13 +2480,12 @@ describe('index.js', () => {
 
             it('should handle no accounts', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesMetadata',
                     },
@@ -2349,7 +2504,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2379,20 +2534,19 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesMetadata',
                     },
@@ -2407,7 +2561,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2438,20 +2592,19 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesMetadata',
                     },
@@ -2476,15 +2629,47 @@ describe('index.js', () => {
                 return dbClient.deleteTable({TableName: DB_TABLE});
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id',
+                        regions: [
+                            {
+                                name: 'invalid-region',
+                                isConfigEnabled: 'not-a-boolean',
+                                lastCrawled: 'not-a-date'
+                            }
+                        ]
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            "Validation error for regions/0/name: Invalid enum value. Expected 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'invalid-region'",
+                            'Validation error for regions/0/isConfigEnabled: Expected boolean, received string',
+                            'Validation error for regions/0/lastCrawled: Invalid datetime'
+                        ]
+                    );
+                });
+            });
+
             it('should handle no accounts', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2499,7 +2684,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2529,14 +2714,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2544,7 +2728,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: null,
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2559,7 +2743,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2590,14 +2774,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2605,7 +2788,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: null,
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2620,7 +2803,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2651,14 +2834,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2666,7 +2848,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: [{accountId: '111111111111'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2708,7 +2890,7 @@ describe('index.js', () => {
 
                 ddbMock.send.callThrough();
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                     RETRY_TIME: 10,
@@ -2740,14 +2922,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2755,7 +2936,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: [{accountId: '111111111111'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2770,7 +2951,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2801,14 +2982,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2822,7 +3002,7 @@ describe('index.js', () => {
                             {accountId: '222222222222'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesAccountMetadata',
                     },
@@ -2850,15 +3030,47 @@ describe('index.js', () => {
                 return dbClient.deleteTable({TableName: DB_TABLE});
             });
 
+            it('should reject invalid payload', async () => {
+                return _handler(docClient, mockConfig, {
+                    DB_TABLE,
+                    CONFIG_AGGREGATOR: 'aggregator',
+                })({
+                    arguments: {
+                        accountId: 'invalid-account-id',
+                        regions: [
+                            {
+                                name: 'invalid-region',
+                                isConfigEnabled: 'not-a-boolean',
+                                lastCrawled: 'not-a-date'
+                            }
+                        ]
+                    },
+                    identity: {username: 'testUser'},
+                    info: {
+                        fieldName: 'getResourcesAccountMetadata',
+                    },
+                }).catch(err => {
+                    const messages = err.message.split('\n');
+                    assert.deepEqual(
+                        messages,
+                        [
+                            'Validation error for accountId: Not a valid account ID',
+                            "Validation error for regions/0/name: Invalid enum value. Expected 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'invalid-region'",
+                            'Validation error for regions/0/isConfigEnabled: Expected boolean, received string',
+                            'Validation error for regions/0/lastCrawled: Invalid datetime'
+                        ]
+                    );
+                });
+            });
+
             it('should handle no accounts', async () => {
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
                 )({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -2873,7 +3085,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2903,14 +3115,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2918,7 +3129,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: null,
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -2933,7 +3144,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -2964,14 +3175,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -2979,7 +3189,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: null,
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -2994,7 +3204,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -3025,14 +3235,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -3040,7 +3249,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: [{accountId: '111111111111'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -3082,7 +3291,7 @@ describe('index.js', () => {
 
                 ddbMock.send.callThrough();
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -3113,14 +3322,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator', RETRY_TIME: 10}
@@ -3128,7 +3336,7 @@ describe('index.js', () => {
                     arguments: {
                         accounts: [{accountId: '111111111111'}],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -3143,7 +3351,7 @@ describe('index.js', () => {
                     {with: {type: 'json'}}
                 );
 
-                await _handler(mockEc2Client, docClient, mockConfig, {
+                await _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })({
@@ -3174,14 +3382,13 @@ describe('index.js', () => {
                             },
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'addAccounts',
                     },
                 });
 
                 const actual = await _handler(
-                    mockEc2Client,
                     docClient,
                     mockConfig,
                     {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
@@ -3195,7 +3402,7 @@ describe('index.js', () => {
                             {accountId: '222222222222'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'getResourcesRegionMetadata',
                     },
@@ -3216,13 +3423,13 @@ describe('index.js', () => {
                     putConfigurationAggregator: sinon.stub().resolves({}),
                 };
 
-                return _handler(mockEc2Client, docClient, mockConfig, {
+                return _handler(docClient, mockConfig, {
                     DB_TABLE,
                     CONFIG_AGGREGATOR: 'aggregator',
                 })(
                     {
                         arguments: {},
-                        identity: {username: 'testUser'},
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
                         info: {
                             fieldName: 'foo',
                         },

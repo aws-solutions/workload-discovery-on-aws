@@ -12,14 +12,25 @@ import {
     DELETE,
     NOT_FOUND_EXCEPTION,
     METHODS,
-    AWS_API_GATEWAY_METHOD
+    AWS_API_GATEWAY_METHOD,
 } from '../constants.mjs';
-import {createArn, createConfigObject, createContainedInRelationship} from '../utils.mjs';
+import {
+    createArn,
+    createConfigObject,
+    createContainedInRelationship,
+} from '../utils.mjs';
 import logger from '../logger.mjs';
 
 export function createSecondOrderHandlers(accountsMap, awsClient) {
     return {
-        [AWS_API_GATEWAY_RESOURCE]: async ({resourceId, accountId, availabilityZone, awsRegion, arn: apiResourceArn, configuration}) => {
+        [AWS_API_GATEWAY_RESOURCE]: async ({
+            resourceId,
+            accountId,
+            availabilityZone,
+            awsRegion,
+            arn: apiResourceArn,
+            configuration,
+        }) => {
             // don't confuse ResourceId which is the id that API Gateway assigns to this resource with
             // the camel case version, which is the id AWS Config would assign it. We create this in
             // ths first order handlers to have a uniform shape to all the data.
@@ -27,7 +38,10 @@ export function createSecondOrderHandlers(accountsMap, awsClient) {
 
             const {credentials} = accountsMap.get(accountId);
 
-            const apiGatewayClient = awsClient.createApiGatewayClient(credentials, awsRegion);
+            const apiGatewayClient = awsClient.createApiGatewayClient(
+                credentials,
+                awsRegion
+            );
 
             const results = await Promise.allSettled([
                 apiGatewayClient.getMethod(POST, ResourceId, RestApiId),
@@ -37,28 +51,44 @@ export function createSecondOrderHandlers(accountsMap, awsClient) {
             ]);
 
             results.forEach(({status, reason}) => {
-                if(status === 'rejected' && reason.name !== NOT_FOUND_EXCEPTION) {
-                    logger.error(`Error discovering API Gateway integration for resource: ${apiResourceArn}`, {error: reason});
+                if (
+                    status === 'rejected' &&
+                    reason.name !== NOT_FOUND_EXCEPTION
+                ) {
+                    logger.error(
+                        `Error discovering API Gateway integration for resource: ${apiResourceArn}`,
+                        {error: reason}
+                    );
                 }
             });
 
-            return results.filter(x => x.status === 'fulfilled').map(({value: item}) => {
-                const arn = createArn({
-                    service: APIGATEWAY, region: awsRegion, resource: `/${RESTAPIS}/${RestApiId}/${RESOURCES}/${ResourceId}/${METHODS}/${item.httpMethod}`
+            return results
+                .filter(x => x.status === 'fulfilled')
+                .map(({value: item}) => {
+                    const arn = createArn({
+                        service: APIGATEWAY,
+                        region: awsRegion,
+                        resource: `/${RESTAPIS}/${RestApiId}/${RESOURCES}/${ResourceId}/${METHODS}/${item.httpMethod}`,
+                    });
+                    return createConfigObject(
+                        {
+                            arn,
+                            accountId,
+                            awsRegion,
+                            availabilityZone,
+                            resourceType: AWS_API_GATEWAY_METHOD,
+                            resourceId: arn,
+                            resourceName: arn,
+                            relationships: [
+                                createContainedInRelationship(
+                                    AWS_API_GATEWAY_RESOURCE,
+                                    {resourceId}
+                                ),
+                            ],
+                        },
+                        {RestApiId, ResourceId, ...item}
+                    );
                 });
-                return createConfigObject({
-                    arn,
-                    accountId,
-                    awsRegion,
-                    availabilityZone,
-                    resourceType: AWS_API_GATEWAY_METHOD,
-                    resourceId: arn,
-                    resourceName: arn,
-                    relationships: [
-                        createContainedInRelationship(AWS_API_GATEWAY_RESOURCE, {resourceId}),
-                    ]
-                }, {RestApiId, ResourceId, ...item});
-            });
-        }
+        },
     };
 }

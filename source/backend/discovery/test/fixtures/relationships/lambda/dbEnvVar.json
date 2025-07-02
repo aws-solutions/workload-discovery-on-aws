@@ -1,86 +1,86 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "elasticsearch": {
-    "id": "${elasticsearch.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Elasticsearch::Domain",
-    "resourceId": "elasticsearch",
-    "arn": "elasticsearchArn",
-    "relationships": [],
-    "configuration": {
-      "endpoints": {
-        "vpc": "elasticsearch.domain.aws.com"
-      }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "elasticsearch": {
+        "id": "${elasticsearch.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Elasticsearch::Domain",
+        "resourceId": "elasticsearch",
+        "arn": "elasticsearchArn",
+        "relationships": [],
+        "configuration": {
+            "endpoints": {
+                "vpc": "elasticsearch.domain.aws.com"
+            }
+        }
+    },
+    "opensearch": {
+        "id": "${opensearch.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::OpenSearch::Domain",
+        "resourceId": "opensearch",
+        "arn": "opensearchArn",
+        "relationships": [],
+        "configuration": {
+            "Endpoints": {
+                "vpc": "opensearch.domain.aws.com"
+            }
+        }
+    },
+    "rdsCluster": {
+        "id": "${rdsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "arn": "rdsClusterArn",
+        "resourceName": "rdsCluster",
+        "resourceType": "AWS::RDS::DBCluster",
+        "configuration": {
+            "endpoint": {
+                "value": "rds.cluster.aws.com"
+            },
+            "readerEndpoint": "rds.reader.aws.com"
+        },
+        "relationships": []
+    },
+    "rdsInstance": {
+        "id": "${rdsInstance.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "arn": "rdsInstanceArn",
+        "resourceName": "rdsInstance",
+        "resourceType": "AWS::RDS::DBInstance",
+        "configuration": {
+            "endpoint": {
+                "address": "rds.instance.aws.com"
+            }
+        },
+        "relationships": []
+    },
+    "redshiftCluster": {
+        "id": "${redshiftCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "arn": "redshiftClusterArn",
+        "resourceId": "redshiftCluster",
+        "resourceType": "AWS::Redshift::Cluster",
+        "configuration": {
+            "endpoint": {
+                "address": "redshift.cluster.aws.com"
+            }
+        },
+        "relationships": []
+    },
+    "lambda": {
+        "id": "${lambda.arn}",
+        "arn": "lambdaArn",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Lambda::Function",
+        "relationships": [],
+        "configuration": {}
     }
-  },
-  "opensearch": {
-    "id": "${opensearch.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::OpenSearch::Domain",
-    "resourceId": "opensearch",
-    "arn": "opensearchArn",
-    "relationships": [],
-    "configuration": {
-      "Endpoints": {
-        "vpc": "opensearch.domain.aws.com"
-      }
-    }
-  },
-  "rdsCluster": {
-    "id": "${rdsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "arn": "rdsClusterArn",
-    "resourceName": "rdsCluster",
-    "resourceType": "AWS::RDS::DBCluster",
-    "configuration": {
-      "endpoint": {
-        "value": "rds.cluster.aws.com"
-      },
-      "readerEndpoint": "rds.reader.aws.com"
-    },
-    "relationships": []
-  },
-  "rdsInstance": {
-    "id": "${rdsInstance.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "arn": "rdsInstanceArn",
-    "resourceName": "rdsInstance",
-    "resourceType": "AWS::RDS::DBInstance",
-    "configuration": {
-      "endpoint": {
-        "address": "rds.instance.aws.com"
-      }
-    },
-    "relationships": []
-  },
-  "redshiftCluster": {
-    "id": "${redshiftCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "arn": "redshiftClusterArn",
-    "resourceId": "redshiftCluster",
-    "resourceType": "AWS::Redshift::Cluster",
-    "configuration": {
-      "endpoint": {
-        "address": "redshift.cluster.aws.com"
-      }
-    },
-    "relationships": []
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "lambdaArn",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Lambda::Function",
-    "relationships": [],
-    "configuration": {}
-  }
 }

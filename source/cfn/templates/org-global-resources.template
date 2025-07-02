@@ -245,6 +245,42 @@ Resources:
                   - elasticloadbalancing:DescribeTargetGroups
                 Effect: Allow
                 Resource: '*'
+        - PolicyName: bedrockApis
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:ListAgents
+                  - bedrock:ListCustomModels
+                  - bedrock:ListImportedModels
+                  - bedrock:ListFoundationModels
+                  - bedrock:ListInferenceProfiles
+                  - bedrock:ListKnowledgeBases
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - bedrock:GetAgent
+                Resource: !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:agent/*
+              - Effect: Allow
+                Action:
+                  - bedrock:GetCustomModel
+                Resource: !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:custom-model/*
+              - Effect: Allow
+                Action:
+                  - bedrock:GetImportedModel
+                Resource: !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:imported-model/*
+              - Effect: Allow
+                Action:
+                  - bedrock:ListAgentVersions
+                  - bedrock:ListAgentKnowledgeBases
+                Resource: !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:agent/*
+              - Effect: Allow
+                Action:
+                  - bedrock:GetDataSource
+                  - bedrock:GetKnowledgeBase
+                  - bedrock:ListDataSources
+                Resource: !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:knowledge-base/*
         - PolicyName: configReadsRecorders
           PolicyDocument:
             Version: '2012-10-17'
@@ -307,6 +343,15 @@ Resources:
                   - es:ListDomainNames
                   - es:DescribeDomains
                 Resource: '*'
+        - PolicyName: openSearchServerless
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - aoss:ListCollections
+                  - aoss:BatchGetCollection
+                Resource: '*'
         - PolicyName: perspectiveDynamoDB
           PolicyDocument:
             Version: '2012-10-17'
@@ -332,3 +377,34 @@ Resources:
                   - appsync:ListResolvers
                   - appsync:ListDataSources
                 Resource: '*'
+        - PolicyName: glueApis
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - glue:ListCrawlers
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - glue:BatchGetCrawlers
+                Resource: !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:crawler/*
+              - Effect: Allow
+                Action:
+                  - glue:GetDatabases
+                Resource:
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:catalog
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:database/*
+              - Effect: Allow
+                Action:
+                  - glue:GetConnections
+                Resource:
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:catalog
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:connection/*
+              - Effect: Allow
+                Action:
+                  - glue:GetTables
+                Resource:
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:catalog
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:database/*
+                  - !Sub arn:${AWS::Partition}:glue:*:${AWS::AccountId}:table/*

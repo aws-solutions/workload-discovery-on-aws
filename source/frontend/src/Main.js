@@ -13,7 +13,7 @@ import {diagramSettingsReducer} from './components/Contexts/Reducers/DiagramSett
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import dayjs from 'dayjs';
 dayjs.extend(localizedFormat);
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             refetchInterval: 60000,

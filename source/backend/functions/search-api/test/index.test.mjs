@@ -42,7 +42,7 @@ describe('index.js', () => {
                             {id: 2, bar: '2'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'indexResources',
                     },
@@ -86,7 +86,7 @@ describe('index.js', () => {
                     arguments: {
                         resourceIds: [1, 2],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'deleteIndexedResources',
                     },
@@ -133,7 +133,7 @@ describe('index.js', () => {
                             {id: 2, bar: '2'},
                         ],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {username: 'iam:f1f5b46a233d4b1f9e70a6465992ec02'},
                     info: {
                         fieldName: 'updateIndexedResources',
                     },
@@ -165,7 +165,7 @@ describe('index.js', () => {
                         resourceTypes: ['AWS::Lambda::Function'],
                         pagination: {start: 0, end: 2000},
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'searchResources',
                     },
@@ -195,7 +195,7 @@ describe('index.js', () => {
                         ],
                         resourceTypes: ['AWS::Lambda::Function'],
                     },
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'searchResources',
                     },
@@ -239,7 +239,7 @@ describe('index.js', () => {
 
                 return handler({
                     arguments: {},
-                    identity: {username: 'testUser'},
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
                     info: {
                         fieldName: 'foo',
                     },

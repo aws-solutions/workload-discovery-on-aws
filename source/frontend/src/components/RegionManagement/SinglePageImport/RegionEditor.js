@@ -16,8 +16,8 @@ import {useAccounts} from '../../Hooks/useAccounts';
 import * as R from 'ramda';
 
 const isAccountIdValid = accountId => R.equals(12, R.length(accountId));
-const isAccountNameValid = accountName =>
-    R.and(R.gt(R.length(accountName), 0), R.lte(R.length(accountName), 64));
+// account names are not allowed have < or > character in them
+const isAccountNameValid = R.test(/^[^<>]{0,100}$/);
 const areRegionsValid = regions => !R.isEmpty(regions);
 
 const RegionForm = ({onChange}) => {
@@ -148,7 +148,7 @@ const RegionForm = ({onChange}) => {
                             showValidationError,
                             !isAccountNameValid(accountName)
                         )
-                            ? 'Account name should be provided and have fewer than 64 characters'
+                            ? 'Account name cannot contain < or > character and must be fewer than 100 characters'
                             : undefined
                     }
                 >

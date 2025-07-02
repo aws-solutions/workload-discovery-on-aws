@@ -1,57 +1,57 @@
 {
-  "$constants": {
-    "accountIdX": "xxxxxxxxxxxx",
-    "accountIdZ": "zzzzzzzzzzzz",
-    "region": "eu-west-2",
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "id2": "subnet-9876543210fedcba",
-      "id3": "subnet-1111111111111111"
-    }
-  },
-  "vpc": {
-    "resourceId": "vpcResourceId"
-  },
-  "subnet1": {
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id1}",
-    "resourceId": "${$constants.subnet.id1}"
-  },
-  "subnet2": {
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id2}",
-    "resourceId": "${$constants.subnet.id2}"
-  },
-  "subnet3": {
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id3}",
-    "resourceId": "${$constants.subnet.id3}"
-  },
-  "tgw": {
-    "resourceId": "tgwResourceId"
-  },
-  "tgwAttachmentApi": {
-    "TransitGatewayAttachmentId": "${tgwAttachment.resourceId}",
-    "TransitGatewayId": "${tgw.resourceId}",
-    "TransitGatewayOwnerId": "${$constants.accountIdX}",
-    "ResourceOwnerId": "${$constants.accountIdZ}",
-    "ResourceType": "vpc",
-    "ResourceId": "${vpc.resourceId}"
-  },
-  "tgwAttachment": {
-    "id": "${tgwAttachment.arn}",
-    "resourceId": "tgwAttachmentResourceId",
-    "resourceType": "AWS::EC2::TransitGatewayAttachment",
-    "accountId": "${$constants.accountIdZ}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:transit-gateway-attachment/${tgwAttachment.resourceId}",
-    "availabilityZone": "Regional",
-    "awsRegion": "${$constants.region}",
-    "configuration": {
-      "VpcId": "${vpc.resourceId}",
-      "SubnetIds": [
-        "${subnet1.resourceId}",
-        "${subnet2.resourceId}",
-        "${subnet3.resourceId}"
-      ]
+    "$constants": {
+        "accountIdX": "xxxxxxxxxxxx",
+        "accountIdZ": "zzzzzzzzzzzz",
+        "region": "eu-west-2",
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "id2": "subnet-9876543210fedcba",
+            "id3": "subnet-1111111111111111"
+        }
     },
-    "tags": [],
-    "relationships": []
-  }
+    "vpc": {
+        "resourceId": "vpcResourceId"
+    },
+    "subnet1": {
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id1}",
+        "resourceId": "${$constants.subnet.id1}"
+    },
+    "subnet2": {
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id2}",
+        "resourceId": "${$constants.subnet.id2}"
+    },
+    "subnet3": {
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:subnet/${$constants.subnet.id3}",
+        "resourceId": "${$constants.subnet.id3}"
+    },
+    "tgw": {
+        "resourceId": "tgwResourceId"
+    },
+    "tgwAttachmentApi": {
+        "TransitGatewayAttachmentId": "${tgwAttachment.resourceId}",
+        "TransitGatewayId": "${tgw.resourceId}",
+        "TransitGatewayOwnerId": "${$constants.accountIdX}",
+        "ResourceOwnerId": "${$constants.accountIdZ}",
+        "ResourceType": "vpc",
+        "ResourceId": "${vpc.resourceId}"
+    },
+    "tgwAttachment": {
+        "id": "${tgwAttachment.arn}",
+        "resourceId": "tgwAttachmentResourceId",
+        "resourceType": "AWS::EC2::TransitGatewayAttachment",
+        "accountId": "${$constants.accountIdZ}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountIdZ}:transit-gateway-attachment/${tgwAttachment.resourceId}",
+        "availabilityZone": "Regional",
+        "awsRegion": "${$constants.region}",
+        "configuration": {
+            "VpcId": "${vpc.resourceId}",
+            "SubnetIds": [
+                "${subnet1.resourceId}",
+                "${subnet2.resourceId}",
+                "${subnet3.resourceId}"
+            ]
+        },
+        "tags": [],
+        "relationships": []
+    }
 }

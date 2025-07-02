@@ -1,187 +1,187 @@
 {
-  "dbResources": {
-    "AWS::ApiGateway::Resource": {
-      "id": "apiGatewayResourceArn",
-      "resourceType": "AWS::ApiGateway::Resource",
-      "md5Hash": "apiGatewayResourceHash",
-      "properties": {
-        "b": "apiGatewayResourceProp"
-      }
+    "dbResources": {
+        "AWS::ApiGateway::Resource": {
+            "id": "apiGatewayResourceArn",
+            "resourceType": "AWS::ApiGateway::Resource",
+            "md5Hash": "apiGatewayResourceHash",
+            "properties": {
+                "b": "apiGatewayResourceProp"
+            }
+        },
+        "AWS::ApiGateway::Method": {
+            "id": "apiGatewayMethodArn",
+            "resourceType": "AWS::ApiGateway::Method",
+            "md5Hash": "apiGatewayMethodHash",
+            "properties": {
+                "a": "apiGatewayMethodProp"
+            }
+        },
+        "AWS::ECS::Task": {
+            "id": "ecsTaskArn",
+            "resourceType": "AWS::ECS::Task",
+            "md5Hash": "ecsTaskHash",
+            "properties": {
+                "c": "ecsTaskProp"
+            }
+        },
+        "AWS::ElasticLoadBalancingV2::Listener": {
+            "id": "albListenerArn",
+            "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
+            "md5Hash": "albListenerHash",
+            "properties": {
+                "d": "albListenerProp"
+            }
+        },
+        "AWS::ElasticLoadBalancingV2::TargetGroup": {
+            "id": "albTargetGroupArn",
+            "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "md5Hash": "albTargetGroupHash",
+            "properties": {
+                "e": "TargetGroupProp"
+            }
+        },
+        "AWS::EKS::Nodegroup": {
+            "id": "eksNodeGroupArn",
+            "resourceType": "AWS::EKS::Nodegroup",
+            "md5Hash": "eksNodeGroupHash",
+            "properties": {
+                "g": "eksNodeGroupProp"
+            }
+        },
+        "AWS::IAM::AWSManagedPolicy": {
+            "id": "iamManagedPolicyArn",
+            "resourceType": "AWS::IAM::AWSManagedPolicy",
+            "md5Hash": "iamManagedPolicyHash",
+            "properties": {
+                "g": "iamManagedPolicyProp"
+            }
+        },
+        "AWS::EC2::Spot": {
+            "id": "spotInstanceArn",
+            "resourceType": "AWS::EC2::Spot",
+            "md5Hash": "spotInstanceHash",
+            "properties": {
+                "h": "spotInstanceProp",
+                "i": "spotInstanceUnchangedProp"
+            }
+        },
+        "AWS::EC2::SpotFleet": {
+            "id": "spotFleetArn",
+            "resourceType": "AWS::EC2::SpotFleet",
+            "md5Hash": "spotFleetHash",
+            "properties": {
+                "i": "spotFleetProp"
+            }
+        },
+        "AWS::IAM::InlinePolicy": {
+            "id": "iamInlinePolicyArn",
+            "resourceType": "AWS::IAM::InlinePolicy",
+            "md5Hash": "iamInlinePolicyHash",
+            "properties": {
+                "j": "iamInlinePolicyProp"
+            }
+        },
+        "AWS::Cognito::UserPool": {
+            "id": "",
+            "resourceType": "AWS::Cognito::UserPool",
+            "md5Hash": "userPoolHash",
+            "properties": {
+                "h": "userPoolProp"
+            }
+        }
     },
-    "AWS::ApiGateway::Method": {
-      "id": "apiGatewayMethodArn",
-      "resourceType": "AWS::ApiGateway::Method",
-      "md5Hash": "apiGatewayMethodHash",
-      "properties": {
-        "a": "apiGatewayMethodProp"
-      }
-    },
-    "AWS::ECS::Task": {
-      "id": "ecsTaskArn",
-      "resourceType": "AWS::ECS::Task",
-      "md5Hash": "ecsTaskHash",
-      "properties": {
-        "c": "ecsTaskProp"
-      }
-    },
-    "AWS::ElasticLoadBalancingV2::Listener": {
-      "id": "albListenerArn",
-      "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
-      "md5Hash": "albListenerHash",
-      "properties": {
-        "d": "albListenerProp"
-      }
-    },
-    "AWS::ElasticLoadBalancingV2::TargetGroup": {
-      "id": "albTargetGroupArn",
-      "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
-      "md5Hash": "albTargetGroupHash",
-      "properties": {
-        "e": "TargetGroupProp"
-      }
-    },
-    "AWS::EKS::Nodegroup": {
-      "id": "eksNodeGroupArn",
-      "resourceType": "AWS::EKS::Nodegroup",
-      "md5Hash": "eksNodeGroupHash",
-      "properties": {
-        "g": "eksNodeGroupProp"
-      }
-    },
-    "AWS::IAM::AWSManagedPolicy": {
-      "id": "iamManagedPolicyArn",
-      "resourceType": "AWS::IAM::AWSManagedPolicy",
-      "md5Hash": "iamManagedPolicyHash",
-      "properties": {
-        "g": "iamManagedPolicyProp"
-      }
-    },
-    "AWS::EC2::Spot": {
-      "id": "spotInstanceArn",
-      "resourceType": "AWS::EC2::Spot",
-      "md5Hash": "spotInstanceHash",
-      "properties": {
-        "h": "spotInstanceProp",
-        "i": "spotInstanceUnchangedProp"
-      }
-    },
-    "AWS::EC2::SpotFleet": {
-      "id": "spotFleetArn",
-      "resourceType": "AWS::EC2::SpotFleet",
-      "md5Hash": "spotFleetHash",
-      "properties": {
-        "i": "spotFleetProp"
-      }
-    },
-    "AWS::IAM::InlinePolicy": {
-      "id": "iamInlinePolicyArn",
-      "resourceType": "AWS::IAM::InlinePolicy",
-      "md5Hash": "iamInlinePolicyHash",
-      "properties": {
-        "j": "iamInlinePolicyProp"
-      }
-    },
-    "AWS::Cognito::UserPool": {
-      "id": "",
-      "resourceType": "AWS::Cognito::UserPool",
-      "md5Hash": "userPoolHash",
-      "properties": {
-        "h": "userPoolProp"
-      }
+    "resources": {
+        "AWS::ApiGateway::Resource": {
+            "id": "apiGatewayResourceArn",
+            "resourceType": "AWS::ApiGateway::Resource",
+            "md5Hash": "apiGatewayResourceHash",
+            "properties": {
+                "b": "apiGatewayResourceProp"
+            }
+        },
+        "AWS::ApiGateway::Method": {
+            "id": "apiGatewayMethodArn",
+            "resourceType": "AWS::ApiGateway::Method",
+            "md5Hash": "apiGatewayMethodHash",
+            "properties": {
+                "a": "apiGatewayMethodProp"
+            }
+        },
+        "AWS::ECS::Task": {
+            "id": "ecsTaskArn",
+            "resourceType": "AWS::ECS::Task",
+            "md5Hash": "ecsTaskHash",
+            "properties": {
+                "c": "ecsTaskProp"
+            }
+        },
+        "AWS::ElasticLoadBalancingV2::Listener": {
+            "id": "albListenerArn",
+            "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
+            "md5Hash": "albListenerHash",
+            "properties": {
+                "d": "albListenerProp"
+            }
+        },
+        "AWS::ElasticLoadBalancingV2::TargetGroup": {
+            "id": "albTargetGroupArn",
+            "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "md5Hash": "albTargetGroupChangedHash",
+            "properties": {
+                "e": "TargetGroupProp",
+                "f": "newProp1",
+                "g": "newProp2"
+            }
+        },
+        "AWS::EKS::Nodegroup": {
+            "id": "eksNodeGroupArn",
+            "resourceType": "AWS::EKS::Nodegroup",
+            "md5Hash": "eksNodeGroupChangedHash",
+            "properties": {
+                "g": "eksNodeGroupProp",
+                "h": "eksNodeGroupNewProp"
+            }
+        },
+        "AWS::IAM::AWSManagedPolicy": {
+            "id": "iamManagedPolicyArn",
+            "resourceType": "AWS::IAM::AWSManagedPolicy",
+            "md5Hash": "iamManagedPolicyChangedHash",
+            "properties": {
+                "g": "iamManagedPolicyChangedProp"
+            }
+        },
+        "AWS::EC2::Spot": {
+            "id": "spotInstanceArn",
+            "resourceType": "AWS::EC2::Spot",
+            "md5Hash": "spotInstanceChangedHash",
+            "properties": {
+                "h": "spotInstanceChangedProp",
+                "i": "spotInstanceUnchangedProp"
+            }
+        },
+        "AWS::EC2::SpotFleet": {
+            "id": "spotFleetArn",
+            "resourceType": "AWS::EC2::SpotFleet",
+            "md5Hash": "spotFleetHash",
+            "properties": {
+                "i": "spotFleetProp"
+            }
+        },
+        "AWS::IAM::InlinePolicy": {
+            "id": "iamInlinePolicyArn",
+            "resourceType": "AWS::IAM::InlinePolicy",
+            "md5Hash": "iamInlinePolicyHash",
+            "properties": {
+                "j": "iamInlinePolicyProp"
+            }
+        },
+        "AWS::Cognito::UserPool": {
+            "id": "",
+            "resourceType": "AWS::Cognito::UserPool",
+            "md5Hash": "userPoolHash",
+            "properties": {
+                "h": "userPoolProp"
+            }
+        }
     }
-  },
-  "resources": {
-    "AWS::ApiGateway::Resource": {
-      "id": "apiGatewayResourceArn",
-      "resourceType": "AWS::ApiGateway::Resource",
-      "md5Hash": "apiGatewayResourceHash",
-      "properties": {
-        "b": "apiGatewayResourceProp"
-      }
-    },
-    "AWS::ApiGateway::Method": {
-      "id": "apiGatewayMethodArn",
-      "resourceType": "AWS::ApiGateway::Method",
-      "md5Hash": "apiGatewayMethodHash",
-      "properties": {
-        "a": "apiGatewayMethodProp"
-      }
-    },
-    "AWS::ECS::Task": {
-      "id": "ecsTaskArn",
-      "resourceType": "AWS::ECS::Task",
-      "md5Hash": "ecsTaskHash",
-      "properties": {
-        "c": "ecsTaskProp"
-      }
-    },
-    "AWS::ElasticLoadBalancingV2::Listener": {
-      "id": "albListenerArn",
-      "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
-      "md5Hash": "albListenerHash",
-      "properties": {
-        "d": "albListenerProp"
-      }
-    },
-    "AWS::ElasticLoadBalancingV2::TargetGroup": {
-      "id": "albTargetGroupArn",
-      "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
-      "md5Hash": "albTargetGroupChangedHash",
-      "properties": {
-        "e": "TargetGroupProp",
-        "f": "newProp1",
-        "g": "newProp2"
-      }
-    },
-    "AWS::EKS::Nodegroup": {
-      "id": "eksNodeGroupArn",
-      "resourceType": "AWS::EKS::Nodegroup",
-      "md5Hash": "eksNodeGroupChangedHash",
-      "properties": {
-        "g": "eksNodeGroupProp",
-        "h": "eksNodeGroupNewProp"
-      }
-    },
-    "AWS::IAM::AWSManagedPolicy": {
-      "id": "iamManagedPolicyArn",
-      "resourceType": "AWS::IAM::AWSManagedPolicy",
-      "md5Hash": "iamManagedPolicyChangedHash",
-      "properties": {
-        "g": "iamManagedPolicyChangedProp"
-      }
-    },
-    "AWS::EC2::Spot": {
-      "id": "spotInstanceArn",
-      "resourceType": "AWS::EC2::Spot",
-      "md5Hash": "spotInstanceChangedHash",
-      "properties": {
-        "h": "spotInstanceChangedProp",
-        "i": "spotInstanceUnchangedProp"
-      }
-    },
-    "AWS::EC2::SpotFleet": {
-      "id": "spotFleetArn",
-      "resourceType": "AWS::EC2::SpotFleet",
-      "md5Hash": "spotFleetHash",
-      "properties": {
-        "i": "spotFleetProp"
-      }
-    },
-    "AWS::IAM::InlinePolicy": {
-      "id": "iamInlinePolicyArn",
-      "resourceType": "AWS::IAM::InlinePolicy",
-      "md5Hash": "iamInlinePolicyHash",
-      "properties": {
-        "j": "iamInlinePolicyProp"
-      }
-    },
-    "AWS::Cognito::UserPool": {
-      "id": "",
-      "resourceType": "AWS::Cognito::UserPool",
-      "md5Hash": "userPoolHash",
-      "properties": {
-        "h": "userPoolProp"
-      }
-    }
-  }
 }

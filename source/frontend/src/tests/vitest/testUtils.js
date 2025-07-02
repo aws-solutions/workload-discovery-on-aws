@@ -60,10 +60,6 @@ export function renderPolarisLayout() {
     return {container, history};
 }
 
-export function getCellText(row, column, table) {
-    return table.findBodyCell(row, column).getElement()?.innerHTML;
-}
-
 function createPerspectiveMetadata(crossAccountDiscovery) {
     return () => {
         return {version: '2.2.0', crossAccountDiscovery};
@@ -75,3 +71,26 @@ export const createOrganizationsPerspectiveMetadata =
 
 export const createSelfManagedPerspectiveMetadata =
     createPerspectiveMetadata('SELF_MANAGED');
+
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export const getCellContent = (table, row, column) => {
+    const cell = table.findBodyCell(row, column).getElement();
+
+    // Check if cell contains an SVG/image
+    const svgPath =
+        cell?.querySelector('img')?.getAttribute('src') ||
+        cell?.querySelector('svg path')?.getAttribute('d');
+
+    return svgPath ?? cell?.textContent;
+};
+
+export const withResolvers = () => {
+    let resolve, reject;
+    const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+    });
+
+    return {promise, resolve, reject};
+};

@@ -62,7 +62,7 @@
                     "private": null,
                     "loggedInURL": "https://console.aws.amazon.com/iam/home?#/roles",
                     "loginURL": "https://yyyyyyyyyyyy.signin.aws.amazon.com/console/iam?home?#/roles",
-                    "title": "testRole",
+                    "title": "arn:aws:iam::yyyyyyyyyyyy:role/testRole-Title",
                     "dBInstanceStatus": null,
                     "statement": null,
                     "instanceType": null

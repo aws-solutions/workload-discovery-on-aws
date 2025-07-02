@@ -5,9 +5,14 @@ import React from 'react';
 import {Box} from '@cloudscape-design/components';
 import PropTypes from 'prop-types';
 
-const ValueWithLabel = ({label, children}) => (
+const ValueWithLabel = ({label, textAlign, variant, children}) => (
     <div>
-        <Box margin={{bottom: 'xxxs'}} color="text-label">
+        <Box
+            margin={{bottom: 'xxxs'}}
+            color="text-label"
+            variant={variant}
+            textAlign={textAlign}
+        >
             {label}
         </Box>
         <div>{children}</div>

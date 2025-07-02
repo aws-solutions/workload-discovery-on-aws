@@ -1,41 +1,41 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region1": "eu-west-2",
-    "region2": "us-east-1"
-  },
-  "dbRelationships": {},
-  "dbResources": {},
-  "resources": {
-    "AWS::SQS::Queue": {
-      "id": "sqsArn",
-      "resourceId": "sqsResourceId",
-      "resourceType": "AWS::SQS::Queue",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region2}",
-      "properties": {
-        "a": "sqsProp"
-      },
-      "relationships": []
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region1": "eu-west-2",
+        "region2": "us-east-1"
     },
-    "AWS::SNS::Topic": {
-      "id": "snsArn",
-      "resourceId": "snsResourceId",
-      "resourceType": "AWS::SNS::Topic",
-      "accountId": "${$constants.accountId}",
-      "awsRegion": "${$constants.region}",
-      "properties": {
-        "b": "snsProp"
-      },
-      "relationships": [
-        {
-          "resourceId": "${resources.AWS::SQS::Queue.resourceId}",
-          "resourceType": "${resources.AWS::SQS::Queue.resourceType}",
-          "relationshipName": "is associated with",
-          "accountId": "${$constants.accountId}",
-          "awsRegion": "${$constants.region2}"
+    "dbRelationships": {},
+    "dbResources": {},
+    "resources": {
+        "AWS::SQS::Queue": {
+            "id": "sqsArn",
+            "resourceId": "sqsResourceId",
+            "resourceType": "AWS::SQS::Queue",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region2}",
+            "properties": {
+                "a": "sqsProp"
+            },
+            "relationships": []
+        },
+        "AWS::SNS::Topic": {
+            "id": "snsArn",
+            "resourceId": "snsResourceId",
+            "resourceType": "AWS::SNS::Topic",
+            "accountId": "${$constants.accountId}",
+            "awsRegion": "${$constants.region}",
+            "properties": {
+                "b": "snsProp"
+            },
+            "relationships": [
+                {
+                    "resourceId": "${resources.AWS::SQS::Queue.resourceId}",
+                    "resourceType": "${resources.AWS::SQS::Queue.resourceType}",
+                    "relationshipName": "is associated with",
+                    "accountId": "${$constants.accountId}",
+                    "awsRegion": "${$constants.region2}"
+                }
+            ]
         }
-      ]
     }
-  }
 }

@@ -52,6 +52,8 @@ const ResourceSearch = () => {
             </div>
             <div className="flex-no-shrink">
                 <Button
+                    ariaLabel={`Add ${selectedOptions.length} selected resource${selectedOptions.length !== 1 ? 's' : ''} to diagram`}
+                    disabled={selectedOptions.length === 0}
                     onClick={async () => {
                         await fetchResources(
                             canvas,
@@ -158,6 +160,11 @@ export const OpensearchResourceSelect = ({
             finishedText={
                 !hasLoadedOnce ? 'Starting search...' : 'All resources loaded'
             }
+            renderHighlightedAriaLive={option => {
+                if (!option) return '';
+
+                return `${option.label} will be selected`;
+            }}
             expandToViewport
         />
     );

@@ -1,59 +1,55 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "vpcInterface": {
+            "resourceType": "AWS::MediaConnect::FlowVpcInterface"
+        },
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
+        }
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "${$constants.subnet.id1}",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "flow": {
+        "arn": "flowArn"
+    },
+    "securityGroup": {
+        "resourceId": "sg-0123456789abcdef0"
+    },
+    "eni": {
+        "resourceId": "eni-0123456789abcdef0"
+    },
     "vpcInterface": {
-      "resourceType": "AWS::MediaConnect::FlowVpcInterface"
-    },
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
+        "id": "${vpcInterface.arn}",
+        "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:flowvpcinterface:${vpcInterface.resourceId}",
+        "resourceId": "vpcInterfaceId",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${subnet1.availabilityZone}",
+        "resourceType": "${$constants.vpcInterface.resourceType}",
+        "relationships": [],
+        "configuration": {
+            "SubnetId": "${subnet1.resourceId}",
+            "SecurityGroupIds": ["${securityGroup.resourceId}"],
+            "NetworkInterfaceIds": ["${eni.resourceId}"],
+            "FlowArn": "${flow.arn}"
+        }
     }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "${$constants.subnet.id1}",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
-    },
-    "relationships": []
-  },
-  "flow": {
-    "arn": "flowArn"
-  },
-  "securityGroup": {
-    "resourceId": "sg-0123456789abcdef0"
-  },
-  "eni": {
-    "resourceId": "eni-0123456789abcdef0"
-  },
-  "vpcInterface": {
-    "id": "${vpcInterface.arn}",
-    "arn": "arn:aws:mediaconnect:${$constants.region}:${$constants.accountId}:flowvpcinterface:${vpcInterface.resourceId}",
-    "resourceId": "vpcInterfaceId",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${subnet1.availabilityZone}",
-    "resourceType": "${$constants.vpcInterface.resourceType}",
-    "relationships": [],
-    "configuration": {
-      "SubnetId": "${subnet1.resourceId}",
-      "SecurityGroupIds": [
-        "${securityGroup.resourceId}"
-      ],
-      "NetworkInterfaceIds": [
-        "${eni.resourceId}"
-      ],
-      "FlowArn": "${flow.arn}"
-    }
-  }
 }

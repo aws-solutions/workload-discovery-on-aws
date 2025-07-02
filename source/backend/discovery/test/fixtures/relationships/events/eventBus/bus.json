@@ -1,48 +1,48 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "eventBus1": {
-    "id": "${eventBus1.arn}",
-    "arn": "arn:aws:events:${$constants.awsRegion}:${$constants.accountId}:event-bus/eventBusArn1",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Events::EventBus",
-    "relationships": [],
-    "configuration": {}
-  },
-  "eventBus2": {
-    "id": "${eventBus2.arn}",
-    "arn": "arn:aws:events:${$constants.awsRegion}:${$constants.accountId}:event-bus/testEventBus",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Events::EventBus",
-    "relationships": [],
-    "configuration": {}
-  },
-  "eventRule1": {
-    "id": "${eventRule1.arn}",
-    "arn": "eventRuleArn1",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Events::Rule",
-    "relationships": [],
-    "configuration": {
-      "EventBusName": "eventBusArn1",
-      "Targets": []
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "eventBus1": {
+        "id": "${eventBus1.arn}",
+        "arn": "arn:aws:events:${$constants.awsRegion}:${$constants.accountId}:event-bus/eventBusArn1",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Events::EventBus",
+        "relationships": [],
+        "configuration": {}
+    },
+    "eventBus2": {
+        "id": "${eventBus2.arn}",
+        "arn": "arn:aws:events:${$constants.awsRegion}:${$constants.accountId}:event-bus/testEventBus",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Events::EventBus",
+        "relationships": [],
+        "configuration": {}
+    },
+    "eventRule1": {
+        "id": "${eventRule1.arn}",
+        "arn": "eventRuleArn1",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Events::Rule",
+        "relationships": [],
+        "configuration": {
+            "EventBusName": "eventBusArn1",
+            "Targets": []
+        }
+    },
+    "eventRule2": {
+        "id": "${eventRule2.arn}",
+        "arn": "eventRuleArn2",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::Events::Rule",
+        "relationships": [],
+        "configuration": {
+            "EventBusName": "${eventBus2.arn}",
+            "Targets": []
+        }
     }
-  },
-  "eventRule2": {
-    "id": "${eventRule2.arn}",
-    "arn": "eventRuleArn2",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::Events::Rule",
-    "relationships": [],
-    "configuration": {
-      "EventBusName": "${eventBus2.arn}",
-      "Targets": []
-    }
-  }
 }

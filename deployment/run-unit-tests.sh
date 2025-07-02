@@ -47,6 +47,12 @@ cd $source_dir/backend/functions/account-import-templates-api
 npm run test:ci
 
 echo "------------------------------------------------------------------------------"
+echo "[Test] Application Monitoring"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/application-monitoring
+npm run test:ci
+
+echo "------------------------------------------------------------------------------"
 echo "[Test] Cost Parser"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/cost-parser

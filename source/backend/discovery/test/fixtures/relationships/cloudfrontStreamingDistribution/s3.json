@@ -1,35 +1,35 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "cfResourceId": "E11XXXXXXXXXXXX",
-    "domainName": "mytestelb.${$constants.region}.elb.amazonaws.com"
-  },
-  "s3": {
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:s3:::bucketName",
-    "resourceType": "AWS::S3::Bucket",
-    "resourceId": "bucketName",
-    "resourceName": "bucketName",
-    "awsRegion": "${$constants.region}",
-    "relationships": [],
-    "configuration": {}
-  },
-  "cfStreamingDistro": {
-    "id": "id1",
-    "arn": "cfStreamingDistroArn",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::CloudFront::StreamingDistribution",
-    "resourceId": "${$constants.cfResourceId}",
-    "awsRegion": "global",
-    "availabilityZone": "Not Applicable",
-    "relationships": [
-      {
-        "resourceId": "${s3.resourceId}",
-        "relationshipName": "Is associated with ",
-        "resourceType": "${s3.resourceType}"
-      }
-    ],
-    "configuration": {}
-  }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "cfResourceId": "E11XXXXXXXXXXXX",
+        "domainName": "mytestelb.${$constants.region}.elb.amazonaws.com"
+    },
+    "s3": {
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:s3:::bucketName",
+        "resourceType": "AWS::S3::Bucket",
+        "resourceId": "bucketName",
+        "resourceName": "bucketName",
+        "awsRegion": "${$constants.region}",
+        "relationships": [],
+        "configuration": {}
+    },
+    "cfStreamingDistro": {
+        "id": "id1",
+        "arn": "cfStreamingDistroArn",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::CloudFront::StreamingDistribution",
+        "resourceId": "${$constants.cfResourceId}",
+        "awsRegion": "global",
+        "availabilityZone": "Not Applicable",
+        "relationships": [
+            {
+                "resourceId": "${s3.resourceId}",
+                "relationshipName": "Is associated with ",
+                "resourceType": "${s3.resourceType}"
+            }
+        ],
+        "configuration": {}
+    }
 }

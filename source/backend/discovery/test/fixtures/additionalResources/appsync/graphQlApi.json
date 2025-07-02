@@ -1,35 +1,34 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "graphQLApi": {
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "GraphQLApiArn",
-    "resourceType": "AWS::AppSync::GraphQLApi",
-    "resourceId": "random-id",
-    "resourceName": "random-name",
-    "configuration": {
-      "Tags": []
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "relationships": []
-  },
-  "dataSource": {
-    "dataSourceArn": "DataSourceArn",
-    "name": "${dataSource.dataSourceArn}"
-  },
-  "mutationResolver": {
-    "resolverArn": "ResolverArn",
-    "typeName": "Mutation",
-    "fieldName": "MutationFieldName",
-    "dataSourceName": "DataSourceName"
-
-  },
-  "queryResolver": {
-    "resolverArn": "ResolverArn",
-    "typeName": "Query",
-    "fieldName": "QueryFieldName",
-    "dataSourceName": "DataSourceName"
-  }
+    "graphQLApi": {
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "GraphQLApiArn",
+        "resourceType": "AWS::AppSync::GraphQLApi",
+        "resourceId": "random-id",
+        "resourceName": "random-name",
+        "configuration": {
+            "Tags": []
+        },
+        "relationships": []
+    },
+    "dataSource": {
+        "dataSourceArn": "DataSourceArn",
+        "name": "${dataSource.dataSourceArn}"
+    },
+    "mutationResolver": {
+        "resolverArn": "ResolverArn",
+        "typeName": "Mutation",
+        "fieldName": "MutationFieldName",
+        "dataSourceName": "DataSourceName"
+    },
+    "queryResolver": {
+        "resolverArn": "ResolverArn",
+        "typeName": "Query",
+        "fieldName": "QueryFieldName",
+        "dataSourceName": "DataSourceName"
+    }
 }

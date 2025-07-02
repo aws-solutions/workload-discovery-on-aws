@@ -46,7 +46,25 @@ const RegionProvider = ({regions, setRegions}) => {
     const [csvError, setCSVError] = React.useState([]);
 
     const handleChange = items => {
-        setRegions(R.uniq([...regions].concat(items)));
+        // users can update the name of the account every time they add new regions
+        // with this form so we create a map of the most up-to-date name for each account
+        const accountNameMap = items.reduce((acc, {accountId, accountName}) => {
+            if (acc[accountId] == null) acc[accountId] = accountName;
+            return acc;
+        }, {});
+
+        setRegions(
+            R.uniq(
+                [...regions, ...items].map(region => {
+                    return {
+                        ...region,
+                        accountName:
+                            accountNameMap[region.accountId] ??
+                            region.accountName,
+                    };
+                })
+            )
+        );
     };
 
     const validateAndUploadCSV = items => {

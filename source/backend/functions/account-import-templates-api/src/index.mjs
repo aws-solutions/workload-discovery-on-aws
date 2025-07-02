@@ -45,8 +45,8 @@ export function _handler(env) {
     return event => {
         const fieldName = event.info.fieldName;
 
-        const {username} = event.identity;
-        logger.info(`User ${username} invoked the ${fieldName} operation.`);
+        const userId = event.identity.sub ?? event.identity.username;
+        logger.info(`User ${userId} invoked the ${fieldName} operation.`);
 
         const args = event.arguments;
         logger.info(

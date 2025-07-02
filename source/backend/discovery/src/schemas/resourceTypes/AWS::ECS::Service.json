@@ -1,40 +1,40 @@
 {
-  "version": 1,
-  "type": "AWS::ECS::Service",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is contained in",
-        "path": "Cluster",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "TaskDefinition",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with",
-        "path": "LoadBalancers[].TargetGroupArn",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with Role",
-        "path": "Role",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is contained in Subnet",
-        "resourceType": "AWS::EC2::Subnet",
-        "path": "NetworkConfiguration.AwsvpcConfiguration.Subnets",
-        "identifierType": "resourceId"
-      },
-      {
-        "relationshipName": "Is associated with SecurityGroup",
-        "resourceType": "AWS::EC2::SecurityGroup",
-        "path": "NetworkConfiguration.AwsvpcConfiguration.SecurityGroups",
-        "identifierType": "resourceId"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::ECS::Service",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is contained in",
+                "path": "Cluster",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "TaskDefinition",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with",
+                "path": "LoadBalancers[].TargetGroupArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with Role",
+                "path": "Role",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is contained in Subnet",
+                "resourceType": "AWS::EC2::Subnet",
+                "path": "NetworkConfiguration.AwsvpcConfiguration.Subnets",
+                "identifierType": "resourceId"
+            },
+            {
+                "relationshipName": "Is associated with SecurityGroup",
+                "resourceType": "AWS::EC2::SecurityGroup",
+                "path": "NetworkConfiguration.AwsvpcConfiguration.SecurityGroups",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
 }

@@ -30,6 +30,12 @@ export const deleteAccounts = accountIds => {
     return API.graphql(graphqlOperation(mutations.deleteAccounts, accountIds));
 };
 
+export const getApplicationProblems = params => {
+    return API.graphql(
+        graphqlOperation(queries.getApplicationProblems, params)
+    );
+};
+
 export const getGlobalTemplate = () => {
     return API.graphql(graphqlOperation(queries.getGlobalTemplate, {}));
 };

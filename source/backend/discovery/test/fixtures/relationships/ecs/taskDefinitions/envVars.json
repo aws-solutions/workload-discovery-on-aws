@@ -1,99 +1,99 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "resourceIdResource": {
-    "id": "${resourceIdResource.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::S3::Bucket",
-    "resourceId": "myBucket",
-    "arn": "arn:aws:s3:::${resourceIdResource.resourceId}",
-    "relationships": [],
-    "configuration": {}
-  },
-  "resourceNameResource": {
-    "id": "${resourceNameResource.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
-    "resourceName": "testRole",
-    "resourceType": "AWS::IAM::Role",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
-    }
-  },
-  "arnResource": {
-    "id": "${arnResource.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.awsRegion}",
-    "resourceType": "AWS::S3::Bucket",
-    "resourceId": "myOtherBucket",
-    "arn": "arn:aws:s3:::${arnResource.resourceId}",
-    "relationships": [],
-    "configuration": {}
-  },
-  "ecsServiceRole": {
-    "id": "${ecsServiceRole.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "testRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
-    }
-  },
-  "ecsCluster": {
-    "id": "${ecsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
-    "resourceType": "AWS::ECS::Cluster",
-    "resourceId": "testCluster",
-    "relationships": [],
-    "configuration": {}
-  },
-  "ecsService": {
-    "id": "${ecsService.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
-    "resourceType": "AWS::ECS::Service",
-    "relationships": [],
-    "configuration": {
-      "Role": "${ecsServiceRole.arn}",
-      "Cluster": "${ecsCluster.arn}",
-      "TaskDefinition": "${ecsTaskDefinition.arn}"
-    }
-  },
-  "ecsTaskDefinition": {
-    "id": "${ecsTaskDefinition.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
-    "resourceId": "testDefinition:1",
-    "resourceType": "AWS::ECS::TaskDefinition",
-    "relationships": [],
-    "configuration": {
-      "ContainerDefinitions": [
-        {
-          "Environment": [
-            {
-              "Name": "resourceIdVar",
-              "Value": "${resourceIdResource.resourceId}"
-            },
-            {
-              "Name": "resourceNameVar",
-              "Value": "${resourceNameResource.resourceName}"
-            },
-            {
-              "Name": "arnVar",
-              "Value": "${arnResource.arn}"
-            }
-          ]
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "resourceIdResource": {
+        "id": "${resourceIdResource.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::S3::Bucket",
+        "resourceId": "myBucket",
+        "arn": "arn:aws:s3:::${resourceIdResource.resourceId}",
+        "relationships": [],
+        "configuration": {}
+    },
+    "resourceNameResource": {
+        "id": "${resourceNameResource.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
+        "resourceName": "testRole",
+        "resourceType": "AWS::IAM::Role",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
         }
-      ],
-      "Volumes": []
+    },
+    "arnResource": {
+        "id": "${arnResource.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.awsRegion}",
+        "resourceType": "AWS::S3::Bucket",
+        "resourceId": "myOtherBucket",
+        "arn": "arn:aws:s3:::${arnResource.resourceId}",
+        "relationships": [],
+        "configuration": {}
+    },
+    "ecsServiceRole": {
+        "id": "${ecsServiceRole.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "testRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
+        }
+    },
+    "ecsCluster": {
+        "id": "${ecsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+        "resourceType": "AWS::ECS::Cluster",
+        "resourceId": "testCluster",
+        "relationships": [],
+        "configuration": {}
+    },
+    "ecsService": {
+        "id": "${ecsService.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
+        "resourceType": "AWS::ECS::Service",
+        "relationships": [],
+        "configuration": {
+            "Role": "${ecsServiceRole.arn}",
+            "Cluster": "${ecsCluster.arn}",
+            "TaskDefinition": "${ecsTaskDefinition.arn}"
+        }
+    },
+    "ecsTaskDefinition": {
+        "id": "${ecsTaskDefinition.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
+        "resourceId": "testDefinition:1",
+        "resourceType": "AWS::ECS::TaskDefinition",
+        "relationships": [],
+        "configuration": {
+            "ContainerDefinitions": [
+                {
+                    "Environment": [
+                        {
+                            "Name": "resourceIdVar",
+                            "Value": "${resourceIdResource.resourceId}"
+                        },
+                        {
+                            "Name": "resourceNameVar",
+                            "Value": "${resourceNameResource.resourceName}"
+                        },
+                        {
+                            "Name": "arnVar",
+                            "Value": "${arnResource.arn}"
+                        }
+                    ]
+                }
+            ],
+            "Volumes": []
+        }
     }
-  }
 }

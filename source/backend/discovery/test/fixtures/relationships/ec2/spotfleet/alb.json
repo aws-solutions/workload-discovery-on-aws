@@ -1,43 +1,43 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "targetGroup": {
-    "id": "${targetGroup.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "targetGroupArn",
-    "availabilityZone": "Multiple Availability Zones",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "${targetGroup.arn}",
-    "resourceName": "${targetGroup.arn}",
-    "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
-    "relationships": [],
-    "configuration": {}
-  },
-  "spotFleet": {
-    "id": "${spotFleet.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "spotFleetArn",
-    "resourceId": "${spotFleet.arn}",
-    "resourceName": "${spotFleet.arn}",
-    "resourceType": "AWS::EC2::SpotFleet",
-    "availabilityZone": "Multiple Availability Zones",
-    "configuration": {
-      "SpotFleetRequestConfig": {
-        "LoadBalancersConfig": {
-          "TargetGroupsConfig": {
-            "TargetGroups": [
-              {
-                "Arn": "${targetGroup.arn}"
-              }
-            ]
-          }
-        }
-      }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "tags": [],
-    "relationships": []
-  }
+    "targetGroup": {
+        "id": "${targetGroup.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "targetGroupArn",
+        "availabilityZone": "Multiple Availability Zones",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "${targetGroup.arn}",
+        "resourceName": "${targetGroup.arn}",
+        "resourceType": "AWS::ElasticLoadBalancingV2::TargetGroup",
+        "relationships": [],
+        "configuration": {}
+    },
+    "spotFleet": {
+        "id": "${spotFleet.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "spotFleetArn",
+        "resourceId": "${spotFleet.arn}",
+        "resourceName": "${spotFleet.arn}",
+        "resourceType": "AWS::EC2::SpotFleet",
+        "availabilityZone": "Multiple Availability Zones",
+        "configuration": {
+            "SpotFleetRequestConfig": {
+                "LoadBalancersConfig": {
+                    "TargetGroupsConfig": {
+                        "TargetGroups": [
+                            {
+                                "Arn": "${targetGroup.arn}"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tags": [],
+        "relationships": []
+    }
 }

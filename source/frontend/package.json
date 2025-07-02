@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "v2.2.4",
+  "version": "v2.3.0",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -14,22 +14,15 @@
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
-    "@cypress/code-coverage": "^3.12.36",
-    "@cypress/react18": "^2.0.0",
-    "@emotion/react": "^11.9.3",
-    "@frsource/cypress-plugin-visual-regression-diff": "^3.3.10",
-    "@testing-library/cypress": "^10.0.1",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
     "@testing-library/user-event": "^14.5.2",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-istanbul": "^3.0.8",
+    "@vitest/browser": "^3.1.1",
     "@vitest/coverage-v8": "^3.0.8",
     "amplify-graphql-docs-generator": "^2.2.4",
     "babel-plugin-transform-imports": "^2.0.0",
-    "cypress": "^13.13.1",
     "eslint": "^8.44.0",
-    "eslint-plugin-cypress": "^2.13.3",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -37,20 +30,22 @@
     "jsdom": "^22.1.0",
     "msw": "^2.4.9",
     "node-fetch": "^3.3.1",
-    "nyc": "^15.1.0",
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.51.1",
+    "pngjs": "^7.0.0",
     "prettier": "^3.0.0",
     "vite": "^6.2.1",
     "vite-plugin-eslint2": "^5.0.3",
-    "vite-plugin-istanbul": "^6.0.0",
     "vite-plugin-svgr": "4.3.0",
-    "vitest": "^3.0.8"
+    "vitest": "^3.1.1",
+    "vitest-browser-react": "^0.1.1"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "5.3.2",
-    "@cloudscape-design/collection-hooks": "1.0.22",
-    "@cloudscape-design/components": "3.0.324",
-    "@cloudscape-design/design-tokens": "3.0.16",
-    "@cloudscape-design/global-styles": "1.0.11",
+    "@cloudscape-design/collection-hooks": "1.0.69",
+    "@cloudscape-design/components": "3.0.944",
+    "@cloudscape-design/design-tokens": "3.0.55",
+    "@cloudscape-design/global-styles": "1.0.40",
     "@uiw/react-json-view": "1.12.2",
     "aws-amplify": "5.3.12",
     "crypto-js": "4.2.0",
@@ -84,10 +79,7 @@
     "valid-filename": "4.0.0"
   },
   "overrides": {
-    "sharp": "0.33.0",
-    "fast-xml-parser": "4.4.1",
     "cookie": "0.7.0",
-    "image-size": "1.2.1",
     "axios": "1.8.3"
   },
   "scripts": {
@@ -95,15 +87,8 @@
     "build": "npm run clean && npm i && NODE_OPTIONS=--max_old_space_size=4096 vite build && npm run build:zip && npm run build:dist",
     "serve": "vite preview",
     "pretest": "npm i && rm -rf coverage && mkdir coverage",
-    "test": "npm run test:vitest && npm run test:cypress",
-    "posttest": "nyc report --reporter=lcov --temp-directory reports --report-dir=coverage",
-    "test:vitest": "vitest run --coverage --passWithNoTests",
-    "posttest:vitest": "mkdir -p reports && cp vitest-coverage/coverage-final.json reports/vitest.json",
-    "test:cypress": "cypress run --component",
-    "posttest:cypress": "mkdir -p reports && cp cypress-coverage/coverage-final.json reports/cypress.json",
-    "pretest:ci": "apt-get update -qq && apt-get install -qqy libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb",
-    "test:ci": "npm ci && npm run test",
-    "posttest:ci": "echo \"$(awk '{gsub(/SF:src\\//, \"SF:source/frontend/src/\")}1' coverage/lcov.info)\" > coverage/lcov.info",
+    "test": "vitest run --coverage --passWithNoTests --silent passed-only",
+    "test:ci": "npm ci && npx playwright install --with-deps && npm run test",
     "test:watch": "vitest --coverage --passWithNoTests",
     "build:zip": "cd dist && zip -rq --exclude=settings.js ../ui.zip . && cd ..",
     "lint": "eslint",
@@ -148,8 +133,5 @@
   },
   "msw": {
     "workerDirectory": "public"
-  },
-  "nyc": {
-    "report-dir": "cypress-coverage"
   }
 }

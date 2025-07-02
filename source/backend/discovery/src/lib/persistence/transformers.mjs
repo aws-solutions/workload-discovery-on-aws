@@ -37,93 +37,112 @@ import {
     S3,
     LAMBDA,
     HOME,
-    REGION
+    REGION,
 } from '../constants.mjs';
 import {hash, resourceTypesToHash} from '../utils.mjs';
 import logger from '../logger.mjs';
 
 const defaultUrlMappings = {
-    [AWS_EC2_VPC]: { url: 'vpcs:sort=VpcId', type: VPC.toLowerCase()},
-    [AWS_EC2_NETWORK_INTERFACE]: { url: 'NIC:sort=description', type: EC2},
-    [AWS_EC2_INSTANCE]: { url: 'Instances:sort=instanceId', type: EC2},
-    [AWS_EC2_VOLUME]: { url: 'Volumes:sort=desc:name', type: EC2},
-    [AWS_EC2_SUBNET]: { url: 'subnets:sort=SubnetId', type: VPC.toLowerCase()},
-    [AWS_EC2_SECURITY_GROUP]: { url: 'SecurityGroups:sort=groupId', type: EC2},
-    [AWS_EC2_ROUTE_TABLE]: { url: 'RouteTables:sort=routeTableId', type: VPC.toLowerCase()},
-    [AWS_EC2_INTERNET_GATEWAY]: { url: 'igws:sort=internetGatewayId', type: VPC.toLowerCase()},
-    [AWS_EC2_NETWORK_ACL]: { url: 'acls:sort=networkAclId', type: VPC.toLowerCase()},
-    [AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER]: { url: 'LoadBalancers:', type: EC2},
-    [AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP]: { url: 'TargetGroups:', type: EC2},
-    [AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER]: { url: 'LoadBalancers:', type: EC2},
-    [AWS_EC2_EIP]: { url: 'Addresses:sort=PublicIp', type: EC2},
+    [AWS_EC2_VPC]: {url: 'vpcs:sort=VpcId', type: VPC.toLowerCase()},
+    [AWS_EC2_NETWORK_INTERFACE]: {url: 'NIC:sort=description', type: EC2},
+    [AWS_EC2_INSTANCE]: {url: 'Instances:sort=instanceId', type: EC2},
+    [AWS_EC2_VOLUME]: {url: 'Volumes:sort=desc:name', type: EC2},
+    [AWS_EC2_SUBNET]: {url: 'subnets:sort=SubnetId', type: VPC.toLowerCase()},
+    [AWS_EC2_SECURITY_GROUP]: {url: 'SecurityGroups:sort=groupId', type: EC2},
+    [AWS_EC2_ROUTE_TABLE]: {
+        url: 'RouteTables:sort=routeTableId',
+        type: VPC.toLowerCase(),
+    },
+    [AWS_EC2_INTERNET_GATEWAY]: {
+        url: 'igws:sort=internetGatewayId',
+        type: VPC.toLowerCase(),
+    },
+    [AWS_EC2_NETWORK_ACL]: {
+        url: 'acls:sort=networkAclId',
+        type: VPC.toLowerCase(),
+    },
+    [AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER]: {
+        url: 'LoadBalancers:',
+        type: EC2,
+    },
+    [AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP]: {
+        url: 'TargetGroups:',
+        type: EC2,
+    },
+    [AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER]: {
+        url: 'LoadBalancers:',
+        type: EC2,
+    },
+    [AWS_EC2_EIP]: {url: 'Addresses:sort=PublicIp', type: EC2},
 };
 
 const iamUrlMappings = {
-    [AWS_IAM_USER]: { url: "/users", type: IAM},
-    [AWS_IAM_ROLE]: { url: "/roles", type: IAM},
-    [AWS_IAM_POLICY]: { url: "/policies", type: IAM},
-    [AWS_IAM_GROUP]: { url: "/groups", type: IAM},
+    [AWS_IAM_USER]: {url: '/users', type: IAM},
+    [AWS_IAM_ROLE]: {url: '/roles', type: IAM},
+    [AWS_IAM_POLICY]: {url: '/policies', type: IAM},
+    [AWS_IAM_GROUP]: {url: '/groups', type: IAM},
 };
 
 function createSignInHostname(accountId, service) {
-    return `https://${accountId}.${SIGN_IN}.${AWS_AMAZON_COM}/${CONSOLE}/${service}`
+    return `https://${accountId}.${SIGN_IN}.${AWS_AMAZON_COM}/${CONSOLE}/${service}`;
 }
 function createLoggedInHostname(awsRegion, service) {
     return `https://${awsRegion}.${CONSOLE}.${AWS_AMAZON_COM}/${service}/${HOME}`;
 }
 
 function createConsoleUrls(resource) {
-    const {resourceType, resourceName, accountId, awsRegion, configuration} = resource;
+    const {resourceType, resourceName, accountId, awsRegion, configuration} =
+        resource;
 
-    switch(resourceType) {
+    switch (resourceType) {
         case AWS_API_GATEWAY_REST_API:
             return {
                 loginURL: `${createSignInHostname(accountId, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.id}/resources`,
-                loggedInURL: `${createLoggedInHostname(awsRegion,  APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.id}/resources`
-            }
+                loggedInURL: `${createLoggedInHostname(awsRegion, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.id}/resources`,
+            };
         case AWS_API_GATEWAY_RESOURCE:
             return {
                 loginURL: `${createSignInHostname(accountId, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.id}`,
-                loggedInURL: `${createLoggedInHostname(awsRegion,  APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.id}`
-            }
+                loggedInURL: `${createLoggedInHostname(awsRegion, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.id}`,
+            };
         case AWS_API_GATEWAY_METHOD:
             const {httpMethod} = configuration;
             return {
                 loginURL: `${createSignInHostname(accountId, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.ResourceId}/${httpMethod}`,
-                loggedInURL: `${createLoggedInHostname(awsRegion,  APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.ResourceId}/${httpMethod}`
-            }
+                loggedInURL: `${createLoggedInHostname(awsRegion, APIGATEWAY)}?${REGION}=${awsRegion}#/apis/${configuration.RestApiId}/resources/${configuration.ResourceId}/${httpMethod}`,
+            };
         case AWS_AUTOSCALING_AUTOSCALING_GROUP:
             return {
                 loginURL: `${createSignInHostname(accountId, EC2)}/autoscaling/home?${REGION}=${awsRegion}#AutoScalingGroups:id=${resourceName};view=details`,
-                loggedInURL: `${createLoggedInHostname(awsRegion,  EC2)}/autoscaling/home?${REGION}=${awsRegion}#AutoScalingGroups:id=${resourceName};view=details`
-            }
+                loggedInURL: `${createLoggedInHostname(awsRegion, EC2)}/autoscaling/home?${REGION}=${awsRegion}#AutoScalingGroups:id=${resourceName};view=details`,
+            };
         case AWS_LAMBDA_FUNCTION:
             return {
-                loginURL: `${createSignInHostname(accountId,  LAMBDA)}?${REGION}=${awsRegion}#/functions/${resourceName}?tab=graph`,
-                loggedInURL: `${createLoggedInHostname(awsRegion,  LAMBDA)}?${REGION}=${awsRegion}#/functions/${resourceName}?tab=graph`
-            }
+                loginURL: `${createSignInHostname(accountId, LAMBDA)}?${REGION}=${awsRegion}#/functions/${resourceName}?tab=graph`,
+                loggedInURL: `${createLoggedInHostname(awsRegion, LAMBDA)}?${REGION}=${awsRegion}#/functions/${resourceName}?tab=graph`,
+            };
         case AWS_IAM_ROLE:
         case AWS_IAM_GROUP:
         case AWS_IAM_USER:
         case AWS_IAM_POLICY:
             const {url, type} = iamUrlMappings[resourceType];
             return {
-                loginURL: `${createSignInHostname(accountId,  type)}?${HOME}?#${url}`,
+                loginURL: `${createSignInHostname(accountId, type)}?${HOME}?#${url}`,
                 loggedInURL: `https://${CONSOLE}.${AWS_AMAZON_COM}/${type}/${HOME}?#${url}`,
-            }
+            };
         case AWS_S3_BUCKET:
             return {
-                loginURL: `${createSignInHostname(accountId,  S3)}?bucket=${resourceName}`,
-                loggedInURL: `https://${S3}.${CONSOLE}.${AWS_AMAZON_COM}/${S3}/buckets/${resourceName}/?${REGION}=${awsRegion}`
-            }
+                loginURL: `${createSignInHostname(accountId, S3)}?bucket=${resourceName}`,
+                loggedInURL: `https://${S3}.${CONSOLE}.${AWS_AMAZON_COM}/${S3}/buckets/${resourceName}/?${REGION}=${awsRegion}`,
+            };
         default:
-            if(defaultUrlMappings[resourceType] != null) {
+            if (defaultUrlMappings[resourceType] != null) {
                 const {url, type} = defaultUrlMappings[resourceType];
-                const v2Type = `${type}/v2`
+                const v2Type = `${type}/v2`;
                 return {
                     loginURL: `${createSignInHostname(accountId, type)}?${REGION}=${awsRegion}#${url}`,
-                    loggedInURL: `${createLoggedInHostname(awsRegion, v2Type)}?${REGION}=${awsRegion}#${url}`
-                }
+                    loggedInURL: `${createLoggedInHostname(awsRegion, v2Type)}?${REGION}=${awsRegion}#${url}`,
+                };
             }
             return {};
     }
@@ -131,27 +150,53 @@ function createConsoleUrls(resource) {
 
 function createTitle({resourceId, resourceName, arn, resourceType, tags}) {
     const name = tags.find(tag => tag.key === NAME);
-    if(name != null) return name.value;
+    if (name != null) return name.value;
 
     switch (resourceType) {
         case AWS_ELASTIC_LOAD_BALANCING_V2_TARGET_GROUP:
         case AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER:
-            return R.last(arn.split(":"));
+            return R.last(arn.split(':'));
         case AWS_AUTOSCALING_AUTOSCALING_GROUP:
-            const parsedAsg = R.last(arn.split(":"));
-            return R.last(parsedAsg.split("/"));
+            const parsedAsg = R.last(arn.split(':'));
+            return R.last(parsedAsg.split('/'));
         default:
             return resourceName == null ? resourceId : resourceName;
     }
 }
 
 const propertiesToKeep = new Set([
-    'accountId', 'arn', 'availabilityZone', 'awsRegion', 'configuration', 'configurationItemCaptureTime',
-    'configurationItemStatus', 'configurationStateId', 'resourceCreationTime', 'resourceId',
-    'resourceName', 'resourceType', 'supplementaryConfiguration', 'tags', 'version', 'vpcId', 'subnetId', 'subnetIds',
-    'resourceValue', 'state', 'private', 'dBInstanceStatus', 'statement', 'instanceType']);
+    'accountId',
+    'arn',
+    'availabilityZone',
+    'awsRegion',
+    'configuration',
+    'configurationItemCaptureTime',
+    'configurationItemStatus',
+    'configurationStateId',
+    'resourceCreationTime',
+    'resourceId',
+    'resourceName',
+    'resourceType',
+    'supplementaryConfiguration',
+    'tags',
+    'version',
+    'vpcId',
+    'subnetId',
+    'subnetIds',
+    'resourceValue',
+    'state',
+    'private',
+    'dBInstanceStatus',
+    'statement',
+    'instanceType',
+]);
 
-const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfiguration', 'tags', 'state'])
+const propertiesToJsonStringify = new Set([
+    'configuration',
+    'supplementaryConfiguration',
+    'tags',
+    'state',
+]);
 
 /**
  * Neptune cannot store nested properties. Therefore, this function extracts the
@@ -162,7 +207,7 @@ const propertiesToJsonStringify = new Set(['configuration', 'supplementaryConfig
 function createProperties(resource) {
     const properties = Object.entries(resource).reduce((acc, [key, value]) => {
         if (propertiesToKeep.has(key)) {
-            if(propertiesToJsonStringify.has(key)) {
+            if (propertiesToJsonStringify.has(key)) {
                 acc[key] = JSON.stringify(value);
             } else {
                 acc[key] = value;
@@ -171,9 +216,9 @@ function createProperties(resource) {
         return acc;
     }, {});
 
-    const logins = createConsoleUrls(resource)
+    const logins = createConsoleUrls(resource);
 
-    if(!R.isEmpty(logins)) {
+    if (!R.isEmpty(logins)) {
         properties.loginURL = logins.loginURL;
         properties.loggedInURL = logins.loggedInURL;
     }
@@ -184,7 +229,17 @@ function createProperties(resource) {
 }
 
 export function createSaveObject(resource) {
-    const {id, resourceId, resourceName, resourceType, accountId, arn, awsRegion, relationships = [], tags = []} = resource;
+    const {
+        id,
+        resourceId,
+        resourceName,
+        resourceType,
+        accountId,
+        arn,
+        awsRegion,
+        relationships = [],
+        tags = [],
+    } = resource;
 
     const properties = createProperties(resource);
 
@@ -199,7 +254,7 @@ export function createSaveObject(resource) {
         awsRegion,
         relationships,
         properties,
-        tags
+        tags,
     };
 }
 
@@ -211,16 +266,16 @@ export function createResourcesRegionMetadata(resources) {
         return `${accountId}__${awsRegion}__${resourceType}`;
     }, resources);
 
-    const regionsObj = Object.entries(grouped)
-        .reduce((acc, [key, resources]) => {
+    const regionsObj = Object.entries(grouped).reduce(
+        (acc, [key, resources]) => {
             const [accountId, awsRegion, resourceType] = key.split('__');
 
             const regionKey = `${accountId}__${awsRegion}`;
 
-            if(acc[regionKey] == null) {
+            if (acc[regionKey] == null) {
                 acc[regionKey] = {
                     count: 0,
-                    resourceTypes: []
+                    resourceTypes: [],
                 };
             }
 
@@ -228,31 +283,35 @@ export function createResourcesRegionMetadata(resources) {
             acc[regionKey].name = awsRegion;
             acc[regionKey].resourceTypes.push({
                 count: resources.length,
-                type: resourceType
+                type: resourceType,
             });
 
             return acc;
-        }, {});
+        },
+        {}
+    );
 
-    const metadata = Object.entries(regionsObj)
-        .reduce((acc, [key, resourceTypes]) => {
+    const metadata = Object.entries(regionsObj).reduce(
+        (acc, [key, resourceTypes]) => {
             const [accountId] = key.split('__');
 
-            if(!acc.has(accountId)) {
+            if (!acc.has(accountId)) {
                 acc.set(accountId, {
                     accountId,
                     count: 0,
-                    regions: []
+                    regions: [],
                 });
             }
 
-            const account = acc.get(accountId)
+            const account = acc.get(accountId);
 
             account.count = account.count + resourceTypes.count;
             account.regions.push(resourceTypes);
 
             return acc;
-        }, new Map());
+        },
+        new Map()
+    );
 
     logger.profile('Time to createResourcesRegionMetadata');
 

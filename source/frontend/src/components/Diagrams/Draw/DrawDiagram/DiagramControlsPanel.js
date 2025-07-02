@@ -23,7 +23,7 @@ import {
     hideCosts,
 } from '../Canvas/Commands/CanvasCommands';
 import {Prompt, useHistory, useParams} from 'react-router-dom';
-import {COST_REPORT, DRAW, EXPORT} from '../../../../routes';
+import {COST_REPORT, DRAW} from '../../../../routes';
 import dayjs from 'dayjs';
 import {fetchCosts} from '../../../../API/Processors/NodeProcessors';
 import {aggregateCostData} from '../../../../Utils/Resources/CostCalculator';
@@ -276,7 +276,7 @@ const DiagramControlPanel = ({settings}) => {
                 undone.
             </Modal>
             <SpaceBetween size="s" direction="horizontal">
-                {!R.isNil(statusMessage) && (
+                {statusMessage != null && (
                     <Box margin={{vertical: 'xxs'}} display={'block'}>
                         <StatusIndicator type={statusMessage.type}>
                             {' '}

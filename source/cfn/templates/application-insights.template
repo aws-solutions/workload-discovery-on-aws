@@ -13,7 +13,22 @@ Parameters:
   DiscoveryTaskLogGroup:
     Type: String
 
+  DiscoveryTaskFrequency:
+    Type: String
+
   ClusterLifecycleEventsLogGroup:
+    Type: String
+
+  DeploymentBucket:
+    Type: String
+
+  DeploymentBucketKey:
+    Type: String
+
+  NodeLambdaRuntime:
+    Type: String
+
+  PerspectiveAppSyncApiId:
     Type: String
 
 Resources:
@@ -41,11 +56,14 @@ Resources:
               - PatternName: CannotPullContainerFromRegistry
                 Pattern: 'CannotPullContainerError'
                 Rank: 5
-              - PatternName: VpcConfigurationAwsServiceCheck
-                Pattern: 'Could not connect to [A-Za-z0-9\s]+ API.'
+              - PatternName: VpcConfigurationAwsServiceChecks
+                Pattern: 'Could not connect to \d+ AWS service\(s\)'
                 Rank: 6
               - PatternName: VpcConfigurationNatGatewayCheck
                 Pattern: 'Failed to list NAT Gateways in vpc-[a-f0-9]{8,}'
+                Rank: 7
+              - PatternName: OrgAggregatorTypeCheck
+                Pattern: 'cannot use an individual accounts aggregator'
                 Rank: 7
       ComponentMonitoringSettings:
         - ComponentARN: !Ref ClusterArn
@@ -60,3 +78,120 @@ Resources:
                 - LogGroupName: !Ref ClusterLifecycleEventsLogGroup
                   LogType: APPLICATION
                   PatternSet: DiscoveryPatternSet
+
+  AppMonitoringLambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: 'No Application Insights actions support resource level permissions.'
+    Properties:
+      Path: '/'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CwLoggingPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: ApplicationInsightsPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - applicationinsights:ListProblems
+                  - applicationinsights:DescribeProblemObservations
+                Resource: '*'
+
+  AppMonitoringFunction:
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This Lambda does not connect to any resources in a VPC
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt AppMonitoringLambdaFunctionRole.Arn
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Sub ${DeploymentBucketKey}/application-monitoring.zip
+      Runtime: !Ref NodeLambdaRuntime
+      Description: Lambda for monitoring Workload Discovery solution
+      Timeout: 10
+      TracingConfig:
+        Mode: Active
+      MemorySize: 1024
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          APPLICATION_RESOURCE_GROUP: !Ref ApplicationResourceGroupName
+          DISCOVERY_TASK_FREQUENCY: !Ref DiscoveryTaskFrequency
+
+  AppMonitoringLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AppMonitoringFunction}
+      RetentionInDays: 365
+
+  AppMonitoringInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-AppSyncSearchRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !GetAtt AppMonitoringFunction.Arn
+
+  AppMonitoringLambdaLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      Name: App_Monitor_Lambda_DS9
+      Description: WD application monitoring Lambda AppSync Data Source
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt AppMonitoringInvokeRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt AppMonitoringFunction.Arn
+
+  GetApplicationProblemsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !Ref PerspectiveAppSyncApiId
+      TypeName: Query
+      FieldName: getApplicationProblems
+      Runtime:
+        Name: APPSYNC_JS
+        RuntimeVersion: 1.0.0
+      CodeS3Location: !Sub s3://${DeploymentBucket}/${DeploymentBucketKey}/default-resolver.js
+      DataSourceName: !GetAtt AppMonitoringLambdaLambdaDataSource.Name
+      CachingConfig:
+        CachingKeys:
+          - '$context.arguments'
+        Ttl: 10

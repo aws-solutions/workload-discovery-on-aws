@@ -1,14 +1,14 @@
 {
-  "version": 1,
-  "type": "AWS::IAM::InstanceProfile",
-  "relationships": {
-    "descriptors": [
-      {
-        "resourceType": "AWS::IAM::Role",
-        "relationshipName": "Is associated with Role",
-        "path": "Roles",
-        "identifierType": "resourceName"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::IAM::InstanceProfile",
+    "relationships": {
+        "descriptors": [
+            {
+                "resourceType": "AWS::IAM::Role",
+                "relationshipName": "Is associated with Role",
+                "path": "Roles",
+                "identifierType": "resourceName"
+            }
+        ]
+    }
 }

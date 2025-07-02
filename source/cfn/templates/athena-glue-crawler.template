@@ -261,3 +261,11 @@ Resources:
           SerdeInfo:
             SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
           Location: !Sub s3://${CostAndUsageBucket}/aws-perspective/aws-perspective-cost-and-usage-${AWS::AccountId}/cost_and_usage_${AWS::AccountId}_data_status/
+
+Outputs:
+
+  AwsCurCrawler:
+    Value: !Ref AWSCURCrawler
+
+  AwsCurProcessorLambdaArn:
+    Value: !GetAtt AWSCURInitializer.Arn

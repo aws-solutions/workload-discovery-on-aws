@@ -159,6 +159,7 @@ export const getAccount = /* GraphQL */ `
             isManagementAccount
             regions {
                 name
+                isConfigEnabled
                 lastCrawled
             }
             lastCrawled
@@ -174,6 +175,7 @@ export const getAccounts = /* GraphQL */ `
             isManagementAccount
             regions {
                 name
+                isConfigEnabled
                 lastCrawled
             }
             lastCrawled
@@ -319,6 +321,45 @@ export const exportToDrawIo = /* GraphQL */ `
         exportToDrawIo(edges: $edges, nodes: $nodes)
     }
 `;
+export const getCostReportProcessingStatus = /* GraphQL */ `
+    query GetCostReportProcessingStatus {
+        getCostReportProcessingStatus {
+            isEnabled
+            crawler {
+                errorMessage
+                curProcessorLambdaArn
+                logGroupArn
+                lastCrawled
+                status
+            }
+            reports {
+                curBucketArn
+                lastDelivered
+            }
+        }
+    }
+`;
+export const getApplicationProblems = /* GraphQL */ `
+    query GetApplicationProblems {
+        getApplicationProblems {
+            logProblems {
+                ... on GenericLogProblem {
+                    logGroupArn
+                    sourceArn
+                    name
+                }
+                ... on VpcConfigLogProblem {
+                    logGroupArn
+                    name
+                    services
+                    natGateways
+                    sourceArn
+                }
+            }
+        }
+    }
+`;
+
 // This query has been edited manually to remove unnecessary fields
 export const searchResources = /* GraphQL */ `
     query SearchResources(

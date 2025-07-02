@@ -1,12 +1,14 @@
-# An AWS region that AWS Perspective is scanning
+# An AWS region to be scanned
 type Region @aws_cognito_user_pools @aws_iam {
   # The name of the region
   name: String!
   # The the timestamp of the last successful crawl by the discovery process
   lastCrawled: String
+  # The enablement status of AWS Config in the region
+  isConfigEnabled: Boolean
 }
 
-# An AWS account that AWS Perspective is scanning
+# An AWS account to be scanned
 type Account @aws_cognito_user_pools @aws_iam {
   # The AWS account number
   accountId: String!
@@ -21,7 +23,7 @@ type Account @aws_cognito_user_pools @aws_iam {
   resourcesRegionMetadata: ResourcesRegionMetadata
 }
 
-# Top level properties of AWS account that AWS Perspective is scanning
+# Top level properties of AWS account to be scanned
 type AccountMetadata @aws_cognito_user_pools @aws_iam {
   # The AWS account number
   accountId: String!
@@ -34,6 +36,8 @@ input RegionInput {
   name: String!
   # The timestamp of the last successful crawl by the discovery process
   lastCrawled: AWSDateTime
+  # The enablement status of AWS Config in the region
+  isConfigEnabled: Boolean
 }
 
 input ResourceCountInput {
@@ -261,6 +265,8 @@ type Query {
   getAccount(accountId: String!): Account @aws_cognito_user_pools @aws_iam
   # Gets each account and its associated regions that are being scanned
   getAccounts: [Account] @aws_cognito_user_pools @aws_iam
+  # Gets the status of the cost reports delivery and processing
+  getCostReportProcessingStatus: getCostReportProcessingStatusResponse
   # Read another set of results from the S3 Athena results
   readResultsFromS3(s3Query: S3Query): Cost @aws_cognito_user_pools @aws_iam
   # Gets the cost for an AWS Service
@@ -290,6 +296,8 @@ type Query {
       accounts: [AccountInput]): ResourcesResponse @aws_cognito_user_pools @aws_iam
   # Export a diagram to draw.io
   exportToDrawIo(nodes: [drawIoNodeInput], edges: [drawIoEdgeInput]) : String
+  # Gets application errors associated with Workload Discovery deployment
+  getApplicationProblems: GetApplicationProblemsResponse
 }
 
 type CreateApplicationResponse {
@@ -307,6 +315,26 @@ type getResourceGraphResponse @aws_cognito_user_pools @aws_iam {
     nodes: [Resource]!
     edges: [Relationship]!
 }
+
+type GetApplicationProblemsResponse {
+    logProblems: [LogProblem]
+}
+
+type GenericLogProblem {
+    name: String!
+    sourceArn: String!
+    logGroupArn: String!
+}
+
+type VpcConfigLogProblem {
+    name: String!
+    sourceArn: String!
+    logGroupArn: String!
+    natGateways: [String]!
+    services: [String!]
+}
+
+union LogProblem = GenericLogProblem | VpcConfigLogProblem
 
 type Cost @aws_cognito_user_pools @aws_iam {
   # The total cost of all resources found
@@ -357,6 +385,25 @@ type CostItem @aws_cognito_user_pools @aws_iam {
   pricing_term: String!
   cost: Float!
   line_item_currency_code: String!
+}
+
+type CostReportStatus {
+    curBucketArn: String
+    lastDelivered: AWSDateTime
+}
+
+type CostCrawlerStatus {
+    status: String
+    errorMessage: String
+    logGroupArn: String
+    curProcessorLambdaArn: String
+    lastCrawled: AWSDateTime
+}
+
+type getCostReportProcessingStatusResponse {
+    isEnabled: Boolean
+    reports: CostReportStatus
+    crawler: CostCrawlerStatus
 }
 
 input CostQuery {

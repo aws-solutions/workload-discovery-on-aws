@@ -1,48 +1,48 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "associatedRelationship": "Is associated with "
-  },
-  "application": {
-    "id": "${application.arn}",
-    "arn": "myApplicationArn",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::ServiceCatalogAppRegistry::Application",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "applicationName",
-    "configuration": {
-      "applicationTag": {
-        "awsApplication": "applicationTag"
-      }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "associatedRelationship": "Is associated with "
     },
-    "relationships": []
-  },
-  "tag": {
-    "id": "${tag.arn}",
-    "arn": "arn:aws:tags::${$constants.accountId}:tag/${tag.resourceName}",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::Tags::Tag",
-    "awsRegion": "global",
-    "resourceId": "${tag.arn}",
-    "resourceName": "awsApplication=applicationTag",
-    "relationships": [
-      {
-        "resourceId": "ec2InstanceResourceId",
-        "resourceType": "AWS::EC2::Instance",
-        "relationshipName": "${$constants.associatedRelationship}"
-      },
-      {
-        "resourceId": "lambdaResourceId",
-        "resourceType": "AWS::Lambda::Function",
-        "relationshipName": "${$constants.associatedRelationship}"
-      },
-      {
-        "resourceName": "roleName",
-        "resourceType": "AWS::IAM::Role",
-        "relationshipName": "${$constants.associatedRelationship}"
-      }
-    ],
-    "configuration": {}
-  }
+    "application": {
+        "id": "${application.arn}",
+        "arn": "myApplicationArn",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::ServiceCatalogAppRegistry::Application",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "applicationName",
+        "configuration": {
+            "applicationTag": {
+                "awsApplication": "applicationTag"
+            }
+        },
+        "relationships": []
+    },
+    "tag": {
+        "id": "${tag.arn}",
+        "arn": "arn:aws:tags::${$constants.accountId}:tag/${tag.resourceName}",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::Tags::Tag",
+        "awsRegion": "global",
+        "resourceId": "${tag.arn}",
+        "resourceName": "awsApplication=applicationTag",
+        "relationships": [
+            {
+                "resourceId": "ec2InstanceResourceId",
+                "resourceType": "AWS::EC2::Instance",
+                "relationshipName": "${$constants.associatedRelationship}"
+            },
+            {
+                "resourceId": "lambdaResourceId",
+                "resourceType": "AWS::Lambda::Function",
+                "relationshipName": "${$constants.associatedRelationship}"
+            },
+            {
+                "resourceName": "roleName",
+                "resourceType": "AWS::IAM::Role",
+                "relationshipName": "${$constants.associatedRelationship}"
+            }
+        ],
+        "configuration": {}
+    }
 }

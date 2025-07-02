@@ -1,31 +1,31 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "table": {
-    "id": "${table.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
-    "resourceId": "${table.arn}",
-    "resourceName":  "test",
-    "resourceType": "AWS::DynamoDB::Table",
-    "relationships": [],
-    "configuration": {
-      "latestStreamArn":"testArn"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "table": {
+        "id": "${table.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
+        "resourceId": "${table.arn}",
+        "resourceName": "test",
+        "resourceType": "AWS::DynamoDB::Table",
+        "relationships": [],
+        "configuration": {
+            "latestStreamArn": "testArn"
+        }
+    },
+    "tableNoStream": {
+        "id": "${table.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Not Applicable",
+        "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
+        "resourceId": "${table.arn}",
+        "resourceName": "${table.arn}",
+        "resourceType": "AWS::DynamoDB::Table",
+        "relationships": [],
+        "configuration": {}
     }
-  },
-  "tableNoStream": {
-    "id": "${table.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Not Applicable",
-    "arn": "arn:aws:dynamodb:${$constants.region}:${$constants.accountId}:table/test",
-    "resourceId": "${table.arn}",
-    "resourceName":  "${table.arn}",
-    "resourceType": "AWS::DynamoDB::Table",
-    "relationships": [],
-    "configuration": {}
-  }
 }

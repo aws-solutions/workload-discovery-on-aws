@@ -1,18 +1,18 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "associatedRelationship": "Is associated with ",
-    "applicationTag": "applicationTag"
-  },
-  "application": {
-    "id": "${application.arn}",
-    "arn": "myApplicationArn",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::ServiceCatalogAppRegistry::Application",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "applicationName",
-    "configuration": {},
-    "relationships": []
-  }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "associatedRelationship": "Is associated with ",
+        "applicationTag": "applicationTag"
+    },
+    "application": {
+        "id": "${application.arn}",
+        "arn": "myApplicationArn",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::ServiceCatalogAppRegistry::Application",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "applicationName",
+        "configuration": {},
+        "relationships": []
+    }
 }

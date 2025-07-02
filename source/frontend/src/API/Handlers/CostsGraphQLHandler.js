@@ -4,6 +4,12 @@
 import {API, graphqlOperation} from 'aws-amplify';
 import * as queries from '../GraphQL/queries';
 
+export const getCostReportProcessingStatus = params => {
+    return API.graphql(
+        graphqlOperation(queries.getCostReportProcessingStatus, params)
+    );
+};
+
 export const readResultsFromS3 = params => {
     return API.graphql(graphqlOperation(queries.readResultsFromS3, params));
 };

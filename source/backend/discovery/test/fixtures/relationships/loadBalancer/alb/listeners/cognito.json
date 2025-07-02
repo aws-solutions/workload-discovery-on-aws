@@ -1,36 +1,36 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "targetGroup": {
-    "resourceId": "${targetGroup.arn}",
-    "arn": "targetGroupArn"
-  },
-  "userPool": {
-    "resourceId": "${userPool.arn}",
-    "arn": "userPoolArn"
-  },
-  "listener": {
-    "id": "${listener.arn}}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "listnerArn",
-    "resourceId": "${listener.arn}}",
-    "resourceName": "${listener.arn}}",
-    "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
-    "availabilityZone": "Multiple Availability Zones",
-    "configuration": {
-      "DefaultActions": [
-        {
-          "AuthenticateCognitoConfig": {
-            "UserPoolArn": "${userPool.arn}"
-          },
-          "TargetGroupArn": "${targetGroup.arn}"
-        }
-      ]
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "tags": [],
-    "relationships": []
-  }
+    "targetGroup": {
+        "resourceId": "${targetGroup.arn}",
+        "arn": "targetGroupArn"
+    },
+    "userPool": {
+        "resourceId": "${userPool.arn}",
+        "arn": "userPoolArn"
+    },
+    "listener": {
+        "id": "${listener.arn}}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "listnerArn",
+        "resourceId": "${listener.arn}}",
+        "resourceName": "${listener.arn}}",
+        "resourceType": "AWS::ElasticLoadBalancingV2::Listener",
+        "availabilityZone": "Multiple Availability Zones",
+        "configuration": {
+            "DefaultActions": [
+                {
+                    "AuthenticateCognitoConfig": {
+                        "UserPoolArn": "${userPool.arn}"
+                    },
+                    "TargetGroupArn": "${targetGroup.arn}"
+                }
+            ]
+        },
+        "tags": [],
+        "relationships": []
+    }
 }

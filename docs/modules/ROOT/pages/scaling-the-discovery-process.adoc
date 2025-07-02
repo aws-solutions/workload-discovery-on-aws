@@ -1,0 +1,89 @@
+= Scaling the discovery process
+
+Importing a large number of accounts to Workload Discovery on AWS can result in the discovery process
+ingesting tens to hundreds of thousands of resources. To handle this volume of resources, it may be necessary
+to increase the instance sizes of the databases and the memory allocation of the Amazon Elastic Container Service
+(Amazon ECS) task that runs the discovery process.
+
+== Increasing the DB instance sizes
+
+=== Prerequisites
+
+Before changing the instance sizes, first verify the CPU usage of the databases.
+
+. Sign in to the https://console.aws.amazon.com/neptune/home[Amazon Neptune console].
+. Choose the database with a DB identifier of *wdneptunedbcluster-<ID-string>*.
+. Choose the *Monitoring* tab
+. Verify that the CPU levels in the *CPU utilization* graph spike to above 75%.
+. Sign in to the https://console.aws.amazon.com/aos/home[Amazon OpenSearch Service console].
+. Choose *Domains* from the sidebar.
+. Choose the domain named *opensearchdomai-<ID-string>*.
+. Choose the *Cluster health* tab.
+. Scroll to the *Data nodes* panel.
+. Verify that the CPU levels in the *CPU utilization* graph spike to above 75%.
+
+=== Increasing the database instance sizes
+
+To increase the DB instance sizes:
+
+. Sign in to the https://console.aws.amazon.com/cloudformation[CloudFormation console].
+. Select the main Workload Discovery stack radio button (it will have a description containing the text
+`Workload Discovery on AWS Main Template(SO0075a) - Solution - Main Template`)
+. Choose *Update*
+. On the *Update stack* page choose *Next*.
+. On the *Specify stack details* page change the following parameters:
+.. To increase the Neptune instance size, change *NeptuneInstanceClass* to an instance size double the previous
+value, e.g., db.r5.large -> db.r5.2xlarge
+.. To increase the OpenSearch instance size, change *OpensearchInstanceType* to an instance size double the previous
+value, e.g., m6g.large.search -> m6g.2xlarge.search
+. On the *Configure stack options* page, choose *Next*.
+. On the *Review* page, check the checkboxes in the *Capabilities* panel and choose *Next*.
+
+It may take up to half an hour for the database instance sizes to fully update.
+
+Once the stack update is complete, allow the discovery process to run and follow the steps in the Prerequisites
+to verify that the CPU usage has reduced. If it has not, repeat the steps to increase the database size again.
+
+[NOTE]
+====
+The initial ingestion of multiple accounts in a single run of the Discovery process is a write-heavy process,
+requiring more CPU resources from the database. Once these resources have been ingested, it is often possible to
+reduce the instance type size of databases. Follow the steps in the *Prerequisite* section to monitor the CPU usage —
+if it is consistently below 50% then you may lower the instance class type.
+====
+
+== Increasing the Fargate task memory allocation
+
+The Amazon ECS task may run out of memory and be terminated prematurely when the discovery process is ingesting
+large numbers of resources.
+
+=== Prerequisites
+. Sign in to the https://console.aws.amazon.com/ecs/home[Amazon Elastic
+Container Service console].
+. Select the cluster named *workload-discovery-cluster*.
+. Choose the *Tasks* tab.
+. Select the *Stopped* button in the *Desired task status* panel.
+. In the *Last Status* column check for the error message `OutOfMemoryError: Container killed due to memory usage`.
+
+=== Increasing the memory for the ECS task
+. Sign in to the https://console.aws.amazon.com/cloudformation[CloudFormation console].
+. Select the main Workload Discovery stack radio button (it will have a description containing the text
+`Workload Discovery on AWS Main Template(SO0075a) - Solution - Main Template`)
+. Choose *Update*
+. On the *Update stack* page choose *Next*.
+. On the *Specify stack details* page change the following parameters:
+.. To increase the memory allocation for the ECS task, change *Memory* to a value double the previous one.
+.. To increase the CPU allocation for the ECS task, change *CpuUnits* to a value double the previous one.
+This step is only necessary if you wish to allocate more than 8Gb of memory to the task. The allowed memory and CPU
+combinations for Fargate tasks can be found https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size[here].
+. On the *Configure stack options* page, choose *Next*.
+. On the *Review* page, check the checkboxes in the *Capabilities* panel and choose *Next*.
+
+[NOTE]
+====
+Depending on the amount of resources being ingested, you may have to repeat this process more than once to find the
+correct memory size for the ECS task.
+====
+
+
+

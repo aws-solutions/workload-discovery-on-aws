@@ -1,6 +1,6 @@
 {
-  "domain": {
-    "ARN": "domainArn",
-    "DomainName": "opensearchdomainname"
-  }
+    "domain": {
+        "ARN": "domainArn",
+        "DomainName": "opensearchdomainname"
+    }
 }

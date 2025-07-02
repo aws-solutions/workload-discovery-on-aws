@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "v2.2.4",
+  "version": "v2.3.0",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.mjs",
   "type": "module",
@@ -20,6 +20,8 @@
   "dependencies": {
     "@aws-sdk/client-api-gateway": "3.621.0",
     "@aws-sdk/client-appsync": "3.621.0",
+    "@aws-sdk/client-bedrock": "3.751.0",
+    "@aws-sdk/client-bedrock-agent": "3.758.0",
     "@aws-sdk/client-config-service": "3.621.0",
     "@aws-sdk/client-dynamodb-streams": "3.621.0",
     "@aws-sdk/client-ec2": "3.621.0",
@@ -27,10 +29,12 @@
     "@aws-sdk/client-eks": "3.621.0",
     "@aws-sdk/client-elastic-load-balancing": "3.621.0",
     "@aws-sdk/client-elastic-load-balancing-v2": "3.621.0",
+    "@aws-sdk/client-glue": "3.750.0",
     "@aws-sdk/client-iam": "3.621.0",
     "@aws-sdk/client-lambda": "3.621.0",
     "@aws-sdk/client-mediaconnect": "3.621.0",
     "@aws-sdk/client-opensearch": "3.621.0",
+    "@aws-sdk/client-opensearchserverless": "3.750.0",
     "@aws-sdk/client-organizations": "3.621.0",
     "@aws-sdk/client-service-catalog-appregistry": "3.621.0",
     "@aws-sdk/client-sns": "3.621.0",
@@ -46,15 +50,15 @@
     "jmespath": "^0.16.0",
     "p-throttle": "6.1.0",
     "ramda": "0.28.0",
-    "undici": "6.21.1",
+    "undici": "7.11.0",
     "winston": "3.3.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^3.1.1",
+    "@vitest/coverage-v8": "^3.0.9",
     "aws-sdk-client-mock": "3.0.1",
     "msw": "^2.7.3",
     "sinon": "^17.0.0",
-    "vitest": "^3.1.1"
+    "vitest": "^3.0.9"
   },
   "volta": {
     "node": "20.12.2"

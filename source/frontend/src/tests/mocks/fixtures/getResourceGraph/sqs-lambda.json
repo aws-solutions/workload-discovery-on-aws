@@ -2,15 +2,15 @@
     "getResourceGraph": {
         "nodes": [
             {
-                "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                "id": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs",
                 "label": "AWS_Lambda_Function",
                 "md5Hash": "",
                 "properties": {
                     "accountId": "xxxxxxxxxxxx",
-                    "arn": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "arn": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs",
                     "availabilityZone": "Not Applicable",
                     "awsRegion": "eu-west-1",
-                    "configuration": "\"{\\\"architectures\\\":[\\\"x86_64\\\"],\\\"ephemeralStorage\\\":{\\\"size\\\":512},\\\"handler\\\":\\\"index.handler\\\",\\\"role\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda\\\",\\\"functionName\\\":\\\"sqs\\\",\\\"tracingConfig\\\":{\\\"mode\\\":\\\"PassThrough\\\"},\\\"runtime\\\":\\\"nodejs12.x\\\",\\\"description\\\":\\\"An Amazon SQS trigger that logs messages in a queue.\\\",\\\"codeSize\\\":383,\\\"version\\\":\\\"$LATEST\\\",\\\"packageType\\\":\\\"Zip\\\",\\\"timeout\\\":3,\\\"revisionId\\\":\\\"52a51ae1-ed13-4919-8a3d-c48b689966a8\\\",\\\"codeSha256\\\":\\\"xJUh5EPexgAe4RwmBK7VTazOpu57cdQE22Iso9jwSng=\\\",\\\"memorySize\\\":128,\\\"fileSystemConfigs\\\":[],\\\"lastUpdateStatus\\\":\\\"Successful\\\",\\\"loggingConfig\\\":{\\\"logFormat\\\":\\\"Text\\\",\\\"logGroup\\\":\\\"/aws/lambda/sqs\\\"},\\\"layers\\\":[],\\\"snapStart\\\":{\\\"applyOn\\\":\\\"None\\\",\\\"optimizationStatus\\\":\\\"Off\\\"},\\\"lastModified\\\":\\\"2020-04-10T12:36:27.981+0000\\\",\\\"state\\\":{\\\"value\\\":\\\"Active\\\"},\\\"functionArn\\\":\\\"arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs\\\"}\"",
+                    "configuration": "\"{\\\"architectures\\\":[\\\"x86_64\\\"],\\\"ephemeralStorage\\\":{\\\"size\\\":512},\\\"handler\\\":\\\"index.handler\\\",\\\"role\\\":\\\"arn:aws:iam::xxxxxxxxxxxx:role/service-role/sqslambda\\\",\\\"functionName\\\":\\\"sqs\\\",\\\"tracingConfig\\\":{\\\"mode\\\":\\\"PassThrough\\\"},\\\"runtime\\\":\\\"nodejs12.x\\\",\\\"description\\\":\\\"An Amazon SQS trigger that logs messages in a queue.\\\",\\\"codeSize\\\":383,\\\"version\\\":\\\"$LATEST\\\",\\\"packageType\\\":\\\"Zip\\\",\\\"timeout\\\":3,\\\"revisionId\\\":\\\"52a51ae1-ed13-4919-8a3d-c48b689966a8\\\",\\\"codeSha256\\\":\\\"xJUh5EPexgAe4RwmBK7VTazOpu57cdQE22Iso9jwSng=\\\",\\\"memorySize\\\":128,\\\"fileSystemConfigs\\\":[],\\\"lastUpdateStatus\\\":\\\"Successful\\\",\\\"loggingConfig\\\":{\\\"logFormat\\\":\\\"Text\\\",\\\"logGroup\\\":\\\"/aws/lambda/sqs\\\"},\\\"layers\\\":[],\\\"snapStart\\\":{\\\"applyOn\\\":\\\"None\\\",\\\"optimizationStatus\\\":\\\"Off\\\"},\\\"lastModified\\\":\\\"2020-04-10T12:36:27.981+0000\\\",\\\"state\\\":{\\\"value\\\":\\\"Active\\\"},\\\"functionArn\\\":\\\"arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs\\\"}\"",
                     "configurationItemCaptureTime": "2024-01-09T06:54:06.285Z",
                     "configurationItemStatus": "OK",
                     "configurationStateId": null,
@@ -29,7 +29,7 @@
                     "private": null,
                     "loggedInURL": "https://eu-west-1.console.aws.amazon.com/lambda/home?region=eu-west-1#/functions/sqs?tab=graph",
                     "loginURL": "https://xxxxxxxxxxxx.signin.aws.amazon.com/console/lambda?region=eu-west-1#/functions/sqs?tab=graph",
-                    "title": "sqs",
+                    "title": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs-Title",
                     "dBInstanceStatus": null,
                     "statement": null,
                     "instanceType": null
@@ -143,7 +143,7 @@
                 "id": "04c61a6d-f60b-4877-76cc-28744ae06d7e",
                 "label": "IS_ASSOCIATED_WITH_ROLE",
                 "source": {
-                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "id": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs",
                     "label": "AWS_Lambda_Function"
                 },
                 "target": {
@@ -155,7 +155,7 @@
                 "id": "cec61a6d-f60c-1aca-e359-6d2a3cbadec9",
                 "label": "IS_ASSOCIATED_WITH",
                 "source": {
-                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "id": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs",
                     "label": "AWS_Lambda_Function"
                 },
                 "target": {
@@ -171,7 +171,7 @@
                     "label": "AWS_Tags_Tag"
                 },
                 "target": {
-                    "id": "arn:aws:lambda:eu-west-1:xxxxxxxxxxxx:function:sqs",
+                    "id": "arn:aws:xxxxxxxxxxxx:eu-west-1:lambda:function:sqs",
                     "label": "AWS_Lambda_Function"
                 }
             }

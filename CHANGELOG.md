@@ -5,6 +5,52 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-07-02
+
+### Added
+
+- New resource types include:
+  - `AWS::Bedrock::Agent`
+  - `AWS::Bedrock::AgentVersion`
+  - `AWS::Bedrock::CustomModel` 
+  - `AWS::Bedrock::DataSource`
+  - `AWS::Bedrock::FoundationModel` 
+  - `AWS::Bedrock::ImportedModel` 
+  - `AWS::Bedrock::InferenceProfile` 
+  - `AWS::Bedrock::KnowledgeBase`
+  - `AWS::Glue::Connection`
+  - `AWS::Glue::Crawler` 
+  - `AWS::Glue::Database` 
+  - `AWS::Glue::Table`
+  - `AWS::OpenSearchServerless::Collection`
+- New relationships include:
+  - `AWS::Bedrock::Agent` -> `AWS::IAM::Role`/`AWS::Bedrock::FoundationModel`/`AWS::Lambda::Function/AWS::KMS::Key`
+  - `AWS::Bedrock::AgentVersion` -> `AWS::Bedrock::KnowledgeBase`
+  - `AWS::Bedrock::CustomModel` -> `AWS::Bedrock::FoundationModel`/`AWS::KMS::Key`/`AWS::S3::Bucket`
+  - `AWS::Bedrock::DataSource` -> `AWS::Bedrock::KnowledgeBase`/`AWS::KMS::Key`/`AWS::S3::Bucket`/`AWS::SecretsManager::Secret`/`AWS::Lambda::Function`/`AWS::Bedrock::FoundationModel`
+  - `AWS::Bedrock::ImportedModel` -> `AWS::KMS::Key`/`AWS::S3::Bucket`
+  - `AWS::Bedrock::KnowledgeBase` -> `AWS::IAM::Role`/`AWS::Kendra::Index`/`AWS::RDS::DBCluster`/`AWS::OpenSearchServerless::Collection`/`AWS::S3::Bucket`/`AWS::Redshift::Cluster`
+  - `AWS::Glue::Connection` -> `AWS::EC2::Subnet`/`AWS::EC2::SecurityGroup`/`AWS::EC2::Instance`/`AWS::SecretsManager::Secret`/`AWS::IAM::Role`/`AWS::Glue::Connection`
+  - `AWS::Glue::Crawler` -> `AWS::SQS::Queue`/`AWS::S3::Bucket`/`AWS::Glue::Database`/`AWS::Glue::Connection`/`AWS::DynamoDB::Table`
+  - `AWS::Glue::Database` ->` AWS::Glue::Connection`/`AWS::S3::Bucket`
+  - `AWS::Glue::Job` -> `AWS::IAM::Role`/`AWS::S3::Bucket`/`AWS::Glue::Connection`
+  - `AWS::Glue::Table` ->` AWS::Kinesis::Stream`/`AWS::S3::Bucket`/`AWS::Glue::Connection`/`AWS::Glue::Database`
+- Configuration status section on Cost Page
+- Alert in AppInsights dashboard if Config aggregator is of incorrect type
+
+### Changed
+- Updated Homepage with quicklinks to common user actions and configuration status alerts to surface errors in the solution's deployment and their remediation steps
+- Accounts in accounts page now display if AWS Config is enabled in imported regions
+- Warning displayed on Accounts page in `SELF_MANAGED` mode if regional CloudFormation template is not deployed in imported region
+- Default Neptune instance type is now `db.r8g.large`
+- Neptune engine version has been updated to `1.4.5.0`
+- Added extra validation to account names to disallow angle brackets
+- Added extra validation for all inputs in Settings AppSync Lambda resovler
+- Reduced whitespace on diagram page
+
+### Fixed
+- Account name could not be updated through form on Accounts page
+
 ## [2.2.4] - 2025-04-07
 
 ### Fixed

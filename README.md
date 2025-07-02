@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.2.4)
+# Workload Discovery on AWS (v2.3.0)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
@@ -106,8 +106,8 @@ To develop locally, this `settings.js` file must be present.
 ### Running unit tests
 
 1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed.
-2. [Node.js](https://nodejs.org/en/) installed
-3. [Python 3](https://www.python.org/downloads/) installed
+2. [Node.js v22](https://nodejs.org/en/) installed
+3. [Python 3.13](https://www.python.org/downloads/) installed
 4. [Pipenv](https://pipenv.pypa.io/en/latest/) installed
 
 ```sh

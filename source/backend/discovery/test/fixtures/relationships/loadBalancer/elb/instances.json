@@ -1,29 +1,29 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "elb": {
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/mytestelb",
-    "resourceType": "AWS::ElasticLoadBalancing::LoadBalancer",
-    "resourceId": "${alb.arn}",
-    "resourceName": "mytestelb",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Multiple Availability Zones",
-    "relationships": [],
-    "configuration": {}
-  },
-  "ec2Instance1": {
-    "resourceId": "i-0123456789acdef0",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "configuration": {}
-  },
-  "ec2Instance2": {
-    "resourceId": "i-9876543210abcdef9",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "configuration": {}
-  }
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "elb": {
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:elasticloadbalancing:${$constants.region}:${$constants.accountId}:loadbalancer/mytestelb",
+        "resourceType": "AWS::ElasticLoadBalancing::LoadBalancer",
+        "resourceId": "${alb.arn}",
+        "resourceName": "mytestelb",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Multiple Availability Zones",
+        "relationships": [],
+        "configuration": {}
+    },
+    "ec2Instance1": {
+        "resourceId": "i-0123456789acdef0",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "configuration": {}
+    },
+    "ec2Instance2": {
+        "resourceId": "i-9876543210abcdef9",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "configuration": {}
+    }
 }

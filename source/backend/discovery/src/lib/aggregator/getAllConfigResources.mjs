@@ -13,32 +13,45 @@ import {
     AWS_IAM_INSTANCE_PROFILE,
     AWS_MEDIA_CONNECT_FLOW_ENTITLEMENT,
     AWS_OPENSEARCH_DOMAIN,
-    AWS_SSM_MANAGED_INSTANCE_INVENTORY
+    AWS_SSM_MANAGED_INSTANCE_INVENTORY,
 } from '../constants.mjs';
-import {createArnWithResourceType, isDate, isString, isObject, objToKeyNameArray} from '../utils.mjs';
+import {
+    createArnWithResourceType,
+    isDate,
+    isString,
+    isObject,
+    objToKeyNameArray,
+} from '../utils.mjs';
 
 const unsupportedAdvancedQueryResourceTypes = [
     AWS_COGNITO_USER_POOL,
     AWS_ELASTIC_LOAD_BALANCING_V2_LISTENER,
     AWS_IAM_INSTANCE_PROFILE,
-    AWS_MEDIA_CONNECT_FLOW_ENTITLEMENT
+    AWS_MEDIA_CONNECT_FLOW_ENTITLEMENT,
 ];
 
 const resourceTypesToExclude = [
     ...unsupportedAdvancedQueryResourceTypes,
     // the configuration item that Config returns for OpenSearch is missing fields so we use the SDK instead
-    AWS_OPENSEARCH_DOMAIN
-]
+    AWS_OPENSEARCH_DOMAIN,
+];
 
-async function getAdvancedQueryUnsupportedResources(configServiceClient, aggregatorName) {
-    const {results, errors} = await PromisePool
-        .withConcurrency(5)
+async function getAdvancedQueryUnsupportedResources(
+    configServiceClient,
+    aggregatorName
+) {
+    const {results, errors} = await PromisePool.withConcurrency(5)
         .for(unsupportedAdvancedQueryResourceTypes)
         .process(async resourceType => {
-            return configServiceClient.getAggregatorResources(aggregatorName, resourceType);
+            return configServiceClient.getAggregatorResources(
+                aggregatorName,
+                resourceType
+            );
         });
 
-    logger.error(`There were ${errors.length} errors when importing resource types unsupported by advanced query.`);
+    logger.error(
+        `There were ${errors.length} errors when importing resource types unsupported by advanced query.`
+    );
     logger.debug('Errors: ', {errors});
 
     return results.flat();
@@ -46,10 +59,23 @@ async function getAdvancedQueryUnsupportedResources(configServiceClient, aggrega
 
 function normaliseConfigurationItem(resource) {
     const {
-        arn, resourceType, accountId, awsRegion, resourceId, configuration = {},
-        tags = [], configurationItemCaptureTime
+        arn,
+        resourceType,
+        accountId,
+        awsRegion,
+        resourceId,
+        configuration = {},
+        tags = [],
+        configurationItemCaptureTime,
     } = resource;
-    resource.arn = arn ?? createArnWithResourceType({resourceType, accountId, awsRegion, resourceId});
+    resource.arn =
+        arn ??
+        createArnWithResourceType({
+            resourceType,
+            accountId,
+            awsRegion,
+            resourceId,
+        });
     resource.id = resource.arn;
 
     switch (resource.resourceType) {
@@ -64,9 +90,12 @@ function normaliseConfigurationItem(resource) {
             break;
     }
 
-    resource.configuration = isString(configuration) ? JSON.parse(configuration) : configuration;
-    resource.configurationItemCaptureTime = isDate(configurationItemCaptureTime) ?
-        configurationItemCaptureTime.toISOString() : configurationItemCaptureTime;
+    resource.configuration = isString(configuration)
+        ? JSON.parse(configuration)
+        : configuration;
+    resource.configurationItemCaptureTime = isDate(configurationItemCaptureTime)
+        ? configurationItemCaptureTime.toISOString()
+        : configurationItemCaptureTime;
 
     // the return type for tags is not always consistent, sometimes it returns an object where the key/value
     // pairs represent the tags names and values
@@ -75,22 +104,32 @@ function normaliseConfigurationItem(resource) {
     return resource;
 }
 
-async function getAllConfigResources(configServiceClient, configAggregatorName) {
+async function getAllConfigResources(
+    configServiceClient,
+    configAggregatorName
+) {
     logger.profile('Time to download resources from Config');
     logger.info('Retrieving resources from Config.');
 
     return Promise.all([
-        getAdvancedQueryUnsupportedResources(configServiceClient, configAggregatorName),
+        getAdvancedQueryUnsupportedResources(
+            configServiceClient,
+            configAggregatorName
+        ),
         // We need to exclude the resources we get from querying the aggregator without the SQL
         // API because it returns results in UpperCamelCase whereas the SQL API returns them in
         // camelCase. If these resource types get added to the SQL API we would have duplicates
         // with different casing schemes that could break downstream processing.
-        configServiceClient.getAllAggregatorResources(configAggregatorName,
-            {excludes: {resourceTypes: resourceTypesToExclude}}
-        )
-        ])
+        configServiceClient.getAllAggregatorResources(configAggregatorName, {
+            excludes: {resourceTypes: resourceTypesToExclude},
+        }),
+    ])
         .then(R.chain(R.map(normaliseConfigurationItem)))
-        .then(R.tap(() => logger.profile('Time to download resources from Config')))
+        .then(
+            R.tap(() =>
+                logger.profile('Time to download resources from Config')
+            )
+        );
 }
 
 export default getAllConfigResources;

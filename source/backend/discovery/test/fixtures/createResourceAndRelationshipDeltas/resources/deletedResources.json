@@ -1,29 +1,29 @@
 {
-  "dbResources": {
-    "AWS::ApiGateway::Resource": {
-      "id": "apiGatewayResourceArn",
-      "resourceType": "AWS::ApiGateway::Resource",
-      "md5Hash": "apiGatewayResourceHash",
-      "properties": {
-        "b": "apiGatewayResourceProp"
-      }
+    "dbResources": {
+        "AWS::ApiGateway::Resource": {
+            "id": "apiGatewayResourceArn",
+            "resourceType": "AWS::ApiGateway::Resource",
+            "md5Hash": "apiGatewayResourceHash",
+            "properties": {
+                "b": "apiGatewayResourceProp"
+            }
+        },
+        "AWS::ApiGateway::Method": {
+            "id": "apiGatewayMethodArn",
+            "resourceType": "AWS::ApiGateway::Method",
+            "md5Hash": "apiGatewayMethodHash",
+            "properties": {
+                "a": "apiGatewayMethodProp"
+            }
+        },
+        "AWS::ECS::Task": {
+            "id": "ecsTaskArn",
+            "resourceType": "AWS::ECS::Task",
+            "md5Hash": "ecsTaskHash",
+            "properties": {
+                "c": "ecsTaskProp"
+            }
+        }
     },
-    "AWS::ApiGateway::Method": {
-      "id": "apiGatewayMethodArn",
-      "resourceType": "AWS::ApiGateway::Method",
-      "md5Hash": "apiGatewayMethodHash",
-      "properties": {
-        "a": "apiGatewayMethodProp"
-      }
-    },
-    "AWS::ECS::Task": {
-      "id": "ecsTaskArn",
-      "resourceType": "AWS::ECS::Task",
-      "md5Hash": "ecsTaskHash",
-      "properties": {
-        "c": "ecsTaskProp"
-      }
-    }
-  },
-  "resources": {}
+    "resources": {}
 }

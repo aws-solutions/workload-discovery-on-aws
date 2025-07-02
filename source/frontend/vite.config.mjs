@@ -4,7 +4,6 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import react from '@vitejs/plugin-react';
 import svgrPlugin from 'vite-plugin-svgr';
-import istanbul from 'vite-plugin-istanbul';
 
 function excludeMsw() {
     return {
@@ -60,12 +59,6 @@ export default defineConfig({
                 });
             },
         },
-        // this plugin is require to instrument the code running in a browser for
-        // the Cypress tests
-        istanbul({
-            cypress: true,
-            requireEnv: false,
-        }),
     ],
     resolve: {
         // this is required for Amplify
@@ -80,17 +73,8 @@ export default defineConfig({
         },
     },
     test: {
-        environment: 'jsdom',
-        setupFiles: [
-            './src/tests/vitest/setupFiles/amplify.js',
-            './src/tests/vitest/setupFiles/cleanup.js',
-            './src/tests/vitest/setupFiles/globals.js',
-            './src/tests/vitest/setupFiles/server.js',
-            './src/tests/vitest/setupFiles/jest-dom.js',
-        ],
         coverage: {
             provider: 'v8',
-            reportsDirectory: 'vitest-coverage',
             reporter: [
                 ['lcov', {projectRoot: '../..'}],
                 ['html'],

@@ -1,0 +1,21 @@
+{
+  "description": "The markdown for the documentation on https://aws-solutions.github.io/workload-discovery-on-aws",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@antora/cli": "3.1.7",
+    "@antora/site-generator": "3.1.7"
+  },
+  "overrides": {
+    "vinyl-fs": {
+      "glob-stream": "7.0"
+    }
+  },
+  "scripts": {
+    "build": "antora --fetch antora-playbook.yml",
+    "clean": "rm -rf build/"
+  }
+}

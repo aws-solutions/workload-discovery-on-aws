@@ -1,30 +1,30 @@
 {
-  "version": 1,
-  "type": "AWS::ECS::TaskDefinition",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with Role",
-        "path": "ExecutionRoleArn",
-        "identifierType": "arn"
-      },
-      {
-        "relationshipName": "Is associated with Role",
-        "path": "TaskRoleArn",
-        "identifierType": "arn"
-      },
-      {
-        "resourceType": "AWS::EFS::AccessPoint",
-        "relationshipName": "Is associated with",
-        "path": "Volumes[].EfsVolumeConfiguration.AuthorizationConfig.AccessPointId",
-        "identifierType": "resourceId"
-      },
-      {
-        "resourceType": "AWS::EFS::FileSystem",
-        "relationshipName": "Is associated with",
-        "path": "Volumes[].EfsVolumeConfiguration.FileSystemId",
-        "identifierType": "resourceId"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::ECS::TaskDefinition",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with Role",
+                "path": "ExecutionRoleArn",
+                "identifierType": "arn"
+            },
+            {
+                "relationshipName": "Is associated with Role",
+                "path": "TaskRoleArn",
+                "identifierType": "arn"
+            },
+            {
+                "resourceType": "AWS::EFS::AccessPoint",
+                "relationshipName": "Is associated with",
+                "path": "Volumes[].EfsVolumeConfiguration.AuthorizationConfig.AccessPointId",
+                "identifierType": "resourceId"
+            },
+            {
+                "resourceType": "AWS::EFS::FileSystem",
+                "relationshipName": "Is associated with",
+                "path": "Volumes[].EfsVolumeConfiguration.FileSystemId",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
 }

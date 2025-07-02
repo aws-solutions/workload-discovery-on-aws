@@ -1,29 +1,29 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "managedRole": {
-    "id": "${managedRole.arn}",
-    "arn": "arn:aws:iam::aws:policy/AdministratorAccess",
-    "resourceId": "${managedRole.arn}",
-    "resourceName": "${managedRole.arn}",
-    "resourceType": "AWS::IAM::AWSManagedPolicy",
-    "configuration": {},
-    "relationships": []
-  },
-  "user": {
-    "id": "${user.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:user/testUser",
-    "resourceType": "AWS::IAM::User",
-    "resourceName": "testUser",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": [
-        {
-          "policyArn": "${managedRole.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "managedRole": {
+        "id": "${managedRole.arn}",
+        "arn": "arn:aws:iam::aws:policy/AdministratorAccess",
+        "resourceId": "${managedRole.arn}",
+        "resourceName": "${managedRole.arn}",
+        "resourceType": "AWS::IAM::AWSManagedPolicy",
+        "configuration": {},
+        "relationships": []
+    },
+    "user": {
+        "id": "${user.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:user/testUser",
+        "resourceType": "AWS::IAM::User",
+        "resourceName": "testUser",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": [
+                {
+                    "policyArn": "${managedRole.resourceId}"
+                }
+            ]
         }
-      ]
     }
-  }
 }

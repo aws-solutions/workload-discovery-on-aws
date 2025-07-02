@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import * as R from 'ramda';
 import dayjs from 'dayjs';
 import {hashProperty} from '../../../Utils/ObjectUtils';
@@ -16,11 +16,14 @@ import {
     SpaceBetween,
     StatusIndicator,
     Modal,
+    Popover,
+    Grid,
+    Select,
 } from '@cloudscape-design/components';
 import {useCollection} from '@cloudscape-design/collection-hooks';
 import {isEmpty} from 'ramda';
 import PropTypes from 'prop-types';
-import {useAccounts, useRemoveAccountRegion} from '../../Hooks/useAccounts';
+import {useRemoveAccountRegion} from '../../Hooks/useAccounts';
 import {useResourcesRegionMetadata} from '../../Hooks/useResourcesMetadata';
 import {isUsingOrganizations} from '../../../Utils/AccountUtils';
 import {createTableAriaLabels} from '../../../Utils/AccessibilityUtils';
@@ -64,60 +67,137 @@ const columns = [
         width: 150,
         minWidth: 150,
     },
+    {
+        id: 'configStatus',
+        header: 'AWS Config Status',
+        cell: e => {
+            if (e.isConfigEnabled == null) {
+                return (
+                    <Popover
+                        dismissButton={false}
+                        size="small"
+                        content={
+                            'The enablement status of AWS Config will be updated on the next successful run of the discovery process.'
+                        }
+                    >
+                        <StatusIndicator
+                            type="info"
+                            iconAriaLabel={`Config enablement status info`}
+                        >
+                            Unknown
+                        </StatusIndicator>
+                    </Popover>
+                );
+            } else if (e.isConfigEnabled === true) {
+                return (
+                    <StatusIndicator
+                        type="success"
+                        iconAriaLabel={`Config enablement status success`}
+                    >
+                        Enabled
+                    </StatusIndicator>
+                );
+            } else {
+                // This is always an error when in self managed mode as it means user has not
+                // deployed the regional-resources template. In AWS Organisation mode, not every
+                // region in all accounts in the organisation will necessarily have Config enabled
+                const type = isUsingOrganizations() ? 'info' : 'error';
+                return (
+                    <StatusIndicator
+                        type={type}
+                        iconAriaLabel={`Config enablement status ${type}`}
+                    >
+                        Not Enabled
+                    </StatusIndicator>
+                );
+            }
+        },
+        width: 200,
+        minWidth: 200,
+    },
 ];
 
-const DiscoverableRegionsTable = ({selectedAccounts}) => {
+const defaultConfigStatus = {value: '0', label: 'Any Role Status'};
+
+const selectConfigStatusOptions = [
+    defaultConfigStatus,
+    {value: '1', label: 'Unknown'},
+    {value: '2', label: 'Enabled'},
+    {value: '3', label: 'Not Enabled'},
+];
+
+function matchesConfigStatus(item, selectedRoleStatus) {
+    switch (selectedRoleStatus.label) {
+        case 'Unknown':
+            return item.isConfigEnabled == null;
+        case 'Enabled':
+            return item.isConfigEnabled === true;
+        case 'Not Enabled':
+            return item.isConfigEnabled === false;
+        default:
+            return true;
+    }
+}
+
+const DiscoverableRegionsTable = ({
+    accounts,
+    isLoadingAccounts,
+    selectedAccounts,
+}) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-    const {data: accounts = [], isLoading: loadingAccounts} = useAccounts();
     const [selectedRegions, setSelectedRegions] = React.useState([]);
+    const [configStatus, setConfigStatus] = useState(defaultConfigStatus);
     const {removeAsync} = useRemoveAccountRegion();
     const {handleError} = useQueryErrorHandler();
-    const {data = [], isLoading: loadingRegions} = useResourcesRegionMetadata(
-        R.chain(e => {
-            return {
-                accountId: e.accountId,
-                regions: R.map(r => {
-                    return {name: r.name};
-                }, e.regions),
-            };
-        }, selectedAccounts)
-    );
+    const {data: resourcesRegionMetadata = [], isLoading: isLoadingRegions} =
+        useResourcesRegionMetadata(
+            R.chain(e => {
+                return {
+                    accountId: e.accountId,
+                    regions: R.map(r => {
+                        return {name: r.name};
+                    }, e.regions),
+                };
+            }, selectedAccounts)
+        );
+    const [regions, setRegions] = React.useState([]);
 
-    const addCount = (region, response) => {
-        const x = R.find(R.propEq('id', region.id))(response);
-        return x ? R.assoc('count', x.count, region) : region;
-    };
+    useEffect(() => {
+        if (accounts == null || isLoadingAccounts || isLoadingRegions) return;
 
-    const accountsToRegions = R.compose(
-        R.map(e => R.assoc('id', `${e.accountId}-${e.name}`, e)),
-        R.chain(e => R.map(R.assoc('accountId', e.accountId), e.regions))
-    );
+        const countLookUp = resourcesRegionMetadata.reduce(
+            (accum, {accountId, regions}) => {
+                regions.forEach(region => {
+                    accum[`${accountId}-${region.name}`] = region.count;
+                });
+                return accum;
+            },
+            {}
+        );
 
-    const regions = R.compose(
-        R.uniqBy(e => e.id),
-        R.map(e => addCount(e, accountsToRegions(data))),
-        R.reduce(
-            (acc, e) =>
-                R.concat(
-                    acc,
-                    R.chain(region => {
-                        return {
-                            accountId: e.accountId,
-                            accountName: e.name,
-                            name: region.name,
-                            id: `${e.accountId}-${region.name}`,
-                        };
-                    }, e.regions)
-                ),
-            []
-        ),
-        R.filter(
-            x =>
-                !R.isNil(
-                    R.find(R.propEq('accountId', x.accountId))(selectedAccounts)
-                )
-        )
-    )(accounts);
+        const regionsWithCount = accounts
+            .filter(account => {
+                return (
+                    selectedAccounts.find(
+                        x => x.accountId === account.accountId
+                    ) != null
+                );
+            })
+            .flatMap(({accountId, regions}) => {
+                return regions.map(region => {
+                    const id = `${accountId}-${region.name}`;
+
+                    return {
+                        ...region,
+                        accountId,
+                        id,
+                        count: countLookUp[id],
+                    };
+                });
+            });
+
+        setRegions(regionsWithCount);
+    }, [accounts, resourcesRegionMetadata, selectedAccounts, isLoadingRegions]);
 
     const {items, filterProps, collectionProps, paginationProps} =
         useCollection(regions, {
@@ -146,12 +226,22 @@ const DiscoverableRegionsTable = ({selectedAccounts}) => {
                         </Box>
                     </Box>
                 ),
+                filteringFunction: (item, filteringText) => {
+                    return (
+                        (item.accountId.includes(filteringText) ||
+                            item.name.includes(filteringText)) &&
+                        matchesConfigStatus(item, configStatus)
+                    );
+                },
             },
             pagination: {pageSize: 10},
             sorting: {},
         });
 
     const handleDelete = () => {
+        // removeAsync automatically triggers a refetch of accounts data
+        // through React Query's cache invalidation. Without this, the
+        // region table will be stale and still show the deleted regions.
         removeAsync({
             accountId: R.head(selectedAccounts).accountId,
             regions: R.map(e => {
@@ -239,10 +329,17 @@ const DiscoverableRegionsTable = ({selectedAccounts}) => {
                     </Header>
                 }
                 trackBy={'id'}
-                loading={loadingAccounts || loadingRegions}
+                loading={isLoadingAccounts || isLoadingRegions}
                 resizableColumns
                 columnDefinitions={columns}
-                visibleColumns={['region', 'name', 'account', 'count', 'types']}
+                visibleColumns={[
+                    'region',
+                    'name',
+                    'account',
+                    'count',
+                    'configStatus',
+                    'types',
+                ]}
                 items={items}
                 selectedItems={selectedRegions}
                 selectionType="multi"
@@ -252,10 +349,27 @@ const DiscoverableRegionsTable = ({selectedAccounts}) => {
                 isItemDisabled={isUsingOrganizations}
                 loadingText="Loading Regions"
                 filter={
-                    <TextFilter
-                        {...filterProps}
-                        filteringPlaceholder="Find a Region..."
-                    />
+                    <Grid
+                        gridDefinition={[
+                            {colspan: {default: 3, xxs: 9}},
+                            {colspan: {default: 9, xxs: 3}},
+                        ]}
+                    >
+                        <TextFilter
+                            {...filterProps}
+                            filteringPlaceholder="Find a Region..."
+                        />
+                        <Select
+                            options={selectConfigStatusOptions}
+                            selectedAriaLabel="Selected"
+                            selectedOption={configStatus}
+                            onChange={event => {
+                                setConfigStatus(event.detail.selectedOption);
+                            }}
+                            ariaDescribedby={null}
+                            expandToViewport={true}
+                        />
+                    </Grid>
                 }
                 pagination={<Pagination {...paginationProps} />}
             />

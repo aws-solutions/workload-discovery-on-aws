@@ -1,14 +1,14 @@
 {
-  "version": 1,
-  "type": "AWS::AutoScaling::AutoScalingGroup",
-  "relationships": {
-    "descriptors": [
-      {
-        "relationshipName": "Is associated with",
-        "resourceType": "AWS::EC2::LaunchTemplate",
-        "path": "launchTemplate.launchTemplateId",
-        "identifierType": "resourceId"
-      }
-    ]
-  }
+    "version": 1,
+    "type": "AWS::AutoScaling::AutoScalingGroup",
+    "relationships": {
+        "descriptors": [
+            {
+                "relationshipName": "Is associated with",
+                "resourceType": "AWS::EC2::LaunchTemplate",
+                "path": "launchTemplate.launchTemplateId",
+                "identifierType": "resourceId"
+            }
+        ]
+    }
 }

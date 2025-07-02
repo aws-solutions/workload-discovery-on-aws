@@ -130,10 +130,16 @@ npm run build
 cp ./dist/account-import-templates-api.zip "${build_dist_dir}/account-import-templates-api.zip"
 
 echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Application Monitoring API"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/application-monitoring"
+npm run build
+cp ./dist/application-monitoring.zip "${build_dist_dir}/application-monitoring.zip"
+
+echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Gremlin Resolver"
 echo "------------------------------------------------------------------------------"
 cd "${source_dir}/backend/functions/graph-api"
-
 npm run build
 cp ./dist/graph-api.zip "${build_dist_dir}/graph-api.zip"
 

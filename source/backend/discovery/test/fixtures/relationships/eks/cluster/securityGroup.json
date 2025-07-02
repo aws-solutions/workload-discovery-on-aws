@@ -1,47 +1,45 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "clusterRole": {
-    "id": "${clusterRole.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/myClusterRole",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "myClusterRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
+    },
+    "clusterRole": {
+        "id": "${clusterRole.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/myClusterRole",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "myClusterRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
+        }
+    },
+    "securityGroup1": {
+        "resourceId": "sg-0123456789abcdef0",
+        "configuration": {},
+        "relationships": []
+    },
+    "securityGroup2": {
+        "resourceId": "sg-111111111111111111",
+        "configuration": {},
+        "relationships": []
+    },
+    "cluster": {
+        "id": "${cluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:cluster/my-eks-cluster",
+        "resourceType": "AWS::EKS::Cluster",
+        "resourceId": "${cluster.arn}",
+        "resourceName": "my-eks-cluster",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "Regional",
+        "relationships": [],
+        "configuration": {
+            "ClusterSecurityGroupId": "${securityGroup2.resourceId}",
+            "ResourcesVpcConfig": {
+                "SecurityGroupIds": ["${securityGroup1.resourceId}"],
+                "SubnetIds": []
+            },
+            "RoleArn": "${clusterRole.arn}"
+        }
     }
-  },
-  "securityGroup1": {
-    "resourceId": "sg-0123456789abcdef0",
-    "configuration": {},
-    "relationships": []
-  },
-  "securityGroup2": {
-    "resourceId": "sg-111111111111111111",
-    "configuration": {},
-    "relationships": []
-  },
-  "cluster": {
-    "id": "${cluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:cluster/my-eks-cluster",
-    "resourceType": "AWS::EKS::Cluster",
-    "resourceId": "${cluster.arn}",
-    "resourceName": "my-eks-cluster",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "Regional",
-    "relationships": [],
-    "configuration": {
-      "ClusterSecurityGroupId": "${securityGroup2.resourceId}",
-      "ResourcesVpcConfig": {
-        "SecurityGroupIds": [
-          "${securityGroup1.resourceId}"
-        ],
-        "SubnetIds": []
-      },
-      "RoleArn": "${clusterRole.arn}"
-    }
-  }
 }

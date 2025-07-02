@@ -1,42 +1,42 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2"
-  },
-  "launchTemplate":  {
-    "resourceId": "lt-0123456789abcdef1"
-  },
-  "subnet": {
-    "id": "${subnet.arn}",
-    "arn": "subnetArn",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "AWS::EC2::Subnet",
-    "resourceId": "subnet-0123456789abcdef",
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2"
     },
-    "relationships": []
-  },
-  "asg": {
-    "id": "${asg.arn}",
-    "resourceId": "${asg.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "asgArn",
-    "resourceCreationTime": "2022-03-02T17:28:27.771Z",
-    "resourceType": "AWS::AutoScaling::AutoScalingGroup",
-    "configuration": {
-      "targetGroupARNs": [],
-      "vpczoneIdentifier":"${subnet.resourceId}",
-      "launchTemplate": {
-        "launchTemplateId": "${launchTemplate.resourceId}"
-      }
+    "launchTemplate": {
+        "resourceId": "lt-0123456789abcdef1"
     },
-    "resourceName": "asgResourceName",
-    "availabilityZone": "Multiple Availability Zones",
-    "tags": [],
-    "relationships": []
-  }
+    "subnet": {
+        "id": "${subnet.arn}",
+        "arn": "subnetArn",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "AWS::EC2::Subnet",
+        "resourceId": "subnet-0123456789abcdef",
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        },
+        "relationships": []
+    },
+    "asg": {
+        "id": "${asg.arn}",
+        "resourceId": "${asg.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "asgArn",
+        "resourceCreationTime": "2022-03-02T17:28:27.771Z",
+        "resourceType": "AWS::AutoScaling::AutoScalingGroup",
+        "configuration": {
+            "targetGroupARNs": [],
+            "vpczoneIdentifier": "${subnet.resourceId}",
+            "launchTemplate": {
+                "launchTemplateId": "${launchTemplate.resourceId}"
+            }
+        },
+        "resourceName": "asgResourceName",
+        "availabilityZone": "Multiple Availability Zones",
+        "tags": [],
+        "relationships": []
+    }
 }

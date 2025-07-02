@@ -1,0 +1,7 @@
+* xref:WebUI-Features.adoc[]
+* xref:cost-optimization.adoc[]
+* xref:data_model.adoc[]
+* xref:scaling-the-discovery-process.adoc[]
+* xref:debugging-the-discovery-component.adoc[]
+* Additional Documentation
+** https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/welcome.html[Implementation Guide]

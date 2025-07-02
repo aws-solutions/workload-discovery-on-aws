@@ -13,7 +13,7 @@ import {
     AWS_IAM_POLICY,
     AWS_IAM_GROUP,
     AWS_TAGS_TAG,
-    UNKNOWN
+    UNKNOWN,
 } from './constants.mjs';
 import {resourceTypesToHash} from './utils.mjs';
 
@@ -21,28 +21,52 @@ function createLookUpMaps(resources) {
     const resourcesMap = new Map();
     const resourceIdentifierToIdMap = new Map();
 
-    for(let resource of resources) {
-        const {id, resourceId, resourceType, resourceName, accountId, awsRegion} = resource;
+    for (let resource of resources) {
+        const {
+            id,
+            resourceId,
+            resourceType,
+            resourceName,
+            accountId,
+            awsRegion,
+        } = resource;
 
-        if(resourceName != null) {
+        if (resourceName != null) {
             resourceIdentifierToIdMap.set(
-                createResourceNameKey({resourceType, resourceName, accountId, awsRegion}),
-                id);
+                createResourceNameKey({
+                    resourceType,
+                    resourceName,
+                    accountId,
+                    awsRegion,
+                }),
+                id
+            );
         }
         resourceIdentifierToIdMap.set(
-            createResourceIdKey({resourceType, resourceId, accountId, awsRegion}),
-            id);
+            createResourceIdKey({
+                resourceType,
+                resourceId,
+                accountId,
+                awsRegion,
+            }),
+            id
+        );
 
         resourcesMap.set(id, resource);
     }
 
     return {
         resourcesMap,
-        resourceIdentifierToIdMap
-    }
+        resourceIdentifierToIdMap,
+    };
 }
 
-function createResourceNameKey({resourceName, resourceType, accountId, awsRegion}) {
+function createResourceNameKey({
+    resourceName,
+    resourceType,
+    accountId,
+    awsRegion,
+}) {
     return `${resourceType}_${resourceName}_${accountId}_${awsRegion}`;
 }
 
@@ -56,40 +80,91 @@ const globalResourceTypes = new Set([
     AWS_IAM_ROLE,
     AWS_IAM_POLICY,
     AWS_IAM_GROUP,
-    AWS_IAM_AWS_MANAGED_POLICY
+    AWS_IAM_AWS_MANAGED_POLICY,
 ]);
 
 function isGlobalResourceType(resourceType) {
     return globalResourceTypes.has(resourceType);
 }
 
-const createLinksFromRelationships = R.curry((resourceIdentifierToIdMap, resourcesMap, resource) => {
-    const  {id: source, accountId: sourceAccountId, awsRegion: sourceRegion, relationships = []} = resource;
+const createLinksFromRelationships = R.curry(
+    (resourceIdentifierToIdMap, resourcesMap, resource) => {
+        const {
+            id: source,
+            accountId: sourceAccountId,
+            awsRegion: sourceRegion,
+            relationships = [],
+        } = resource;
 
-    return relationships.map(({arn, resourceId, resourceType, resourceName, relationshipName, awsRegion: targetRegion, accountId: targetAccountId}) => {
-        const awsRegion = targetRegion ?? (isGlobalResourceType(resourceType) ? GLOBAL : sourceRegion);
-        const accountId = resourceType === AWS_IAM_AWS_MANAGED_POLICY ? AWS : (targetAccountId ?? sourceAccountId);
+        return relationships.map(
+            ({
+                arn,
+                resourceId,
+                resourceType,
+                resourceName,
+                relationshipName,
+                awsRegion: targetRegion,
+                accountId: targetAccountId,
+            }) => {
+                const awsRegion =
+                    targetRegion ??
+                    (isGlobalResourceType(resourceType)
+                        ? GLOBAL
+                        : sourceRegion);
+                const accountId =
+                    resourceType === AWS_IAM_AWS_MANAGED_POLICY
+                        ? AWS
+                        : (targetAccountId ?? sourceAccountId);
 
-        const findId = arn ?? (resourceId == null ?
-            resourceIdentifierToIdMap.get(createResourceNameKey({resourceType, resourceName, accountId, awsRegion})) :
-            resourceIdentifierToIdMap.get(createResourceIdKey({resourceType, resourceId, accountId, awsRegion})));
-        const {id: target} = resourcesMap.get(findId) ?? {id: UNKNOWN};
+                const findId =
+                    arn ??
+                    (resourceId == null
+                        ? resourceIdentifierToIdMap.get(
+                              createResourceNameKey({
+                                  resourceType,
+                                  resourceName,
+                                  accountId,
+                                  awsRegion,
+                              })
+                          )
+                        : resourceIdentifierToIdMap.get(
+                              createResourceIdKey({
+                                  resourceType,
+                                  resourceId,
+                                  accountId,
+                                  awsRegion,
+                              })
+                          ));
+                const {id: target} = resourcesMap.get(findId) ?? {id: UNKNOWN};
 
-        return {
-            source,
-            target,
-            label: relationshipName.trim().toUpperCase().replace(/ /g, '_')
-        }
-    });
-});
+                return {
+                    source,
+                    target,
+                    label: relationshipName
+                        .trim()
+                        .toUpperCase()
+                        .replace(/ /g, '_'),
+                };
+            }
+        );
+    }
+);
 
 function getLinkChanges(configLinks, dbLinks) {
     const linksToAdd = iterate(configLinks.values())
-        .filter(({source, label, target}) => target !== UNKNOWN && !dbLinks.has(`${source}_${label}_${target}`))
+        .filter(
+            ({source, label, target}) =>
+                target !== UNKNOWN &&
+                !dbLinks.has(`${source}_${label}_${target}`)
+        )
         .toArray();
 
-    const linksToDelete  = iterate(dbLinks.values())
-        .filter(({source, label, target}) => target !== UNKNOWN && !configLinks.has(`${source}_${label}_${target}`))
+    const linksToDelete = iterate(dbLinks.values())
+        .filter(
+            ({source, label, target}) =>
+                target !== UNKNOWN &&
+                !configLinks.has(`${source}_${label}_${target}`)
+        )
         .map(x => x.id)
         .toArray();
 
@@ -103,20 +178,20 @@ function createUpdate(dbResourcesMap) {
             id,
             md5Hash,
             properties: Object.entries(properties).reduce((acc, [k, v]) => {
-                if(dbProperties[k] !== v) acc[k] = v;
+                if (dbProperties[k] !== v) acc[k] = v;
                 return acc;
-            }, {})
-        }
-    }
+            }, {}),
+        };
+    };
 }
 
 function createStore({id, resourceType, md5Hash, properties}) {
     return {
         id,
         md5Hash,
-        label: resourceType.replace(/::/g, "_"),
-        properties
-    }
+        label: resourceType.replace(/::/g, '_'),
+        properties,
+    };
 }
 
 function getResourceChanges(resourcesMap, dbResourcesMap) {
@@ -131,20 +206,27 @@ function getResourceChanges(resourcesMap, dbResourcesMap) {
     const resourcesToUpdate = iterate(resources)
         .filter(resource => {
             const {id} = resource;
-            if(!dbResourcesMap.has(id)) return false;
+            if (!dbResourcesMap.has(id)) return false;
 
             const dbResource = dbResourcesMap.get(id);
-            if(resourceTypesToHash.has(resource.resourceType)) {
+            if (resourceTypesToHash.has(resource.resourceType)) {
                 return resource.md5Hash !== dbResource.md5Hash;
             }
 
             // we previously did not ingest the supplementaryConfiguration field so cannot rely on the
             // AWS Config configurationItemCaptureTime timestamp to ascertain if a resource has changed
-            if(dbResource.properties.supplementaryConfiguration == null && resource.properties.supplementaryConfiguration != null) {
+            if (
+                dbResource.properties.supplementaryConfiguration == null &&
+                resource.properties.supplementaryConfiguration != null
+            ) {
                 return true;
             }
 
-            return resource.resourceType !== AWS_TAGS_TAG && resource.properties.configurationItemCaptureTime !== dbResource.properties.configurationItemCaptureTime;
+            return (
+                resource.resourceType !== AWS_TAGS_TAG &&
+                resource.properties.configurationItemCaptureTime !==
+                    dbResource.properties.configurationItemCaptureTime
+            );
         })
         .map(createUpdate(dbResourcesMap))
         .toArray();
@@ -157,24 +239,40 @@ function getResourceChanges(resourcesMap, dbResourcesMap) {
     return {
         resourcesToStore,
         resourceIdsToDelete,
-        resourcesToUpdate
-    }
+        resourcesToUpdate,
+    };
 }
 
-function createResourceAndRelationshipDeltas(dbResourcesMap, dbLinksMap, resources) {
-    const {resourceIdentifierToIdMap, resourcesMap} = createLookUpMaps(resources);
+function createResourceAndRelationshipDeltas(
+    dbResourcesMap,
+    dbLinksMap,
+    resources
+) {
+    const {resourceIdentifierToIdMap, resourcesMap} =
+        createLookUpMaps(resources);
 
-    const links = resources.flatMap(createLinksFromRelationships(resourceIdentifierToIdMap, resourcesMap));
-    const configLinksMap = new Map(links.map(x => [`${x.source}_${x.label}_${x.target}`, x]));
+    const links = resources.flatMap(
+        createLinksFromRelationships(resourceIdentifierToIdMap, resourcesMap)
+    );
+    const configLinksMap = new Map(
+        links.map(x => [`${x.source}_${x.label}_${x.target}`, x])
+    );
 
-    const {linksToAdd, linksToDelete} = getLinkChanges(configLinksMap, dbLinksMap);
+    const {linksToAdd, linksToDelete} = getLinkChanges(
+        configLinksMap,
+        dbLinksMap
+    );
 
-    const {resourceIdsToDelete, resourcesToStore, resourcesToUpdate} = getResourceChanges(resourcesMap, dbResourcesMap);
+    const {resourceIdsToDelete, resourcesToStore, resourcesToUpdate} =
+        getResourceChanges(resourcesMap, dbResourcesMap);
 
     return {
-        resourceIdsToDelete, resourcesToStore, resourcesToUpdate,
-        linksToAdd, linksToDelete
-    }
+        resourceIdsToDelete,
+        resourcesToStore,
+        resourcesToUpdate,
+        linksToAdd,
+        linksToDelete,
+    };
 }
 
 export default R.curry(createResourceAndRelationshipDeltas);

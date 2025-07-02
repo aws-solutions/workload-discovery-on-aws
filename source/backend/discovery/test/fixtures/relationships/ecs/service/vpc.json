@@ -1,115 +1,113 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "subnet": {
-      "id1": "subnet-0123456789abcdef",
-      "id2": "subnet-9876543210fedcba",
-      "resourceType": "AWS::EC2::Subnet",
-      "relationshipName": "Is contained in "
-    }
-  },
-  "vpc": {
-    "resourceId": "vpc-0123456789abcdef0"
-  },
-  "subnet1": {
-    "id": "${subnet1.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "availabilityZone": "${$constants.region}a",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-0123456789abcdef",
-    "relationships": [],
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
-    }
-  },
-  "subnet2": {
-    "id": "${subnet2.arn}",
-    "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
-    "accountId": "${$constants.accountId}",
-    "availabilityZone": "${$constants.region}b",
-    "awsRegion": "${$constants.region}",
-    "vpcId": "${$constants.vpcId}",
-    "resourceType": "${$constants.subnet.resourceType}",
-    "resourceId": "subnet-9876543210fedcba",
-    "relationships": [],
-    "configuration": {
-      "vpcId": "${vpc.resourceId}"
-    }
-  },
-  "securityGroup": {
-    "id": "${securityGroup.arn}",
-    "arn": "securityGroupArn",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "resourceType": "AWS::EC2::SecurityGroup",
-    "resourceId": "sg-1234567890abcdef0",
-    "relationships": [],
-    "configuration": {
-      "ipPermissions": [],
-      "ipPermissionsEgress": []
-    }
-  },
-  "ecsServiceRole": {
-    "id": "${ecsServiceRole.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "testRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
-    }
-  },
-  "ecsCluster": {
-    "id": "${ecsCluster.arn}",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
-    "resourceType": "AWS::ECS::Cluster",
-    "resourceId": "testCluster",
-    "relationships": [],
-    "configuration": {}
-  },
-  "ecsService": {
-    "id": "${ecsService.arn}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "resourceType": "AWS::ECS::Service",
-    "availabilityZone": "Regional",
-    "relationships": [],
-    "configuration": {
-      "Role": "${ecsServiceRole.arn}",
-      "Cluster": "${ecsCluster.arn}",
-      "TaskDefinition": "${ecsTaskDefinition.arn}",
-      "NetworkConfiguration": {
-        "AwsvpcConfiguration": {
-          "Subnets": [
-            "${subnet1.resourceId}",
-            "${subnet2.resourceId}"
-          ],
-          "SecurityGroups": [
-            "${securityGroup.resourceId}"
-          ]
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "subnet": {
+            "id1": "subnet-0123456789abcdef",
+            "id2": "subnet-9876543210fedcba",
+            "resourceType": "AWS::EC2::Subnet",
+            "relationshipName": "Is contained in "
         }
-      }
+    },
+    "vpc": {
+        "resourceId": "vpc-0123456789abcdef0"
+    },
+    "subnet1": {
+        "id": "${subnet1.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id1}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "availabilityZone": "${$constants.region}a",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "subnet-0123456789abcdef",
+        "relationships": [],
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        }
+    },
+    "subnet2": {
+        "id": "${subnet2.arn}",
+        "arn": "arn:aws:ec2:${$constants.region}:${$constants.accountId}:subnet/${$constants.subnet.id2}",
+        "accountId": "${$constants.accountId}",
+        "availabilityZone": "${$constants.region}b",
+        "awsRegion": "${$constants.region}",
+        "vpcId": "${$constants.vpcId}",
+        "resourceType": "${$constants.subnet.resourceType}",
+        "resourceId": "subnet-9876543210fedcba",
+        "relationships": [],
+        "configuration": {
+            "vpcId": "${vpc.resourceId}"
+        }
+    },
+    "securityGroup": {
+        "id": "${securityGroup.arn}",
+        "arn": "securityGroupArn",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "resourceId": "sg-1234567890abcdef0",
+        "relationships": [],
+        "configuration": {
+            "ipPermissions": [],
+            "ipPermissionsEgress": []
+        }
+    },
+    "ecsServiceRole": {
+        "id": "${ecsServiceRole.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/testRole",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "testRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
+        }
+    },
+    "ecsCluster": {
+        "id": "${ecsCluster.arn}",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster",
+        "resourceType": "AWS::ECS::Cluster",
+        "resourceId": "testCluster",
+        "relationships": [],
+        "configuration": {}
+    },
+    "ecsService": {
+        "id": "${ecsService.arn}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:cluster/testCluster/service",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "resourceType": "AWS::ECS::Service",
+        "availabilityZone": "Regional",
+        "relationships": [],
+        "configuration": {
+            "Role": "${ecsServiceRole.arn}",
+            "Cluster": "${ecsCluster.arn}",
+            "TaskDefinition": "${ecsTaskDefinition.arn}",
+            "NetworkConfiguration": {
+                "AwsvpcConfiguration": {
+                    "Subnets": [
+                        "${subnet1.resourceId}",
+                        "${subnet2.resourceId}"
+                    ],
+                    "SecurityGroups": ["${securityGroup.resourceId}"]
+                }
+            }
+        }
+    },
+    "ecsTaskDefinition": {
+        "id": "${ecsTaskDefinition.arn}",
+        "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
+        "accountId": "${$constants.accountId}",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "testDefinition:1",
+        "resourceType": "AWS::ECS::TaskDefinition",
+        "relationships": [],
+        "configuration": {
+            "ContainerDefinitions": [],
+            "Volumes": []
+        }
     }
-  },
-  "ecsTaskDefinition": {
-    "id": "${ecsTaskDefinition.arn}",
-    "arn": "arn:aws:ecs:${$constants.region}:${$constants.accountId}:task-definition/testDefinition:1",
-    "accountId": "${$constants.accountId}",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "testDefinition:1",
-    "resourceType": "AWS::ECS::TaskDefinition",
-    "relationships": [],
-    "configuration": {
-      "ContainerDefinitions": [],
-      "Volumes": []
-    }
-  }
 }

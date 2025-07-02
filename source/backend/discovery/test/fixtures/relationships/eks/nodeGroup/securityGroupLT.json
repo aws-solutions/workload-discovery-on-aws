@@ -1,49 +1,47 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "region": "eu-west-2",
-    "clusterName": "my-eks-cluster"
-  },
-  "securityGroup": {
-    "resourceId": "sg-0123456789abcdef0",
-    "configuration": {}
-  },
-  "launchTemplate":  {
-    "resourceId": "lt-0123456789abcdef1"
-  },
-  "nodeRole": {
-    "id": "${nodeRole.arn}",
-    "arn": "arn:aws:iam::${$constants.accountId}:role/nodeRole",
-    "resourceType": "AWS::IAM::Role",
-    "resourceName": "myClusterRole",
-    "relationships": [],
-    "configuration": {
-      "attachedManagedPolicies": []
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "region": "eu-west-2",
+        "clusterName": "my-eks-cluster"
+    },
+    "securityGroup": {
+        "resourceId": "sg-0123456789abcdef0",
+        "configuration": {}
+    },
+    "launchTemplate": {
+        "resourceId": "lt-0123456789abcdef1"
+    },
+    "nodeRole": {
+        "id": "${nodeRole.arn}",
+        "arn": "arn:aws:iam::${$constants.accountId}:role/nodeRole",
+        "resourceType": "AWS::IAM::Role",
+        "resourceName": "myClusterRole",
+        "relationships": [],
+        "configuration": {
+            "attachedManagedPolicies": []
+        }
+    },
+    "nodeGroup": {
+        "id": "${nodeGroup.arn}",
+        "accountId": "${$constants.accountId}",
+        "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:nodegroup/${$constants.clusterName}/ng-337771de/46c0048f-fc81-d1a8-b487-f24ca675733f",
+        "availabilityZone": "Regional",
+        "awsRegion": "${$constants.region}",
+        "resourceId": "${nodeGroup.arn}",
+        "resourceName": "${nodeGroup.arn}",
+        "resourceType": "AWS::EKS::Nodegroup",
+        "relationships": [],
+        "configuration": {
+            "clusterName": "${$constants.clusterName}",
+            "launchTemplate": {
+                "id": "${launchTemplate.resourceId}",
+                "name": "${$constants.clusterName}-nodegroup-ng-337771de"
+            },
+            "resources": {
+                "remoteAccessSecurityGroup": ["${securityGroup.resourceId}"]
+            },
+            "subnets": [],
+            "nodeRole": "${nodeRole.arn}"
+        }
     }
-  },
-  "nodeGroup": {
-    "id": "${nodeGroup.arn}",
-    "accountId": "${$constants.accountId}",
-    "arn": "arn:aws:eks:${$constants.region}:${$constants.accountId}:nodegroup/${$constants.clusterName}/ng-337771de/46c0048f-fc81-d1a8-b487-f24ca675733f",
-    "availabilityZone": "Regional",
-    "awsRegion": "${$constants.region}",
-    "resourceId": "${nodeGroup.arn}",
-    "resourceName": "${nodeGroup.arn}",
-    "resourceType": "AWS::EKS::Nodegroup",
-    "relationships": [],
-    "configuration": {
-      "clusterName": "${$constants.clusterName}",
-      "launchTemplate": {
-        "id": "${launchTemplate.resourceId}",
-        "name": "${$constants.clusterName}-nodegroup-ng-337771de"
-      },
-      "resources": {
-        "remoteAccessSecurityGroup": [
-          "${securityGroup.resourceId}"
-        ]
-      },
-      "subnets": [],
-      "nodeRole": "${nodeRole.arn}"
-    }
-  }
 }

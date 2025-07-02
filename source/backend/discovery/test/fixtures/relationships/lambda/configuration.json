@@ -1,19 +1,19 @@
 {
-  "$constants": {
-    "accountId": "xxxxxxxxxxxx",
-    "awsRegion": "eu-west-2"
-  },
-  "lambda": {
-    "id": "${lambda.arn}",
-    "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:test-function",
-    "accountId": "${$constants.accountId}",
-    "resourceType": "AWS::Lambda::Function",
-    "relationships": [],
-    "configuration": {
-      "deadLetterConfig": {
-        "targetArn": "dlqArn"
-      },
-      "kmsKeyArn": "kmsKeyArn"
+    "$constants": {
+        "accountId": "xxxxxxxxxxxx",
+        "awsRegion": "eu-west-2"
+    },
+    "lambda": {
+        "id": "${lambda.arn}",
+        "arn": "arn:aws:lambda:${$constants.awsRegion}:${$constants.accountId}:function:test-function",
+        "accountId": "${$constants.accountId}",
+        "resourceType": "AWS::Lambda::Function",
+        "relationships": [],
+        "configuration": {
+            "deadLetterConfig": {
+                "targetArn": "dlqArn"
+            },
+            "kmsKeyArn": "kmsKeyArn"
+        }
     }
-  }
 }

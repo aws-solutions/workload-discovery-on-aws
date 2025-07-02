@@ -2,7 +2,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal
 
 RUN dnf install -y shadow-utils
 
-RUN curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+RUN curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
 
 RUN dnf install nodejs -y
 

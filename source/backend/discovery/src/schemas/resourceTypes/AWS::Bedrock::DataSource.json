@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "type": "AWS::Bedrock::DataSource",
+  "relationships": {
+    "descriptors": [
+      {
+        "relationshipName": "Is contained in",
+        "resourceType": "AWS::Bedrock::KnowledgeBase",
+        "path": "knowledgeBaseId",
+        "identifierType": "resourceId"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "serverSideEncryptionConfiguration.kmsKeyArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "dataSourceConfiguration.s3Configuration.bucketArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "dataSourceConfiguration.confluenceConfiguration.sourceConfiguration.credentialsSecretArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "dataSourceConfiguration.salesforceConfiguration.sourceConfiguration.credentialsSecretArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "dataSourceConfiguration.sharePointConfiguration.sourceConfiguration.credentialsSecretArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "vectorIngestionConfiguration.customTransformationConfiguration.transformations[].transformationFunction.transformationLambdaConfiguration.lambdaArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "vectorIngestionConfiguration.contextEnrichmentConfiguration.bedrockFoundationModelConfiguration.modelArn",
+        "identifierType": "arn"
+      },
+      {
+        "relationshipName": "Is associated with",
+        "path": "vectorIngestionConfiguration.parsingConfiguration.bedrockFoundationModelConfiguration.modelArn",
+        "identifierType": "arn"
+      }
+    ]
+  }
+}
