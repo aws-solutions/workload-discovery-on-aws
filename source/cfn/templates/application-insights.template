@@ -160,7 +160,7 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: !Sub ${AWS::StackName}-AppSyncSearchRole
+        - PolicyName: WdAppSyncAppMonitoringPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:

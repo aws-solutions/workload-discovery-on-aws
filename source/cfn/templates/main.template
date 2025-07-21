@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Workload Discovery on AWS Main Template (SO0075a) - Solution - Main Template (uksb-1r0720e27) (version:<VERSION>)
+Description: (SO0075) Workload Discovery on AWS Main Template - Solution - Main Template (uksb-1r0720e27) (version:<VERSION>)
 
 Transform: AWS::Serverless-2016-10-31
 

@@ -102,7 +102,9 @@ Resources:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Properties:
       ResponseHeadersPolicyConfig:
-        Name: !Sub '${AWS::StackName}-SecurityHeaders'
+        Name: !Sub
+          - WdSecurityHeaders-${uuid}
+          - uuid: !Select [ 2, !Split [ '/', !Ref 'AWS::StackId' ] ]
         SecurityHeadersConfig:
           ContentSecurityPolicy:
             ContentSecurityPolicy: |-

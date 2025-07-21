@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2025-07-21
+
+### Added
+
+- `AWS::EC2::Volume` -> `AWS::EC2::VPC`/`AWS::EC2::Subnet` relationships
+
+### Fixed
+
+- Workload Discovery ECS tasks failing with AWS Config errors [593](https://github.com/aws-solutions/workload-discovery-on-aws/issues/593)
+
+### Changed
+
+- `AWS::Bedrock::KnowledgeBase` resource type is now discovered via AWS Config
+- Update Neptune Engine version to `1.4.5.1`.
+
 ## [2.3.0] - 2025-07-02
 
 ### Added
@@ -12,15 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New resource types include:
   - `AWS::Bedrock::Agent`
   - `AWS::Bedrock::AgentVersion`
-  - `AWS::Bedrock::CustomModel` 
+  - `AWS::Bedrock::CustomModel`
   - `AWS::Bedrock::DataSource`
-  - `AWS::Bedrock::FoundationModel` 
-  - `AWS::Bedrock::ImportedModel` 
-  - `AWS::Bedrock::InferenceProfile` 
+  - `AWS::Bedrock::FoundationModel`
+  - `AWS::Bedrock::ImportedModel`
+  - `AWS::Bedrock::InferenceProfile`
   - `AWS::Bedrock::KnowledgeBase`
   - `AWS::Glue::Connection`
-  - `AWS::Glue::Crawler` 
-  - `AWS::Glue::Database` 
+  - `AWS::Glue::Crawler`
+  - `AWS::Glue::Database`
   - `AWS::Glue::Table`
   - `AWS::OpenSearchServerless::Collection`
 - New relationships include:
@@ -32,13 +47,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `AWS::Bedrock::KnowledgeBase` -> `AWS::IAM::Role`/`AWS::Kendra::Index`/`AWS::RDS::DBCluster`/`AWS::OpenSearchServerless::Collection`/`AWS::S3::Bucket`/`AWS::Redshift::Cluster`
   - `AWS::Glue::Connection` -> `AWS::EC2::Subnet`/`AWS::EC2::SecurityGroup`/`AWS::EC2::Instance`/`AWS::SecretsManager::Secret`/`AWS::IAM::Role`/`AWS::Glue::Connection`
   - `AWS::Glue::Crawler` -> `AWS::SQS::Queue`/`AWS::S3::Bucket`/`AWS::Glue::Database`/`AWS::Glue::Connection`/`AWS::DynamoDB::Table`
-  - `AWS::Glue::Database` ->` AWS::Glue::Connection`/`AWS::S3::Bucket`
+  - `AWS::Glue::Database` -> `AWS::Glue::Connection`/`AWS::S3::Bucket`
   - `AWS::Glue::Job` -> `AWS::IAM::Role`/`AWS::S3::Bucket`/`AWS::Glue::Connection`
-  - `AWS::Glue::Table` ->` AWS::Kinesis::Stream`/`AWS::S3::Bucket`/`AWS::Glue::Connection`/`AWS::Glue::Database`
+  - `AWS::Glue::Table` -> `AWS::Kinesis::Stream`/`AWS::S3::Bucket`/`AWS::Glue::Connection`/`AWS::Glue::Database`
 - Configuration status section on Cost Page
 - Alert in AppInsights dashboard if Config aggregator is of incorrect type
 
 ### Changed
+
 - Updated Homepage with quicklinks to common user actions and configuration status alerts to surface errors in the solution's deployment and their remediation steps
 - Accounts in accounts page now display if AWS Config is enabled in imported regions
 - Warning displayed on Accounts page in `SELF_MANAGED` mode if regional CloudFormation template is not deployed in imported region
@@ -49,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduced whitespace on diagram page
 
 ### Fixed
+
 - Account name could not be updated through form on Accounts page
 
 ## [2.2.4] - 2025-04-07

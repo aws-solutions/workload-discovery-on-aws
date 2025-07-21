@@ -58,7 +58,7 @@ const AccountIdSchema = z.union([
 
 const RegionSchema = z.object({
     name: regionEnum,
-    isConfigEnabled: z.boolean().optional(),
+    isConfigEnabled: z.boolean().nullish(),
     lastCrawled: z.string().datetime().optional(),
 });
 

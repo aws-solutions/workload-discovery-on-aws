@@ -79,12 +79,12 @@ export const CostStatus = () => {
                 const isStale =
                     dayjs().diff(dayjs(lastProcessed), 'hour') > DAY_IN_HOURS;
 
+                const staleMsg = isStale ? 'warning' : 'success';
+
                 const type =
                     costStatus.crawler.errorMessage != null
                         ? 'error'
-                        : isStale
-                          ? 'warning'
-                          : 'success';
+                        : staleMsg;
 
                 setLastProcessedStatus({
                     type,

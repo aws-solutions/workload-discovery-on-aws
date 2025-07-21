@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "v2.3.0",
+  "version": "v2.3.1",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.mjs",
   "type": "module",
@@ -61,6 +61,6 @@
     "vitest": "^3.0.9"
   },
   "volta": {
-    "node": "20.12.2"
+    "node": "22.17.1"
   }
 }

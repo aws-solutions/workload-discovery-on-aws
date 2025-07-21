@@ -5,33 +5,33 @@
     "descriptors": [
       {
         "relationshipName": "Is associated with Role",
-        "path": "roleArn",
+        "path": "RoleArn",
         "identifierType": "arn"
       },
       {
         "relationshipName": "Is associated with",
-        "path": "knowledgeBaseConfiguration.kendraIndexArn",
+        "path": "KnowledgeBaseConfiguration.KendraIndexArn",
         "identifierType": "arn"
       },
       {
         "relationshipName": "Is associated with",
-        "path": "storageConfiguration.rdsConfiguration.resourceArn",
+        "path": "StorageConfiguration.RdsConfiguration.ResourceArn",
         "identifierType": "arn"
       },
       {
         "relationshipName": "Is associated with",
-        "path": "storageConfiguration.opensearchServerlessConfiguration.collectionArn",
+        "path": "StorageConfiguration.OpensearchServerlessConfiguration.CollectionArn",
         "identifierType": "arn"
       },
       {
         "relationshipName": "Is associated with",
-        "path": "vectorKnowledgeBaseConfiguration.supplementalDataStorageConfiguration.storageLocations[*].s3Location",
+        "path": "VectorKnowledgeBaseConfiguration.SupplementalDataStorageConfiguration.StorageLocations[*].S3Location",
         "identifierType": "s3Uri"
       },
       {
         "relationshipName": "Is associated with",
         "resourceType": "AWS::Redshift::Cluster",
-        "path": "sqlKnowledgeBaseConfiguration.redshiftConfiguration.queryEngineConfiguration.clusterIdentifier",
+        "path": "SqlKnowledgeBaseConfiguration.RedshiftConfiguration.QueryEngineConfiguration.ClusterIdentifier",
         "identifierType": "resourceId"
       }
     ]

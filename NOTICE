@@ -13,7 +13,7 @@ THIRD PARTY COMPONENTS
 
 This software includes third party software subject to the following copyrights:
 
-amazonlinux/amazonlinux under under the CC-BY-4.0 license.
+amazonlinux/amazonlinux under the CC-BY-4.0 license.
 @aws-crypto/sha256-browser under the Apache-2.0 license.
 @smithy/is-array-buffer under the Apache-2.0 license.
 tslib under the 0BSD license.
@@ -545,7 +545,7 @@ range-parser under the MIT license.
 @react-native/babel-plugin-codegen under the MIT license.
 babel-plugin-syntax-hermes-parser under the MIT license.
 babel-plugin-transform-flow-enums under the MIT license.
-babel-plugin-transform-imports under ISC license.
+babel-plugin-transform-imports under the ISC license.
 react-refresh under the MIT license.
 metro under the MIT license.
 ci-info under the MIT license.
@@ -603,7 +603,7 @@ terser under the BSD-2-Clause license.
 @jridgewell/source-map under the MIT license.
 serialize-error under the MIT license.
 throat under the MIT license.
-readline under the BSD license(s).
+readline under the Apache-2.0 license.
 @react-native/gradle-plugin under the MIT license.
 @react-native/js-polyfills under the MIT license.
 @react-native/normalize-colors under the MIT license.
@@ -1381,7 +1381,7 @@ lodash.forown under the MIT license.
 lodash.isobject under the MIT license.
 object-hash under the MIT license.
 ramda under the MIT license.
-randomcolor under the CC0 license.
+randomcolor under the CC0-1.0 license.
 react-cytoscapejs under the MIT license.
 react-error-boundary under the MIT license.
 react-papaparse under the MIT license.
@@ -1465,12 +1465,12 @@ OPEN SOURCE LICENSES
 Apache-2.0 - https://www.apache.org/licenses/LICENSE-2.0
 BSD-2-Clause - https://opensource.org/licenses/BSD-2-Clause
 BSD-3-Clause - https://opensource.org/licenses/BSD-3-Clause
-ISC - https://www.isc.org/licenses/
-MIT - https://opensource.org/license/mit/
+ISC - https://www.isc.org/licenses
+MIT - https://opensource.org/license/mit
 BlueOak-1.0.0 - https://blueoakcouncil.org/license/1.0.0
 CC-BY-4.0 - https://creativecommons.org/licenses/by/4.0/legalcode
 CC0-1.0 - https://creativecommons.org/publicdomain/zero/1.0/legalcode
 MIT-0 - https://github.com/aws/mit-0
 Python-2.0 - https://opensource.org/licenses/Python-2.0
-Unlicense - https://unlicense.org/
+Unlicense - https://unlicense.org
 Zlib - http://www.zlib.net/zlib_license.html

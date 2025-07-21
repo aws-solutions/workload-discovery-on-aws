@@ -9,9 +9,6 @@ import {
     AWS_API_GATEWAY_METHOD,
     AWS_LAMBDA_FUNCTION,
     AWS_AUTOSCALING_AUTOSCALING_GROUP,
-    AWS_BEDROCK_CUSTOM_MODEL,
-    AWS_BEDROCK_IMPORTED_MODEL,
-    AWS_BEDROCK_KNOWLEDGE_BASE,
     AWS_CLOUDFRONT_DISTRIBUTION,
     AWS_S3_BUCKET,
     AWS_CLOUDFRONT_STREAMING_DISTRIBUTION,
@@ -34,15 +31,14 @@ import {
     AWS_ELASTIC_LOAD_BALANCING_V2_LOADBALANCER,
     AWS_COGNITO_USER_POOL,
     AWS_GLUE_CONNECTION,
-    AWS_GLUE_CRAWLER,
     AWS_GLUE_DATABASE,
-    AWS_GLUE_JOB,
     AWS_GLUE_TABLE,
     AWS_IAM_INLINE_POLICY,
     AWS_IAM_USER,
     UNKNOWN,
     AWS_RDS_DB_INSTANCE,
     AWS_EC2_NAT_GATEWAY,
+    AWS_EC2_VOLUME,
     AWS_EC2_VPC_ENDPOINT,
     AWS_EC2_INTERNET_GATEWAY,
     AWS_EVENT_EVENT_BUS,
@@ -56,6 +52,7 @@ import {
     ENI_SEARCH_REQUESTER_ID,
     ENI_SEARCH_DESCRIPTION_PREFIX,
     IS_ATTACHED_TO,
+    EC2,
     LAMBDA,
     S3,
     AWS,
@@ -482,6 +479,25 @@ function createIndividualHandlers(lookUpMaps, awsClient) {
                     resourceMap.get(routeTableId)?.configuration?.routes ?? [];
                 const natGateways = routes.filter(x => x.natGatewayId != null);
                 subnet.private = natGateways.length === 0;
+            }
+        },
+        [AWS_EC2_VOLUME]: async volume => {
+            const {accountId, awsRegion, relationships} = volume;
+            const instanceRel = relationships.find(rel => rel.resourceType === AWS_EC2_INSTANCE);
+
+            if(instanceRel != null) {
+                const instanceArn = createArn({
+                    service: EC2,
+                    accountId,
+                    region: awsRegion,
+                    resource: `instance/${instanceRel.resourceId}`,
+                });
+                const instance = resourceMap.get(instanceArn);
+                if(instance != null) {
+                    const {vpcId, subnetId} = instance.configuration;
+                    relationships.push(createContainedInSubnetRelationship(subnetId))
+                    relationships.push(createContainedInVpcRelationship(vpcId))
+                }
             }
         },
         [AWS_ECS_TASK]: async task => {
