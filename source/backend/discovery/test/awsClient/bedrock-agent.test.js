@@ -28,7 +28,6 @@ describe('BedrockAgent Client', () => {
     const {
         getAllAgents,
         getAllDataSources,
-        getAllKnowledgeBases,
         getAllAgentVersions,
         getAllAgentKnowledgeBases,
     } = createBedrockAgentClient(mockCredentials, 'us-east-1');
@@ -144,117 +143,6 @@ describe('BedrockAgent Client', () => {
             ]);
         });
 
-    });
-
-    describe('getAllKnowledgeBases', () => {
-        it('should get all knowledge bases with pagination', async () => {
-            const mockBedrockAgentClient = mockClient(BedrockAgentClient);
-
-            const knowledgeBaseSummariesPages = {
-                page1: {
-                    knowledgeBaseSummaries: [
-                        {knowledgeBaseId: 'kb1', name: 'Knowledge Base 1', status: 'READY'},
-                        {knowledgeBaseId: 'kb2', name: 'Knowledge Base 2', status: 'READY'},
-                    ],
-                    nextToken: 'token1',
-                },
-                token1: {
-                    knowledgeBaseSummaries: [
-                        {knowledgeBaseId: 'kb3', name: 'Knowledge Base 3', status: 'READY'},
-                        {knowledgeBaseId: 'kb4', name: 'Knowledge Base 4', status: 'READY'},
-                    ],
-                    nextToken: 'token2',
-                },
-                token2: {
-                    knowledgeBaseSummaries: [
-                        {knowledgeBaseId: 'kb5', name: 'Knowledge Base 5', status: 'READY'},
-                    ],
-                },
-            };
-
-            const knowledgeBaseDetails = {
-                kb1: {
-                    knowledgeBase: {
-                        knowledgeBaseId: 'kb1',
-                        name: 'Knowledge Base 1',
-                        description: 'Description for Knowledge Base 1',
-                    },
-                },
-                kb2: {
-                    knowledgeBase: {
-                        knowledgeBaseId: 'kb2',
-                        name: 'Knowledge Base 2',
-                        description: 'Description for Knowledge Base 2',
-                    },
-                },
-                kb3: {
-                    knowledgeBase: {
-                        knowledgeBaseId: 'kb3',
-                        name: 'Knowledge Base 3',
-                        description: 'Description for Knowledge Base 3',
-                    },
-                },
-                kb4: {
-                    knowledgeBase: {
-                        knowledgeBaseId: 'kb4',
-                        name: 'Knowledge Base 4',
-                        description: 'Description for Knowledge Base 4',
-                    },
-                },
-                kb5: {
-                    knowledgeBase: {
-                        knowledgeBaseId: 'kb5',
-                        name: 'Knowledge Base 5',
-                        description: 'Description for Knowledge Base 5',
-                    },
-                },
-            };
-
-            mockBedrockAgentClient.on(ListKnowledgeBasesCommand)
-                .callsFake(input => {
-                    const {nextToken} = input;
-                    if (nextToken) {
-                        return knowledgeBaseSummariesPages[nextToken];
-                    }
-                    return knowledgeBaseSummariesPages['page1'];
-                });
-
-            mockBedrockAgentClient.on(GetKnowledgeBaseCommand)
-                .callsFake(input => {
-                    const {knowledgeBaseId} = input;
-                    return knowledgeBaseDetails[knowledgeBaseId];
-                });
-
-            const knowledgeBases = await getAllKnowledgeBases();
-
-            assert.deepEqual(knowledgeBases, [
-                {
-                    knowledgeBaseId: 'kb1',
-                    name: 'Knowledge Base 1',
-                    description: 'Description for Knowledge Base 1',
-                },
-                {
-                    knowledgeBaseId: 'kb2',
-                    name: 'Knowledge Base 2',
-                    description: 'Description for Knowledge Base 2',
-                },
-                {
-                    knowledgeBaseId: 'kb3',
-                    name: 'Knowledge Base 3',
-                    description: 'Description for Knowledge Base 3',
-                },
-                {
-                    knowledgeBaseId: 'kb4',
-                    name: 'Knowledge Base 4',
-                    description: 'Description for Knowledge Base 4',
-                },
-                {
-                    knowledgeBaseId: 'kb5',
-                    name: 'Knowledge Base 5',
-                    description: 'Description for Knowledge Base 5',
-                },
-            ]);
-        });
     });
 
     describe('getAllDataSources', () => {

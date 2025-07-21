@@ -28,16 +28,6 @@ export function createBedrockAgentClient(credentials, region) {
         },
     );
 
-    const bedrockListKnowledgeBasesThrottler = createThrottler(
-        'bedrockListKnowledgeBasesThrottler',
-        credentials,
-        region,
-        {
-            limit: 5,
-            interval: 1000,
-        },
-    );
-
     const bedrockListDataSourcesThrottler = createThrottler(
         'bedrockListDataSourcesThrottler',
         credentials,
@@ -102,26 +92,6 @@ export function createBedrockAgentClient(credentials, region) {
             }
 
             return agents;
-        },
-        async getAllKnowledgeBases() {
-            const listKnowledgeBasesPaginator = paginateListKnowledgeBases(bedrockAgentPaginatorConfig, {
-                maxResults: 250,
-            });
-
-            const knowledgeBases = [];
-
-            for await (const {knowledgeBaseSummaries} of throttledPaginator(
-                bedrockListKnowledgeBasesThrottler,
-                listKnowledgeBasesPaginator,
-            )) {
-                // Process knowledge bases serially to reduce chances of rate limiting
-                for (const {knowledgeBaseId} of knowledgeBaseSummaries) {
-                    const {knowledgeBase} = await bedrockAgentClient.getKnowledgeBase({knowledgeBaseId});
-                    knowledgeBases.push(knowledgeBase);
-                }
-            }
-
-            return knowledgeBases;
         },
         async getAllDataSources(knowledgeBaseId) {
             const listDataSourcesPaginator = paginateListDataSources(bedrockAgentPaginatorConfig, {

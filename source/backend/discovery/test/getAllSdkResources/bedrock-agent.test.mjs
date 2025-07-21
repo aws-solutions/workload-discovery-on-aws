@@ -41,10 +41,10 @@ function generateBedrockAgent(region, accountId) {
 function generateBedrockKnowledgeBase(region, accountId) {
     const id = `kb-${generateRandomInt(0, 10000)}`;
     return {
-        knowledgeBaseId: id,
-        name: `KnowledgeBase-${id}`,
-        knowledgeBaseArn: `arn:aws:bedrock:${region}:${accountId}:knowledge-base/${id}`,
-        description: `Description for knowledge base ${id}`,
+        KnowledgeBaseId: id,
+        Name: `KnowledgeBase-${id}`,
+        KnowledgeBaseArn: `arn:aws:bedrock:${region}:${accountId}:knowledge-base/${id}`,
+        Description: `Description for knowledge base ${id}`,
     };
 }
 
@@ -169,80 +169,6 @@ describe('getAllSdkResources - Bedrock Agent', () => {
             });
         });
 
-    });
-
-    describe(AWS_BEDROCK_KNOWLEDGE_BASE, () => {
-
-        it('should discover Bedrock knowledge bases', async () => {
-            const kbEuWest2 = generateBedrockKnowledgeBase(REGION_EU_WEST_2, ACCOUNT_X);
-            const kbUsWest2 = generateBedrockKnowledgeBase(REGION_US_WEST_2, ACCOUNT_Z);
-
-            const mockBedrockAgentClient = {
-                createBedrockAgentClient(credentials, region) {
-                    return {
-                        getAllKnowledgeBases() {
-                            if (R.equals(credentials, credentialsX) && region === REGION_EU_WEST_2) {
-                                return [kbEuWest2];
-                            } else if (R.equals(credentials, credentialsZ) && region === REGION_US_WEST_2) {
-                                return [kbUsWest2];
-                            } else {
-                                return [];
-                            }
-                        },
-                        getAllDataSources() {
-                            return [];
-                        },
-                        getAllAgents() {
-                            return [];
-                        },
-                        getAllAgentVersions() {
-                            return [];
-                        },
-                    };
-                },
-            };
-
-            const actual = await getAllSdkResources(
-                {...mockAwsClient, ...mockBedrockAgentClient},
-                [],
-            );
-
-            const kbEuWest2Arn = kbEuWest2.knowledgeBaseArn;
-            const kbUsWest2Arn = kbUsWest2.knowledgeBaseArn;
-
-            const actualKbEuWest2 = actual.find(x => x.arn === kbEuWest2Arn);
-            const actualKbUsWest2 = actual.find(x => x.arn === kbUsWest2Arn);
-
-            assert.deepEqual(actualKbEuWest2, {
-                id: kbEuWest2Arn,
-                accountId: ACCOUNT_X,
-                arn: kbEuWest2Arn,
-                availabilityZone: NOT_APPLICABLE,
-                awsRegion: REGION_EU_WEST_2,
-                configuration: kbEuWest2,
-                configurationItemStatus: RESOURCE_DISCOVERED,
-                resourceId: kbEuWest2.knowledgeBaseId,
-                resourceName: kbEuWest2.name,
-                resourceType: AWS_BEDROCK_KNOWLEDGE_BASE,
-                tags: [],
-                relationships: [],
-            });
-
-            assert.deepEqual(actualKbUsWest2, {
-                id: kbUsWest2Arn,
-                accountId: ACCOUNT_Z,
-                arn: kbUsWest2Arn,
-                availabilityZone: NOT_APPLICABLE,
-                awsRegion: REGION_US_WEST_2,
-                configuration: kbUsWest2,
-                configurationItemStatus: RESOURCE_DISCOVERED,
-                resourceId: kbUsWest2.knowledgeBaseId,
-                resourceName: kbUsWest2.name,
-                resourceType: AWS_BEDROCK_KNOWLEDGE_BASE,
-                tags: [],
-                relationships: [],
-            });
-        });
     });
 
     describe(AWS_BEDROCK_DATA_SOURCE, () => {

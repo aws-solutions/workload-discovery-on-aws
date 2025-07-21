@@ -278,10 +278,9 @@ const DiagramControlPanel = ({settings}) => {
             <SpaceBetween size="s" direction="horizontal">
                 {statusMessage != null && (
                     <Box margin={{vertical: 'xxs'}} display={'block'}>
-                        <StatusIndicator type={statusMessage.type}>
+                        <StatusIndicator type={statusMessage?.type}>
                             {' '}
-                            {/* NOSONAR - null check is done by R.isNil */}
-                            {statusMessage.message}
+                            {statusMessage?.message}
                         </StatusIndicator>
                     </Box>
                 )}

@@ -68,7 +68,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
       Policies:
-        - PolicyName: !Sub ${AWS::StackName}-SettingsAppSyncLambdaPolicy
+        - PolicyName: WdSettingsAppSyncLambdaPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -135,7 +135,7 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: !Sub ${AWS::StackName}-AppSyncRole
+        - PolicyName: WdSettingsAppSyncInvokePolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:

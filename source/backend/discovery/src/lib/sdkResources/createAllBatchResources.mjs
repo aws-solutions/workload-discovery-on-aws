@@ -30,7 +30,6 @@ import {
     AWS_GLUE_CONNECTION,
     AWS_GLUE_CRAWLER,
     AWS_GLUE_DATABASE,
-    AWS_BEDROCK_KNOWLEDGE_BASE,
 } from '../constants.mjs';
 import {
     createArn,
@@ -222,35 +221,6 @@ async function createApplications(awsClient, credentials, accountId, region) {
                 resourceName: application.name,
             },
             application
-        );
-    });
-}
-
-async function createKnowledgeBases(
-    awsClient,
-    credentials,
-    accountId,
-    region
-) {
-    const bedrockAgentClient = awsClient.createBedrockAgentClient(
-        credentials,
-        region
-    );
-
-    const knowledgeBases = await bedrockAgentClient.getAllKnowledgeBases();
-
-    return knowledgeBases.map(knowledgeBase => {
-        return createConfigObject(
-            {
-                arn: knowledgeBase.knowledgeBaseArn,
-                accountId,
-                awsRegion: region,
-                availabilityZone: NOT_APPLICABLE,
-                resourceType: AWS_BEDROCK_KNOWLEDGE_BASE,
-                resourceId: knowledgeBase.knowledgeBaseId,
-                resourceName: knowledgeBase.name,
-            },
-            knowledgeBase
         );
     });
 }
@@ -584,7 +554,6 @@ async function createAllBatchResources(credentialsTuples, awsClient) {
         [REGIONAL, createGlueConnections],
         [REGIONAL, createGlueCrawlers],
         [REGIONAL, createGlueDatabases],
-        [REGIONAL, createKnowledgeBases],
         [REGIONAL, createMediaConnectFlows],
         [REGIONAL, createTargetGroups],
         [REGIONAL, createOpenSearchDomains],

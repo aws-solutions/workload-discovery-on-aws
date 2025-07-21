@@ -38,7 +38,7 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: !Sub ${AWS::StackName}-AWSAppSyncPushToCloudWatchLogsPolicy
+        - PolicyName: WdAppSyncCloudWatchLogsPolicy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -55,7 +55,9 @@ Resources:
   PerspectiveAppSyncApi:
     Type: AWS::AppSync::GraphQLApi
     Properties:
-      Name: !Sub ${AWS::StackName}-AppSync-api
+      Name: !Sub
+        - WdAppSyncApi-${uuid}
+        - uuid: !Select [ 2, !Split [ '/', !Ref 'AWS::StackId' ] ]
       AuthenticationType: AMAZON_COGNITO_USER_POOLS
       AdditionalAuthenticationProviders:
         - AuthenticationType: AWS_IAM

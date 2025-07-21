@@ -358,6 +358,114 @@ describe('index.js', () => {
                 ]);
             });
 
+            it('should allow account addition with isConfigEnabled boolean and nullish values set', async () => {
+                const actual = await _handler(
+                    docClient,
+                    mockConfig,
+                    {DB_TABLE, CONFIG_AGGREGATOR: 'aggregator'}
+                )({
+                    arguments: {
+                        accounts: [
+                            {
+                                accountId: '111111111111',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'eu-west-1',
+                                        isConfigEnabled: true
+                                    },
+                                    {
+                                        name: 'eu-west-2',
+                                        isConfigEnabled: false
+                                    },
+                                ],
+                            },
+                            {
+                                accountId: '222222222222',
+                                name: 'test',
+                                regions: [
+                                    {
+                                        name: 'us-east-1',
+                                        isConfigEnabled: null
+                                    },
+                                    {
+                                        name: 'us-east-2',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    identity: {sub: '00000000-1111-2222-3333-000000000000'},
+                    info: {
+                        fieldName: 'addAccounts',
+                    },
+                });
+
+                assert.deepEqual(actual, {
+                    unprocessedAccounts: [],
+                });
+
+                sinon.assert.calledWith(mockConfig.putConfigurationAggregator, {
+                    ConfigurationAggregatorName: 'aggregator',
+                    AccountAggregationSources: [
+                        {
+                            AccountIds: ['111111111111', '222222222222'],
+                            AllAwsRegions: false,
+                            AwsRegions: [
+                                'eu-west-1',
+                                'eu-west-2',
+                                'us-east-1',
+                                'us-east-2',
+                            ],
+                        },
+                    ],
+                });
+
+                const {Items: actualDb} = await docClient.query({
+                    TableName: DB_TABLE,
+                    KeyConditionExpression: 'PK = :PK',
+                    ExpressionAttributeValues: {
+                        ':PK': 'Account',
+                    },
+                });
+
+                assert.deepEqual(actualDb, [
+                    {
+                        SK: '111111111111',
+                        name: 'test',
+                        accountId: '111111111111',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'eu-west-1',
+                                isConfigEnabled: true
+                            },
+                            {
+                                name: 'eu-west-2',
+                                isConfigEnabled: false
+                            },
+                        ],
+                        type: 'account',
+                    },
+                    {
+                        SK: '222222222222',
+                        name: 'test',
+                        accountId: '222222222222',
+                        PK: 'Account',
+                        regions: [
+                            {
+                                name: 'us-east-1',
+                                isConfigEnabled: null
+                            },
+                            {
+                                name: 'us-east-2',
+                            },
+                        ],
+                        type: 'account',
+                    },
+                ]);
+            });
+
             it('should add account in AWS Organizations mode', async () => {
                 const mockConfig = {
                     putConfigurationAggregator: sinon

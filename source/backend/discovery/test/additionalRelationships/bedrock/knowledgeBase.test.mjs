@@ -41,10 +41,10 @@ function generateBedrockKnowledgeBase(options = {}) {
 describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
 
     it('should add relationship for IAM role', async () => {
-        const roleArn = `arn:aws:iam::${ACCOUNT_X}:role/service-role/AmazonBedrockExecutionRoleForKnowledgeBase`;
+        const RoleArn = `arn:aws:iam::${ACCOUNT_X}:role/service-role/AmazonBedrockExecutionRoleForKnowledgeBase`;
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                roleArn,
+                RoleArn,
             },
         });
 
@@ -58,21 +58,21 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
         );
 
         const roleRelationship = relationships.find(
-            r => r.arn === roleArn,
+            r => r.arn === RoleArn,
         );
 
         assert.deepEqual(roleRelationship, {
             relationshipName: IS_ASSOCIATED_WITH + 'Role',
-            arn: roleArn
+            arn: RoleArn
         });
     });
 
     it('should add relationship for Kendra index', async () => {
-        const kendraIndexArn = `arn:aws:kendra:us-east-1:${ACCOUNT_X}:index/idx-12345abcdef`;
+        const KendraIndexArn = `arn:aws:kendra:us-east-1:${ACCOUNT_X}:index/idx-12345abcdef`;
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                knowledgeBaseConfiguration: {
-                    kendraIndexArn,
+                KnowledgeBaseConfiguration: {
+                    KendraIndexArn,
                 }
             },
         });
@@ -87,22 +87,22 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
         );
 
         const kendraIndexRelationship = relationships.find(
-            r => r.arn === kendraIndexArn,
+            r => r.arn === KendraIndexArn,
         );
 
         assert.deepEqual(kendraIndexRelationship, {
             relationshipName: IS_ASSOCIATED_WITH,
-            arn: kendraIndexArn
+            arn: KendraIndexArn
         });
     });
 
     it('should add relationship for RDS clusters', async () => {
-        const rdsClusterArn = `arn:aws:rds:us-east-1:${ACCOUNT_X}:cluster:aurora-cluster-1`;
+        const ResourceArn = `arn:aws:rds:us-east-1:${ACCOUNT_X}:cluster:aurora-cluster-1`;
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                storageConfiguration: {
-                    rdsConfiguration: {
-                        resourceArn: rdsClusterArn,
+                StorageConfiguration: {
+                    RdsConfiguration: {
+                        ResourceArn,
                     }
                 }
             },
@@ -118,22 +118,22 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
         );
 
         const rdsClusterRelationship = relationships.find(
-            r => r.arn === rdsClusterArn,
+            r => r.arn === ResourceArn,
         );
 
         assert.deepEqual(rdsClusterRelationship, {
             relationshipName: IS_ASSOCIATED_WITH,
-            arn: rdsClusterArn
+            arn: ResourceArn
         });
     });
 
     it('should add relationship for OpenSearch Serverless collections', async () => {
-        const collectionArn = `arn:aws:aoss:us-east-1:${ACCOUNT_X}:collection/my-collection`;
+        const CollectionArn = `arn:aws:aoss:us-east-1:${ACCOUNT_X}:collection/my-collection`;
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                storageConfiguration: {
-                    opensearchServerlessConfiguration: {
-                        collectionArn,
+                StorageConfiguration: {
+                    OpensearchServerlessConfiguration: {
+                        CollectionArn,
                     }
                 }
             },
@@ -149,23 +149,23 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
         );
 
         const collectionRelationship = relationships.find(
-            r => r.arn === collectionArn,
+            r => r.arn === CollectionArn,
         );
 
         assert.deepEqual(collectionRelationship, {
             relationshipName: IS_ASSOCIATED_WITH,
-            arn: collectionArn
+            arn: CollectionArn
         });
     });
 
     it('should add relationships for Redshift clusters', async () => {
-        const clusterIdentifier = 'redshift-cluster-1';
+        const ClusterIdentifier = 'redshift-cluster-1';
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                sqlKnowledgeBaseConfiguration: {
-                    redshiftConfiguration: {
-                        queryEngineConfiguration: {
-                            clusterIdentifier,
+                SqlKnowledgeBaseConfiguration: {
+                    RedshiftConfiguration: {
+                        QueryEngineConfiguration: {
+                            ClusterIdentifier,
                         }
                     }
                 }
@@ -182,13 +182,13 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
         );
 
         const redshiftRelationship = relationships.find(
-            r => r.resourceId === clusterIdentifier,
+            r => r.resourceId === ClusterIdentifier,
         );
 
         assert.deepEqual(redshiftRelationship, {
             relationshipName: IS_ASSOCIATED_WITH,
             resourceType: AWS_REDSHIFT_CLUSTER,
-            resourceId: clusterIdentifier
+            resourceId: ClusterIdentifier
         });
     });
 
@@ -200,14 +200,14 @@ describe(`addAdditionalRelationships - ${AWS_BEDROCK_KNOWLEDGE_BASE}`, () => {
 
         const mockKnowledgeBase = generateBedrockKnowledgeBase({
             configuration: {
-                vectorKnowledgeBaseConfiguration: {
-                    supplementalDataStorageConfiguration: {
-                        storageLocations: [
+                VectorKnowledgeBaseConfiguration: {
+                    SupplementalDataStorageConfiguration: {
+                        StorageLocations: [
                             {
-                                s3Location: `s3://${bucketName1}/path/to/data`
+                                S3Location: `s3://${bucketName1}/path/to/data`
                             },
                             {
-                                s3Location: `s3://${bucketName2}/other/path`
+                                S3Location: `s3://${bucketName2}/other/path`
                             }
                         ]
                     }
