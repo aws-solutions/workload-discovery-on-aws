@@ -1,6 +1,6 @@
 {
   "name": "metrics-subscription-filter",
-  "version": "v2.3.1",
+  "version": "v2.3.2",
   "description": "Lambda function used to handle operational metrics subscription filter",
   "main": "index.mjs",
   "scripts": {

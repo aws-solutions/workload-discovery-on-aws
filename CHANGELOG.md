@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2025-07-24
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-fjxv-7rqg-78g4) in `form-data`.
+
 ## [2.3.1] - 2025-07-21
 
 ### Added
