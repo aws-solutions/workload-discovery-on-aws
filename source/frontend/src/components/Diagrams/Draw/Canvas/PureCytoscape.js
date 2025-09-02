@@ -1,36 +1,104 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React, {useCallback, useEffect, useState} from 'react';
-import cytoscape from 'cytoscape';
+import React, {useCallback, useEffect, useRef, useState, useMemo} from 'react';
 import fcose from 'cytoscape-fcose';
 import cola from 'cytoscape-cola';
+import cytoscape from 'cytoscape';
 import svg from '../../../../cytoscape/plugins/svg';
-import gridGuide from 'cytoscape-grid-guide';
 import {graphStyle} from './Styling/GraphStyling';
 import {useDiagramSettingsState} from '../../../Contexts/DiagramSettingsContext';
-import CytoscapeComponent from 'react-cytoscapejs';
 import {fetchResources} from './Commands/CanvasCommands';
-import {getExpandCollapseGraphLayout} from './Layout/ExpandCollapseLayout';
 import {getGridLayout} from './Layout/GridGraphLayout';
 import {useResourceState} from '../../../Contexts/ResourceContext';
-import expandCollapse from 'cytoscape-expand-collapse';
 import * as R from 'ramda';
 import {useWindowSize} from 'react-use';
 
-cytoscape.use(fcose);
-cytoscape.use(cola);
-cytoscape.use(svg);
+import {getExpandCollapseGraphLayout} from './Layout/ExpandCollapseLayout';
+import expandCollapse from 'cytoscape-expand-collapse';
+import gridGuide from 'cytoscape-grid-guide';
+import {useWebGLState} from '../../../Contexts/WebGLContext';
+
 gridGuide(cytoscape);
 expandCollapse(cytoscape);
 
+// Register extensions
+cytoscape.use(fcose);
+cytoscape.use(cola);
+cytoscape.use(svg);
+
+export function handleTapHold(evt) {
+    const node = evt.target;
+    node.descendants().layout(getGridLayout(node.boundingBox())).run();
+}
+
+export function handleTapDragOver(evt) {
+    const node = evt.target;
+    node.unlock();
+    node.grabify();
+    node.descendants().unlock();
+    node.descendants().grabify();
+}
+
+export function handleTapDragOut(evt) {
+    const node = evt.target;
+    node.lock();
+    node.ungrabify();
+    node.descendants().lock();
+    node.descendants().ungrabify();
+}
+
+export const handleDoubleTap = R.curry(
+    (
+        {cy, updateCanvas, updateResources, fetchResources, graphResources},
+        evt
+    ) => {
+        const node = evt.target;
+        if (cy) {
+            cy.nodes().lock();
+            if (R.equals(node.data('type'), 'resource')) {
+                const nodes = node.isParent() ? node.descendants() : [node];
+
+                fetchResources(
+                    cy,
+                    updateCanvas,
+                    updateResources,
+                    nodes.map(e => e.data('id')),
+                    graphResources,
+                    {}
+                );
+            }
+        }
+    }
+);
+
 const PureCytoscape = ({name, visibility, setRendered}) => {
-    const [{selectedResources}, dispatchCanvas] = useDiagramSettingsState();
+    const [, dispatchCanvas] = useDiagramSettingsState();
     const [{graphResources}] = useResourceState();
+    const {webGLEnabled} = useWebGLState();
     const {height} = useWindowSize();
     const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 325);
-    const expandAPI = React.useRef();
-    const cyRef = React.useRef();
+    const expandAPI = useRef();
+    const cyRef = useRef();
+    const previousWebGLEnabled = useRef(webGLEnabled);
+
+    // Create a ref to hold the container element
+    const containerRef = useRef(null);
+
+    // Function to check if WebGL is available
+    const isWebGLAvailable = useMemo(() => {
+        try {
+            const canvas = document.createElement('canvas');
+            return !!(
+                window.WebGLRenderingContext &&
+                (canvas.getContext('webgl') ||
+                    canvas.getContext('experimental-webgl'))
+            );
+        } catch (e) {
+            console.warn('WebGL not available, using fallback renderer');
+            return false;
+        }
+    }, []);
 
     useEffect(() => {
         setCanvasHeight(height - 325);
@@ -73,80 +141,97 @@ const PureCytoscape = ({name, visibility, setRendered}) => {
         });
     }, [dispatchCanvas]);
 
-    const handleTap = useCallback(
-        evt => {
-            const node = evt.target;
-            node.addClass('selected');
-            updateSelectedResources(selectedResources.union(node));
-        },
-        [selectedResources, updateSelectedResources]
-    );
+    // Use useEffect to initialize cytoscape directly with WebGL options
+    useEffect(() => {
+        if (!containerRef.current) return;
 
-    const handleDoubleTap = useCallback(
-        evt => {
-            const node = evt.target;
-            cyRef.current.nodes().lock();
-            if (R.equals(node.data('type'), 'resource')) {
-                fetchResources(
-                    cyRef.current,
+        // If cytoscape already exists and webGLEnabled actually changed, destroy and recreate
+        if (cyRef.current && previousWebGLEnabled.current !== webGLEnabled) {
+            const currentElements = cyRef.current.json().elements;
+            // Save viewport state
+            const zoom = cyRef.current.zoom();
+            const pan = cyRef.current.pan();
+
+            cyRef.current.destroy();
+            cyRef.current = null;
+
+            // Update the previous value
+            previousWebGLEnabled.current = webGLEnabled;
+
+            // Small delay to ensure proper cleanup
+            setTimeout(() => {
+                initializeCytoscape(currentElements, {zoom, pan});
+            }, 100);
+            return;
+        }
+
+        // First initialization
+        if (!cyRef.current) {
+            previousWebGLEnabled.current = webGLEnabled;
+            initializeCytoscape();
+        }
+
+        function initializeCytoscape(
+            existingElements = {nodes: [], edges: []},
+            viewport = null
+        ) {
+            // Create a new Cytoscape instance with conditional WebGL rendering options
+            const cy = cytoscape({
+                container: containerRef.current,
+                elements: existingElements, // Use existing elements if provided
+                style: graphStyle,
+                renderer: {
+                    name: 'canvas',
+                    webgl: isWebGLAvailable && webGLEnabled, // Only enable WebGL if browser supports it AND user enabled it
+                },
+            });
+
+            // Set up all event handlers
+            cy.on(
+                'dbltap',
+                'node',
+                handleDoubleTap({
+                    cy,
+                    fetchResources,
                     updateCanvas,
                     updateResources,
-                    R.map(
-                        e => e.data('id'),
-                        R.chain(
-                            r => (r.isParent() ? r.descendants() : r),
-                            [node]
-                        )
-                    ),
                     graphResources,
-                    {}
-                );
-            }
-
-            // TODO: https://github.com/iVis-at-Bilkent/cytoscape.js-expand-collapse/issues/140
-            // if (expandAPI.current.isCollapsible(node))
-            //   expandAPI.current.collapseRecursively(node);
-            // else if (expandAPI.current.isExpandable(node))
-            //   expandAPI.current.expandRecursively(node);
-        },
-        [graphResources, updateCanvas, updateResources]
-    );
-
-    const handleUnselect = useCallback(
-        evt => {
-            const node = evt.target;
-            node.lock();
-            node.removeClass('selected');
-            updateSelectedResources(selectedResources.difference(node));
-        },
-        [selectedResources, updateSelectedResources]
-    );
-
-    const cyCallback = useCallback(
-        cy => {
-            // These listeners need to be reapplied as they depend on state/context
-            cy.removeListener('select', 'node');
-            cy.removeListener('dbltap', 'node');
-            cy.removeListener(
-                'unselect',
-                'node, node.cy-expand-collapse-collapsed-node'
+                })
             );
-            cy.on('dbltap', 'node', handleDoubleTap);
-            cy.on('select', 'node', handleTap);
+
+            // Handle selection changes - update context whenever selection changes
+            cy.on('select', 'node', function (evt) {
+                const node = evt.target;
+                // Unlock the node when selected so it can be manipulated
+                node.unlock();
+
+                // Get all currently selected nodes and update context
+                const allSelected = cy.$('node:selected');
+                updateSelectedResources(allSelected);
+            });
+
             cy.on(
                 'unselect',
                 'node, node.cy-expand-collapse-collapsed-node',
-                handleUnselect
+                function (evt) {
+                    const node = evt.target;
+                    // Lock the node when unselected
+                    node.lock();
+
+                    // Get all currently selected nodes and update context
+                    const allSelected = cy.$('node:selected');
+                    updateSelectedResources(allSelected);
+                }
             );
 
-            // Skip configuring listeners which don't rely on state/context
-            if (cyRef.current) return;
+            // Store cy instance in ref
+            cyRef.current = cy;
 
             // Initial render setup
-            cyRef.current = cy;
             cy.data({name: name, visibility: visibility});
             cy.minZoom(0.25);
             cy.maxZoom(2.0);
+
             cy.gridGuide({
                 drawGrid: true,
                 gridColor: '#dedede',
@@ -185,68 +270,56 @@ const PureCytoscape = ({name, visibility, setRendered}) => {
 
             cy.selectionType('additive');
             cy.on('resize', () => cy.fit(null, 20));
-            cy.on('taphold', '[type = "type"]', function (evt) {
-                const node = evt.target;
-                node.descendants()
-                    .layout(getGridLayout(node.boundingBox()))
-                    .run();
-            });
-            cy.on('tapdragover', 'node', function (evt) {
-                const node = evt.target;
-                node.unlock();
-                node.grabify();
-                node.descendants().unlock();
-                node.descendants().grabify();
-            });
-            cy.on('tapdragout', 'node', function (evt) {
-                const node = evt.target;
-                node.lock();
-                node.ungrabify();
-                node.descendants().lock();
-                node.descendants().ungrabify();
-            });
+            cy.on('taphold', '[type = "type"]', handleTapHold);
+            cy.on('tapdragover', 'node', handleTapDragOver);
+            cy.on('tapdragout', 'node', handleTapDragOut);
             cy.ready(() => {
+                // Restore viewport if provided
+                if (viewport) {
+                    cy.viewport({
+                        zoom: viewport.zoom,
+                        pan: viewport.pan,
+                    });
+                }
+
                 updateSelectedResources(cy.collection());
                 cy.nodes().lock();
                 updateCanvas(cyRef.current);
-                setRendered && setRendered(true);
+                setRendered?.(true);
                 const removeHighlight = setTimeout(
                     () => cy.elements().removeClass('highlight'),
                     2000
                 );
                 return () => clearTimeout(removeHighlight);
             });
-        },
-        [
-            handleDoubleTap,
-            handleTap,
-            name,
-            visibility,
-            handleUnselect,
-            updateSelectedResources,
-            updateCanvas,
-            setRendered,
-        ]
-    );
+        }
+    }, [
+        graphResources,
+        name,
+        visibility,
+        updateSelectedResources,
+        updateCanvas,
+        updateResources,
+        setRendered,
+        isWebGLAvailable,
+        webGLEnabled,
+    ]);
 
+    // Return a div with the containerRef instead of CytoscapeComponent
     return (
-        <div data-testid="wd-cytoscape-canvas">
-            <CytoscapeComponent
-                cy={cyCallback}
-                elements={CytoscapeComponent.normalizeElements([])}
-                boxSelectionEnabled
-                stylesheet={graphStyle}
-                style={{
-                    maxWidth: '100%',
-                    maxHeight: `${canvasHeight}px`,
-                    width: '100%',
-                    height: `${canvasHeight}px`,
-                    boxSizing: 'border-box',
-                    zIndex: 0,
-                    border: '1px solid #dedede',
-                }}
-            />
-        </div>
+        <div
+            data-testid="wd-cytoscape-canvas"
+            ref={containerRef}
+            style={{
+                maxWidth: '100%',
+                maxHeight: `${canvasHeight}px`,
+                width: '100%',
+                height: `${canvasHeight}px`,
+                boxSizing: 'border-box',
+                zIndex: 0,
+                border: '1px solid #dedede',
+            }}
+        />
     );
 };
 

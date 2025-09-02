@@ -10,6 +10,7 @@ import {BrowserRouter as Router} from 'react-router-dom';
 import {NotificationProvider} from './components/Contexts/NotificationContext';
 import {DiagramSettingsProvider} from './components/Contexts/DiagramSettingsContext';
 import {diagramSettingsReducer} from './components/Contexts/Reducers/DiagramSettingsReducer';
+import {WebGLProvider} from './components/Contexts/WebGLContext';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import dayjs from 'dayjs';
 dayjs.extend(localizedFormat);
@@ -46,9 +47,11 @@ const Main = () => {
                         initialState={initialResourceState}
                         reducer={resourceReducer}
                     >
-                        <Router>
-                            <PolarisLayout />
-                        </Router>
+                        <WebGLProvider>
+                            <Router>
+                                <PolarisLayout />
+                            </Router>
+                        </WebGLProvider>
                     </ResourceProvider>
                 </DiagramSettingsProvider>
             </NotificationProvider>

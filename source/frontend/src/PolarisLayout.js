@@ -17,6 +17,7 @@ import {
     Link,
     SideNavigation,
     SpaceBetween,
+    Toggle,
 } from '@cloudscape-design/components';
 import routes, {
     ACCOUNTS,
@@ -41,11 +42,14 @@ import Notifications from './Utils/Notifications';
 import {useGetApplicationProblems} from './components/Hooks/useGetApplicationProblems';
 import {useResourceState} from './components/Contexts/ResourceContext';
 import {useDiagramSettingsState} from './components/Contexts/DiagramSettingsContext';
+import {useWebGLState} from './components/Contexts/WebGLContext';
 
 const Navigation = ({onNavigate}) => {
     const history = useHistory();
     const location = useLocation();
     const {user, signOut} = useAuthenticator();
+    const {webGLEnabled, toggleWebGL} = useWebGLState();
+    
     history.listen(onNavigate);
 
     useLayoutEffect(() => {
@@ -148,6 +152,14 @@ const Navigation = ({onNavigate}) => {
             />
             <Box padding={{left: 'xl'}}>
                 <SpaceBetween size={'m'}>
+                    <Box>
+                        <Toggle
+                            checked={webGLEnabled}
+                            onChange={({detail}) => toggleWebGL(detail.checked)}
+                        >
+                            Enable WebGL (Beta)
+                        </Toggle>
+                    </Box>
                     <Box>
                         Version:{' '}
                         <strong>{window.perspectiveMetadata.version}</strong>

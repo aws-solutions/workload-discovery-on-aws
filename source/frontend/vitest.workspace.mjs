@@ -22,6 +22,7 @@ export default defineWorkspace([
     {
         extends: './vite.config.mjs',
         test: {
+            fileParallelism: false,
             include: ['src/tests/browser/**/*.{test,spec}.js'],
             setupFiles: [
                 './src/tests/vitest/setupFiles/amplify.js',

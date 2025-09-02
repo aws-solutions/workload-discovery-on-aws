@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.3] - 2025-09-02
+
+### Added
+
+- Beta support for rendering diagrams using WebGL, significantly improving the performance of diagrams with thousands of resources.
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-95m3-7q98-8xr5) in `sha.js`.
+- Security [issue](https://github.com/advisories/GHSA-52f5-9888-hmc6) in `tmp`.
+
 ## [2.3.2] - 2025-07-24
 
 ### Fixed

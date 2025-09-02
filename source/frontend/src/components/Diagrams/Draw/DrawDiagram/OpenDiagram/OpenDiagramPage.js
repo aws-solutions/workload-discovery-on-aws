@@ -137,7 +137,11 @@ const OpenDiagramPage = () => {
                 header={
                     <Header
                         variant="h2"
-                        actions={<DiagramControlPanel settings={settings} />}
+                        actions={
+                            <DiagramControlPanel 
+                                settings={settings} 
+                            />
+                        }
                     >
                         {name}
                     </Header>
