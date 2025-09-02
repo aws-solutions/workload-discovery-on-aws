@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "v2.3.2",
+  "version": "2.3.3",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -50,7 +50,7 @@
     "aws-amplify": "5.3.12",
     "crypto-js": "4.2.0",
     "currency-symbol-map": "5.0.1",
-    "cytoscape": "3.28.1",
+    "cytoscape": "3.33.0",
     "cytoscape-cola": "^2.5.1",
     "cytoscape-expand-collapse": "4.1.0",
     "cytoscape-fcose": "2.1.0",
@@ -66,7 +66,6 @@
     "ramda": "0.28.0",
     "randomcolor": "0.5.4",
     "react": "18.2.0",
-    "react-cytoscapejs": "1.2.1",
     "react-dom": "18.2.0",
     "react-error-boundary": "^3.1.4",
     "react-papaparse": "3.11.1",

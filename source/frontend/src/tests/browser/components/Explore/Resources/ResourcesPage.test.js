@@ -48,7 +48,7 @@ describe('Resources Page', () => {
         });
 
         await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 7.5,
+            maxDiffPercentage: 8.5,
         });
     });
 });

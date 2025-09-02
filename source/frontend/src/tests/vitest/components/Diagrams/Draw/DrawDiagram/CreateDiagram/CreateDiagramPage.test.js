@@ -10,6 +10,7 @@ import {DiagramSettingsProvider} from '../../../../../../../components/Contexts/
 import {diagramSettingsReducer} from '../../../../../../../components/Contexts/Reducers/DiagramSettingsReducer';
 import {ResourceProvider} from '../../../../../../../components/Contexts/ResourceContext';
 import {resourceReducer} from '../../../../../../../components/Contexts/Reducers/ResourceReducer';
+import {WebGLProvider} from '../../../../../../../components/Contexts/WebGLContext';
 import React from 'react';
 import {describe, expect, vi, it} from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -50,10 +51,12 @@ function renderDiagramsPage() {
                         initialState={initialResourceState}
                         reducer={resourceReducer}
                     >
-                        {/*<RoutedDiagramPage history={history}/>*/}
-                        <Router history={history}>
-                            <PolarisLayout />
-                        </Router>
+                        <WebGLProvider>
+                            {/*<RoutedDiagramPage history={history}/>*/}
+                            <Router history={history}>
+                                <PolarisLayout />
+                            </Router>
+                        </WebGLProvider>
                     </ResourceProvider>
                 </DiagramSettingsProvider>
             </NotificationProvider>

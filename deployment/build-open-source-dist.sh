@@ -47,5 +47,6 @@ gitzip -d $dist_dir/$1.zip \
       -x "build-tools" \
       -x "sonar-project.properties" \
       -x "solution-manifest.yaml" \
+      -x "docs" \
       -x ".nightswatch" \
       -x "Config"

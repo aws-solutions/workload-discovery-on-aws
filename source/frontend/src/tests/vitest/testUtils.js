@@ -9,6 +9,7 @@ import {DiagramSettingsProvider} from '../../components/Contexts/DiagramSettings
 import {diagramSettingsReducer} from '../../components/Contexts/Reducers/DiagramSettingsReducer';
 import {ResourceProvider} from '../../components/Contexts/ResourceContext';
 import {resourceReducer} from '../../components/Contexts/Reducers/ResourceReducer';
+import {WebGLProvider} from '../../components/Contexts/WebGLContext';
 import {Router} from 'react-router-dom';
 import PolarisLayout from '../../PolarisLayout';
 import React from 'react';
@@ -47,10 +48,12 @@ export function renderPolarisLayout() {
                         initialState={initialResourceState}
                         reducer={resourceReducer}
                     >
-                        {/*<RoutedDiagramPage history={history}/>*/}
-                        <Router history={history}>
-                            <PolarisLayout />
-                        </Router>
+                        <WebGLProvider>
+                            {/*<RoutedDiagramPage history={history}/>*/}
+                            <Router history={history}>
+                                <PolarisLayout />
+                            </Router>
+                        </WebGLProvider>
                     </ResourceProvider>
                 </DiagramSettingsProvider>
             </NotificationProvider>
