@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Security [issue](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) in `axios`.
+- Security [issue](https://github.com/advisories/GHSA-jqfw-vq24-v9c3) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-g4jq-h2w9-997c) in `vite`.
+
+## [2.3.3] - 2025-09-16
+
+### Fixed
+
 - Security [issue](https://github.com/advisories/GHSA-95m3-7q98-8xr5) in `sha.js`.
 - Security [issue](https://github.com/advisories/GHSA-52f5-9888-hmc6) in `tmp`.
 

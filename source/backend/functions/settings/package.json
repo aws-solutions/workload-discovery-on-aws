@@ -1,6 +1,6 @@
 {
   "name": "wd-settings",
-  "version": "2.3.3",
+  "version": "v2.3.4",
   "description": "Lambda function that stores WD configuration data in DynamoDB",
   "main": "index.js",
   "type": "module",
