@@ -1165,7 +1165,7 @@ fetch-blob under the MIT license.
 node-domexception under the MIT license.
 web-streams-polyfill under the MIT license.
 formdata-polyfill under the MIT license.
-pixelmatch under the ISC license.
+blazediff under the MIT license.
 vite-plugin-eslint2 under the MIT license.
 @types/eslint under the MIT license.
 @types/json-schema under the MIT license.

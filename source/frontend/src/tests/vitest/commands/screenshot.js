@@ -3,7 +3,7 @@
 
 import {promises as fs} from 'node:fs';
 import path from 'node:path';
-import pixelmatch from 'pixelmatch';
+import blazediff from '@blazediff/core';
 import {PNG} from 'pngjs';
 
 /**
@@ -30,7 +30,7 @@ export const compareScreenshot = async (context, screenshotPath, options) => {
         testName,
         baselineDir = `${testDir}/__image_snapshots__`,
         diffDir = `${testDir}/__image_diffs__`,
-        threshold = 0.1, // recommended default in pixelmatch docs
+        threshold = 0.1, // recommended default in blazediff docs
         maxDiffPercentage = 1.0,
         updateBaseline = process.env.UPDATE_SNAPSHOTS === 'true',
     } = options;
@@ -73,12 +73,12 @@ export const compareScreenshot = async (context, screenshotPath, options) => {
             };
         }
 
-        // Create empty diff image buffer (pixelmatch will mutate this buffer to store the diff)
+        // Create empty diff image buffer (blazediff will mutate this buffer to store the diff)
         const {width, height} = img1;
         const diff = new PNG({width, height});
 
         // Compare images
-        const numDiffPixels = pixelmatch(
+        const numDiffPixels = blazediff(
             img1.data,
             img2.data,
             diff.data,
