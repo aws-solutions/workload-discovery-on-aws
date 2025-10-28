@@ -1,6 +1,6 @@
 {
   "name": "wd-import-templates",
-  "version": "v2.3.4",
+  "version": "v2.3.5",
   "description": "Lambda function that serves cfn templates for account and region importing",
   "main": "index.mjs",
   "type": "module",
