@@ -5,7 +5,14 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.3] - 2025-09-02
+## [2.3.5] - 2025-10-28
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-7mvr-c777-76hp) in `playwright`.
+- Security [issue](https://github.com/advisories/GHSA-93m4-6634-74q7) in `vite`.
+
+## [2.3.4] - 2025-09-02
 
 ### Added
 

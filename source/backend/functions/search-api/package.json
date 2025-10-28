@@ -1,6 +1,6 @@
 {
   "name": "wd-search-api",
-  "version": "v2.3.4",
+  "version": "v2.3.5",
   "description": "The lambda function that queries the OpenSearch database",
   "main": "src/index.mjs",
   "type": "module",
