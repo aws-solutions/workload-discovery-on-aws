@@ -1,11 +1,11 @@
-# Workload Discovery on AWS (v2.3.5)
+# Workload Discovery on AWS (v2.3.6)
 
-Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams. 
-You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS. 
-This solution works by maintaining an inventory of the AWS resources across your accounts and Regions, 
+Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams.
+You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS.
+This solution works by maintaining an inventory of the AWS resources across your accounts and Regions,
 mapping relationships between them, and displaying them in a web user interface (web UI).
 
-To find out more about Workload Discovery visit our [AWS Solutions](https://aws.amazon.com/solutions/implementations/workload-discovery-on-aws) 
+To find out more about Workload Discovery visit our [AWS Solutions](https://aws.amazon.com/solutions/implementations/workload-discovery-on-aws)
 page.
 
 ## Launch Workload Discovery
@@ -30,14 +30,14 @@ page.
 
 ## Installation
 
-Workload Discovery is deployed to your account using an AWS CloudFormation template and should take approximately 30 
-minutes to deploy. See the [deployment guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/automated-deployment.html) 
-for instructions, and [the cost overview](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/overview.html#cost) 
+Workload Discovery is deployed to your account using an AWS CloudFormation template and should take approximately 30
+minutes to deploy. See the [deployment guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/automated-deployment.html)
+for instructions, and [the cost overview](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/overview.html#cost)
 to learn about costs.
 
 ## Usage
 
-A web interface is included with Workload Discovery. Refer to the [documentation](https://github.com/aws-solutions/workload-discovery-on-aws) 
+A web interface is included with Workload Discovery. Refer to the [documentation](https://github.com/aws-solutions/workload-discovery-on-aws)
 to learn how to use the application.
 
 ## Feature requests
@@ -48,30 +48,30 @@ To submit an idea for a feature you would like to see implemented, please [creat
 
 ![Architecture diagram showing full set of deployment resources](arch-diagram.png "Full architecture diagram")
 
-Workload Discovery is deployed to your account using an AWS CloudFormation template consisting of six components. 
-The following is a high level overview of the components. For additional details about each component, refer to 
+Workload Discovery is deployed to your account using an AWS CloudFormation template consisting of six components.
+The following is a high level overview of the components. For additional details about each component, refer to
 the [Solution components guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/solution-components.html).
 
-The web user interface (UI) interacts with the data component via [AWS AppSync](http://aws.amazon.com/appsync/). The 
-web UI requests resource relationship data from the data component. The data component queries and returns data 
+The web user interface (UI) interacts with the data component via [AWS AppSync](http://aws.amazon.com/appsync/). The
+web UI requests resource relationship data from the data component. The data component queries and returns data
 from an [Amazon Neptune](http://aws.amazon.com/neptune/) database.
 
-The storage management component stores user preferences and saved architecture diagrams. This is implemented using 
-[AWS Amplify](http://aws.amazon.com/amplify/) and an [Amazon Simple Storage Service](http://aws.amazon.com/s3/) 
+The storage management component stores user preferences and saved architecture diagrams. This is implemented using
+[AWS Amplify](http://aws.amazon.com/amplify/) and an [Amazon Simple Storage Service](http://aws.amazon.com/s3/)
 (Amazon S3) bucket.
 
-The discovery component uses [AWS Config](http://aws.amazon.com/config) and AWS API calls to maintain an inventory of 
-resource data from imported accounts and Regions, then stores its findings in the data component. This runs every 15 
-minutes as a container task on [Amazon Elastic Container Service (Amazon ECS)](https://aws.amazon.com/ecs/) using the 
-[AWS Fargate](http://aws.amazon.com/fargate/) launch type. The discovery component container image is built in the 
+The discovery component uses [AWS Config](http://aws.amazon.com/config) and AWS API calls to maintain an inventory of
+resource data from imported accounts and Regions, then stores its findings in the data component. This runs every 15
+minutes as a container task on [Amazon Elastic Container Service (Amazon ECS)](https://aws.amazon.com/ecs/) using the
+[AWS Fargate](http://aws.amazon.com/fargate/) launch type. The discovery component container image is built in the
 image deployment component using [AWS CodePipeline](http://aws.amazon.com/codepipeline/) and [AWS CodeBuild](http://aws.amazon.com/codebuild/).
 
-The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html) 
-(AWS CUR) to make cost data available in Workload Discovery. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html) 
-to deliver the reports to the ```CostAndUsageReportBucket``` Amazon S3 bucket. When an AWS CUR is delivered, it 
-triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to trigger a AWS Glue Crawler that will update a 
-table ready for Amazon Athena to query. You can query these AWS CURs via the Workload Discovery UI. You can bring in cost 
-data from other accounts discoverable to Workload Discovery by setting up a AWS CUR and setting up replication between 
+The cost component processes [AWS Cost and Usage Reports](https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html)
+(AWS CUR) to make cost data available in Workload Discovery. To use this feature, you must [create a report in AWS CUR](https://docs.aws.amazon.com/cur/latest/userguide/cur-create.html)
+to deliver the reports to the ```CostAndUsageReportBucket``` Amazon S3 bucket. When an AWS CUR is delivered, it
+triggers an [AWS Lambda](http://aws.amazon.com/lambda) function to trigger a AWS Glue Crawler that will update a
+table ready for Amazon Athena to query. You can query these AWS CURs via the Workload Discovery UI. You can bring in cost
+data from other accounts discoverable to Workload Discovery by setting up a AWS CUR and setting up replication between
 the S3 bucket in the discoverable account and the ```CostAndUsageReportBucket```
 
 
@@ -117,7 +117,7 @@ cd ./deployment
 
 ### Deploying a local build
 
-When you have made changes to the code, you can build it locally and upload the deployment artefacts to Amazon S3 by 
+When you have made changes to the code, you can build it locally and upload the deployment artefacts to Amazon S3 by
 editing and running the bash script referenced below.
 
 #### Prerequistes
@@ -126,15 +126,15 @@ editing and running the bash script referenced below.
 2. [Node.js](https://nodejs.org/en/) installed
 3. [Python 3](https://www.python.org/downloads/) installed
 4. The CLI [configured](https://docs.aws.amazon.com/cli/latest/reference/configure/) with credentials/profile that will allow:
-   * S3 Bucket creation
-   * S3 Object creation
+    * S3 Bucket creation
+    * S3 Object creation
 
 #### Create deployment script
 
 1. Copy the `deployment/local-deploy-script.sh.example` script to the root project directory.
-  ```cp deployment/local-deploy-script.sh.example local-deploy-script.sh```
+   ```cp deployment/local-deploy-script.sh.example local-deploy-script.sh```
 2. Edit the `local-deploy-script.sh` copy made in step 1. Substitute the value placeholders (marked with angle brackets)
-with your own values, then save the script.
+   with your own values, then save the script.
 3. Make the script executable
    ```chmod +x ./local-deploy-script.sh```
 4. Run the script
@@ -148,7 +148,7 @@ This will:
 
 #### Deploying the CloudFormation template
 
-Once you have the deployment artefacts in S3, you can deploy the **workload-discovery-on-aws.template** in the CloudFormation 
+Once you have the deployment artefacts in S3, you can deploy the **workload-discovery-on-aws.template** in the CloudFormation
 console. Just pass the link to the template in S3 to CloudFormation and it will do the rest.
 
 Parameters required by the template:
@@ -162,21 +162,20 @@ Parameters required by the template:
 * **OpensearchInstanceType** - Select the instance type that will be provisioned for the Amazon ElasticSearch Domain.
 * **AthenaWorkgroup** - The Workgroup that will be used to issue the Athena query when the Cost feature is enabled.
 * **OpensearchMultiAz** - Choose whether to create an Opensearch cluster that spans multiple Availability Zone. Choosing Yes improves resilience; however, increases the cost of this solution.
-  
+
 **Note** - You will need to deploy in the same account and region as the S3 bucket that the deployment artefacts are uploaded to.
 
 ## Troubleshooting
-If you encounter problems during or after the deployment of Workload Discovery, consult the [debugging flow](./debugging-flowchart.mmd) chart to help 
+If you encounter problems during or after the deployment of Workload Discovery, consult the [debugging flow](./debugging-flowchart.mmd) chart to help
 diagnose and rectify common issues.
 
 ## License
 
 See license [here](./LICENSE).
 
-## Anonymized data collection
+## Data collection
 
-This solution collects anonymized operational metrics to help AWS improve the quality and features of the solution. 
-For more information, including how to disable this capability, please see the [Implementation Guide](https://docs.aws.amazon.com/solutions/latest/workload-discovery-on-aws/anonymized-data-collection.html).
+This solution sends operational metrics to AWS (the “Data”) about the use of this solution. We use this Data to better understand how customers use this solution and related services and products. AWS’s collection of this Data is subject to the [AWS Privacy Notice](https://aws.amazon.com/privacy/).
 
 ## Acknowledgements
 

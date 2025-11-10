@@ -468,6 +468,8 @@ Mappings:
       SolutionVersion: <VERSION>
       NodeLambdaRuntime: nodejs22.x
       PythonLambdaRuntime: python3.13
+      ResourceGroupTagKey: WorkloadDiscoveryResourceTag
+      ResourceGroupTagValue: SO0075-WorkloadDiscovery
     DiscoveryTaskFrequency:
       '15mins': cron(0/15 * * * ? *)
       '1hr': cron(0 * * * ? *)
@@ -539,6 +541,22 @@ Resources:
         - SolutionId: !FindInMap [ Solution, Constants, SolutionId ]
           Version: !FindInMap [ Solution, Constants, SolutionVersion ]
 
+  WdResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name: !Sub WorkloadDiscoveryResourceGroup-${Variables.ExternalId}
+      Description: Resource group that contains all resources for Workload Discovery on AWS
+      ResourceQuery:
+        Type:
+          TAG_FILTERS_1_0
+        Query:
+          ResourceTypeFilters:
+            - AWS::AllSupported
+          TagFilters:
+            - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+              Values:
+                - !FindInMap [Solution, Constants, ResourceGroupTagValue]
+
   WdOidcClientSecret:
     Condition: CreateOidcSecret
     Type: AWS::SecretsManager::Secret
@@ -551,8 +569,8 @@ Resources:
       Description: Secret used by Workload Discovery for OIDC login
       SecretString: !Ref OIDCClientSecret
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   WdGoogleClientSecret:
     Condition: CreateGoogleSecret
@@ -566,8 +584,8 @@ Resources:
       Description: Secret used by Workload Discovery for Google login
       SecretString: !Ref GoogleClientSecret
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   LayerStack:
     Type: AWS::CloudFormation::Stack
@@ -579,8 +597,8 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/layers.template
       TimeoutInMinutes: 60
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   S3Buckets:
     Type: AWS::CloudFormation::Stack
@@ -594,8 +612,8 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/buckets.template
       TimeoutInMinutes: 60
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   VpcStack:
     Type: AWS::CloudFormation::Stack
@@ -604,8 +622,8 @@ Resources:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/vpc.template
       TimeoutInMinutes: 60
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   NeptuneStack:
     Type: AWS::CloudFormation::Stack
@@ -626,8 +644,9 @@ Resources:
         MinNCUs: !Ref MinNCUs
         MaxNCUs: !Ref MaxNCUs
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
+
 
   ConfigAggregator:
     Type: AWS::CloudFormation::Stack
@@ -640,8 +659,8 @@ Resources:
         ConfigBucket: !If [SetUpConfig, !GetAtt S3Buckets.Outputs.ConfigBucket, '']
         ConfigAggregatorName: !Ref ConfigAggregatorName
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   OrganizationsGlobalResourcesStack:
     Type: AWS::CloudFormation::Stack
@@ -656,8 +675,8 @@ Resources:
         MyApplicationsLambdaRoleArn: !GetAtt MyApplicationsResolversStack.Outputs.MyApplicationsLambdaRoleArn
         DeploymentBucket: !GetAtt Variables.DeploymentBucket
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   OpenSearchRoleStack:
     Type: AWS::CloudFormation::Stack
@@ -667,8 +686,8 @@ Resources:
       Parameters:
         CreateOpensearchServiceRole: !Ref CreateOpensearchServiceRole
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   OpenSearchStack:
     Type: AWS::CloudFormation::Stack
@@ -685,8 +704,8 @@ Resources:
         PerspectiveVpcCidr: !If [CreateVpc, !GetAtt VpcStack.Outputs.VpcCidr, !Ref VpcCidrBlock ]
         SearchLambdaIAMRoleARN: !GetAtt OpenSearchRoleStack.Outputs.OpenSearchLambdaRoleArn
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   TaskStack:
     Type: AWS::CloudFormation::Stack
@@ -718,8 +737,8 @@ Resources:
         DeploymentBucketName: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   CodebuildStack:
     Type: AWS::CloudFormation::Stack
@@ -737,8 +756,8 @@ Resources:
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   CognitoStack:
     Type: AWS::CloudFormation::Stack
@@ -769,8 +788,8 @@ Resources:
         OIDCAttributeRequestMethod: !Ref OIDCAttributeRequestMethod
         CloudfrontDistributionURL: !GetAtt WebUiStack.Outputs.WebUiUrl
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   GremlinResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -794,8 +813,8 @@ Resources:
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
 
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   SearchResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -817,8 +836,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   DrawIoExportResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -831,8 +850,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   MyApplicationsResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -846,8 +865,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   AccountImportTemplatesResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -864,8 +883,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   AppSyncApiStack:
     Type: AWS::CloudFormation::Stack
@@ -878,8 +897,8 @@ Resources:
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
         ApiAllowListedRanges: !Join [',',  !Ref ApiAllowListedRanges]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   CostResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -897,8 +916,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   SettingsResolversStack:
     Type: AWS::CloudFormation::Stack
@@ -914,8 +933,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   AthenaGlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
@@ -928,8 +947,8 @@ Resources:
         DeploymentBucket: !GetAtt Variables.DeploymentBucketName
         DeploymentBucketKey: !FindInMap [ Solution, Constants, DeploymentBucketKey ]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   WebUiStack:
     Type: AWS::CloudFormation::Stack
@@ -941,8 +960,8 @@ Resources:
         WebUIBucket: !GetAtt S3Buckets.Outputs.WebUIBucket
         WebUIBucketRegionalDomainName: !GetAtt S3Buckets.Outputs.WebUIBucketRegionalDomainName
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
   WebUiSettingsStack:
     Type: AWS::CloudFormation::Stack
@@ -965,8 +984,8 @@ Resources:
         SettingsObjectKey: "settings.js"
         SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
   
   MetricsStack:
     Type: AWS::CloudFormation::Stack
@@ -994,29 +1013,59 @@ Resources:
         NeptuneInstanceClass: !Ref NeptuneInstanceClass
         OpensearchInstanceType: !Ref OpensearchInstanceType
       Tags:
-        - Key: !GetAtt AppRegistryStack.Outputs.ApplicationTagKey
-          Value: !GetAtt AppRegistryStack.Outputs.ApplicationTagValue
+        - Key: !FindInMap [Solution, Constants, ResourceGroupTagKey]
+          Value: !FindInMap [Solution, Constants, ResourceGroupTagValue]
 
-  AppRegistryStack:
-    Type: AWS::CloudFormation::Stack
+  # This custom resource removes the App Insights dashboard in order to prevent a
+  # race condition in CFN when updating from earlier versions of WD that have an App
+  # Registry application, which the dashboard relied on, and later versions that
+  # have removed it.
+  RemoveAppInsightsCrFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: Not applicable
+          - id: W92
+            reason: Not applicable
     Properties:
-      TemplateURL: !Sub ${Variables.DeploymentBucket}/app-registry.template
-      TimeoutInMinutes: 60
-      Parameters:
-        AppName: !FindInMap [Solution, Constants, AppName]
-        ApplicationType: !FindInMap [Solution, Constants, ApplicationType]
-        SolutionId: !FindInMap [Solution, Constants, SolutionId]
-        SolutionName: !FindInMap [Solution, Constants, SolutionName]
-        SolutionVersion: !FindInMap [Solution, Constants, SolutionVersion]
+      CodeUri:
+        Bucket: !GetAtt Variables.DeploymentBucketName
+        Key: !Sub
+          - ${DeploymentBucketKey}/remove_appinsights.zip
+          - DeploymentBucketKey: !FindInMap [Solution, Constants, DeploymentBucketKey]
+      Description: Custom Lambda resource for removing Application Insights dashboard
+      Runtime: !GetAtt Variables.PythonLambdaRuntime
+      Handler: remove_appinsights.handler
+      Layers:
+        - !GetAtt LayerStack.Outputs.LambdaPowertoolsPython
+        - !GetAtt LayerStack.Outputs.BotoUtils
+        - !GetAtt LayerStack.Outputs.CustomResourceHelper
+      Policies:
+        - Statement:
+            Action:
+              - applicationinsights:DeleteApplication
+            Effect: Allow
+            Resource: '*'
 
+  RemoveAppInsightsCr:
+    Type: Custom::RemoveAppInsights
+    Properties:
+      ServiceToken: !GetAtt RemoveAppInsightsCrFunction.Arn
+      ResourceGroupName: !Sub
+        - AWS_AppRegistry_AppTag_${AWS::AccountId}-${AppName}-${AWS::Region}-${AWS::AccountId}
+        - AppName: !FindInMap [Solution, Constants, AppName]
 
   AppInsightsStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - RemoveAppInsightsCr
     Properties:
       TemplateURL: !Sub ${Variables.DeploymentBucket}/application-insights.template
       TimeoutInMinutes: 60
       Parameters:
-        ApplicationResourceGroupName: !GetAtt AppRegistryStack.Outputs.ApplicationResourceGroupName
+        ApplicationResourceGroupName: !Ref WdResourceGroup
         ClusterArn: !GetAtt TaskStack.Outputs.ClusterArn
         DiscoveryTaskLogGroup: !GetAtt TaskStack.Outputs.DiscoveryTaskLogGroup
         DiscoveryTaskFrequency: !Ref DiscoveryTaskFrequency

@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+[dev-packages]
+aws-lambda-powertools = "3.22.1"
+moto = "5.1.16"
+boto3 = "1.40.67"
+crhelper = "2.0.12"
+pytest-cov = "7.0.0"
+pytest-mock = "3.14.0"
+mock = "5.1.0"
+
+[requires]
+python_version = "3.13"

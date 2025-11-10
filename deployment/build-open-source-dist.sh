@@ -48,5 +48,7 @@ gitzip -d $dist_dir/$1.zip \
       -x "sonar-project.properties" \
       -x "solution-manifest.yaml" \
       -x "docs" \
+      -x "launch-wizard-config.json" \
+      -x "source/launch-wizard" \
       -x ".nightswatch" \
       -x "Config"

@@ -33,7 +33,7 @@ Parameters:
 
 Resources:
 
-  ApplicationDashboard:
+  WdApplicationDashboard:
     Type: AWS::ApplicationInsights::Application
     Properties:
       AutoConfigurationEnabled: true

@@ -1,6 +1,6 @@
 {
   "name": "wd-export-myapplications",
-  "version": "v2.3.5",
+  "version": "v2.3.6",
   "description": "Lambda function that exports to myApplications",
   "main": "index.mjs",
   "type": "module",
