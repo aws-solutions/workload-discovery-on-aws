@@ -81,6 +81,14 @@ pipenv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
+echo "[Test] Remove AppInsights Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd $source_dir/backend/functions/remove-appinsights
+pipenv install -q --dev
+pipenv run pytest --cov-report xml --cov .
+echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
+
+echo "------------------------------------------------------------------------------"
 echo "[Test] Metrics Subscription Filter"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/metrics-subscription-filter

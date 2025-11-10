@@ -27,6 +27,7 @@ fi
 template_dir="$PWD"
 template_dist_dir="$template_dir/global-s3-assets"
 build_dist_dir="$template_dir/regional-s3-assets"
+launch_wizard_dist_dir="$template_dir/launch-wizard-assets"
 source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
@@ -41,6 +42,7 @@ echo "--------------------------------------------------------------------------
 
 rm -rf "$template_dist_dir" && mkdir -p "$template_dist_dir"
 rm -rf "$build_dist_dir" && mkdir -p "$build_dist_dir"
+rm -rf "$launch_wizard_dist_dir" && mkdir -p "$launch_wizard_dist_dir"
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Nested Stack Templates"
@@ -56,6 +58,16 @@ echo "[Packing] Main Distribution Template"
 echo "------------------------------------------------------------------------------"
 
 cp "${build_dist_dir}/main.template" "${template_dist_dir}/workload-discovery-on-aws.template"
+
+echo "------------------------------------------------------------------------------"
+echo "[Packing] Launch Wizard Assets"
+echo "------------------------------------------------------------------------------"
+
+cp "${template_dir}/../launch-wizard-config.json" "${launch_wizard_dist_dir}/launch-wizard-config.json"
+cp "${source_dir}/launch-wizard/launch-wizard-metadata.json" "${launch_wizard_dist_dir}/launch-wizard-metadata.json"
+cd "${source_dir}/launch-wizard/helpPanels"
+zip -q -r9 "${launch_wizard_dist_dir}/helpPanels.zip" .
+cd "${template_dir}"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Upload GraphQL Schema"
@@ -185,7 +197,6 @@ cd "${source_dir}/backend/functions/cur-setup"
 npm run build
 cp ./dist/cur-setup.zip "${build_dist_dir}/cur-setup.zip"
 
-
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Metrics Uuid Custom Resource"
 echo "------------------------------------------------------------------------------"
@@ -193,6 +204,14 @@ cd "${source_dir}/backend/functions/metrics-uuid"
 rm -rf dist && mkdir dist
 zip -q -r9 dist/metrics_uuid.zip metrics_uuid.py
 cp ./dist/metrics_uuid.zip "${build_dist_dir}/metrics_uuid.zip"
+
+echo "------------------------------------------------------------------------------"
+echo "[Rebuild] Remove AppInsights Custom Resource"
+echo "------------------------------------------------------------------------------"
+cd "${source_dir}/backend/functions/remove-appinsights"
+rm -rf dist && mkdir dist
+zip -q -r9 dist/remove_appinsights.zip remove_appinsights.py
+cp ./dist/remove_appinsights.zip "${build_dist_dir}/remove_appinsights.zip"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Metrics"
