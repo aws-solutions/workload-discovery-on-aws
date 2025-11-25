@@ -1,6 +1,6 @@
 {
   "name": "wd-export-myapplications",
-  "version": "v2.3.6",
+  "version": "2.3.7",
   "description": "Lambda function that exports to myApplications",
   "main": "index.mjs",
   "type": "module",
@@ -21,7 +21,7 @@
     "url": "https://aws.amazon.com/solutions"
   },
   "dependencies": {
-    "@aws-lambda-powertools/logger": "2.1.1",
+    "@aws-lambda-powertools/logger": "2.28.1",
     "@aws-sdk/client-resource-groups-tagging-api": "3.621.0",
     "@aws-sdk/client-service-catalog-appregistry": "3.621.0",
     "@aws-sdk/client-sts": "3.621.0",
@@ -34,14 +34,15 @@
     "@aws-sdk/client-directory-service": "3.621.0",
     "@aws-sdk/types": "3.609.0",
     "@smithy/types": "3.0.0",
-    "@types/aws-lambda": "^8.10.137",
-    "@types/node": "^20.12.12",
+    "@types/aws-lambda": "^8.10.158",
+    "@types/node": "^22.19.1",
     "@types/ramda": "^0.30.0",
-    "@vitest/coverage-v8": "^3.0.8",
+    "@vitest/coverage-v8": "^4.0.10",
+    "aws-sdk-client-mock": "^4.1.0",
     "chai": "^4.4.1",
     "rewire": "7.0.0",
     "sinon": "^18.0.0",
     "typescript": "^5.4.5",
-    "vitest": "^3.0.8"
+    "vitest": "^4.0.10"
   }
 }

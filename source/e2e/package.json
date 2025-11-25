@@ -1,13 +1,13 @@
 {
   "name": "wd-e2e",
   "description": "E2E Tests - Workload Discovery",
-  "version": "v2.3.6",
+  "version": "2.3.7",
   "scripts": {
     "test": "vitest run"
   },
   "type": "module",
   "license": "Apache-2.0",
   "devDependencies": {
-    "vitest": "^3.2.3"
+    "vitest": "^4.0.10"
   }
 }

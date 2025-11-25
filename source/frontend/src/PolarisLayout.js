@@ -263,7 +263,7 @@ export function PolarisLayout() {
     const {addNotification, clearAllNotifications} = useNotificationDispatch();
     const {data: appProblems = {}} = useGetApplicationProblems();
     const [navigationOpen, setNavigationOpen] = useState(
-        location.pathname !== '/'
+        true
     );
     const [toolsOpen, setToolsOpen] = useState(false);
     const [, setCurrentPath] = useState();
