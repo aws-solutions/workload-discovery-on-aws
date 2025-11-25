@@ -3,7 +3,7 @@
 
 import {describe, it, vi} from 'vitest';
 import {assert} from 'chai';
-import {_handler} from '../src/index.mjs';
+import {_handler, wrappedCredentialProvider} from '../src/index.mjs';
 import * as R from 'ramda';
 
 const AWS_ACCOUNT_ID_1 = '111111111111';
@@ -14,7 +14,7 @@ const EU_WEST_1 = 'eu-west-1';
 const EU_WEST_2 = 'eu-west-2';
 const GLOBAL = 'global';
 
-const EXTERNAL_ID = 'stsExternalId'
+const EXTERNAL_ID = 'stsExternalId';
 
 const APPLICATION_NAME = 'testApplication';
 const APPLICATION_TAG = 'myApplicationTag';
@@ -213,6 +213,51 @@ describe('index.js', () => {
                         err.message,
                         "Validation error for region: Invalid enum value. Expected 'af-south-1' | 'ap-east-1' | 'ap-northeast-1' | 'ap-northeast-2' | 'ap-northeast-3' | 'ap-south-1' | 'ap-south-2' | 'ap-southeast-1' | 'ap-southeast-2' | 'ap-southeast-3' | 'ap-southeast-4' | 'ca-central-1' | 'ca-west-1' | 'cn-north-1' | 'cn-northwest-1' | 'eu-central-1' | 'eu-central-2' | 'eu-north-1' | 'eu-south-1' | 'eu-south-2' | 'eu-west-1' | 'eu-west-2' | 'eu-west-3' | 'me-central-1' | 'me-south-1' | 'sa-east-1' | 'us-east-1' | 'us-east-2' | 'us-gov-east-1' | 'us-gov-west-1' | 'us-west-1' | 'us-west-2', received 'global'"
                     );
+                });
+            });
+
+            it('should throw TypeGuardError when application tag is missing', async () => {
+                class mockServiceCatalogAppRegistryNoTag {
+                    async createApplication() {
+                        return {
+                            application: {},
+                        };
+                    }
+                }
+
+                return _handler(
+                    {
+                        ...defaultMockDependencies,
+                        ServiceCatalogAppRegistry:
+                            mockServiceCatalogAppRegistryNoTag,
+                    },
+                    mockEnv
+                )(
+                    {
+                        arguments: {
+                            accountId: AWS_ACCOUNT_ID_1,
+                            region: EU_WEST_1,
+                            name: 'noTagApplication',
+                            resources: [
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET',
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                    region: EU_WEST_1,
+                                },
+                            ],
+                        },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
+                        info: {
+                            fieldName: 'createApplication',
+                        },
+                    },
+                    {}
+                ).catch(err => {
+                    assert.strictEqual(
+                        err.message,
+                        'awsApplication tag is missing'
+                    );
+                    assert.strictEqual(err.name, 'TypeGuardError');
                 });
             });
 
@@ -542,6 +587,57 @@ describe('index.js', () => {
                 });
             });
 
+            it('should handle complete failure of tagging operation', async () => {
+                class errorMockResourceGroupsTaggingAPI {
+                    async tagResources() {
+                        throw new Error('Service unavailable');
+                    }
+                }
+
+                const actual = await _handler(
+                    {
+                        ...defaultMockDependencies,
+                        ResourceGroupsTaggingAPI:
+                            errorMockResourceGroupsTaggingAPI,
+                    },
+                    mockEnv
+                )(
+                    {
+                        arguments: {
+                            accountId: AWS_ACCOUNT_ID_1,
+                            region: EU_WEST_1,
+                            name: APPLICATION_NAME,
+                            resources: [
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET',
+                                    region: EU_WEST_1,
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                },
+                                {
+                                    id: 'arn:aws:s3:::DOC-EXAMPLE-BUCKET1',
+                                    region: EU_WEST_1,
+                                    accountId: AWS_ACCOUNT_ID_1,
+                                },
+                            ],
+                        },
+                        identity: {sub: '00000000-1111-2222-3333-000000000000'},
+                        info: {
+                            fieldName: 'createApplication',
+                        },
+                    },
+                    {}
+                );
+
+                assert.deepEqual(actual, {
+                    applicationTag: APPLICATION_TAG,
+                    name: APPLICATION_NAME,
+                    unprocessedResources: [
+                        'arn:aws:s3:::DOC-EXAMPLE-BUCKET',
+                        'arn:aws:s3:::DOC-EXAMPLE-BUCKET1',
+                    ],
+                });
+            });
+
             it('should support >20 resources in a diagram', async () => {
                 const MockResourceGroupsTaggingAPI = vi.fn();
                 MockResourceGroupsTaggingAPI.prototype.tagResources = vi
@@ -615,6 +711,62 @@ describe('index.js', () => {
                         'Unknown field, unable to resolve foo.'
                     )
                 );
+            });
+        });
+    });
+
+    describe('wrappedCredentialProvider', () => {
+        it('should return credentials on successful assume role', async () => {
+            const mockFromTemporaryCredentials = vi.fn(() => () =>
+                Promise.resolve({
+                    accessKeyId: 'mockAccessKey',
+                    secretAccessKey: 'mockSecretKey',
+                    sessionToken: 'mockSessionToken'
+                })
+            );
+
+            const provider = wrappedCredentialProvider(mockFromTemporaryCredentials)(
+                {wdAccountId: AWS_ACCOUNT_ID_1, wdRegion: EU_WEST_1, externalId: EXTERNAL_ID},
+                {accountId: AWS_ACCOUNT_ID_2, region: EU_WEST_2}
+            );
+
+            const credentials = await provider();
+            assert.equal(credentials.accessKeyId, 'mockAccessKey');
+            assert.equal(credentials.secretAccessKey, 'mockSecretKey');
+            assert.equal(credentials.sessionToken, 'mockSessionToken');
+        });
+
+        it('should throw AccessDeniedError when AccessDenied error occurs', async () => {
+            const accessDeniedError = new Error('Access Denied');
+            accessDeniedError.Code = 'AccessDenied';
+            const mockFromTemporaryCredentials = vi.fn(() => () =>
+                Promise.reject(accessDeniedError)
+            );
+
+            const provider = wrappedCredentialProvider(mockFromTemporaryCredentials)(
+                {wdAccountId: AWS_ACCOUNT_ID_1, wdRegion: EU_WEST_1, externalId: EXTERNAL_ID},
+                {accountId: AWS_ACCOUNT_ID_2, region: EU_WEST_2}
+            );
+
+            return provider().catch(err => {
+                assert.equal(err.name, 'AccessDeniedError');
+                assert.equal(err.accountId, AWS_ACCOUNT_ID_2);
+                assert.include(err.message, AWS_ACCOUNT_ID_2);
+            });
+        });
+
+        it('should rethrow non-AccessDenied errors', async () => {
+            const mockFromTemporaryCredentials = vi.fn(() => () =>
+                Promise.reject(new Error('Other error'))
+            );
+
+            const provider = wrappedCredentialProvider(mockFromTemporaryCredentials)(
+                {wdAccountId: AWS_ACCOUNT_ID_1, wdRegion: EU_WEST_1, externalId: EXTERNAL_ID},
+                {accountId: AWS_ACCOUNT_ID_2, region: EU_WEST_2}
+            );
+
+            return provider().catch(err => {
+                assert.equal(err.message, 'Other error');
             });
         });
     });

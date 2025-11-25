@@ -349,40 +349,39 @@ const envSchema = z.object({
 
 /**
  * Wraps the fromTemporaryCredentials Provider to provide a customised error message
- * @type {(wdMetadata: WdMetadata, applicationMetadata: ApplicationMetadata) => AwsCredentialIdentityProvider}
  */
-export function wrappedCredentialProvider(
-    {wdAccountId, wdRegion, externalId},
-    {accountId, region}
-) {
-    const RoleArn = createMyApplicationsRoleArn(
-        {wdAccountId, wdRegion, externalId},
-        {accountId, region}
-    );
+export const wrappedCredentialProvider = R.curry(
+    /** @type {(fromTemporaryCredentialsFn: typeof fromTemporaryCredentials, wdMetadata: WdMetadata, applicationMetadata: ApplicationMetadata) => AwsCredentialIdentityProvider} */
+    (fromTemporaryCredentialsFn, {wdAccountId, wdRegion, externalId}, {accountId, region}) => {
+        const RoleArn = createMyApplicationsRoleArn(
+            {wdAccountId, wdRegion, externalId},
+            {accountId, region}
+        );
 
-    return () => {
-        const provider = fromTemporaryCredentials({
-            params: {
-                RoleArn,
-                RoleSessionName: 'myApplicationDiscovery',
-                DurationSeconds: ROLE_SESSION_DURATION_SECONDS,
-                ExternalId: externalId
-            },
-        });
+        return () => {
+            const provider = fromTemporaryCredentialsFn({
+                params: {
+                    RoleArn,
+                    RoleSessionName: 'myApplicationDiscovery',
+                    DurationSeconds: ROLE_SESSION_DURATION_SECONDS,
+                    ExternalId: externalId
+                },
+            });
 
-        return provider().catch(e => {
-            logger.error(`Error in wrappedCredentialProvider: ${e}`);
-            if (e.Code === ACCESS_DENIED) {
-                throw new AccessDeniedError(
-                    `Error assuming ${RoleArn}. Ensure the global-resources template is deployed in account: ${accountId}.`,
-                    accountId
-                );
-            }
+            return provider().catch(e => {
+                logger.error(`Error in wrappedCredentialProvider: ${e}`);
+                if (e.Code === ACCESS_DENIED) {
+                    throw new AccessDeniedError(
+                        `Error assuming ${RoleArn}. Ensure the global-resources template is deployed in account: ${accountId}.`,
+                        accountId
+                    );
+                }
 
-            throw e;
-        });
-    };
-}
+                throw e;
+            });
+        };
+    }
+);
 
 /**
  * A type guard to validate ensure the username variable exists in the AppSync resolver identity field.
@@ -484,7 +483,7 @@ export const handler = _handler(
     {
         ServiceCatalogAppRegistry,
         ResourceGroupsTaggingAPI,
-        credentialProvider: wrappedCredentialProvider,
+        credentialProvider: wrappedCredentialProvider(fromTemporaryCredentials),
     },
     process.env
 );

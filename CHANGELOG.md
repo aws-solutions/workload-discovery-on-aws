@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.7] - 2025-11-25
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-5j98-mcp5-4vw2) in `glob`.
+
 ## [2.3.6] - 2025-11-10
 
 ### Removed
