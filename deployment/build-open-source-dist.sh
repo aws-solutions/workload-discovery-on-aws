@@ -49,6 +49,7 @@ gitzip -d $dist_dir/$1.zip \
       -x "solution-manifest.yaml" \
       -x "docs" \
       -x "launch-wizard-config.json" \
-      -x "source/launch-wizard" \
+      -x "launch-wizard-config-v1.0.0.schema.json" \
+      -x "deployment/launch-wizard-assets" \
       -x ".nightswatch" \
       -x "Config"

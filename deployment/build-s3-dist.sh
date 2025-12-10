@@ -27,7 +27,9 @@ fi
 template_dir="$PWD"
 template_dist_dir="$template_dir/global-s3-assets"
 build_dist_dir="$template_dir/regional-s3-assets"
-launch_wizard_dist_dir="$template_dir/launch-wizard-assets"
+# Strip 'v' prefix from version for launch wizard path
+version_without_v="${3#v}"
+launch_wizard_dist_dir="$template_dir/launch-wizard-assets/Default/${version_without_v}"
 source_dir="$template_dir/../source"
 nested_stack_template_dir="$source_dir/cfn/templates"
 
@@ -42,7 +44,7 @@ echo "--------------------------------------------------------------------------
 
 rm -rf "$template_dist_dir" && mkdir -p "$template_dist_dir"
 rm -rf "$build_dist_dir" && mkdir -p "$build_dist_dir"
-rm -rf "$launch_wizard_dist_dir" && mkdir -p "$launch_wizard_dist_dir"
+mkdir -p "$launch_wizard_dist_dir"
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Nested Stack Templates"
@@ -58,16 +60,19 @@ echo "[Packing] Main Distribution Template"
 echo "------------------------------------------------------------------------------"
 
 cp "${build_dist_dir}/main.template" "${template_dist_dir}/workload-discovery-on-aws.template"
+cfn-flip "${template_dist_dir}/workload-discovery-on-aws.template" "${template_dist_dir}/workload-discovery-on-aws.template.json"
 
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Launch Wizard Assets"
 echo "------------------------------------------------------------------------------"
 
-cp "${template_dir}/../launch-wizard-config.json" "${launch_wizard_dist_dir}/launch-wizard-config.json"
-cp "${source_dir}/launch-wizard/launch-wizard-metadata.json" "${launch_wizard_dist_dir}/launch-wizard-metadata.json"
-cd "${source_dir}/launch-wizard/helpPanels"
-zip -q -r9 "${launch_wizard_dist_dir}/helpPanels.zip" .
-cd "${template_dir}"
+if [ -d "${launch_wizard_dist_dir}" ]; then
+  cd "${launch_wizard_dist_dir}/helpPanels"
+  zip -q -r9 "${launch_wizard_dist_dir}/helpPanels.zip" .
+  cd "${template_dir}"
+else
+  echo "Launch wizard directory not found for version ${version_without_v}, skipping..."
+fi
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Upload GraphQL Schema"
