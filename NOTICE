@@ -1456,6 +1456,35 @@ iterare under the ISC license.
 jsonschema under the MIT license.
 pkgutil_resolve_name under the MIT license.
 crhelper under the Apache-2.0 license.
+@standard-schema/spec under the MIT license.
+@esbuild/openharmony-arm64 under the MIT license.
+@rollup/rollup-linux-loong64-gnu under the MIT license.
+@rollup/rollup-linux-ppc64-gnu under the MIT license.
+@rollup/rollup-openharmony-arm64 under the MIT license.
+@rollup/rollup-win32-x64-gnu under the MIT license.
+fix-dts-default-cjs-exports under the MIT license.
+mlly under the MIT license.
+pkg-types under the MIT license.
+confbox under the MIT license.
+ufo under the MIT license.
+@isaacs/brace-expansion under the MIT license.
+@isaacs/balanced-match under the MIT license.
+baseline-browser-mapping under the Apache-2.0 license.
+@babel/helper-globals under the MIT license.
+@jridgewell/remapping under the MIT license.
+@react-native/debugger-shell under the MIT license.
+fb-dotslash under the Apache-2.0 license.
+hermes-compiler under the MIT license.
+@babel/plugin-transform-explicit-resource-management under the MIT license.
+tldts under the MIT license.
+tldts-core under the MIT license.
+tagged-tag under the MIT license.
+@inquirer/ansi under the MIT license.
+rettime under the MIT license.
+until-async under the MIT license.
+generator-function under the MIT license.
+obug under the MIT license.
+@pinojs/redact under the MIT license.
 
 ********************
 OPEN SOURCE LICENSES

@@ -1,6 +1,6 @@
 {
   "name": "wd-search-api",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "description": "The lambda function that queries health status of WD solution",
   "main": "src/index.mjs",
   "type": "module",

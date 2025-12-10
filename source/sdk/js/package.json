@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-sdk",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "description": "SDK for Workload Discovery on AWS",
   "module": "dist/index.mjs",
   "exports": {

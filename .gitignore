@@ -2,7 +2,6 @@
 **/dist
 **/global-s3-assets
 **/regional-s3-assets
-**/launch-wizard-assets
 **/open-source
 **/*.zip
 **/.zip

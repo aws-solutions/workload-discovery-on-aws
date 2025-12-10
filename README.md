@@ -1,4 +1,4 @@
-# Workload Discovery on AWS (v2.3.7)
+# Workload Discovery on AWS (v2.3.8)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams.
 You can use the solution to build, customize, and share detailed workload visualizations based on live data from AWS.
@@ -125,7 +125,8 @@ editing and running the bash script referenced below.
 1. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) installed.
 2. [Node.js](https://nodejs.org/en/) installed
 3. [Python 3](https://www.python.org/downloads/) installed
-4. The CLI [configured](https://docs.aws.amazon.com/cli/latest/reference/configure/) with credentials/profile that will allow:
+4. [cfn-flip](https://github.com/awslabs/aws-cfn-template-flip) installed (`pip install cfn-flip`)
+5. The CLI [configured](https://docs.aws.amazon.com/cli/latest/reference/configure/) with credentials/profile that will allow:
     * S3 Bucket creation
     * S3 Object creation
 
