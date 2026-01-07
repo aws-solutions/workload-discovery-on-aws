@@ -1,6 +1,6 @@
 {
   "name": "wd-cur-notification",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -20,7 +20,7 @@
     "@aws-sdk/client-s3": "^3.645.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.10",
-    "vitest": "^4.0.10"
+    "@vitest/coverage-v8": "^4.0.16",
+    "vitest": "^4.0.16"
   }
 }

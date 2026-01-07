@@ -1,6 +1,6 @@
 {
   "name": "wd-search-api",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "The lambda function that queries health status of WD solution",
   "main": "src/index.mjs",
   "type": "module",
@@ -27,7 +27,7 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.10",
-    "vitest": "^4.0.10"
+    "@vitest/coverage-v8": "^4.0.16",
+    "vitest": "^4.0.16"
   }
 }

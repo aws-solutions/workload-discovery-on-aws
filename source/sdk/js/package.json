@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-sdk",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "SDK for Workload Discovery on AWS",
   "module": "dist/index.mjs",
   "exports": {
@@ -42,11 +42,11 @@
   },
   "devDependencies": {
     "@aws-amplify/graphql-docs-generator": "^4.0.3",
-    "@vitest/coverage-v8": "^4.0.10",
+    "@vitest/coverage-v8": "^4.0.16",
     "chai": "^4.3.10",
     "sinon": "^17.0.0",
     "tsup": "^8.1.0",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.16"
   },
   "overrides": {
     "glob": "11.1.0"
