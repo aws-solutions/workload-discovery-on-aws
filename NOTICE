@@ -1485,6 +1485,9 @@ until-async under the MIT license.
 generator-function under the MIT license.
 obug under the MIT license.
 @pinojs/redact under the MIT license.
+@rollup/rollup-linux-loong64-musl under the MIT license.
+@rollup/rollup-linux-ppc64-musl under the MIT license.
+@rollup/rollup-openbsd-x64 under the MIT license.
 
 ********************
 OPEN SOURCE LICENSES

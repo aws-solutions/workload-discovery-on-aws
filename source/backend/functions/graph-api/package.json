@@ -1,6 +1,6 @@
 {
   "name": "wd-graph-api",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "The lambda function that queries the Neptune database",
   "main": "src/index.mjs",
   "type": "module",
@@ -27,8 +27,8 @@
     "ramda": "0.28.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.10",
+    "@vitest/coverage-v8": "^4.0.16",
     "sinon": "^17.0.0",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.16"
   }
 }
