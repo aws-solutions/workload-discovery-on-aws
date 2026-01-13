@@ -1488,6 +1488,11 @@ obug under the MIT license.
 @rollup/rollup-linux-loong64-musl under the MIT license.
 @rollup/rollup-linux-ppc64-musl under the MIT license.
 @rollup/rollup-openbsd-x64 under the MIT license.
+@smithy/uuid under the Apache-2.0 license.
+@aws-sdk/credential-provider-login under the Apache-2.0 license.
+@aws/lambda-invoke-store under the Apache-2.0 license.
+@aws-sdk/dynamodb-codec under the Apache-2.0 license.
+@aws-sdk/crc64-nvme under the Apache-2.0 license.
 
 ********************
 OPEN SOURCE LICENSES
