@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.10] - 2026-01-13
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-hgf8-39gv-g3f2) in `werkzeug`.
+- Security [issue](https://github.com/advisories/GHSA-38jv-5279-wg99) in `urllib3`.
+
 ## [2.3.9] - 2026-01-07
 
 ### Fixed

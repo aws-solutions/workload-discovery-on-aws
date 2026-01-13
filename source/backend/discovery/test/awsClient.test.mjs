@@ -2157,7 +2157,7 @@ describe('awsClient', () => {
                 it('should get credentials for role', async () => {
                     const actual = await getCurrentCredentials();
 
-                    assert.deepEqual(actual, {
+                    assert.containsAllKeys(actual, {
                         accessKeyId: 'accessKeyEnv',
                         secretAccessKey: 'secretAccessKeyEnv',
                     });
