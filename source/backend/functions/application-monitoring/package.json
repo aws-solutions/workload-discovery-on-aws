@@ -1,6 +1,6 @@
 {
   "name": "wd-search-api",
-  "version": "2.3.10",
+  "version": "2.3.11",
   "description": "The lambda function that queries health status of WD solution",
   "main": "src/index.mjs",
   "type": "module",
@@ -20,7 +20,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-lambda-powertools/logger": "2.30.2",
-    "@aws-sdk/client-application-insights": "3.966.0",
+    "@aws-sdk/client-application-insights": "^3.982.0",
     "@aws-sdk/util-arn-parser": "3.966.0",
     "p-throttle": "7.0.0",
     "ramda": "0.30.1",

@@ -1,7 +1,7 @@
 {
   "name": "wd-e2e",
   "description": "E2E Tests - Workload Discovery",
-  "version": "2.3.10",
+  "version": "2.3.11",
   "scripts": {
     "test": "vitest run"
   },
