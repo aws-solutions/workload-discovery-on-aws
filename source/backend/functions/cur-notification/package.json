@@ -1,6 +1,6 @@
 {
   "name": "wd-cur-notification",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "description": "",
   "main": "index.js",
   "type": "module",

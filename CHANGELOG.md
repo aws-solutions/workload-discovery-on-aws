@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.12] - 2026-02-16
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-r6ph-v2qm-q3c2) in `cryptography`.
+- Discovery process not launching due to Node version mismatch [642](https://github.com/aws-solutions/workload-discovery-on-aws/issues/642)
+- Updated Amazon Linux 2023 base image to latest version.
+
+### Changed
+
+- Added support for Hong Kong (ap-east-1) region
+
 ## [2.3.11] - 2026-02-04
 
 ### Fixed
