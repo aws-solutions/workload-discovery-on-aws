@@ -1,10 +1,10 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal@sha256:13bffb7de7ef4836742a6be2b09642e819aaec50ceed1d7961424e19a95da0de
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal@sha256:c3b7315ff24b36440abaaddbd13d9a9ec8b351822b96251dfffaabc175ed2896
 
 RUN dnf install -y shadow-utils
 
-RUN curl -fsSL https://rpm.nodesource.com/setup_24.9.0 | bash -
+RUN curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -
 
-RUN dnf install nodejs -y
+RUN dnf install --setopt=install_weak_deps=0 nodejs-24.13.1-1nodesource -y
 
 RUN groupadd -r discovery && useradd -r -g discovery discovery
 

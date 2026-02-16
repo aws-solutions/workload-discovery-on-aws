@@ -32,6 +32,8 @@ Mappings:
       CIDR: '10.0.12.0/24'
 
   AZRegions:
+    ap-east-1:
+      AZs: ['a', 'b']
     ap-northeast-1:
       AZs: ['a', 'c']
     ap-northeast-2:

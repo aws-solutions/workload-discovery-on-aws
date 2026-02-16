@@ -1,6 +1,6 @@
 {
   "name": "wd-graph-api",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "description": "The lambda function that queries the Neptune database",
   "main": "src/index.mjs",
   "type": "module",
