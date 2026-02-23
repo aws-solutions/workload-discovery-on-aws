@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.3.12",
+  "version": "2.3.13",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -80,10 +80,11 @@
   "overrides": {
     "cookie": "0.7.0",
     "axios": "1.13.5",
-    "fast-xml-parser": "5.3.4",
+    "fast-xml-parser": "5.3.6",
     "@aws-amplify/ui-react": {
       "lodash": "4.17.23"
-    }
+    },
+    "minimatch": "10.2.2"
   },
   "scripts": {
     "start": "vite",
