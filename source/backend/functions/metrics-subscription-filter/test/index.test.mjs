@@ -3,8 +3,7 @@
 
 import zlib from 'node:zlib';
 import sinon from 'sinon';
-import {afterAll, afterEach, describe, it, beforeAll, beforeEach} from 'vitest';
-import {assert} from 'chai';
+import {afterAll, afterEach, assert, describe, it, beforeAll, beforeEach} from 'vitest';
 import {_handler} from '../src/index.mjs';
 import {server} from './mocks/node.mjs';
 import {

@@ -1,6 +1,6 @@
 {
   "name": "metrics-subscription-filter",
-  "version": "2.3.12",
+  "version": "2.3.13",
   "description": "Lambda function used to handle operational metrics subscription filter",
   "main": "index.mjs",
   "scripts": {
@@ -20,9 +20,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.16",
-    "chai": "^4.3.10",
     "msw": "2.3.1",
-    "rewire": "^7.0.0",
     "sinon": "^18.0.0",
     "vitest": "^4.0.16"
   },

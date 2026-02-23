@@ -1,8 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {describe, it, vi} from 'vitest';
-import {assert} from 'chai';
+import {assert, describe, it, vi} from 'vitest';
 import {_handler, wrappedCredentialProvider} from '../src/index.mjs';
 import * as R from 'ramda';
 

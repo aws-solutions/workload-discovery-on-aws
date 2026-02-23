@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.13] - 2026-02-23
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-m7jm-9gc2-mpf2) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-3ppc-4f35-3m26) in `minimatch`.
+- Security [issue](https://github.com/advisories/GHSA-29vq-49wr-vm6x) in `werkzeug`.
+
+
 ## [2.3.12] - 2026-02-16
 
 ### Fixed
