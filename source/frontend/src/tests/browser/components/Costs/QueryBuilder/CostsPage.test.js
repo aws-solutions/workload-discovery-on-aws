@@ -6,6 +6,7 @@ import {render} from 'vitest-browser-react';
 import {describe, expect} from 'vitest';
 import {it} from '../../../../vitest/setupFiles/testContext';
 import App from '../../../../../App';
+import {login} from '../../../utils/login';
 import {getResourceGraph} from '../../../../mocks/fixtures/getResourceGraph/default.json';
 import {getCostForResource} from '../../../../mocks/fixtures/getCostForResource/default.json';
 import {getCostForService} from '../../../../mocks/fixtures/getCostForService/default.json';
@@ -45,6 +46,7 @@ describe('Costs Page', () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByRole('link', {
@@ -91,6 +93,7 @@ describe('Costs Page', () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByLabelText('Explore')
@@ -163,6 +166,7 @@ describe('Costs Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByLabelText('Explore')

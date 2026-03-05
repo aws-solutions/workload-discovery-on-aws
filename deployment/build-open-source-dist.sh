@@ -47,6 +47,7 @@ gitzip -d $dist_dir/$1.zip \
       -x "build-tools" \
       -x "sonar-project.properties" \
       -x "solution-manifest.yaml" \
+      -x ".kiro/skills/security-patch" \
       -x "docs" \
       -x "launch-wizard-config.json" \
       -x "launch-wizard-config-v1.0.0.schema.json" \

@@ -3,7 +3,7 @@
 
 import {retryAttempts} from '../../config/api-retry';
 import {delay} from '../../Utils/AsyncUtils';
-import {Auth} from 'aws-amplify';
+import {fetchAuthSession, signOut} from 'aws-amplify/auth';
 import * as R from 'ramda';
 
 const noRetryErrors = new Set([
@@ -23,10 +23,10 @@ function isRetryable({errors = []}) {
 }
 
 export const wrapRequest = (processError, request, data, retryCount = 0) => {
-    return Auth.currentSession()
-        .catch(() => Auth.signOut())
-        .then(e => {
-            if (!R.equals(e, 'No current user')) {
+    return fetchAuthSession()
+        .catch(() => signOut())
+        .then(session => {
+            if (session) {
                 return request(data)
                     .then(response =>
                         processError(retryCount, retryAttempts, response)
@@ -53,7 +53,7 @@ export const wrapRequest = (processError, request, data, retryCount = 0) => {
                             : wrapResponse(err, true)
                     );
             } else {
-                Auth.signOut();
+                signOut();
             }
         });
 };

@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.3.13",
+  "version": "2.3.14",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -9,7 +9,6 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@aws-amplify/core": "5.8.6",
     "@aws-sdk/util-utf8-browser": "^3.259.0",
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.8.7",
@@ -41,13 +40,13 @@
     "vitest-browser-react": "^0.1.1"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "5.3.2",
+    "@aws-amplify/ui-react": "6.15.0",
     "@cloudscape-design/collection-hooks": "1.0.69",
     "@cloudscape-design/components": "3.0.944",
     "@cloudscape-design/design-tokens": "3.0.55",
     "@cloudscape-design/global-styles": "1.0.40",
     "@uiw/react-json-view": "1.12.2",
-    "aws-amplify": "5.3.12",
+    "aws-amplify": "6.16.2",
     "crypto-js": "4.2.0",
     "currency-symbol-map": "5.0.1",
     "cytoscape": "3.33.0",
@@ -78,13 +77,7 @@
     "valid-filename": "4.0.0"
   },
   "overrides": {
-    "cookie": "0.7.0",
-    "axios": "1.13.5",
-    "fast-xml-parser": "5.3.6",
-    "@aws-amplify/ui-react": {
-      "lodash": "4.17.23"
-    },
-    "minimatch": "10.2.2"
+    "minimatch": "10.2.4"
   },
   "scripts": {
     "start": "vite",
@@ -92,6 +85,8 @@
     "serve": "vite preview",
     "pretest": "npm i && rm -rf coverage && mkdir coverage",
     "test": "vitest run --coverage --passWithNoTests --silent passed-only",
+    "test:jsdom": "vitest run --project jsdom",
+    "test:browser": "vitest run --project browser",
     "test:ci": "npm ci && npx playwright install --with-deps && npm run test",
     "test:watch": "vitest --coverage --passWithNoTests",
     "build:zip": "cd dist && zip -rq --exclude=settings.js ../ui.zip . && cd ..",

@@ -419,9 +419,9 @@ describe('Homepage', () => {
     });
 
     it('should not have add users item on home page when SSO is enabled', async () => {
-        window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
-        window.amplify = {
-            Auth: {federatedIdpResource: 'example'},
+        window.perspectiveMetadata = {
+            ...createSelfManagedPerspectiveMetadata(),
+            federatedIdpResource: 'example',
         };
 
         vi.mock('@aws-amplify/ui-react', async () => {

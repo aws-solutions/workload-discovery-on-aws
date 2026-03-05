@@ -6,6 +6,7 @@ import {render} from 'vitest-browser-react';
 import {describe, expect} from 'vitest';
 import {it} from '../../../../vitest/setupFiles/testContext';
 import App from '../../../../../App';
+import {login} from '../../../utils/login';
 import {sleep} from '../../../../vitest/testUtils';
 
 describe('Resources Page', () => {
@@ -13,6 +14,7 @@ describe('Resources Page', () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByRole('link', {name: /Resources$/, hidden: true})

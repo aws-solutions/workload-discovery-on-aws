@@ -1,47 +1,45 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {API, graphqlOperation} from 'aws-amplify';
+import {client} from '../graphqlClient';
 import * as queries from '../GraphQL/queries';
 import * as mutations from '../GraphQL/mutations';
 
 // Query using a parameter
 export const getAccounts = () => {
-    return API.graphql(graphqlOperation(queries.getAccounts, {}));
+    return client.graphql({query: queries.getAccounts, variables: {}});
 };
 
-export const getAccount = account => {
-    return API.graphql(graphqlOperation(queries.getAccount, account));
+export const getAccount = variables => {
+    return client.graphql({query: queries.getAccount, variables});
 };
 
-export const addAccounts = params => {
-    return API.graphql(graphqlOperation(mutations.addAccounts, params));
+export const addAccounts = variables => {
+    return client.graphql({query: mutations.addAccounts, variables});
 };
 
-export const addRegions = params => {
-    return API.graphql(graphqlOperation(mutations.addRegions, params));
+export const addRegions = variables => {
+    return client.graphql({query: mutations.addRegions, variables});
 };
 
-export const deleteRegions = params => {
-    return API.graphql(graphqlOperation(mutations.deleteRegions, params));
+export const deleteRegions = variables => {
+    return client.graphql({query: mutations.deleteRegions, variables});
 };
 
-export const deleteAccounts = accountIds => {
-    return API.graphql(graphqlOperation(mutations.deleteAccounts, accountIds));
+export const deleteAccounts = variables => {
+    return client.graphql({query: mutations.deleteAccounts, variables});
 };
 
-export const getApplicationProblems = params => {
-    return API.graphql(
-        graphqlOperation(queries.getApplicationProblems, params)
-    );
+export const getApplicationProblems = variables => {
+    return client.graphql({query: queries.getApplicationProblems, variables});
 };
 
 export const getGlobalTemplate = () => {
-    return API.graphql(graphqlOperation(queries.getGlobalTemplate, {}));
+    return client.graphql({query: queries.getGlobalTemplate, variables: {}});
 };
 
 export const getRegionalTemplate = () => {
-    return API.graphql(graphqlOperation(queries.getRegionalTemplate, {}));
+    return client.graphql({query: queries.getRegionalTemplate, variables: {}});
 };
 
 export function handleResponse(response) {

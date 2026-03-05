@@ -5,6 +5,7 @@ import React from 'react';
 import {describe, expect} from 'vitest';
 import {it} from '../../../../../vitest/setupFiles/testContext';
 import App from '../../../../../../App';
+import {login} from '../../../../utils/login';
 import eksNodeGroup from '../../../../../mocks/fixtures/getResourceGraph/nodegroup.json';
 import {createSearchResourceHandler} from '../../../../../mocks/handlers';
 import {
@@ -53,6 +54,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -176,6 +178,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -289,6 +292,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -408,6 +412,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -599,6 +604,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
 
@@ -718,6 +724,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -854,6 +861,7 @@ describe('Diagrams Page Export', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
