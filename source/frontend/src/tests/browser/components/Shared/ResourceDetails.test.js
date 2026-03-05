@@ -12,12 +12,14 @@ import {
     sleep,
 } from '../../../vitest/testUtils';
 import App from '../../../../App';
+import {login} from '../../utils/login';
 
 describe('Resource Details', () => {
     it('should display resource details', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByRole('group', {

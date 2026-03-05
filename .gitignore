@@ -27,6 +27,7 @@ source/frontend/cypress/screenshots
 source/frontend/cypress/snapshots/diff
 source/frontend/cypress/videos
 source/frontend/.cert
+source/backend/discovery/benchmark
 
 # e2e
 **/e2e/*.js

@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.14] - 2026-03-05
+
+### Added
+
+- Exception for `EC2MetaDataSSRF_BODY` rule on requests from discovery process to address false positives causing write failures to Neptune.
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-mw96-cpmx-2vgc) in `rollup`.
+- Security [issue](https://github.com/advisories/GHSA-fj3w-jwp8-x2g3) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-7r86-cg39-jmmj) in `minimatch`.
+- Security [issue](https://github.com/advisories/GHSA-23c5-xmqv-rm74) in `minimatch`.
+- Security [issue](https://github.com/advisories/GHSA-5c6j-r48x-rmvq) in `serialize-javascript`.
+- Security [issue](https://github.com/advisories/GHSA-w5r5-m38g-f9f9) in `joserfc`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+- Updated Amplify to v6.
+- Discovery task frequency can now be set to intervals of 48 hours, 3 days, and 1 week.
+- Reduced Node.js max old space value for discovery process to give more headroom for non-heap allocations.
+
 ## [2.3.13] - 2026-02-23
 
 ### Fixed
@@ -12,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security [issue](https://github.com/advisories/GHSA-m7jm-9gc2-mpf2) in `fast-xml-parser`.
 - Security [issue](https://github.com/advisories/GHSA-3ppc-4f35-3m26) in `minimatch`.
 - Security [issue](https://github.com/advisories/GHSA-29vq-49wr-vm6x) in `werkzeug`.
-
 
 ## [2.3.12] - 2026-02-16
 

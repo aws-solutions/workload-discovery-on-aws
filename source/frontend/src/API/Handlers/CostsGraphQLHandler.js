@@ -1,35 +1,31 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {API, graphqlOperation} from 'aws-amplify';
+import {client} from '../graphqlClient';
 import * as queries from '../GraphQL/queries';
 
-export const getCostReportProcessingStatus = params => {
-    return API.graphql(
-        graphqlOperation(queries.getCostReportProcessingStatus, params)
-    );
+export const getCostReportProcessingStatus = variables => {
+    return client.graphql({query: queries.getCostReportProcessingStatus, variables});
 };
 
-export const readResultsFromS3 = params => {
-    return API.graphql(graphqlOperation(queries.readResultsFromS3, params));
+export const readResultsFromS3 = variables => {
+    return client.graphql({query: queries.readResultsFromS3, variables});
 };
 
-export const getCostForResource = params => {
-    return API.graphql(graphqlOperation(queries.getCostForResource, params));
+export const getCostForResource = variables => {
+    return client.graphql({query: queries.getCostForResource, variables});
 };
 
-export const getCostForService = params => {
-    return API.graphql(graphqlOperation(queries.getCostForService, params));
+export const getCostForService = variables => {
+    return client.graphql({query: queries.getCostForService, variables});
 };
 
-export const getResourcesByCost = params => {
-    return API.graphql(graphqlOperation(queries.getResourcesByCost, params));
+export const getResourcesByCost = variables => {
+    return client.graphql({query: queries.getResourcesByCost, variables});
 };
 
-export const getResourcesByCostByDay = params => {
-    return API.graphql(
-        graphqlOperation(queries.getResourcesByCostByDay, params)
-    );
+export const getResourcesByCostByDay = variables => {
+    return client.graphql({query: queries.getResourcesByCostByDay, variables});
 };
 
 export function handleResponse(response) {

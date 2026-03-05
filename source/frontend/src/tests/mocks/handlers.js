@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {graphql, http, HttpResponse} from 'msw';
+import cognitoHandlers from './cognitoHandlers';
 import getCostForResource from './fixtures/getCostForResource/default.json';
 import getCostForService from './fixtures/getCostForService/default.json';
 import getResourcesMetadataResponse from './fixtures/getResourcesMetadata/default.json';
@@ -12,7 +13,7 @@ import getAccounts from './fixtures/getAccounts/default.json';
 import getResourceGraph from './fixtures/getResourceGraph/default.json';
 import deleteRegions from './fixtures/deleteRegions/default.json';
 import * as R from 'ramda';
-import mockStorageProvider from './MockStorageProvider';
+import {_getObject} from './aws-amplify-storage';
 
 const {getResourcesRegionMetadata: accounts} =
     getResourcesRegionMetadataResponse;
@@ -125,6 +126,7 @@ export function createGetResourceGraphHandler(resourceGraph) {
 }
 
 const handlers = [
+    ...cognitoHandlers,
     graphql.query(
         'SearchResources',
         createSearchResourceHandler(defaultResources)
@@ -244,10 +246,10 @@ const handlers = [
             },
         });
     }),
-    http.get('https://www.mock-s3.com/:type/:level/:name', async ({params}) => {
-        const {type, level, name} = params;
-        const key = `${type}/${level}/${name}`;
-        return HttpResponse.json(await mockStorageProvider._getObject(key));
+    http.get('https://www.mock-s3.com/*', async ({request}) => {
+        const url = new URL(request.url);
+        const key = url.pathname.slice(1);
+        return HttpResponse.json(await _getObject(key));
     }),
 ];
 

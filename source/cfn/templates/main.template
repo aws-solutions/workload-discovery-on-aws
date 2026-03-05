@@ -99,6 +99,9 @@ Parameters:
       - 8hrs
       - 12hrs
       - 24hrs
+      - 48hrs
+      - 3days
+      - 1week
   CreateOpensearchServiceRole:
     Type: String
     Default: 'Yes'
@@ -478,6 +481,9 @@ Mappings:
       '8hrs': cron(0 */8 * * ? *)
       '12hrs': cron(0 */12 * * ? *)
       '24hrs': cron(0 0/24 * * ? *)
+      '48hrs': cron(0 0 */2 * ? *)
+      '3days': cron(0 0 */3 * ? *)
+      '1week': cron(0 0 ? * SUN *)
     Metrics:
       CollectAnonymizedUsageMetrics: 'true'
 

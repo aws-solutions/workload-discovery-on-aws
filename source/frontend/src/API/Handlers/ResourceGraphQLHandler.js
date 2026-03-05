@@ -1,17 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {API, graphqlOperation} from 'aws-amplify';
+import {client} from '../graphqlClient';
 import * as queries from '../GraphQL/queries';
 import * as mutations from '../GraphQL/mutations';
 import * as R from 'ramda';
 
-export const getResources = params => {
-    return API.graphql(graphqlOperation(queries.getResources, params));
+export const getResources = variables => {
+    return client.graphql({query: queries.getResources, variables});
 };
 
-export const getResourceGraph = params => {
-    return API.graphql(graphqlOperation(queries.getResourceGraph, params));
+export const getResourceGraph = variables => {
+    return client.graphql({query: queries.getResourceGraph, variables});
 };
 
 export const getResourceGraphPaginated = ({ids, pageSize = 500}) => {
@@ -38,32 +38,28 @@ export const getResourceGraphPaginated = ({ids, pageSize = 500}) => {
     return getResourceGraphRec({start: 0, end: pageSize});
 };
 
-export const getResourcesMetadata = params => {
-    return API.graphql(graphqlOperation(queries.getResourcesMetadata, params));
+export const getResourcesMetadata = variables => {
+    return client.graphql({query: queries.getResourcesMetadata, variables});
 };
 
-export const getResourcesAccountMetadata = params => {
-    return API.graphql(
-        graphqlOperation(queries.getResourcesAccountMetadata, params)
-    );
+export const getResourcesAccountMetadata = variables => {
+    return client.graphql({query: queries.getResourcesAccountMetadata, variables});
 };
 
-export const getResourcesRegionMetadata = params => {
-    return API.graphql(
-        graphqlOperation(queries.getResourcesRegionMetadata, params)
-    );
+export const getResourcesRegionMetadata = variables => {
+    return client.graphql({query: queries.getResourcesRegionMetadata, variables});
 };
 
-export const searchResources = params => {
-    return API.graphql(graphqlOperation(queries.searchResources, params));
+export const searchResources = variables => {
+    return client.graphql({query: queries.searchResources, variables});
 };
 
-export const exportToDrawIo = params => {
-    return API.graphql(graphqlOperation(queries.exportToDrawIo, params));
+export const exportToDrawIo = variables => {
+    return client.graphql({query: queries.exportToDrawIo, variables});
 };
 
-export const createApplication = params => {
-    return API.graphql(graphqlOperation(mutations.createApplication, params));
+export const createApplication = variables => {
+    return client.graphql({query: mutations.createApplication, variables});
 };
 
 export function handleResponse(response) {

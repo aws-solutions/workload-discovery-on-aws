@@ -1493,6 +1493,42 @@ obug under the MIT license.
 @aws/lambda-invoke-store under the Apache-2.0 license.
 @aws-sdk/dynamodb-codec under the Apache-2.0 license.
 @aws-sdk/crc64-nvme under the Apache-2.0 license.
+fast-xml-builder under the MIT license.
+rxjs under the Apache-2.0 license.
+@aws-amplify/data-schema under the Apache-2.0 license.
+@aws-amplify/data-schema-types under the Apache-2.0 license.
+crc-32 under the Apache-2.0 license.
+react-hook-form under the MIT license.
+@floating-ui/utils under the MIT license.
+@radix-ui/react-use-effect-event under the MIT license.
+@material/material-color-utilities under the Apache-2.0 license.
+node-exports-info under the MIT license.
+fast-uri under the BSD-3-Clause license.
+@aws-sdk/client-cloudformation under the Apache-2.0 license.
+aws-cdk-lib under the Apache-2.0 license.
+@aws-cdk/cloud-assembly-api under the Apache-2.0 license.
+@aws-cdk/cloud-assembly-schema under the Apache-2.0 license.
+@balena/dockerignore under the Apache-2.0 license.
+astral-regex under the MIT license.
+case under the MIT license.
+lodash.truncate under the MIT license.
+slice-ansi under the MIT license.
+table under the BSD-3-Clause license.
+constructs under the Apache-2.0 license.
+@aws-cdk/asset-awscli-v1 under the Apache-2.0 license.
+@aws-cdk/asset-node-proxy-agent-v6 under the Apache-2.0 license.
+ts-node under the MIT license.
+@cspotcode/source-map-support under the MIT license.
+@tsconfig/node10 under the MIT license.
+@tsconfig/node12 under the MIT license.
+@tsconfig/node14 under the MIT license.
+@tsconfig/node16 under the MIT license.
+acorn-walk under the MIT license.
+arg under the MIT license.
+create-require under the MIT license.
+make-error under the ISC license.
+v8-compile-cache-lib under the MIT license.
+yn under the MIT license.
 
 ********************
 OPEN SOURCE LICENSES

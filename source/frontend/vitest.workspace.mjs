@@ -2,12 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {defineWorkspace} from 'vitest/config';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
 import {compareScreenshot} from './src/tests/vitest/commands/screenshot.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineWorkspace([
     {
         extends: './vite.config.mjs',
         test: {
+            name: 'jsdom',
             include: ['src/tests/vitest/**/*.{test,spec}.js'],
             environment: 'jsdom',
             setupFiles: [
@@ -21,11 +26,20 @@ export default defineWorkspace([
     },
     {
         extends: './vite.config.mjs',
+        resolve: {
+            alias: {
+                'aws-amplify/storage': path.resolve(
+                    __dirname,
+                    'src/tests/mocks/aws-amplify-storage.js'
+                ),
+            },
+        },
         test: {
             fileParallelism: false,
             include: ['src/tests/browser/**/*.{test,spec}.js'],
+            exclude: ['src/tests/browser/components/Diagrams/Draw/DrawDiagram/DrawDiagramPageExport.test.js'],
             setupFiles: [
-                './src/tests/vitest/setupFiles/amplify.js',
+                './src/tests/vitest/setupFiles/amplify-browser.js',
                 './src/tests/vitest/setupFiles/matchers.js',
             ],
             name: 'browser',

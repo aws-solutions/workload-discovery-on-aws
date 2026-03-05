@@ -127,6 +127,9 @@ Resources:
                 - Name: CrossSiteScripting_BODY
                   ActionToUse:
                     Count: {}
+                - Name: EC2MetaDataSSRF_BODY
+                  ActionToUse:
+                    Count: {}
         - Name: DiscoveryCrossSiteScriptingBodyException
           Priority: 1
           Statement:
@@ -152,8 +155,33 @@ Resources:
             SampledRequestsEnabled: false
             CloudWatchMetricsEnabled: true
             MetricName: DiscoveryCrossSiteScriptingBodyException
-        - Name: AWSManagedRulesKnownBadInputsRuleSet
+        - Name: DiscoveryEC2MetaDataSSRFBodyException
           Priority: 2
+          Statement:
+            AndStatement:
+              Statements:
+                - LabelMatchStatement:
+                    Scope: LABEL
+                    Key: awswaf:managed:aws:core-rule-set:EC2MetaDataSSRF_Body
+                - NotStatement:
+                    Statement:
+                      ByteMatchStatement:
+                        FieldToMatch:
+                          SingleHeader:
+                            Name: x-amzn-workload-discovery-requester
+                        SearchString: discovery-process
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+                        PositionalConstraint: EXACTLY
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: DiscoveryEC2MetaDataSSRFBodyException
+        - Name: AWSManagedRulesKnownBadInputsRuleSet
+          Priority: 3
           OverrideAction:
             None: {}
           VisibilityConfig:
@@ -166,7 +194,7 @@ Resources:
               Name: AWSManagedRulesKnownBadInputsRuleSet
               ExcludedRules: []
         - Name: AWSManagedRulesAmazonIpReputationList
-          Priority: 3
+          Priority: 4
           OverrideAction:
             None: {}
           VisibilityConfig:
@@ -179,7 +207,7 @@ Resources:
               Name: AWSManagedRulesAmazonIpReputationList
               ExcludedRules: []
         - Name: AllowlistRule
-          Priority: 4
+          Priority: 5
           Action:
             Allow: {}
           VisibilityConfig:

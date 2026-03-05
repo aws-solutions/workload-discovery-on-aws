@@ -18,6 +18,7 @@ import {
 import fileDownload from 'js-file-download';
 import {GLOBAL_RESOURCES_TEMPLATE_FILENAME} from '../../../config/constants';
 
+
 function DownloadButton({template, children}) {
     return (
         <Button

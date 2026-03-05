@@ -8,7 +8,7 @@ import {
     ThemeProvider,
     Button,
 } from '@aws-amplify/ui-react';
-import {Auth} from 'aws-amplify';
+import {signInWithRedirect} from 'aws-amplify/auth';
 import '@cloudscape-design/global-styles/index.css';
 import '@aws-amplify/ui-react/styles.css';
 import Main from './Main';
@@ -47,9 +47,10 @@ const components = {
                         align="center"
                         variation="primary"
                         onClick={() =>
-                            Auth.federatedSignIn({
-                                customProvider:
-                                    window.amplify.Auth.federatedIdpResource,
+                            signInWithRedirect({
+                                provider: {
+                                    custom: window.perspectiveMetadata.federatedIdpResource,
+                                },
                             })
                         }
                     >
@@ -73,13 +74,11 @@ export const App = () => {
                 },
             },
             colors: {
-                brand: {
-                    primary: {
-                        10: {value: awsui.colorBackgroundButtonPrimaryDisabled},
-                        80: {value: awsui.colorBackgroundButtonPrimaryDefault},
-                        90: {value: awsui.colorBackgroundButtonPrimaryHover},
-                        100: {value: awsui.colorBackgroundButtonPrimaryActive},
-                    },
+                primary: {
+                    10: {value: awsui.colorBackgroundButtonPrimaryDisabled},
+                    80: {value: awsui.colorBackgroundButtonPrimaryDefault},
+                    90: {value: awsui.colorBackgroundButtonPrimaryHover},
+                    100: {value: awsui.colorBackgroundButtonPrimaryActive},
                 },
             },
         },

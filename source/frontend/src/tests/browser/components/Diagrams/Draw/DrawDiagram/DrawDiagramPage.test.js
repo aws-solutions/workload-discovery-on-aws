@@ -9,6 +9,7 @@ import {userEvent} from '@vitest/browser/context';
 import {it} from '../../../../../vitest/setupFiles/testContext';
 import {userEvent as rtlUserEvent} from '@testing-library/user-event';
 import App from '../../../../../../App';
+import {login} from '../../../../utils/login';
 import {graphql, HttpResponse} from 'msw';
 import defaultResourceGraph from '../../../../../mocks/fixtures/getResourceGraph/default.json';
 import eksCluster from '../../../../../mocks/fixtures/getResourceGraph/eks-cluster.json';
@@ -82,6 +83,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByRole('link', {name: /Resources$/, hidden: true})
@@ -123,6 +125,7 @@ describe('Diagrams Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -197,6 +200,7 @@ describe('Diagrams Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen
             .getByRole('link', {name: /Resources$/, hidden: true})
@@ -331,6 +335,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -403,6 +408,7 @@ describe('Diagrams Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         const {promise: periodPromise, resolve} = Promise.withResolvers();
 
@@ -576,6 +582,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
 
@@ -676,6 +683,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
 
@@ -777,6 +785,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
 
@@ -884,6 +893,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
 
@@ -993,6 +1003,7 @@ describe('Diagrams Page', () => {
         );
 
         const screen = render(<App />);
+        await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
 
@@ -1065,6 +1076,7 @@ describe('Diagrams Page', () => {
         const diagramName = 'ExistingTestDiagram';
 
         const screen = render(<App />);
+        await login(screen);
 
         const lambdaIamRole = defaultResourceGraph.getResourceGraph.nodes.find(
             x => x.label === 'AWS_IAM_Role'

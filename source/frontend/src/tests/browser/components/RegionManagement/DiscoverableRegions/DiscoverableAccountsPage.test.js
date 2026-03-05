@@ -14,6 +14,7 @@ import {render} from 'vitest-browser-react';
 import {page, userEvent} from '@vitest/browser/context';
 import React from 'react';
 import App from '../../../../../App';
+import {login} from '../../../utils/login';
 import {queryClient} from '../../../../../Main';
 
 async function verifyBodyCell(expectedAccount, row) {
@@ -206,6 +207,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -444,6 +446,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -716,6 +719,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -758,6 +762,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -861,6 +866,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
         const screen = render(<App />);
+        await login(screen);
 
         // const {screen} = renderPolarisLayout();
         //
@@ -955,6 +961,7 @@ describe('Discoverable Accounts Page', () => {
         window.scrollTo = vi.fn();
 
         const screen = render(<App />);
+        await login(screen);
 
         // const {screen} = renderPolarisLayout();
         //
@@ -1062,6 +1069,7 @@ describe('Discoverable Accounts Page', () => {
         window.scrollTo = vi.fn();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -1194,6 +1202,7 @@ describe('Discoverable Accounts Page', () => {
         window.scrollTo = vi.fn();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -1341,6 +1350,7 @@ describe('Discoverable Accounts Page', () => {
         window.scrollTo = vi.fn();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
@@ -1608,6 +1618,7 @@ describe('Discoverable Accounts Page', () => {
         window.scrollTo = vi.fn();
 
         const screen = render(<App />);
+        await login(screen);
 
         const group = screen.getByRole('group', {
             name: /configure/i,
