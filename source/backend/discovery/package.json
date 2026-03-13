@@ -50,7 +50,7 @@
     "jmespath": "^0.16.0",
     "p-throttle": "6.1.0",
     "ramda": "0.28.0",
-    "undici": "^7.20.0",
+    "undici": "^7.24.0",
     "winston": "3.3.3"
   },
   "devDependencies": {
