@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useMutation, useQuery, useQueryClient} from 'react-query';
+import {useEffect} from 'react';
+import {useMutation, useQuery, useQueryClient, keepPreviousData} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {
     getObject,
@@ -33,16 +34,17 @@ const prefixToName = prefix => {
 
 export const useListObjects = (prefix, level, config = {}) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [prefix, level],
-        () => listObjects(prefix, level),
-        {
-            onError: handleError,
-            keepPreviousData: true,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [prefix, level],
+        queryFn: () => listObjects(prefix, level),
+        placeholderData: keepPreviousData,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -54,16 +56,17 @@ export const useListObjects = (prefix, level, config = {}) => {
 };
 export const useObject = (key, prefix, level, config = {}) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [prefix, level, key],
-        () => getObject(`${prefix}${key}`, level),
-        {
-            onError: handleError,
-            keepPreviousData: true,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [prefix, level, key],
+        queryFn: () => getObject(`${prefix}${key}`, level),
+        placeholderData: keepPreviousData,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -77,23 +80,21 @@ export const useRemoveObject = (prefix, config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const queryClient = useQueryClient();
     const {addNotification} = useNotificationDispatch();
-    const mutation = useMutation(
-        ({key, level}) => removeObject(`${prefix}${key}`, level),
-        {
-            onSuccess: (_, data) => {
-                const name = prefixToName(prefix);
-                addNotification({
-                    header: `${capitalize(name)} Removed`,
-                    content: `The ${data.level} ${name} ${data.key} was removed successfully`,
-                    type: 'success',
-                });
-                window.scrollTo(0, 0);
-                return queryClient.invalidateQueries([prefix]);
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+    const mutation = useMutation({
+        mutationFn: ({key, level}) => removeObject(`${prefix}${key}`, level),
+        onSuccess: (_, data) => {
+            const name = prefixToName(prefix);
+            addNotification({
+                header: `${capitalize(name)} Removed`,
+                content: `The ${data.level} ${name} ${data.key} was removed successfully`,
+                type: 'success',
+            });
+            window.scrollTo(0, 0);
+            return queryClient.invalidateQueries({queryKey: [prefix]});
+        },
+        onError: handleError,
+        ...config,
+    });
     return {
         remove: mutation.mutate,
         removeAsync: mutation.mutateAsync,
@@ -103,24 +104,22 @@ export const usePutObject = (prefix, config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const queryClient = useQueryClient();
     const {addNotification} = useNotificationDispatch();
-    const mutation = useMutation(
-        ({key, content, level, type}) =>
+    const mutation = useMutation({
+        mutationFn: ({key, content, level, type}) =>
             uploadObject(`${prefix}${key}`, content, level, type),
-        {
-            onSuccess: (_, data) => {
-                const name = prefixToName(prefix);
-                addNotification({
-                    header: `${capitalize(name)} saved`,
-                    content: `The ${data.level} ${name} ${data.key} was saved successfully`,
-                    type: 'success',
-                });
-                window.scrollTo(0, 0);
-                return queryClient.invalidateQueries([prefix]);
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+        onSuccess: (_, data) => {
+            const name = prefixToName(prefix);
+            addNotification({
+                header: `${capitalize(name)} saved`,
+                content: `The ${data.level} ${name} ${data.key} was saved successfully`,
+                type: 'success',
+            });
+            window.scrollTo(0, 0);
+            return queryClient.invalidateQueries({queryKey: [prefix]});
+        },
+        onError: handleError,
+        ...config,
+    });
     return {
         put: mutation.mutate,
         putAsync: mutation.mutateAsync,

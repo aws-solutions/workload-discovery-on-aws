@@ -1,8 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import {useEffect} from 'react';
 import useQueryErrorHandler from './useQueryErrorHandler';
-import {useQuery} from 'react-query';
+import {useQuery} from '@tanstack/react-query';
 import {handleResponse} from '../../API/Handlers/ResourceGraphQLHandler';
 import * as R from 'ramda';
 import {
@@ -23,9 +24,9 @@ export const useResourceCosts = (
     config = {}
 ) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        ['resourceCosts', resources, dateInterval],
-        () =>
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: ['resourceCosts', resources, dateInterval],
+        queryFn: () =>
             wrapRequest(processAccountsError, getCostForResource, {
                 costForResourceQuery: {
                     pagination: {start: 0, end: resources.length},
@@ -55,16 +56,17 @@ export const useResourceCosts = (
                         };
                     })
                 ),
-        {
-            enabled:
-                resources.length > 0 &&
-                'startDate' in dateInterval &&
-                'endDate' in dateInterval,
-            onError: handleError,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        enabled:
+            resources.length > 0 &&
+            'startDate' in dateInterval &&
+            'endDate' in dateInterval,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -81,9 +83,9 @@ export const useDailyResourceCosts = (
     config = {}
 ) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        ['resourceCosts', resources, dateInterval],
-        () =>
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: ['resourceCosts', resources, dateInterval],
+        queryFn: () =>
             wrapRequest(processAccountsError, getResourcesByCostByDay, {
                 costForResourceQueryByDay: {
                     pagination: {start: 0, end: pageSize},
@@ -113,16 +115,17 @@ export const useDailyResourceCosts = (
                         )
                     )
                 ),
-        {
-            enabled:
-                resources.length > 0 &&
-                'startDate' in dateInterval &&
-                'endDate' in dateInterval,
-            onError: handleError,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        enabled:
+            resources.length > 0 &&
+            'startDate' in dateInterval &&
+            'endDate' in dateInterval,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -136,9 +139,9 @@ export const useDailyResourceCosts = (
 export const useGetCostReportProcessingStatus = (params = {}, config = {}) => {
     const {handleError} = useQueryErrorHandler();
 
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        ['getCostReportProcessingStatus'],
-        () => {
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: ['getCostReportProcessingStatus'],
+        queryFn: () => {
             return wrapRequest(
                 processResourcesError,
                 getCostReportProcessingStatus,
@@ -147,13 +150,14 @@ export const useGetCostReportProcessingStatus = (params = {}, config = {}) => {
                 R.pathOr({}, ['body', 'data', 'getCostReportProcessingStatus'])
             );
         },
-        {
-            staleTime: 10 * 1000,
-            onError: handleError,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        staleTime: 10 * 1000,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,

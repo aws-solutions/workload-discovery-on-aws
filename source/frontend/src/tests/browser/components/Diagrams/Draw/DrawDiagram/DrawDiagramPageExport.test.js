@@ -15,7 +15,7 @@ import {
 import {graphql, HttpResponse} from 'msw';
 import sqsLambda from '../../../../../mocks/fixtures/getResourceGraph/sqs-lambda.json';
 import {render} from 'vitest-browser-react';
-import {userEvent} from '@vitest/browser/context';
+import {userEvent} from 'vitest/browser';
 import * as R from 'ramda';
 import {regionMap} from '../../../../../../Utils/Dictionaries/RegionMap';
 
@@ -53,7 +53,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -177,7 +177,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -291,7 +291,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -411,7 +411,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -603,7 +603,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
@@ -723,7 +723,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -860,7 +860,7 @@ describe('Diagrams Page Export', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();

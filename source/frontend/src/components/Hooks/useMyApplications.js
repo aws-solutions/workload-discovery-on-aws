@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useMutation} from 'react-query';
+import {useMutation} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {
     createApplication,
@@ -16,8 +16,8 @@ export const useCreateApplication = (config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {addNotification} = useNotificationDispatch();
 
-    const mutation = useMutation(
-        ({name, accountId, region, resources}) => {
+    const mutation = useMutation({
+        mutationFn: ({name, accountId, region, resources}) => {
             return wrapRequest(processResourcesError, createApplication, {
                 name,
                 accountId,
@@ -27,29 +27,27 @@ export const useCreateApplication = (config = {}) => {
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', 'createApplication']));
         },
-        {
-            onSuccess: async data => {
-                const hasUnprocessedResources = !R.isEmpty(
-                    data.unprocessedResources
-                );
-                const unprocessedResourcesMsg = hasUnprocessedResources
-                    ? `However, the following resources were not added: ${data.unprocessedResources.join(', ')}`
-                    : '';
+        onSuccess: async data => {
+            const hasUnprocessedResources = !R.isEmpty(
+                data.unprocessedResources
+            );
+            const unprocessedResourcesMsg = hasUnprocessedResources
+                ? `However, the following resources were not added: ${data.unprocessedResources.join(', ')}`
+                : '';
 
-                addNotification({
-                    header: 'Application created',
-                    content: `The application named ${data.name} has been created. ${unprocessedResourcesMsg}`,
-                    type: hasUnprocessedResources ? 'warning' : 'success',
-                });
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+            addNotification({
+                header: 'Application created',
+                content: `The application named ${data.name} has been created. ${unprocessedResourcesMsg}`,
+                type: hasUnprocessedResources ? 'warning' : 'success',
+            });
+        },
+        onError: handleError,
+        ...config,
+    });
 
     return {
         createApplication: mutation.mutate,
         createApplicationAsync: mutation.mutateAsync,
-        isLoading: mutation.isLoading,
+        isLoading: mutation.isPending,
     };
 };

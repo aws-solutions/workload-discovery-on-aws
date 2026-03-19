@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as R from 'ramda';
-import {request} from 'undici';
+
 import retry from 'async-retry';
 import aws4 from 'aws4';
 import logger from '../logger.mjs';
@@ -32,7 +32,7 @@ async function sendQuery(opts, name, {query, variables = {}}) {
 
     return retry(
         async bail => {
-            return request(opts.graphgQlUrl, {
+            return fetch(opts.graphgQlUrl, {
                 method: 'POST',
                 headers: sig.headers,
                 body: sigOptions.body,
@@ -43,7 +43,7 @@ async function sendQuery(opts, name, {query, variables = {}}) {
                     );
                     bail(err);
                 })
-                .then(({body}) => body.json())
+                .then(res => res.json())
                 .then(body => {
                     const {errors} = body;
                     if (errors != null) {

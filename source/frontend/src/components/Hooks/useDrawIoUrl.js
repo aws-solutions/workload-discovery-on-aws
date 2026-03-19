@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useQuery} from 'react-query';
+import {useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {
     exportToDrawIo,
@@ -19,9 +20,9 @@ export const useDrawIoUrl = (name, visibility, config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {data: diagramData} = useObject(name, diagramsPrefix, visibility);
 
-    const {isLoading, isError, refetch, data, isFetching} = useQuery(
-        [queryKey, name, visibility],
-        () =>
+    const {isLoading, isError, error, refetch, data, isFetching} = useQuery({
+        queryKey: [queryKey, name, visibility],
+        queryFn: () =>
             Promise.resolve(
                 diagramData.settings.hideEdges
                     ? R.pick(['nodes'], diagramData)
@@ -37,13 +38,14 @@ export const useDrawIoUrl = (name, visibility, config = {}) => {
                 )
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', 'exportToDrawIo'])),
-        {
-            onError: handleError,
-            retry: false,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        retry: false,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,

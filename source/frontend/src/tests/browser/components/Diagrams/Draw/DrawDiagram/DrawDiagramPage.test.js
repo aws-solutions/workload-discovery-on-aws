@@ -5,7 +5,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import {render} from 'vitest-browser-react';
 import {beforeAll, describe, expect} from 'vitest';
-import {userEvent} from '@vitest/browser/context';
+import {userEvent} from 'vitest/browser';
 import {it} from '../../../../../vitest/setupFiles/testContext';
 import {userEvent as rtlUserEvent} from '@testing-library/user-event';
 import App from '../../../../../../App';
@@ -82,7 +82,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -112,19 +112,16 @@ describe('Diagrams Page', () => {
         // wait for diagram animations on canvas to complete
         await sleep(2000);
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 7.5,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
     it('creates diagram from search bar', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -187,19 +184,16 @@ describe('Diagrams Page', () => {
         // wait for diagram animations on canvas to complete
         await sleep(2000);
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 5.0,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
     it('has diagram settings to customise diagram', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -334,7 +328,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -395,19 +389,16 @@ describe('Diagrams Page', () => {
 
         const canvas = await screen.getByTestId('wd-cytoscape-canvas');
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 5.0,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
     it('should get cost interval from diagram settings', async ({worker}) => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const {promise: periodPromise, resolve} = Promise.withResolvers();
@@ -581,7 +572,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Manage$/, hidden: true}).click();
@@ -682,7 +673,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
@@ -729,12 +720,9 @@ describe('Diagrams Page', () => {
         // allow items to be removed from canvas before screenshot
         await sleep(2000);
 
-        const screenshotPath = await canvasDiv.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 5.0,
+        await expect.element(canvasDiv).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
@@ -784,7 +772,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
@@ -837,12 +825,9 @@ describe('Diagrams Page', () => {
         // allow items to be removed from canvas before screenshot
         await sleep(2000);
 
-        const screenshotPath = await canvasDiv.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 7.5,
+        await expect.element(canvasDiv).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
@@ -892,7 +877,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
@@ -947,12 +932,9 @@ describe('Diagrams Page', () => {
         // allow items to be removed from canvas before screenshot
         await sleep(2500);
 
-        const screenshotPath = await canvasDiv.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 5.0,
+        await expect.element(canvasDiv).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
+            screenshotOptions: {scale: 'device'},
         });
     });
 
@@ -1002,7 +984,7 @@ describe('Diagrams Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen.getByRole('link', {name: /Resources$/}).click();
@@ -1059,12 +1041,9 @@ describe('Diagrams Page', () => {
         // allow items to be removed from canvas before screenshot
         await sleep(2000);
 
-        const screenshotPath = await canvasDiv.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 5.0,
+        await expect.element(canvasDiv).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
+            screenshotOptions: {scale: 'device'},
         });
     }, 20000);
 
@@ -1075,7 +1054,7 @@ describe('Diagrams Page', () => {
 
         const diagramName = 'ExistingTestDiagram';
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const lambdaIamRole = defaultResourceGraph.getResourceGraph.nodes.find(
@@ -1210,12 +1189,9 @@ describe('Diagrams Page', () => {
 
         const canvas = await screen.getByTestId('wd-cytoscape-canvas');
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 7.5,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
+            screenshotOptions: {scale: 'device'},
         });
     }, 20000);
 });

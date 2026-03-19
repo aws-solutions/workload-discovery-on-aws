@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.15] - 2026-03-19
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-8gc5-j5rx-235r) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-25h7-pfq9-p65f) in `flatted`.
+- Security [issue](https://github.com/advisories/GHSA-f269-vfmq-vjvj) in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-vpq2-c234-7xj6) in `@tootallnate/once`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+- Upgraded frontend from React 18 to React 19.
+
 ## [2.3.14] - 2026-03-05
 
 ### Added

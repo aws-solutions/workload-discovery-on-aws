@@ -21,7 +21,6 @@ build
 **/vitest-coverage
 source/frontend/reports
 source/frontend/src/tests/browser/**/__image_diffs__/*
-source/frontend/src/tests/browser/**/__screenshots__/*
 source/frontend/cypress/downloads
 source/frontend/cypress/screenshots
 source/frontend/cypress/snapshots/diff
@@ -56,6 +55,12 @@ bom.json
 **/coverage.xml
 **/.coverage
 
+# Python cache / uv
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.pytest_cache
+
 #nyc output
 **/.nyc_output
 
@@ -65,7 +70,6 @@ source/backend/functions/lambda-layers/aws_sdk/python
 source/backend/functions/lambda-layers/cr_helper/python
 source/backend/functions/lambda-layers/decorators/python/*
 source/backend/functions/drawio/python/*
-source/backend/functions/drawio/.pytest_cache
 source/backend/functions/cleanup-bucket/package
 source/backend/functions/cost-parser/src/setting-up-athena-integration.md
 

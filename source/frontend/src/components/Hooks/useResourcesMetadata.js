@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useQuery} from 'react-query';
+import {useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import pLimit from 'p-limit';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {
@@ -40,9 +41,9 @@ function batchRequests(query, {accounts}, {batchSize}) {
 export const useResourcesAccountMetadata = (accounts = null, config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {batchSize} = config;
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [accountQueryKey, batchSize, accounts],
-        () => {
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [accountQueryKey, batchSize, accounts],
+        queryFn: () => {
             if (batchSize == null) {
                 return wrapRequest(
                     processResourcesError,
@@ -70,11 +71,12 @@ export const useResourcesAccountMetadata = (accounts = null, config = {}) => {
                 )
             );
         },
-        {
-            onError: handleError,
-            ...config,
-        }
-    );
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -88,9 +90,9 @@ export const useResourcesAccountMetadata = (accounts = null, config = {}) => {
 export const useResourcesRegionMetadata = (accounts = null, config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {batchSize} = config;
-    const {isLoading, isFetching, isError, data, refetch} = useQuery(
-        [regionQueryKey, batchSize, accounts],
-        () => {
+    const {isLoading, isFetching, isError, error, data, refetch} = useQuery({
+        queryKey: [regionQueryKey, batchSize, accounts],
+        queryFn: () => {
             if (batchSize == null) {
                 return wrapRequest(
                     processResourcesError,
@@ -115,11 +117,12 @@ export const useResourcesRegionMetadata = (accounts = null, config = {}) => {
                 )
             );
         },
-        {
-            onError: handleError,
-            ...config,
-        }
-    );
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -131,17 +134,18 @@ export const useResourcesRegionMetadata = (accounts = null, config = {}) => {
 };
 export const useResourcesMetadata = (accounts = null, config = {}) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isFetching, isError, data, refetch} = useQuery(
-        [resourcesKey, accounts],
-        () =>
+    const {isLoading, isFetching, isError, error, data, refetch} = useQuery({
+        queryKey: [resourcesKey, accounts],
+        queryFn: () =>
             wrapRequest(processResourcesError, getResourcesMetadata, {accounts})
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', 'getResourcesMetadata'])),
-        {
-            onError: handleError,
-            ...config,
-        }
-    );
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,

@@ -28,16 +28,16 @@ echo "--------------------------------------------------------------------------
 echo "[Test] Drawio"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/drawio
-pipenv install -q --dev
-pipenv run pytest --cov-report xml --cov .
+uv sync
+uv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Identity Provider Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/identity-provider
-pipenv install --dev
-pipenv run pytest --cov-report xml --cov .
+uv sync
+uv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
@@ -68,24 +68,24 @@ echo "--------------------------------------------------------------------------
 echo "[Test] Bucket cleanup Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/cleanup-bucket
-pipenv install -q --dev
-pipenv run pytest --cov-report xml --cov .
+uv sync
+uv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Metrics UUID Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/metrics-uuid
-pipenv install -q --dev
-pipenv run pytest --cov-report xml --cov .
+uv sync
+uv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"
 echo "[Test] Remove AppInsights Custom Resource"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/backend/functions/remove-appinsights
-pipenv install -q --dev
-pipenv run pytest --cov-report xml --cov .
+uv sync
+uv run pytest --cov-report xml --cov .
 echo "$(awk '{gsub(/<source>.*\/source\//, "<source>source/")}1' coverage.xml)" > coverage.xml
 
 echo "------------------------------------------------------------------------------"

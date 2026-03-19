@@ -56,7 +56,6 @@ echo "[Packing] Main Distribution Template"
 echo "------------------------------------------------------------------------------"
 
 cp "${build_dist_dir}/main.template" "${template_dist_dir}/workload-discovery-on-aws.template"
-cfn-flip "${template_dist_dir}/workload-discovery-on-aws.template" "${template_dist_dir}/workload-discovery-on-aws.template.json"
 
 echo "------------------------------------------------------------------------------"
 echo "[Rebuild] Upload GraphQL Schema"

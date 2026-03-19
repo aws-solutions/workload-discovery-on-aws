@@ -14,3 +14,4 @@ public/settings.js
 node_modules/
 aws-exports.js
 awsconfiguration.json
+.vitest-attachments

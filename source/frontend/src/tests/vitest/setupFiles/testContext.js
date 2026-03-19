@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {it as itBase} from '@vitest/runner';
+import {it as itBase} from 'vitest';
 import {worker} from '../../mocks/browser';
 
 export const it = itBase.extend({
