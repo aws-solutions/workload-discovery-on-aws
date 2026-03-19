@@ -4,7 +4,7 @@
 import React from 'react';
 import {ResourceProvider} from './components/Contexts/ResourceContext';
 import {resourceReducer} from './components/Contexts/Reducers/ResourceReducer';
-import {QueryClient, QueryClientProvider} from 'react-query';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import PolarisLayout from './PolarisLayout';
 import {BrowserRouter as Router} from 'react-router-dom';
 import {NotificationProvider} from './components/Contexts/NotificationContext';

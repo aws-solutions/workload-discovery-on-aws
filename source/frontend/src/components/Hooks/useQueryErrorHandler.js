@@ -1,13 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, {useCallback, useRef} from 'react';
 import {hashProperty} from '../../Utils/ObjectUtils';
 import {useNotificationDispatch} from '../Contexts/NotificationContext';
 
 const useQueryErrorHandler = () => {
     const {addNotification} = useNotificationDispatch();
-    const handleError = e => {
+    const addNotificationRef = useRef(addNotification);
+    addNotificationRef.current = addNotification;
+
+    const handleError = useCallback(e => {
+        const notify = addNotificationRef.current;
         const error = e.error ? e.error : e;
         if (error?.name) {
             let notification;
@@ -61,16 +65,16 @@ const useQueryErrorHandler = () => {
                     };
                     break;
             }
-            if (notification) addNotification(notification);
+            if (notification) notify(notification);
         } else {
-            addNotification({
+            notify({
                 content: 'An unknown error occurred',
                 type: 'error',
             });
         }
         window.scrollTo(0, 0);
         return e;
-    };
+    }, []);
 
     return {handleError};
 };

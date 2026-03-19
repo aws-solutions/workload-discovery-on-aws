@@ -13,7 +13,7 @@ describe('Resources Page', () => {
     it('should add resources to diagram page', async () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -45,12 +45,9 @@ describe('Resources Page', () => {
         // wait for diagram animations on canvas to complete
         await sleep(2000);
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 8.5,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.085},
+            screenshotOptions: {scale: 'device'},
         });
     });
 });

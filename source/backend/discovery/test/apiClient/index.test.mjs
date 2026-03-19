@@ -3,9 +3,7 @@
 
 import {
     assert,
-    afterAll,
     afterEach,
-    beforeAll,
     beforeEach,
     describe,
     it,
@@ -13,24 +11,15 @@ import {
 } from 'vitest';
 import * as R from 'ramda';
 import sinon from 'sinon';
+import {graphql, HttpResponse} from 'msw';
 import createAppSync from '../../src/lib/apiClient/appSync.mjs';
 import {createApiClient} from '../../src/lib/apiClient/index.mjs';
-import {setGlobalDispatcher, getGlobalDispatcher} from 'undici';
-import {createSuccessThenError} from '../mocks/agents/utils.mjs';
-import ConnectionClosedAgent from '../mocks/agents/ConnectionClosed.mjs';
-import GetAccountsSelfManaged from '../mocks/agents/GetAccountsSelfManaged.mjs';
-import GetAccountsOrgsEmpty from '../mocks/agents/GetAccountsOrgsEmpty.mjs';
-import GetAccountsOrgsLastCrawled from '../mocks/agents/GetAccountsOrgsLastCrawled.mjs';
-import GetAccountsOrgsDeleted from '../mocks/agents/GetAccountsOrgsDeleted.mjs';
-import GetDbResourcesMapPagination from '../mocks/agents/GetDbResourcesMapPagination.mjs';
-import GetDbResourcesMapParallel from '../mocks/agents/GetDbResourcesMapParallel.mjs';
-import GetDbRelationshipsMapPagination from '../mocks/agents/GetDbRelationshipsMapPagination.mjs';
-import GenericError from '../mocks/agents/GenericError.mjs';
-import IndexResourcesPartialSuccess from '../mocks/agents/IndexResourcesPartialSuccess.mjs';
-import DeleteIndexedResourcesPartialSuccess from '../mocks/agents/DeleteIndexedResourcesPartialSuccess.mjs';
-import UpdateIndexedResourcesPartialSuccess from '../mocks/agents/UpdateIndexedResourcesPartialSuccess.mjs';
+import {server} from '../mocks/server.js';
 import {
+    CONNECTION_CLOSED_PREMATURELY,
     CONTAINS,
+    AWS_EC2_VPC,
+    AWS_EC2_SUBNET,
     AWS_LAMBDA_FUNCTION,
     FUNCTION_RESPONSE_SIZE_TOO_LARGE,
     ACCESS_DENIED,
@@ -38,7 +27,9 @@ import {
 } from '../../src/lib/constants.mjs';
 import {generateBaseResource} from '../generator.mjs';
 import {UnprocessedOpenSearchResourcesError} from '../../src/lib/errors.mjs';
-import UpdateCrawledAccounts from '../mocks/agents/UpdateCrawledAccounts.mjs';
+
+const GRAPHQL_URL = 'https://www.workload-discovery/graphql';
+const api = graphql.link(GRAPHQL_URL);
 
 const ACCOUNT_X = 'xxxxxxxxxxxx';
 const ACCOUNT_Y = 'yyyyyyyyyyyy';
@@ -48,12 +39,6 @@ const US_EAST_1 = 'us-east-1';
 const US_EAST_2 = 'us-east-2';
 
 describe('index.mjs', () => {
-    let globalDispatcher = null;
-
-    beforeAll(() => {
-        globalDispatcher = getGlobalDispatcher();
-    });
-
     beforeEach(() => {
         vi.useFakeTimers();
     });
@@ -102,7 +87,7 @@ describe('index.mjs', () => {
     };
 
     const appSync = createAppSync({
-        graphgQlUrl: 'https://www.workload-discovery/graphql',
+        graphgQlUrl: GRAPHQL_URL,
     });
     const apiClient = createApiClient(
         defaultMockAwsClient,
@@ -112,7 +97,20 @@ describe('index.mjs', () => {
 
     describe('error', () => {
         it('should recover from premature connection closed error', async () => {
-            setGlobalDispatcher(ConnectionClosedAgent);
+            let callCount = 0;
+            server.use(
+                api.mutation('addRelationships', () => {
+                    callCount++;
+                    if (callCount === 1) {
+                        return HttpResponse.json({
+                            errors: [{message: CONNECTION_CLOSED_PREMATURELY}],
+                        });
+                    }
+                    return HttpResponse.json({
+                        data: {addRelationships: []},
+                    });
+                })
+            );
             const resultPromise = apiClient.storeRelationships(
                 {concurrency: 10, batchSize: 10},
                 [
@@ -140,7 +138,30 @@ describe('index.mjs', () => {
     describe('getDbResourcesMap', () => {
 
         it('should page through server results', async () => {
-            setGlobalDispatcher(GetDbResourcesMapPagination);
+            const properties = generateBaseResource(
+                ACCOUNT_X,
+                EU_WEST_1,
+                AWS_LAMBDA_FUNCTION,
+                1
+            );
+            let callCount = 0;
+            server.use(
+                api.query('getResources', () => {
+                    callCount++;
+                    if (callCount === 1) {
+                        return HttpResponse.json({
+                            data: {
+                                getResources: [
+                                    {id: properties.arn, label: 'label', md5Hash: '', properties},
+                                ],
+                            },
+                        });
+                    }
+                    return HttpResponse.json({
+                        data: {getResources: []},
+                    });
+                })
+            );
             const actual = await apiClient.getDbResourcesMap();
             assert.deepEqual(
                 actual,
@@ -172,7 +193,53 @@ describe('index.mjs', () => {
         });
 
         it('should page through server results in parallel when accounts specified', async () => {
-            setGlobalDispatcher(GetDbResourcesMapParallel);
+            const propertiesAccount1 = generateBaseResource(
+                ACCOUNT_X,
+                EU_WEST_1,
+                AWS_LAMBDA_FUNCTION,
+                1
+            );
+            const propertiesAccount2 = generateBaseResource(
+                ACCOUNT_Y,
+                'us-west-1',
+                AWS_LAMBDA_FUNCTION,
+                2
+            );
+            let callCount = 0;
+            server.use(
+                api.query('getResources', ({variables}) => {
+                    callCount++;
+                    if (callCount <= 2) {
+                        const accounts = variables?.accounts || [];
+                        if (accounts.length > 0) {
+                            const accountId = accounts[0]?.accountId;
+                            if (accountId === ACCOUNT_X) {
+                                return HttpResponse.json({
+                                    data: {
+                                        getResources: [
+                                            {id: propertiesAccount1.arn, label: 'label', md5Hash: '', properties: propertiesAccount1},
+                                        ],
+                                    },
+                                });
+                            } else if (accountId === ACCOUNT_Y) {
+                                return HttpResponse.json({
+                                    data: {
+                                        getResources: [
+                                            {id: propertiesAccount2.arn, label: 'label', md5Hash: '', properties: propertiesAccount2},
+                                        ],
+                                    },
+                                });
+                            }
+                        }
+                        return HttpResponse.json({
+                            data: {getResources: []},
+                        });
+                    }
+                    return HttpResponse.json({
+                        data: {getResources: []},
+                    });
+                })
+            );
             const actual = await apiClient.getDbResourcesMap(
                 {accounts: [{accountId: ACCOUNT_X}, {accountId: ACCOUNT_Y}]}
             );
@@ -245,7 +312,7 @@ describe('index.mjs', () => {
             });
 
             const appSync = createAppSync({
-                graphgQlUrl: 'https://www.workload-discovery/graphql',
+                graphgQlUrl: GRAPHQL_URL,
             });
             const mockGetResources = sinon.stub();
 
@@ -280,7 +347,35 @@ describe('index.mjs', () => {
 
     describe('getDbRelationshipsMap', () => {
         it('should page through server results', async () => {
-            setGlobalDispatcher(GetDbRelationshipsMapPagination);
+            let callCount = 0;
+            server.use(
+                api.query('getRelationships', () => {
+                    callCount++;
+                    if (callCount === 1) {
+                        return HttpResponse.json({
+                            data: {
+                                getRelationships: [
+                                    {
+                                        id: 'testId',
+                                        label: CONTAINS,
+                                        source: {
+                                            id: 'sourceArn',
+                                            label: AWS_EC2_VPC,
+                                        },
+                                        target: {
+                                            id: 'targetArn',
+                                            label: AWS_EC2_SUBNET,
+                                        },
+                                    },
+                                ],
+                            },
+                        });
+                    }
+                    return HttpResponse.json({
+                        data: {getRelationships: []},
+                    });
+                })
+            );
             const actual = await apiClient.getDbRelationshipsMap();
             assert.deepEqual(
                 actual,
@@ -301,7 +396,13 @@ describe('index.mjs', () => {
 
     describe('storeResources', () => {
         it('should handle total failure writing resources to OpenSearch', async () => {
-            setGlobalDispatcher(GenericError);
+            server.use(
+                api.operation(() => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
+            );
             const actual = await apiClient.storeResources(
                 {concurrency: 10, batchSize: 10},
                 [{}]
@@ -313,7 +414,17 @@ describe('index.mjs', () => {
         });
 
         it('should handle partial success writing resources to OpenSearch', async () => {
-            setGlobalDispatcher(IndexResourcesPartialSuccess);
+            server.use(
+                api.mutation('indexResources', () => {
+                    return HttpResponse.json({
+                        data: {
+                            indexResources: {
+                                unprocessedResources: ['arn1'],
+                            },
+                        },
+                    });
+                })
+            );
             const actual = await apiClient.storeResources(
                 {concurrency: 10, batchSize: 10},
                 [
@@ -338,17 +449,12 @@ describe('index.mjs', () => {
         });
 
         it('should handle errors writing resources to Neptune', async () => {
-            setGlobalDispatcher(
-                createSuccessThenError(
-                    {
-                        data: {
-                            indexResources: {
-                                unprocessedResources: [],
-                            },
-                        },
-                    },
-                    'Validation error'
-                )
+            server.use(
+                api.mutation('addResources', () => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
             );
             const actual = await apiClient.storeResources(
                 {concurrency: 10, batchSize: 10},
@@ -363,7 +469,13 @@ describe('index.mjs', () => {
 
     describe('deleteResources', () => {
         it('should handle total failure deleting resources from OpenSearch', async () => {
-            setGlobalDispatcher(GenericError);
+            server.use(
+                api.operation(() => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
+            );
             const actual = await apiClient.deleteResources(
                 {concurrency: 10, batchSize: 10},
                 [{}]
@@ -375,7 +487,17 @@ describe('index.mjs', () => {
         });
 
         it('should handle partial success deleting resources from OpenSearch', async () => {
-            setGlobalDispatcher(DeleteIndexedResourcesPartialSuccess);
+            server.use(
+                api.mutation('deleteIndexedResources', () => {
+                    return HttpResponse.json({
+                        data: {
+                            deleteIndexedResources: {
+                                unprocessedResources: ['arn1'],
+                            },
+                        },
+                    });
+                })
+            );
             const actual = await apiClient.deleteResources(
                 {concurrency: 10, batchSize: 10},
                 ['arn1', 'arn2', 'arn3']
@@ -390,17 +512,12 @@ describe('index.mjs', () => {
         });
 
         it('should handle errors deleting resources from Neptune', async () => {
-            setGlobalDispatcher(
-                createSuccessThenError(
-                    {
-                        data: {
-                            deleteIndexedResources: {
-                                unprocessedResources: [],
-                            },
-                        },
-                    },
-                    'Validation error'
-                )
+            server.use(
+                api.mutation('deleteResources', () => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
             );
             const actual = await apiClient.deleteResources(
                 {concurrency: 10, batchSize: 10},
@@ -415,7 +532,13 @@ describe('index.mjs', () => {
 
     describe('updateResources', () => {
         it('should handle total failure updating resources in OpenSearch', async () => {
-            setGlobalDispatcher(GenericError);
+            server.use(
+                api.operation(() => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
+            );
             const actual = await apiClient.updateResources(
                 {concurrency: 10, batchSize: 10},
                 [{}]
@@ -427,7 +550,17 @@ describe('index.mjs', () => {
         });
 
         it('should handle partial success deleting resources from OpenSearch', async () => {
-            setGlobalDispatcher(UpdateIndexedResourcesPartialSuccess);
+            server.use(
+                api.mutation('updateIndexedResources', () => {
+                    return HttpResponse.json({
+                        data: {
+                            updateIndexedResources: {
+                                unprocessedResources: ['arn1'],
+                            },
+                        },
+                    });
+                })
+            );
             const actual = await apiClient.updateResources(
                 {concurrency: 10, batchSize: 10},
                 [
@@ -452,17 +585,12 @@ describe('index.mjs', () => {
         });
 
         it('should handle errors updating resources in Neptune', async () => {
-            setGlobalDispatcher(
-                createSuccessThenError(
-                    {
-                        data: {
-                            updateIndexedResources: {
-                                unprocessedResources: [],
-                            },
-                        },
-                    },
-                    'Validation error'
-                )
+            server.use(
+                api.mutation('updateResources', () => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
             );
             const actual = await apiClient.updateResources(
                 {concurrency: 10, batchSize: 10},
@@ -477,7 +605,13 @@ describe('index.mjs', () => {
 
     describe('deleteRelationships', () => {
         it('should handle errors', async () => {
-            setGlobalDispatcher(GenericError);
+            server.use(
+                api.mutation('deleteRelationships', () => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
+            );
             const actual = await apiClient.deleteRelationships(
                 {concurrency: 10, batchSize: 10},
                 [{}]
@@ -491,7 +625,13 @@ describe('index.mjs', () => {
 
     describe('updateCrawledAccounts', () => {
         it('should handle errors', async () => {
-            setGlobalDispatcher(GenericError);
+            server.use(
+                api.mutation('updateAccount', () => {
+                    return HttpResponse.json({
+                        errors: [{message: 'Validation error'}],
+                    });
+                })
+            );
             const actual = await apiClient.updateCrawledAccounts([
                 'xxxxxxxxxxxx',
             ]);
@@ -502,8 +642,6 @@ describe('index.mjs', () => {
         });
 
         it('should update account crawled time and region list', async () => {
-            setGlobalDispatcher(UpdateCrawledAccounts);
-
             const accountX = {
                 accountId: ACCOUNT_X,
                 isIamRoleDeployed: true,
@@ -548,8 +686,6 @@ describe('index.mjs', () => {
 
     describe('getAccounts', () => {
         it('should mark accounts that do not have the discovery role', async () => {
-            setGlobalDispatcher(GetAccountsSelfManaged);
-
             const mockAwsClient = {
                 createStsClient() {
                     const accessError = new Error();
@@ -586,8 +722,6 @@ describe('index.mjs', () => {
         });
 
         it('should retrieve accounts when not in AWS Organization', async () => {
-            setGlobalDispatcher(GetAccountsSelfManaged);
-
             const mockAwsClient = {
                 createStsClient() {
                     return {
@@ -663,7 +797,13 @@ describe('index.mjs', () => {
         });
 
         it('should retrieve accounts from AWS Organizations', async () => {
-            setGlobalDispatcher(GetAccountsOrgsEmpty);
+            server.use(
+                api.query('getAccounts', () => {
+                    return HttpResponse.json({
+                        data: {getAccounts: []},
+                    });
+                })
+            );
 
             const mockAwsClient = {
                 createStsClient() {
@@ -777,7 +917,34 @@ describe('index.mjs', () => {
         });
 
         it('should mark accounts for deletion in AWS Organizations', async () => {
-            setGlobalDispatcher(GetAccountsOrgsDeleted);
+            server.use(
+                api.query('getAccounts', () => {
+                    return HttpResponse.json({
+                        data: {
+                            getAccounts: [
+                                {
+                                    accountId: ACCOUNT_X,
+                                    name: 'Account X',
+                                    organizationId: 'o-exampleorgid',
+                                    regions: [{name: EU_WEST_1}, {name: US_EAST_1}],
+                                },
+                                {
+                                    accountId: ACCOUNT_Y,
+                                    name: 'Account Y',
+                                    organizationId: 'o-exampleorgid',
+                                    regions: [{name: EU_WEST_1}],
+                                },
+                                {
+                                    accountId: ACCOUNT_Z,
+                                    name: 'Account Z',
+                                    organizationId: 'o-exampleorgid',
+                                    regions: [{name: EU_WEST_1}, {name: US_EAST_1}],
+                                },
+                            ],
+                        },
+                    });
+                })
+            );
 
             const mockAwsClient = {
                 createStsClient() {
@@ -879,7 +1046,23 @@ describe('index.mjs', () => {
         });
 
         it('should retain last crawled time from accounts from AWS Organizations', async () => {
-            setGlobalDispatcher(GetAccountsOrgsLastCrawled);
+            server.use(
+                api.query('getAccounts', () => {
+                    return HttpResponse.json({
+                        data: {
+                            getAccounts: [
+                                {
+                                    accountId: ACCOUNT_X,
+                                    name: 'Account X',
+                                    lastCrawled: new Date('2022-10-25').toISOString(),
+                                    organizationId: 'o-exampleorgid',
+                                    regions: [{name: EU_WEST_1}, {name: US_EAST_1}],
+                                },
+                            ],
+                        },
+                    });
+                })
+            );
 
             const mockAwsClient = {
                 createStsClient() {
@@ -965,8 +1148,6 @@ describe('index.mjs', () => {
         });
 
         it('should handle accounts where global resources role does not have Config permissions', async () => {
-            setGlobalDispatcher(GetAccountsSelfManaged);
-
             const mockAwsClient = {
                 createStsClient() {
                     return {
@@ -1054,8 +1235,6 @@ describe('index.mjs', () => {
         });
 
         it('should identify regions in accounts where Config is not enabled', async () => {
-            setGlobalDispatcher(GetAccountsSelfManaged);
-
             const mockAwsClient = {
                 createStsClient() {
                     return {
@@ -1273,7 +1452,4 @@ describe('index.mjs', () => {
         });
     });
 
-    afterAll(() => {
-        setGlobalDispatcher(globalDispatcher);
-    });
 });

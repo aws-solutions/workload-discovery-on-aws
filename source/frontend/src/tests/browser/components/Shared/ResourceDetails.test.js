@@ -18,7 +18,7 @@ describe('Resource Details', () => {
     it('should display resource details', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen

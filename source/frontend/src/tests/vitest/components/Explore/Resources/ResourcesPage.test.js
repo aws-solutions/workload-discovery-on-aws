@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import {QueryClient, QueryClientProvider} from 'react-query';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {describe, expect, it} from 'vitest';
 import {findByText, getByText, render, screen} from '@testing-library/react';
 import {TableWrapper} from '@cloudscape-design/components/test-utils/dom';

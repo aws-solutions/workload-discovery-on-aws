@@ -12,7 +12,7 @@ import {getCostForResource} from '../../../../mocks/fixtures/getCostForResource/
 import {getCostForService} from '../../../../mocks/fixtures/getCostForService/default.json';
 import {graphql, HttpResponse} from 'msw';
 import {sleep} from '../../../../vitest/testUtils';
-import {userEvent} from '@vitest/browser/context';
+import {userEvent} from 'vitest/browser';
 import dayjs from 'dayjs';
 
 async function verifyOverview(overview, data) {
@@ -45,7 +45,7 @@ describe('Costs Page', () => {
     it('should display cost by resource data', async () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -92,7 +92,7 @@ describe('Costs Page', () => {
     it('should display cost by service data', async () => {
         window.perspectiveMetadata = {version: '2.3.0'};
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -165,7 +165,7 @@ describe('Costs Page', () => {
             })
         );
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         await screen
@@ -199,12 +199,9 @@ describe('Costs Page', () => {
         // wait for diagram animations on canvas to complete
         await sleep(2500);
 
-        const screenshotPath = await canvas.screenshot({
-            scale: 'device',
-        });
-
-        await expect(screenshotPath).toMatchImageSnapshot({
-            maxDiffPercentage: 7.5,
+        await expect.element(canvas).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
+            screenshotOptions: {scale: 'device'},
         });
     });
 });

@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {QueryClient, QueryClientProvider} from 'react-query';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createMemoryHistory} from 'history';
 import {render} from '@testing-library/react';
 import {NotificationProvider} from '../../components/Contexts/NotificationContext';

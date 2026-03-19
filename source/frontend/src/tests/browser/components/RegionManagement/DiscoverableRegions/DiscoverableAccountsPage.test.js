@@ -11,7 +11,7 @@ import {
     createSelfManagedPerspectiveMetadata,
 } from '../../../../vitest/testUtils';
 import {render} from 'vitest-browser-react';
-import {page, userEvent} from '@vitest/browser/context';
+import {page, userEvent} from 'vitest/browser';
 import React from 'react';
 import App from '../../../../../App';
 import {login} from '../../../utils/login';
@@ -206,7 +206,7 @@ describe('Discoverable Accounts Page', () => {
     it('should validate account name', async () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -445,7 +445,7 @@ describe('Discoverable Accounts Page', () => {
 
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -718,7 +718,7 @@ describe('Discoverable Accounts Page', () => {
 
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -761,7 +761,7 @@ describe('Discoverable Accounts Page', () => {
     }) => {
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -865,7 +865,7 @@ describe('Discoverable Accounts Page', () => {
 
         window.perspectiveMetadata = createOrganizationsPerspectiveMetadata();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         // const {screen} = renderPolarisLayout();
@@ -960,7 +960,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
         window.scrollTo = vi.fn();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         // const {screen} = renderPolarisLayout();
@@ -1068,7 +1068,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
         window.scrollTo = vi.fn();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -1201,7 +1201,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
         window.scrollTo = vi.fn();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -1349,7 +1349,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
         window.scrollTo = vi.fn();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {
@@ -1617,7 +1617,7 @@ describe('Discoverable Accounts Page', () => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
         window.scrollTo = vi.fn();
 
-        const screen = render(<App />);
+        const screen = await render(<App />);
         await login(screen);
 
         const group = screen.getByRole('group', {

@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useMutation, useQuery, useQueryClient} from 'react-query';
+import {useEffect} from 'react';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {handleResponse} from '../../API/Handlers/ResourceGraphQLHandler';
 import * as R from 'ramda';
@@ -20,18 +21,19 @@ import {getStatus} from '../../Utils/StatusUtils';
 export const queryKey = 'accounts';
 export const useAccounts = (config = {}) => {
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [queryKey],
-        () =>
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [queryKey],
+        queryFn: () =>
             wrapRequest(processAccountsError, getAccounts)
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', 'getAccounts'])),
-        {
-            onError: handleError,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
@@ -45,30 +47,28 @@ export const useAddAccounts = (config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {addNotification} = useNotificationDispatch();
     const queryClient = useQueryClient();
-    const mutation = useMutation(
-        accounts =>
+    const mutation = useMutation({
+        mutationFn: accounts =>
             wrapRequest(processAccountsError, addAccounts, {
                 accounts,
             }).then(handleResponse),
-        {
-            onSuccess: async () => {
-                await invalidateQueries(queryClient);
-                addNotification({
-                    header: 'Accounts Imported',
-                    content:
-                        'The specified accounts and regions have been successfully imported',
-                    type: 'success',
-                });
-                window.scrollTo(0, 0);
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+        onSuccess: async () => {
+            await invalidateQueries(queryClient);
+            addNotification({
+                header: 'Accounts Imported',
+                content:
+                    'The specified accounts and regions have been successfully imported',
+                type: 'success',
+            });
+            window.scrollTo(0, 0);
+        },
+        onError: handleError,
+        ...config,
+    });
     return {
         add: mutation.mutate,
         addAsync: mutation.mutateAsync,
-        isLoading: mutation.isLoading,
+        isLoading: mutation.isPending,
     };
 };
 
@@ -76,26 +76,24 @@ export const useRemoveAccount = (config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const queryClient = useQueryClient();
     const {addNotification} = useNotificationDispatch();
-    const mutation = useMutation(
-        accountIds =>
+    const mutation = useMutation({
+        mutationFn: accountIds =>
             wrapRequest(processAccountsError, deleteAccounts, {
                 accountIds,
             }).then(handleResponse),
-        {
-            onSuccess: async () => {
-                await invalidateQueries(queryClient);
-                addNotification({
-                    header: 'Accounts Removed',
-                    content:
-                        'The specified accounts have been successfully removed',
-                    type: 'success',
-                });
-                window.scrollTo(0, 0);
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+        onSuccess: async () => {
+            await invalidateQueries(queryClient);
+            addNotification({
+                header: 'Accounts Removed',
+                content:
+                    'The specified accounts have been successfully removed',
+                type: 'success',
+            });
+            window.scrollTo(0, 0);
+        },
+        onError: handleError,
+        ...config,
+    });
     return {
         remove: mutation.mutate,
         removeAsync: mutation.mutateAsync,
@@ -106,27 +104,25 @@ export const useRemoveAccountRegion = (config = {}) => {
     const {handleError} = useQueryErrorHandler();
     const {addNotification} = useNotificationDispatch();
     const queryClient = useQueryClient();
-    const mutation = useMutation(
-        ({accountId, regions}) =>
+    const mutation = useMutation({
+        mutationFn: ({accountId, regions}) =>
             wrapRequest(processAccountsError, deleteRegions, {
                 accountId,
                 regions,
             }).then(handleResponse),
-        {
-            onSuccess: async () => {
-                await invalidateQueries(queryClient);
-                addNotification({
-                    header: 'Account Regions Removed',
-                    content:
-                        'The specified account regions have been successfully removed',
-                    type: 'success',
-                });
-                window.scrollTo(0, 0);
-            },
-            onError: handleError,
-            ...config,
-        }
-    );
+        onSuccess: async () => {
+            await invalidateQueries(queryClient);
+            addNotification({
+                header: 'Account Regions Removed',
+                content:
+                    'The specified account regions have been successfully removed',
+                type: 'success',
+            });
+            window.scrollTo(0, 0);
+        },
+        onError: handleError,
+        ...config,
+    });
     return {
         remove: mutation.mutate,
         removeAsync: mutation.mutateAsync,
@@ -135,9 +131,9 @@ export const useRemoveAccountRegion = (config = {}) => {
 
 const invalidateQueries = queryClient =>
     Promise.all([
-        queryClient.invalidateQueries([queryKey]),
-        queryClient.invalidateQueries([accountQueryKey]),
-        queryClient.invalidateQueries([regionQueryKey]),
+        queryClient.invalidateQueries({queryKey: [queryKey]}),
+        queryClient.invalidateQueries({queryKey: [accountQueryKey]}),
+        queryClient.invalidateQueries({queryKey: [regionQueryKey]}),
     ]);
 
 export default {

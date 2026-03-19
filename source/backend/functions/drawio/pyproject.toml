@@ -1,0 +1,11 @@
+[project]
+name = "drawio"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest-cov",
+    "pip-audit",
+]

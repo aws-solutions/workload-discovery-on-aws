@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useInfiniteQuery, useQuery} from 'react-query';
+import {useEffect} from 'react';
+import {useInfiniteQuery, useQuery, keepPreviousData} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {
     handleResponse,
@@ -29,7 +30,7 @@ export const useResourcesSearch = (
     if (accounts?.length > 0) userFilters.accounts = accounts;
     if (resourceTypes?.length > 0) userFilters.resourceTypes = resourceTypes;
 
-    const fetchResults = ({pageParam = 0}) =>
+    const fetchResults = ({pageParam}) =>
         wrapRequest(processResourcesError, searchResources, {
             ...userFilters,
             pagination: {
@@ -45,6 +46,7 @@ export const useResourcesSearch = (
     const {
         isLoading,
         isError,
+        error,
         data,
         refetch,
         isFetched,
@@ -52,18 +54,20 @@ export const useResourcesSearch = (
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-    } = useInfiniteQuery(
-        [searchQueryKey, text, accounts, resourceTypes, pageSize],
-        fetchResults,
-        {
-            onError: handleError,
-            keepPreviousData: true,
-            refetchInterval: false,
-            getNextPageParam: (lastPage, allPages) =>
-                lastPage.length > 0 ? allPages.length : undefined,
-            ...config,
-        }
-    );
+    } = useInfiniteQuery({
+        queryKey: [searchQueryKey, text, accounts, resourceTypes, pageSize],
+        queryFn: fetchResults,
+        initialPageParam: 0,
+        placeholderData: keepPreviousData,
+        refetchInterval: false,
+        getNextPageParam: (lastPage, allPages) =>
+            lastPage.length > 0 ? allPages.length : undefined,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     const flattened = R.flatten(data?.pages ?? []);
 
@@ -97,19 +101,20 @@ export const useResourcesSearchPaginated = (
     if (accounts?.length > 0) userFilters.accounts = accounts;
     if (resourceTypes?.length > 0) userFilters.resourceTypes = resourceTypes;
 
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [searchPaginatedQueryKey, text, accounts, resourceTypes, pagination],
-        () =>
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [searchPaginatedQueryKey, text, accounts, resourceTypes, pagination],
+        queryFn: () =>
             wrapRequest(processResourcesError, searchResources, userFilters)
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', 'searchResources'])),
-        {
-            onError: handleError,
-            keepPreviousData: true,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        placeholderData: keepPreviousData,
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data: data?.resources,

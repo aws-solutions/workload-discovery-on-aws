@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {useQuery} from 'react-query';
+import {useEffect} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import useQueryErrorHandler from './useQueryErrorHandler';
 import {handleResponse} from '../../API/Handlers/ResourceGraphQLHandler';
 import * as R from 'ramda';
@@ -21,9 +22,9 @@ export const useTemplate = (templateName, config = {}) => {
     if (![GLOBAL_TEMPLATE, REGIONAL_TEMPLATE].includes(templateName))
         throw new Error(`Invalid template name '${templateName}'`);
     const {handleError} = useQueryErrorHandler();
-    const {isLoading, isError, data, refetch, isFetching} = useQuery(
-        [queryKey, templateName],
-        () =>
+    const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
+        queryKey: [queryKey, templateName],
+        queryFn: () =>
             wrapRequest(
                 processAccountsError,
                 templateName === GLOBAL_TEMPLATE
@@ -32,12 +33,13 @@ export const useTemplate = (templateName, config = {}) => {
             )
                 .then(handleResponse)
                 .then(R.pathOr([], ['body', 'data', templateName])),
-        {
-            onError: handleError,
-            refetchInterval: false,
-            ...config,
-        }
-    );
+        refetchInterval: false,
+        ...config,
+    });
+
+    useEffect(() => {
+        if (error) handleError(error);
+    }, [error, handleError]);
 
     return {
         data,
