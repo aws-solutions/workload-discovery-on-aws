@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.16] - 2026-03-25
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-jp2q-39xq-3w4g) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-rf6f-7fwh-wjgh) in `flatted`.
+- S3 CORS configuration for Amplify v6 multipart uploads.
+
+### Changed
+
+- Renamed `.js` files containing JSX to `.jsx` and removed esbuild workaround.
+
 ## [2.3.15] - 2026-03-19
 
 ### Fixed

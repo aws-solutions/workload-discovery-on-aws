@@ -1,4 +1,4 @@
-import {defineConfig, transformWithEsbuild} from 'vite';
+import {defineConfig} from 'vite';
 import {playwright} from '@vitest/browser-playwright';
 import eslint from 'vite-plugin-eslint2';
 import path from 'node:path';
@@ -30,15 +30,8 @@ export default defineConfig({
             external: ['/settings.js'],
         },
     },
-    esbuild: {
-        loader: 'jsx',
-    },
     optimizeDeps: {
         esbuildOptions: {
-            loader: {
-                '.js': 'jsx',
-                '.ts': 'tsx',
-            },
             // Node.js global to browser globalThis
             define: {
                 global: 'globalThis', //<-- AWS SDK
@@ -50,19 +43,6 @@ export default defineConfig({
         excludeMsw(),
         react(),
         svgrPlugin(),
-        {
-            name: 'load+transform-js-files-as-jsx',
-            async transform(code, id) {
-                if (!id.match(/src\/.*\.m?js$/)) {
-                    return null;
-                }
-
-                return transformWithEsbuild(code, id, {
-                    loader: 'jsx',
-                    jsx: 'automatic',
-                });
-            },
-        },
     ],
     resolve: {},
     'import/resolver': {
@@ -86,7 +66,7 @@ export default defineConfig({
                 extends: './vite.config.mjs',
                 test: {
                     name: 'jsdom',
-                    include: ['src/tests/vitest/**/*.{test,spec}.js'],
+                    include: ['src/tests/vitest/**/*.{test,spec}.{js,jsx}'],
                     environment: 'jsdom',
                     setupFiles: [
                         './src/tests/vitest/setupFiles/amplify.js',
@@ -109,8 +89,8 @@ export default defineConfig({
                 },
                 test: {
                     fileParallelism: false,
-                    include: ['src/tests/browser/**/*.{test,spec}.js'],
-                    exclude: ['src/tests/browser/components/Diagrams/Draw/DrawDiagram/DrawDiagramPageExport.test.js'],
+                    include: ['src/tests/browser/**/*.{test,spec}.{js,jsx}'],
+                    exclude: ['src/tests/browser/components/Diagrams/Draw/DrawDiagram/DrawDiagramPageExport.test.jsx'],
                     setupFiles: [
                         './src/tests/vitest/setupFiles/amplify-browser.js',
                     ],

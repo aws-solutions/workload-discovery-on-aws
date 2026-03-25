@@ -1,17 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {parseCustomerManagedPolicyStatement} from './NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser.js';
-import {parseEC2Instance} from './NodeParsers/EC2Instance/EC2InstanceParser.js';
-import {parseDatabaseInstance} from './NodeParsers/DatabaseInstance/DatabaseInstanceParser.js';
+import {parseCustomerManagedPolicyStatement} from './NodeParsers/CustomerManagedPolicyStatement/CustomerManagedPolicyStatementParser.jsx';
+import {parseEC2Instance} from './NodeParsers/EC2Instance/EC2InstanceParser.jsx';
+import {parseDatabaseInstance} from './NodeParsers/DatabaseInstance/DatabaseInstanceParser.jsx';
 import {parseAPIGatewayMethod} from './NodeParsers/APIGateway/Method/APIGatewayMethodParser.js';
 import {parseAPIGatewayResource} from './NodeParsers/APIGateway/Resource/APIGatewayResourceParser.js';
-import {parseLoadBalancer} from './NodeParsers/LoadBalancers/LoadBalancerParser.js';
-import {parseCloudFrontDistribution} from './NodeParsers/CloudFrontDistribution/CloudFrontDistributionParser.js';
+import {parseLoadBalancer} from './NodeParsers/LoadBalancers/LoadBalancerParser.jsx';
+import {parseCloudFrontDistribution} from './NodeParsers/CloudFrontDistribution/CloudFrontDistributionParser.jsx';
 import {getStateInformation} from '../../Utils/Resources/ResourceStateParser.js';
 import {fetchImage} from '../../Utils/ImageSelector.js';
 import {parseAPIGatewayEndpoint} from './NodeParsers/APIGateway/Endpoint/APIGatewayEndpointParser.js';
-import {parseS3Bucket} from './NodeParsers/S3Bucket/S3BucketParser.js';
+import {parseS3Bucket} from './NodeParsers/S3Bucket/S3BucketParser.jsx';
 import {parseLambdaFunction} from './NodeParsers/LambdaFunction/LambdaFunctionParser';
 import {parseEbsVolume} from './NodeParsers/EbsVolume/EbsVolumeParser';
 
