@@ -125,6 +125,7 @@ Resources:
               - "*"
             AllowedMethods:
               - GET
+              - HEAD
               - POST
               - PUT
               - DELETE
@@ -135,6 +136,7 @@ Resources:
               - x-amz-request-id
               - x-amz-id-2
               - ETag
+              - x-amz-checksum-crc32
             Id: PerspectiveCorsRule
             MaxAge: 3600
       LoggingConfiguration:
