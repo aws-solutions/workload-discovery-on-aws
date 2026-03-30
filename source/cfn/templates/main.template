@@ -8,7 +8,7 @@ Parameters:
 
   AdminUserEmailAddress:
     Type: String
-    AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"
+    AllowedPattern: "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
     ConstraintDescription: Must be an email address
     Description: A user will be created in the UI. This email address will be used to send your username and password.
   AlreadyHaveConfigSetup:
