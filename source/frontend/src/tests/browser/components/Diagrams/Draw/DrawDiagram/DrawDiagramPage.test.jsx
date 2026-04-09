@@ -114,7 +114,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -186,7 +186,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -391,7 +391,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -722,7 +722,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvasDiv).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -827,7 +827,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvasDiv).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -934,7 +934,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvasDiv).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 
@@ -1043,7 +1043,7 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvasDiv).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     }, 20000);
 
@@ -1191,7 +1191,111 @@ describe('Diagrams Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     }, 20000);
+
+    it('expands compound node resources without sending bounding-box IDs', async ({worker}) => {
+        window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
+
+        const lambdaNode = defaultResourceGraph.getResourceGraph.nodes[0];
+
+        worker.use(
+            graphql.query(
+                'SearchResources',
+                createSearchResourceHandler([lambdaNode])
+            ),
+            graphql.query('GetResourceGraph', ({variables}) => {
+                const {
+                    ids,
+                    pagination: {start},
+                } = variables;
+
+                // Validate all IDs are valid ARNs - catches the regression where
+                // bounding-box IDs (account, region, vpc, subnet synthetic IDs) leak through
+                const invalidIds = ids.filter(id => !id.startsWith('arn:'));
+                if (invalidIds.length > 0) {
+                    return HttpResponse.json({
+                        errors: [{message: `Invalid non-ARN IDs received: ${invalidIds.join(', ')}`}],
+                    });
+                }
+
+                const {
+                    getResourceGraph: {nodes, edges},
+                } = defaultResourceGraph;
+
+                if (nodes.length < start && edges.length < start) {
+                    return HttpResponse.json({
+                        data: {
+                            getResourceGraph: {
+                                nodes: [],
+                                edges: [],
+                            },
+                        },
+                    });
+                }
+                return HttpResponse.json({data: defaultResourceGraph});
+            })
+        );
+
+        const screen = await render(<App />);
+        await login(screen);
+
+        await screen.getByRole('link', {name: /Resources$/}).click();
+
+        await screen.getByRole('heading', {level: 2, name: /Create Diagram/i});
+
+        await screen
+            .getByRole('checkbox', {
+                name: /testLambda is not selected/i,
+            })
+            .click();
+
+        await screen.getByRole('button', {name: /add to diagram/i}).click();
+
+        await screen.getByRole('heading', {level: 2, name: /Create Diagram/i});
+
+        await screen
+            .getByRole('combobox', {name: /name/i})
+            .fill('ExpandCompoundNodeTestDiagram');
+
+        await screen.getByRole('button', {name: /create/i}).click();
+
+        // wait for diagram animations on canvas to complete
+        await sleep(2000);
+
+        const canvasDiv = await screen.getByTestId('wd-cytoscape-canvas');
+
+        // to interact with the canvas we need the actual canvas HTML element rather than
+        // the containing div with the test id
+        const canvas = canvasDiv.element().querySelector('canvas');
+
+        const user = rtlUserEvent.setup();
+
+        // click on the VPC bounding box (compound node) label area
+        // viewport is 3000x1500; VPC label "vpc-11111111..." is approximately here
+        await user.pointer({
+            target: canvas,
+            coords: {
+                clientX: 1220,
+                clientY: 480,
+            },
+        });
+
+        await user.click(canvas);
+
+        await screen.getByRole('button', {name: /action/i}).click();
+
+        await screen.getByRole('menuitem', {name: /resources/i}).click();
+
+        await screen.getByRole('menuitem', {name: /expand/i}).click();
+
+        // allow expand to complete
+        await sleep(2000);
+
+        await expect.element(canvasDiv).toMatchScreenshot({
+            comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
+            screenshotOptions: {scale: 'css'},
+        });
+    });
 });

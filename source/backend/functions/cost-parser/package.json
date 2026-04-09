@@ -1,6 +1,6 @@
 {
   "name": "wd-cost",
-  "version": "2.3.16",
+  "version": "2.3.17",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -43,6 +43,6 @@
   },
   "overrides": {
     "minimatch": "10.2.4",
-    "serialize-javascript": "7.0.4"
+    "serialize-javascript": "7.0.5"
   }
 }

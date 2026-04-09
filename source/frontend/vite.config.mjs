@@ -9,6 +9,11 @@ import svgrPlugin from 'vite-plugin-svgr';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// shared between browser.viewport and contextOptions.viewport so the vitest
+// orchestrator doesn't apply a CSS transform: scale() to the test iframe,
+// which causes sub-pixel rounding differences in screenshots.
+const browserTestViewport = {width: 3000, height: 1500};
+
 function excludeMsw() {
     return {
         name: 'exclude-msw',
@@ -96,8 +101,12 @@ export default defineConfig({
                     ],
                     name: 'browser',
                     browser: {
-                        viewport: {height: 1500, width: 3000},
-                        provider: playwright(),
+                        viewport: browserTestViewport,
+                        provider: playwright({
+                            contextOptions: {
+                                viewport: browserTestViewport,
+                            },
+                        }),
                         enabled: true,
                         headless: true,
                         instances: [{browser: 'chromium'}],

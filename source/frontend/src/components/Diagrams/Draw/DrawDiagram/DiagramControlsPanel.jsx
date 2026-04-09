@@ -126,7 +126,7 @@ const DiagramControlPanel = ({settings}) => {
                     R.map(
                         e => e.data('id'),
                         R.chain(
-                            r => (r.isParent() ? r.descendants() : r),
+                            r => (r.isParent() ? r.descendants().filter('[type = "resource"]') : r),
                             selectedResources
                         )
                     ),
@@ -147,7 +147,7 @@ const DiagramControlPanel = ({settings}) => {
                     R.map(
                         e => e.data('id'),
                         R.chain(
-                            r => (r.isParent() ? r.descendants() : r),
+                            r => (r.isParent() ? r.descendants().filter('[type = "resource"]') : r),
                             selectedResources
                         )
                     )
