@@ -201,7 +201,7 @@ describe('Costs Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 });

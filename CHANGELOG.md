@@ -5,6 +5,27 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.17] - 2026-04-09
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-3v7f-55p6-f55p) in `picomatch`.
+- Security [issue](https://github.com/advisories/GHSA-p9ff-h696-f583) in `vite`.
+- Security [issue](https://github.com/advisories/GHSA-j3q9-mxjg-w52f) in `path-to-regexp`.
+- Security [issue](https://github.com/advisories/GHSA-f886-m6hf-6m8v) in `brace-expansion`.
+- Security [issue](https://github.com/advisories/GHSA-r5fr-rjxr-66jc) in `lodash`.
+- Security [issue](https://github.com/advisories/GHSA-3mfm-83xf-c92r) in `handlebars`.
+- Security [issue](https://github.com/advisories/GHSA-qj8w-gfj5-8c6v) in `serialize-javascript`.
+- Security [issue](https://github.com/advisories/GHSA-5239-wwwm-4pmq) in `pygments`.
+- Security [issue](https://github.com/advisories/GHSA-gc5v-m9x4-r6x2) in `requests`.
+- Security [issue](https://github.com/advisories/GHSA-m959-cc7f-wv43) in `cryptography`.
+- Expand/Focus actions failing for compound nodes.
+- Flaky browser test screenshots caused by vitest orchestrator scaling.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+
 ## [2.3.16] - 2026-03-25
 
 ### Fixed

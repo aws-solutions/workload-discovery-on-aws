@@ -47,7 +47,7 @@ describe('Resources Page', () => {
 
         await expect.element(canvas).toMatchScreenshot({
             comparatorOptions: {allowedMismatchedPixelRatio: 0.085},
-            screenshotOptions: {scale: 'device'},
+            screenshotOptions: {scale: 'css'},
         });
     });
 });
