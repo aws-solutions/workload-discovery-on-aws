@@ -3,15 +3,12 @@
 
 import React from 'react';
 import {HelpPanel} from '@cloudscape-design/components';
-import {matchPath, useLocation} from 'react-router-dom';
+import {matchPath, useLocation} from 'react-router';
 import {EDIT_VIEW} from '../../../../routes';
 
 const ViewFormHelper = () => {
     const location = useLocation();
-    const isEdit = matchPath(location.pathname, {
-        path: EDIT_VIEW,
-        exact: true,
-    });
+    const isEdit = matchPath({path: EDIT_VIEW, end: true}, location.pathname);
 
     return (
         <HelpPanel header={<h2>{isEdit ? 'Edit' : 'Create'} a View</h2>}>

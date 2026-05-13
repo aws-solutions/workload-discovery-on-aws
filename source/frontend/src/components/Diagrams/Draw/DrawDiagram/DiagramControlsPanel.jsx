@@ -22,7 +22,7 @@ import {
     removeResource,
     hideCosts,
 } from '../Canvas/Commands/CanvasCommands';
-import {Prompt, useHistory, useParams} from 'react-router-dom';
+import {useBlocker, useNavigate, useParams} from 'react-router';
 import {COST_REPORT, DRAW} from '../../../../routes';
 import dayjs from 'dayjs';
 import {fetchCosts} from '../../../../API/Processors/NodeProcessors';
@@ -55,7 +55,7 @@ const DiagramControlPanel = ({settings}) => {
         useDiagramSettingsState();
     const [{graphResources}] = useResourceState();
     const {name, visibility} = useParams();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showExport, setShowExport] = React.useState(false);
     const [statusMessage, setStatusMessage] = useState();
@@ -68,6 +68,7 @@ const DiagramControlPanel = ({settings}) => {
     const {putAsync} = usePutObject(diagramsPrefix);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const previousResources = usePrevious(resources);
+    const blocker = useBlocker(hasUnsavedChanges);
 
     const updateCanvas = useCallback(
         newCanvas => {
@@ -211,7 +212,7 @@ const DiagramControlPanel = ({settings}) => {
         canvas.destroy();
         removeAsync({key: name, level: visibility});
         setShowDeleteConfirm(false);
-        history.push(DRAW);
+        navigate(DRAW);
     };
 
     const handleRequestCosts = () => {
@@ -238,12 +239,30 @@ const DiagramControlPanel = ({settings}) => {
 
     return (
         <Box float="right">
-            <Prompt
-                when={hasUnsavedChanges}
-                message={() =>
-                    `Are you sure you want to leave this page without saving?`
-                }
-            />
+            {blocker.state === 'blocked' && (
+                <Modal
+                    visible
+                    header="Unsaved changes"
+                    onDismiss={() => blocker.reset()}
+                    footer={
+                        <Box float="right">
+                            <SpaceBetween direction="horizontal" size="xs">
+                                <Button onClick={() => blocker.reset()}>
+                                    Stay
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => blocker.proceed()}
+                                >
+                                    Leave
+                                </Button>
+                            </SpaceBetween>
+                        </Box>
+                    }
+                >
+                    You have unsaved changes. Are you sure you want to leave?
+                </Modal>
+            )}
             <ExportDiagramModal
                 onDismiss={() => setShowExport(false)}
                 visible={showExport}
@@ -286,7 +305,7 @@ const DiagramControlPanel = ({settings}) => {
                 )}
                 <Button
                     onClick={() => {
-                        history.push(
+                        navigate(
                             COST_REPORT.replace(':name', name).replace(
                                 ':visibility',
                                 visibility

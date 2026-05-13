@@ -10,7 +10,7 @@ import {
     Select,
     Autosuggest,
 } from '@cloudscape-design/components';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import {OPEN_DIAGRAM} from '../../../../../routes';
 import {useDiagramSettingsState} from '../../../../Contexts/DiagramSettingsContext';
 import {
@@ -39,7 +39,7 @@ const CreateDiagramNameForm = ({direction}) => {
         visibility.value
     );
     const {putAsync} = usePutObject(diagramsPrefix);
-    const history = useHistory();
+    const navigate = useNavigate();
     const diagrams = mapIndexed((e, index) => {
         return {
             id: index,
@@ -66,7 +66,7 @@ const CreateDiagramNameForm = ({direction}) => {
             }),
         })
             .then(() =>
-                history.push(
+                navigate(
                     OPEN_DIAGRAM.replace(':name', name).replace(
                         ':visibility',
                         visibility.value

@@ -1,70 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {render, screen} from '@testing-library/react';
-import {createMemoryHistory} from 'history';
-import {Router} from 'react-router-dom';
-import {NotificationProvider} from '../../../../../../../components/Contexts/NotificationContext';
-import {DiagramSettingsProvider} from '../../../../../../../components/Contexts/DiagramSettingsContext';
-import {diagramSettingsReducer} from '../../../../../../../components/Contexts/Reducers/DiagramSettingsReducer';
-import {ResourceProvider} from '../../../../../../../components/Contexts/ResourceContext';
-import {resourceReducer} from '../../../../../../../components/Contexts/Reducers/ResourceReducer';
-import {WebGLProvider} from '../../../../../../../components/Contexts/WebGLContext';
-import React from 'react';
+import {screen} from '@testing-library/react';
 import {describe, expect, vi, it} from 'vitest';
 import userEvent from '@testing-library/user-event';
-import PolarisLayout from '../../../../../../../PolarisLayout';
-import {createSelfManagedPerspectiveMetadata} from '../../../../../testUtils';
-
-function renderDiagramsPage() {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                refetchInterval: 60000,
-                refetchOnWindowFocus: false,
-                retry: 1,
-            },
-        },
-    });
-
-    const initialResourceState = {
-        graphResources: [],
-        resources: [],
-    };
-
-    const initialDiagramSettingsState = {
-        canvas: null,
-        selectedResources: null,
-        resources: [],
-    };
-
-    const history = createMemoryHistory();
-    const container = render(
-        <QueryClientProvider client={queryClient}>
-            <NotificationProvider>
-                <DiagramSettingsProvider
-                    initialState={initialDiagramSettingsState}
-                    reducer={diagramSettingsReducer}
-                >
-                    <ResourceProvider
-                        initialState={initialResourceState}
-                        reducer={resourceReducer}
-                    >
-                        <WebGLProvider>
-                            {/*<RoutedDiagramPage history={history}/>*/}
-                            <Router history={history}>
-                                <PolarisLayout />
-                            </Router>
-                        </WebGLProvider>
-                    </ResourceProvider>
-                </DiagramSettingsProvider>
-            </NotificationProvider>
-        </QueryClientProvider>
-    );
-
-    return {container, history};
-}
+import {
+    createSelfManagedPerspectiveMetadata,
+    renderPolarisLayout,
+} from '../../../../../testUtils';
 
 describe('Create Diagram Page', () => {
     it('should have public and private visibility option', async () => {
@@ -88,7 +31,7 @@ describe('Create Diagram Page', () => {
 
         const user = userEvent.setup();
 
-        renderDiagramsPage();
+        renderPolarisLayout();
 
         const manageLink = screen.getByRole('link', {
             name: /Manage$/,

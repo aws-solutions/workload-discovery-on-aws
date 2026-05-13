@@ -19,7 +19,7 @@ import {
 import PropTypes from 'prop-types';
 import {IMPORT} from '../../../routes';
 import {useCollection} from '@cloudscape-design/collection-hooks';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import {useRemoveAccount} from '../../Hooks/useAccounts';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -202,7 +202,7 @@ const DiscoverableAccountsTable = ({
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [roleStatus, setRoleStatus] = useState(defaultRoleStatus);
     const {removeAsync} = useRemoveAccount();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useDeepCompareEffect(() => {
         onSelect(
@@ -329,7 +329,7 @@ const DiscoverableAccountsTable = ({
                                             variant="primary"
                                             onClick={e => {
                                                 e.preventDefault();
-                                                history.push(IMPORT);
+                                                navigate(IMPORT);
                                             }}
                                         >
                                             Import

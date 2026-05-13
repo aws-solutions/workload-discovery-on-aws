@@ -10,7 +10,7 @@ import {
 } from '@cloudscape-design/components';
 import Breadcrumbs from '../../../../../Utils/Breadcrumbs';
 import {DRAW, OPEN_DIAGRAM} from '../../../../../routes';
-import {useParams} from 'react-router-dom';
+import {useParams} from 'react-router';
 import ResourceSearch from '../../Utils/ResourceSearch';
 import DiagramControlPanel from '../DiagramControlsPanel';
 import PureCytoscape from '../../Canvas/PureCytoscape';

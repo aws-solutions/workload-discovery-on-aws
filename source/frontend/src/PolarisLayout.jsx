@@ -1,15 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import PropTypes from 'prop-types';
-import {
-    matchPath,
-    Route,
-    Switch,
-    useHistory,
-    useLocation,
-} from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
+import {matchPath, Outlet, useLocation, useNavigate} from 'react-router';
 import {
     AppLayout,
     Box,
@@ -19,7 +12,7 @@ import {
     SpaceBetween,
     Toggle,
 } from '@cloudscape-design/components';
-import routes, {
+import {
     ACCOUNTS,
     COSTS,
     CREATE_DIAGRAM,
@@ -44,17 +37,11 @@ import {useResourceState} from './components/Contexts/ResourceContext';
 import {useDiagramSettingsState} from './components/Contexts/DiagramSettingsContext';
 import {useWebGLState} from './components/Contexts/WebGLContext';
 
-const Navigation = ({onNavigate}) => {
-    const history = useHistory();
+const Navigation = () => {
+    const navigate = useNavigate();
     const location = useLocation();
     const {user, signOut} = useAuthenticator();
     const {webGLEnabled, toggleWebGL} = useWebGLState();
-    
-    history.listen(onNavigate);
-
-    useLayoutEffect(() => {
-        onNavigate(location);
-    });
 
     const navHeader = {
         text: `Workload Discovery on AWS`,
@@ -146,7 +133,7 @@ const Navigation = ({onNavigate}) => {
                         window.open(e.detail.href, '_blank', 'rel=noreferrer');
                     } else {
                         e.preventDefault();
-                        history.push(e.detail.href);
+                        navigate(e.detail.href);
                     }
                 }}
             />
@@ -178,128 +165,79 @@ const Navigation = ({onNavigate}) => {
     );
 };
 
-Navigation.propTypes = {
-    onNavigate: PropTypes.func.isRequired,
-};
-
-const ToolPanel = ({onNavigate}) => {
-    const history = useHistory();
+const ToolPanel = () => {
     const location = useLocation();
-    history.listen(onNavigate);
-
-    useLayoutEffect(() => {
-        onNavigate(location);
-    });
 
     return R.pathOr(
         <PlaceholderHelp />,
         ['component'],
         R.find(
             e =>
-                matchPath(location.pathname, {
-                    path: e.path,
-                    exact: true,
-                }),
+                matchPath({path: e.path, end: true}, location.pathname),
             panels
         )
     );
 };
 
-ToolPanel.propTypes = {
-    onNavigate: PropTypes.func.isRequired,
-};
-
-const SplitPanelLoader = ({onNavigate}) => {
-    const history = useHistory();
+const SplitPanelLoader = () => {
     const location = useLocation();
-    history.listen(onNavigate);
 
-    useLayoutEffect(() => {
-        onNavigate(location);
-    });
     return R.pathOr(
         null,
         ['component'],
         R.find(
             e =>
-                matchPath(location.pathname, {
-                    path: e.path,
-                    exact: true,
-                }),
+                matchPath({path: e.path, end: true}, location.pathname),
             splitPanels
         )
     );
 };
 
-SplitPanelLoader.propTypes = {
-    onNavigate: PropTypes.func.isRequired,
-};
-
-const Pages = props => (
-    <div id="content-root">
-        <Switch>
-            {routes.map(({component: Component, ...rest}) => (
-                <Route {...rest} key={rest.title}>
-                    <Component {...props} />
-                </Route>
-            ))}
-        </Switch>
-    </div>
-);
-
 function isOpenDiagram(pathname) {
-    return (
-        matchPath(pathname, {
-            path: OPEN_DIAGRAM,
-            exact: true,
-            strict: false,
-        }) != null
-    );
+    return matchPath({path: OPEN_DIAGRAM, end: true}, pathname) != null;
 }
 
 export function PolarisLayout() {
-    const history = useHistory();
+    const navigate = useNavigate();
     const location = useLocation();
     const {addNotification, clearAllNotifications} = useNotificationDispatch();
     const {data: appProblems = {}} = useGetApplicationProblems();
-    const [navigationOpen, setNavigationOpen] = useState(
-        true
-    );
+    const [navigationOpen, setNavigationOpen] = useState(true);
     const [toolsOpen, setToolsOpen] = useState(false);
-    const [, setCurrentPath] = useState();
-    const [schema, setSchema] = useState();
     const [, dispatch] = useResourceState();
     const [, dispatchCanvas] = useDiagramSettingsState();
     const pathRef = useRef(location.pathname);
 
     useEffect(() => {
-        // always open nav if we're moving from the homepage
-        return history.listen(({pathname}) => {
-            if (pathRef.current === '/') setNavigationOpen(true);
+        const pathname = location.pathname;
+        // Skip initial mount — only act on actual navigation, matching
+        // the v5 history.listen semantics we migrated away from.
+        if (pathRef.current === pathname) return;
 
-            pathRef.current = pathname;
+        if (pathRef.current === '/') setNavigationOpen(true);
 
-            if (pathname === CREATE_DIAGRAM || isOpenDiagram(pathname)) return;
+        pathRef.current = pathname;
 
-            clearAllNotifications({except: ['DeploymentHealthcheckErrors']});
-            dispatch({
-                type: 'select',
-                resources: {},
-            });
-            dispatch({
-                type: 'updateGraphResources',
-                graphResources: [],
-            });
-            dispatchCanvas({
-                type: 'setCanvas',
-                canvas: null,
-            });
-            dispatchCanvas({
-                type: 'setResources',
-                resources: [],
-            });
+        if (pathname === CREATE_DIAGRAM || isOpenDiagram(pathname)) return;
+
+        clearAllNotifications({except: ['DeploymentHealthcheckErrors']});
+        dispatch({
+            type: 'select',
+            resources: {},
         });
-    }, [clearAllNotifications, dispatch, dispatchCanvas, history]);
+        dispatch({
+            type: 'updateGraphResources',
+            graphResources: [],
+        });
+        dispatchCanvas({
+            type: 'setCanvas',
+            canvas: null,
+        });
+        dispatchCanvas({
+            type: 'setResources',
+            resources: [],
+        });
+    }, [location.pathname, clearAllNotifications, dispatch, dispatchCanvas]);
 
     useEffect(() => {
         const logProblems = appProblems?.logProblems ?? [];
@@ -318,7 +256,7 @@ export function PolarisLayout() {
                                 href={HOMEPAGE_PATH}
                                 onFollow={e => {
                                     e.preventDefault();
-                                    history.push(HOMEPAGE_PATH);
+                                    navigate(HOMEPAGE_PATH);
                                 }}
                             >
                                 homepage
@@ -340,32 +278,24 @@ export function PolarisLayout() {
         onSplitPanelPreferencesChange,
     } = useSplitPanel(false);
 
-    const handleNavigation = e => {
-        if (e.pathname !== location.pathname) setCurrentPath(e.pathname);
-    };
-
     return (
         <ErrorBoundary
             FallbackComponent={ErrorFallback}
             onReset={() => {
-                history.push('/');
+                navigate('/');
             }}
         >
             <AppLayout
                 content={
                     <Box padding={'s'}>
-                        <Pages schema={schema} setSchema={setSchema} />
+                        <Outlet />
                     </Box>
                 }
                 disableContentPaddings={true}
-                navigation={
-                    <Navigation onNavigate={handleNavigation} activeHref="/" />
-                }
+                navigation={<Navigation />}
                 navigationOpen={navigationOpen}
                 toolsOpen={toolsOpen}
-                tools={
-                    <ToolPanel onNavigate={handleNavigation} activeHref="/" />
-                }
+                tools={<ToolPanel />}
                 notifications={<Notifications maxNotifications={1} />}
                 toolsHide={location.pathname === '/'}
                 onNavigationChange={e => setNavigationOpen(e.detail.open)}
@@ -376,12 +306,7 @@ export function PolarisLayout() {
                 onSplitPanelResize={onSplitPanelResize}
                 splitPanelPreferences={splitPanelPreferences}
                 onSplitPanelPreferencesChange={onSplitPanelPreferencesChange}
-                splitPanel={
-                    <SplitPanelLoader
-                        onNavigate={e => setCurrentPath(e.pathname)}
-                        activeHref="/"
-                    />
-                }
+                splitPanel={<SplitPanelLoader />}
             />
         </ErrorBoundary>
     );

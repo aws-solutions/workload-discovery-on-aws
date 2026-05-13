@@ -12,7 +12,7 @@ import {
     SpaceBetween,
 } from '@cloudscape-design/components';
 import {CREATE_VIEW, EDIT_VIEW, VIEW, VIEWS} from '../../../../routes';
-import {useHistory, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router';
 import PropTypes from 'prop-types';
 import {
     privateLevel,
@@ -37,7 +37,7 @@ const ViewSelector = ({selectedOption, onSelect}) => {
         {enabled: !!name}
     );
     const {removeAsync} = useRemoveObject(viewsPrefix);
-    const history = useHistory();
+    const navigate = useNavigate();
     const options = R.map(e => {
         return {label: R.split('/', e.key)[1], value: e.key};
     }, views);
@@ -51,7 +51,9 @@ const ViewSelector = ({selectedOption, onSelect}) => {
     }, [name, onSelect, viewData]);
 
     const onViewSelected = detail => {
-        history.replace(VIEW.replace(':name', detail.selectedOption.label));
+        navigate(VIEW.replace(':name', detail.selectedOption.label), {
+            replace: true,
+        });
     };
 
     return (
@@ -64,7 +66,7 @@ const ViewSelector = ({selectedOption, onSelect}) => {
                             <Button
                                 disabled={R.isNil(selectedOption)}
                                 onClick={async () => {
-                                    history.push(VIEWS);
+                                    navigate(VIEWS);
                                     return removeAsync({
                                         key: selectedOption,
                                         level: privateLevel,
@@ -76,7 +78,7 @@ const ViewSelector = ({selectedOption, onSelect}) => {
                             <Button
                                 disabled={R.isNil(selectedOption)}
                                 onClick={() =>
-                                    history.push(
+                                    navigate(
                                         EDIT_VIEW.replace(
                                             ':name',
                                             selectedOption
@@ -88,7 +90,7 @@ const ViewSelector = ({selectedOption, onSelect}) => {
                             </Button>
                             <Button
                                 variant="primary"
-                                onClick={() => history.push(CREATE_VIEW)}
+                                onClick={() => navigate(CREATE_VIEW)}
                             >
                                 Create
                             </Button>

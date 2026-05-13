@@ -9,6 +9,7 @@ import {
     searchResources,
 } from '../../API/Handlers/ResourceGraphQLHandler';
 import {wrapRequest} from '../../Utils/API/HandlerUtils';
+import {fetchWithAdaptivePageSize} from '../../Utils/API/AdaptivePagination';
 import {getStatus} from '../../Utils/StatusUtils';
 import {processResourcesError} from '../../Utils/ErrorHandlingUtils';
 import * as R from 'ramda';
@@ -31,17 +32,23 @@ export const useResourcesSearch = (
     if (resourceTypes?.length > 0) userFilters.resourceTypes = resourceTypes;
 
     const fetchResults = ({pageParam}) =>
-        wrapRequest(processResourcesError, searchResources, {
-            ...userFilters,
-            pagination: {
+        fetchWithAdaptivePageSize(
+            pagination =>
+                wrapRequest(processResourcesError, searchResources, {
+                    ...userFilters,
+                    pagination,
+                })
+                    .then(handleResponse)
+                    .then(
+                        R.pathOr([], ['body', 'data', 'searchResources', 'resources'])
+                    ),
+            {
                 start: pageSize * pageParam,
                 end: pageSize * pageParam + pageSize,
             },
-        })
-            .then(handleResponse)
-            .then(
-                R.pathOr([], ['body', 'data', 'searchResources', 'resources'])
-            );
+            1,
+            (a, b) => [...a, ...b]
+        );
 
     const {
         isLoading,
@@ -86,7 +93,7 @@ export const useResourcesSearch = (
 export const searchPaginatedQueryKey = 'searchPaginatedQueryKey';
 export const useResourcesSearchPaginated = (
     text = '',
-    pagination = {start: 0, end: 10},
+    pageRange = {start: 0, end: 10},
     accounts = [],
     resourceTypes = [],
     config = {}
@@ -95,18 +102,29 @@ export const useResourcesSearchPaginated = (
 
     const userFilters = {
         text,
-        pagination,
     };
 
     if (accounts?.length > 0) userFilters.accounts = accounts;
     if (resourceTypes?.length > 0) userFilters.resourceTypes = resourceTypes;
 
     const {isLoading, isError, error, data, refetch, isFetching} = useQuery({
-        queryKey: [searchPaginatedQueryKey, text, accounts, resourceTypes, pagination],
+        queryKey: [searchPaginatedQueryKey, text, accounts, resourceTypes, pageRange],
         queryFn: () =>
-            wrapRequest(processResourcesError, searchResources, userFilters)
-                .then(handleResponse)
-                .then(R.pathOr([], ['body', 'data', 'searchResources'])),
+            fetchWithAdaptivePageSize(
+                pagination =>
+                    wrapRequest(processResourcesError, searchResources, {
+                        ...userFilters,
+                        pagination,
+                    })
+                        .then(handleResponse)
+                        .then(R.pathOr([], ['body', 'data', 'searchResources'])),
+                pageRange,
+                1,
+                (a, b) => ({
+                    resources: [...(a.resources ?? []), ...(b.resources ?? [])],
+                    count: a.count ?? b.count,
+                })
+            ),
         placeholderData: keepPreviousData,
         refetchInterval: false,
         ...config,

@@ -20,7 +20,7 @@ import React, {useEffect} from 'react';
 import {useResourcesSearchPaginated} from '../../Hooks/useResources';
 import {createTableAriaLabels} from '../../../Utils/AccessibilityUtils';
 import {useResourceState} from '../../Contexts/ResourceContext';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import {useDebounce, useDeepCompareEffect} from 'react-use';
 import {CREATE_DIAGRAM} from '../../../routes';
 import PropTypes from 'prop-types';
@@ -58,7 +58,7 @@ function ResourcesTable({accounts, resourceTypes}) {
     );
 
     const [, dispatch] = useResourceState();
-    const history = useHistory();
+    const navigate = useNavigate();
     const {
         data: nodeData,
         refetch: loadSelected,
@@ -89,9 +89,9 @@ function ResourcesTable({accounts, resourceTypes}) {
                     type: 'updateGraphResources',
                     graphResources: nodeData,
                 })
-            ).then(() => history.push(CREATE_DIAGRAM));
+            ).then(() => navigate(CREATE_DIAGRAM));
         }
-    }, [nodeData, dispatch, history, isError]);
+    }, [nodeData, dispatch, navigate, isError]);
 
     const {items, filterProps, collectionProps, paginationProps} =
         useCollection(resources, {

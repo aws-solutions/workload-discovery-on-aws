@@ -3,18 +3,18 @@
 
 import React from 'react';
 import {BreadcrumbGroup} from '@cloudscape-design/components';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import PropTypes from 'prop-types';
 import {HOMEPAGE_PATH} from '../routes';
 
 const Breadcrumbs = ({items = []}) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     return (
         <BreadcrumbGroup
             onFollow={e => {
                 e.preventDefault();
-                history.push(e.detail.href);
+                navigate(e.detail.href);
             }}
             ariaLabel="Breadcrumbs"
             items={[

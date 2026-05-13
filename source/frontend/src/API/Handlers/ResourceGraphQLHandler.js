@@ -5,6 +5,7 @@ import {client} from '../graphqlClient';
 import * as queries from '../GraphQL/queries';
 import * as mutations from '../GraphQL/mutations';
 import * as R from 'ramda';
+import {isPayloadTooLargeError} from '../../Utils/API/AdaptivePagination';
 
 export const getResources = variables => {
     return client.graphql({query: queries.getResources, variables});
@@ -14,28 +15,43 @@ export const getResourceGraph = variables => {
     return client.graphql({query: queries.getResourceGraph, variables});
 };
 
-export const getResourceGraphPaginated = ({ids, pageSize = 500}) => {
-    async function getResourceGraphRec(
-        pagination,
-        resourceGraph = {nodes: [], edges: []}
-    ) {
-        const {end} = pagination;
-        const {nodes, edges} = await getResourceGraph({ids, pagination}).then(
-            R.pathOr({nodes: [], edges: []}, ['data', 'getResourceGraph'])
-        );
+export const getResourceGraphPaginated = async ({ids, pageSize: PAGE_SIZE = 500}) => {
+    let pageSize = PAGE_SIZE;
+    let start = 0;
+    let end = pageSize;
+    const allNodes = [];
+    const allEdges = [];
 
-        if (R.isEmpty(nodes) && R.isEmpty(edges)) return resourceGraph;
+    let hasMore = true;
+    while (hasMore) {
+        try {
+            const {nodes, edges} = await getResourceGraph({
+                ids,
+                pagination: {start, end},
+            }).then(
+                R.pathOr({nodes: [], edges: []}, ['data', 'getResourceGraph'])
+            );
 
-        return getResourceGraphRec(
-            {start: end, end: end + pageSize},
-            {
-                nodes: [...resourceGraph.nodes, ...nodes],
-                edges: [...resourceGraph.edges, ...edges],
+            if (R.isEmpty(nodes) && R.isEmpty(edges)) {
+                hasMore = false;
+            } else {
+                allNodes.push(...nodes);
+                allEdges.push(...edges);
+                start = start + pageSize;
+                pageSize = Math.min(PAGE_SIZE, pageSize * 2);
+                end = start + pageSize;
             }
-        );
+        } catch (err) {
+            if (isPayloadTooLargeError(err) && pageSize > 1) {
+                pageSize = Math.floor(pageSize / 2);
+                end = start + pageSize;
+            } else {
+                throw err;
+            }
+        }
     }
 
-    return getResourceGraphRec({start: 0, end: pageSize});
+    return {nodes: allNodes, edges: allEdges};
 };
 
 export const getResourcesMetadata = variables => {

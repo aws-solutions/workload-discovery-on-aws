@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {createMemoryHistory} from 'history';
 import {render} from '@testing-library/react';
 import {NotificationProvider} from '../../components/Contexts/NotificationContext';
 import {DiagramSettingsProvider} from '../../components/Contexts/DiagramSettingsContext';
@@ -10,8 +9,9 @@ import {diagramSettingsReducer} from '../../components/Contexts/Reducers/Diagram
 import {ResourceProvider} from '../../components/Contexts/ResourceContext';
 import {resourceReducer} from '../../components/Contexts/Reducers/ResourceReducer';
 import {WebGLProvider} from '../../components/Contexts/WebGLContext';
-import {Router} from 'react-router-dom';
+import {createMemoryRouter, RouterProvider} from 'react-router';
 import PolarisLayout from '../../PolarisLayout';
+import {routeChildren} from '../../Main';
 import React from 'react';
 
 export function renderPolarisLayout() {
@@ -36,7 +36,17 @@ export function renderPolarisLayout() {
         resources: [],
     };
 
-    const history = createMemoryHistory();
+    const router = createMemoryRouter(
+        [
+            {
+                path: '/',
+                element: <PolarisLayout />,
+                children: routeChildren,
+            },
+        ],
+        {initialEntries: ['/']}
+    );
+
     const container = render(
         <QueryClientProvider client={queryClient}>
             <NotificationProvider>
@@ -49,10 +59,7 @@ export function renderPolarisLayout() {
                         reducer={resourceReducer}
                     >
                         <WebGLProvider>
-                            {/*<RoutedDiagramPage history={history}/>*/}
-                            <Router history={history}>
-                                <PolarisLayout />
-                            </Router>
+                            <RouterProvider router={router} />
                         </WebGLProvider>
                     </ResourceProvider>
                 </DiagramSettingsProvider>
@@ -60,7 +67,7 @@ export function renderPolarisLayout() {
         </QueryClientProvider>
     );
 
-    return {container, history};
+    return {container};
 }
 
 function createPerspectiveMetadata(crossAccountDiscovery) {

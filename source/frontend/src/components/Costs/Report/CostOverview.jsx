@@ -12,7 +12,7 @@ import {
 import CostBreakdownSummary from './CostBreakdownSummary';
 import CostBreakdown from './CostBreakdown';
 import CostForm from './CostForm';
-import {useParams} from 'react-router-dom';
+import {useParams} from 'react-router';
 import {diagramsPrefix, useObject} from '../../Hooks/useS3Objects';
 import Breadcrumbs from '../../../Utils/Breadcrumbs';
 import {COST_REPORT, DRAW, OPEN_DIAGRAM} from '../../../routes';

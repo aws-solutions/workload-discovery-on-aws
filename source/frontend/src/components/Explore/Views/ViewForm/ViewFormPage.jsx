@@ -12,7 +12,7 @@ import {
 import Breadcrumbs from '../../../../Utils/Breadcrumbs';
 import {CREATE_VIEW, EDIT_VIEW, VIEW, VIEWS} from '../../../../routes';
 import ViewOverview from '../Shared/ViewOverview';
-import {useHistory, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router';
 import ViewFormDetailsSection from './ViewFormDetailsSection';
 import {
     privateLevel,
@@ -37,7 +37,7 @@ const ViewFormPage = () => {
     const [selectedAccounts, setSelectedAccounts] = React.useState([]);
     const [selectedRegions, setSelectedRegions] = React.useState([]);
     const {putAsync} = usePutObject(viewsPrefix);
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (selectedView) {
@@ -80,7 +80,7 @@ const ViewFormPage = () => {
                     return {type: e.type};
                 }, selectedResourceTypes),
             }),
-        }).then(() => history.push(VIEW.replace(':name', viewName)));
+        }).then(() => navigate(VIEW.replace(':name', viewName)));
     };
 
     return (
