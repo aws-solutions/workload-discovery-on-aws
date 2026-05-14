@@ -1,7 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import React, {createContext, useContext, useReducer, useMemo} from 'react';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    useReducer,
+} from 'react';
 
 const initialState = {
     notifications: [],
@@ -46,28 +52,34 @@ const reducer = (state, action) => {
 
 export const useNotificationDispatch = () => {
     const {dispatch} = useContext(NotificationContext);
-    return {
-        addNotification: notification => {
+    const addNotification = useCallback(
+        notification =>
             dispatch({
                 type: ADD_NOTIFICATION,
-                payload: {
-                    notification,
-                },
-            });
-        },
-        clearNotification: index =>
+                payload: {notification},
+            }),
+        [dispatch]
+    );
+    const clearNotification = useCallback(
+        index =>
             dispatch({
                 type: CLEAR_NOTIFICATION,
-                payload: {
-                    index,
-                },
+                payload: {index},
             }),
-        clearAllNotifications: payload =>
+        [dispatch]
+    );
+    const clearAllNotifications = useCallback(
+        payload =>
             dispatch({
                 type: CLEAR_ALL_NOTIFICATIONS,
                 payload,
             }),
-    };
+        [dispatch]
+    );
+    return useMemo(
+        () => ({addNotification, clearNotification, clearAllNotifications}),
+        [addNotification, clearNotification, clearAllNotifications]
+    );
 };
 
 export const NotificationProvider = props => {

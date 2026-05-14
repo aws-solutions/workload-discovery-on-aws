@@ -13,6 +13,7 @@ import {ResourceProvider} from '../../../../../components/Contexts/ResourceConte
 import {resourceReducer} from '../../../../../components/Contexts/Reducers/ResourceReducer';
 import {DiagramSettingsProvider} from '../../../../../components/Contexts/DiagramSettingsContext';
 import {NotificationProvider} from '../../../../../components/Contexts/NotificationContext';
+import {MemoryRouter} from 'react-router';
 import userEvent from '@testing-library/user-event';
 import getResourcesByCost from '../../../../mocks/fixtures/getResourcesByCost/default.json';
 import getCostForResource from '../../../../mocks/fixtures/getCostForResource/default.json';
@@ -55,7 +56,9 @@ function renderCostsPage() {
                         initialState={initialResourceState}
                         reducer={resourceReducer}
                     >
-                        <CostsPage />
+                        <MemoryRouter>
+                            <CostsPage />
+                        </MemoryRouter>
                     </ResourceProvider>
                 </DiagramSettingsProvider>
             </NotificationProvider>

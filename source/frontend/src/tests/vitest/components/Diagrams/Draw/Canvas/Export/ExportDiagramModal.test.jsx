@@ -6,8 +6,7 @@ import {describe, expect, it, vi} from 'vitest';
 import {render, screen, waitFor, within} from '@testing-library/react';
 import ExportDiagramModal from '../../../../../../../components/Diagrams/Draw/Canvas/Export/ExportDiagramModal';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import {createMemoryHistory} from 'history';
-import {Route, Router} from 'react-router-dom';
+import {createMemoryRouter, RouterProvider} from 'react-router';
 import userEvent from '@testing-library/user-event';
 import {server} from '../../../../../../mocks/server';
 import {graphql, HttpResponse} from 'msw';
@@ -38,29 +37,25 @@ describe('Export', () => {
             },
         });
 
-        const history = createMemoryHistory();
-        history.location = {
-            pathname: `/diagrams/private/${diagramTitle}`,
-        };
+        const router = createMemoryRouter(
+            [
+                {
+                    path: '/diagrams/:visibility/:name',
+                    element: component,
+                },
+            ],
+            {initialEntries: [`/diagrams/private/${diagramTitle}`]}
+        );
 
         const container = render(
             <QueryClientProvider client={queryClient}>
                 <NotificationProvider>
-                    <Router history={history}>
-                        <Route
-                            exact
-                            title={'Open diagram'}
-                            path={'/diagrams/:visibility/:name'}
-                            key={'Open diagram'}
-                        >
-                            {component}
-                        </Route>
-                    </Router>
+                    <RouterProvider router={router} />
                 </NotificationProvider>
             </QueryClientProvider>
         );
 
-        return {user: userEvent.setup(), container, history};
+        return {user: userEvent.setup(), container};
     }
 
     const elements = {

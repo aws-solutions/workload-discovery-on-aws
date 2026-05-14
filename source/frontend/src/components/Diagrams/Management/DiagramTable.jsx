@@ -15,7 +15,7 @@ import {
 } from '@cloudscape-design/components';
 import {useCollection} from '@cloudscape-design/collection-hooks';
 import {CREATE_DIAGRAM, OPEN_DIAGRAM} from '../../../routes';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import * as R from 'ramda';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -33,7 +33,7 @@ dayjs.extend(relativeTime);
 const DiagramTable = () => {
     const [selectedDiagrams, setSelectedDiagrams] = useState([]);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const history = useHistory();
+    const navigate = useNavigate();
     const {
         data: privateDiagrams = [],
         isLoading: loadingPrivate,
@@ -198,7 +198,7 @@ const DiagramTable = () => {
                                 <Button
                                     disabled={R.isEmpty(selectedDiagrams)}
                                     onClick={() =>
-                                        history.push(
+                                        navigate(
                                             OPEN_DIAGRAM.replace(
                                                 ':name',
                                                 R.head(selectedDiagrams).label
@@ -214,7 +214,7 @@ const DiagramTable = () => {
                                 </Button>
                                 <Button
                                     variant={'primary'}
-                                    onClick={() => history.push(CREATE_DIAGRAM)}
+                                    onClick={() => navigate(CREATE_DIAGRAM)}
                                 >
                                     Create
                                 </Button>

@@ -19,7 +19,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import SummaryOverview from './SummaryOverview';
 import {COSTS, CREATE_DIAGRAM} from '../../../routes';
 import {useResourceState} from '../../Contexts/ResourceContext';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import * as R from 'ramda';
 import {useAccounts} from '../../Hooks/useAccounts';
 import CostTable from './CostTable';
@@ -75,7 +75,7 @@ const CostsPage = () => {
         R.map(id => id.line_item_resource_id, selectedResources)
     );
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (nodeData && !isError) {
@@ -84,9 +84,9 @@ const CostsPage = () => {
                     type: 'updateGraphResources',
                     graphResources: nodeData,
                 })
-            ).then(() => history.push(CREATE_DIAGRAM));
+            ).then(() => navigate(CREATE_DIAGRAM));
         }
-    }, [nodeData, dispatch, history, isError]);
+    }, [nodeData, dispatch, navigate, isError]);
 
     const fetchNext = pagination => {
         setLoading(true);

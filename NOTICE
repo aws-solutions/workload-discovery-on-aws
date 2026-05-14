@@ -1575,6 +1575,65 @@ create-require under the MIT license.
 make-error under the ISC license.
 v8-compile-cache-lib under the MIT license.
 yn under the MIT license.
+@nodable/entities under the MIT license.
+xml-naming under the MIT license.
+set-cookie-parser under the MIT license.
+immutable under the MIT license.
+@parcel/watcher under the MIT license.
+detect-libc under the Apache-2.0 license.
+node-addon-api under the MIT license.
+@parcel/watcher-android-arm64 under the MIT license.
+@parcel/watcher-darwin-arm64 under the MIT license.
+@parcel/watcher-darwin-x64 under the MIT license.
+@parcel/watcher-freebsd-x64 under the MIT license.
+@parcel/watcher-linux-arm-glibc under the MIT license.
+@parcel/watcher-linux-arm-musl under the MIT license.
+@parcel/watcher-linux-arm64-glibc under the MIT license.
+@parcel/watcher-linux-arm64-musl under the MIT license.
+@parcel/watcher-linux-x64-glibc under the MIT license.
+@parcel/watcher-linux-x64-musl under the MIT license.
+@parcel/watcher-win32-arm64 under the MIT license.
+@parcel/watcher-win32-ia32 under the MIT license.
+@parcel/watcher-win32-x64 under the MIT license.
+lightningcss under the MPL-2.0 license.
+lightningcss-android-arm64 under the MPL-2.0 license.
+lightningcss-darwin-arm64 under the MPL-2.0 license.
+lightningcss-darwin-x64 under the MPL-2.0 license.
+lightningcss-freebsd-x64 under the MPL-2.0 license.
+lightningcss-linux-arm-gnueabihf under the MPL-2.0 license.
+lightningcss-linux-arm64-gnu under the MPL-2.0 license.
+lightningcss-linux-arm64-musl under the MPL-2.0 license.
+lightningcss-linux-x64-gnu under the MPL-2.0 license.
+lightningcss-linux-x64-musl under the MPL-2.0 license.
+lightningcss-win32-arm64-msvc under the MPL-2.0 license.
+lightningcss-win32-x64-msvc under the MPL-2.0 license.
+rolldown under the MIT license.
+@oxc-project/types under the MIT license.
+@rolldown/binding-android-arm64 under the MIT license.
+@rolldown/binding-darwin-arm64 under the MIT license.
+@rolldown/binding-darwin-x64 under the MIT license.
+@rolldown/binding-freebsd-x64 under the MIT license.
+@rolldown/binding-linux-arm-gnueabihf under the MIT license.
+@rolldown/binding-linux-arm64-gnu under the MIT license.
+@rolldown/binding-linux-arm64-musl under the MIT license.
+@rolldown/binding-linux-ppc64-gnu under the MIT license.
+@rolldown/binding-linux-s390x-gnu under the MIT license.
+@rolldown/binding-linux-x64-gnu under the MIT license.
+@rolldown/binding-linux-x64-musl under the MIT license.
+@rolldown/binding-openharmony-arm64 under the MIT license.
+@rolldown/binding-wasm32-wasi under the MIT license.
+@emnapi/core under the MIT license.
+@emnapi/wasi-threads under the MIT license.
+@emnapi/runtime under the MIT license.
+@napi-rs/wasm-runtime under the MIT license.
+@tybys/wasm-util under the MIT license.
+@rolldown/binding-win32-arm64-msvc under the MIT license.
+@rolldown/binding-win32-x64-msvc under the MIT license.
+@blazediff/core under the MIT license.
+fast-wrap-ansi under the MIT license.
+fast-string-width under the MIT license.
+fast-string-truncated-width under the MIT license.
+@types/set-cookie-parser under the MIT license.
 
 ********************
 OPEN SOURCE LICENSES
@@ -1590,6 +1649,7 @@ BlueOak-1.0.0 - https://blueoakcouncil.org/license/1.0.0
 CC-BY-4.0 - https://creativecommons.org/licenses/by/4.0/legalcode
 CC0-1.0 - https://creativecommons.org/publicdomain/zero/1.0/legalcode
 MIT-0 - https://github.com/aws/mit-0
+MPL-2.0 - https://www.mozilla.org/MPL/2.0/
 Python-2.0 - https://opensource.org/licenses/Python-2.0
 Unlicense - https://unlicense.org
 Zlib - http://www.zlib.net/zlib_license.html

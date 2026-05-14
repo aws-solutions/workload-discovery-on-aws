@@ -17,11 +17,11 @@ import Breadcrumbs from '../../../Utils/Breadcrumbs';
 import {ACCOUNTS, IMPORT} from '../../../routes';
 import * as R from 'ramda';
 import {useAccounts, useAddAccounts} from '../../Hooks/useAccounts';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import TemplateProvider from './TemplateProvider';
 
 const ImportContent = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const {addAsync: addAccounts, isLoading} = useAddAccounts();
     const {data: accounts = []} = useAccounts();
     const [regionsToAdd, setRegionsToAdd] = React.useState([]);
@@ -101,7 +101,7 @@ const ImportContent = () => {
     const handleSubmit = () => {
         setSubmitting(true);
         importAccounts()
-            .then(() => history.push(ACCOUNTS))
+            .then(() => navigate(ACCOUNTS))
             .finally(setSubmitting(false));
     };
 
@@ -112,7 +112,7 @@ const ImportContent = () => {
                     <Button
                         disabled={isLoading}
                         variant="link"
-                        onClick={() => history.push(ACCOUNTS)}
+                        onClick={() => navigate(ACCOUNTS)}
                     >
                         Cancel
                     </Button>

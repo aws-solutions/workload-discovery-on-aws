@@ -12,6 +12,7 @@ import {diagramSettingsReducer} from '../../../../../components/Contexts/Reducer
 import {ResourceProvider} from '../../../../../components/Contexts/ResourceContext';
 import {resourceReducer} from '../../../../../components/Contexts/Reducers/ResourceReducer';
 import {DiagramSettingsProvider} from '../../../../../components/Contexts/DiagramSettingsContext';
+import {MemoryRouter} from 'react-router';
 import userEvent from '@testing-library/user-event';
 import {server} from '../../../../mocks/server';
 import {graphql, HttpResponse} from 'msw';
@@ -53,7 +54,9 @@ function renderResourcesPage() {
                     initialState={initialResourceState}
                     reducer={resourceReducer}
                 >
-                    <ResourcesPage />
+                    <MemoryRouter>
+                        <ResourcesPage />
+                    </MemoryRouter>
                 </ResourceProvider>
             </DiagramSettingsProvider>
         </QueryClientProvider>

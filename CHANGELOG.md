@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.18] - 2026-05-13
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-5wm8-gmm8-39j9) in `fast-xml-builder`.
+- Security [issue](https://github.com/advisories/GHSA-q3j6-qgpj-74h6) in `fast-uri`.
+- Security [issue](https://github.com/advisories/GHSA-gh4j-gqv2-49f6) in `fast-xml-parser`.
+- Security [issue](https://github.com/advisories/GHSA-qx2v-qp2m-jg93) in `postcss`.
+- Security [issue](https://github.com/advisories/GHSA-58qw-9mgm-455v) in `pip`.
+- Security [issue](https://github.com/advisories/GHSA-jp4c-xjxw-mgf9) in `pip`.
+- Security [issue](https://github.com/advisories/GHSA-6w46-j5rx-g56g) in `pytest`.
+- Security [issue](https://github.com/advisories/GHSA-qccp-gfcp-xxvc) in `urllib3`.
+- Security [issue](https://github.com/advisories/GHSA-mf9v-mfxr-j63j) in `urllib3`.
+- Security [issue](https://github.com/advisories/GHSA-p423-j2cm-9vmq) in `cryptography`.
+- `OrganizationUnitId` parameter now validates against a regex to ensure a valid OU or root ID format is supplied.
+- Frontend resource pagination adapts to Lambda payload size limits to prevent load failures on large pages.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+- Updated Node.js container image version from `24.13.1` to `24.15.0`.
+- Upgraded frontend to React Router v7.
+- Upgraded frontend to Vite 8 with the Rolldown bundler.
+
+### Added
+
+- WAF exception for `GenericLFI_BODY` rule on requests from the discovery process.
+
 ## [2.3.17] - 2026-04-09
 
 ### Fixed

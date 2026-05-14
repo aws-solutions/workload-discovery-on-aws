@@ -31,17 +31,12 @@ function excludeMsw() {
 export default defineConfig({
     build: {
         sourcemap: true,
-        rollupOptions: {
+        rolldownOptions: {
             external: ['/settings.js'],
         },
     },
-    optimizeDeps: {
-        esbuildOptions: {
-            // Node.js global to browser globalThis
-            define: {
-                global: 'globalThis', //<-- AWS SDK
-            },
-        },
+    define: {
+        global: 'globalThis',
     },
     plugins: [
         eslint(),
@@ -49,7 +44,17 @@ export default defineConfig({
         react(),
         svgrPlugin(),
     ],
-    resolve: {},
+    resolve: {
+        dedupe: [
+            '@aws-amplify/core',
+            '@aws-amplify/core/internals/utils',
+            '@aws-amplify/auth',
+            '@aws-amplify/auth/cognito',
+            '@aws-amplify/api',
+            '@aws-amplify/ui-react',
+            'aws-amplify',
+        ],
+    },
     'import/resolver': {
         node: {
             paths: ['src'],

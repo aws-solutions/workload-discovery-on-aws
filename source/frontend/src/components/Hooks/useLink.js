@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {useCallback} from 'react';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 
 export default function useLink() {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     return {
         handleFollow: useCallback(
@@ -17,9 +17,9 @@ export default function useLink() {
                     return;
                 }
                 if (typeof e.preventDefault === 'function') e.preventDefault();
-                history.push(e.detail.href);
+                navigate(e.detail.href);
             },
-            [history]
+            [navigate]
         ),
     };
 }

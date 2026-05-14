@@ -5,7 +5,7 @@ import React, {useCallback, useEffect} from 'react';
 import {Container, Header, SpaceBetween} from '@cloudscape-design/components';
 import Breadcrumbs from '../../../../../Utils/Breadcrumbs';
 import {CREATE_DIAGRAM, DRAW} from '../../../../../routes';
-import {useParams} from 'react-router-dom';
+import {useParams} from 'react-router';
 import PureCytoscape from '../../Canvas/PureCytoscape';
 import CreateDiagramNameForm from './CreateDiagramNameForm';
 import {useResourceState} from '../../../../Contexts/ResourceContext';

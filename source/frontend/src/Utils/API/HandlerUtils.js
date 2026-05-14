@@ -5,9 +5,15 @@ import {retryAttempts} from '../../config/api-retry';
 import {delay} from '../../Utils/AsyncUtils';
 import {fetchAuthSession, signOut} from 'aws-amplify/auth';
 import * as R from 'ramda';
+import {
+    RESOLVER_CODE_SIZE_ERROR,
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE,
+} from './AdaptivePagination';
 
 const noRetryErrors = new Set([
     'Unable to delete region(s), an account must have at least one region.',
+    RESOLVER_CODE_SIZE_ERROR,
+    FUNCTION_RESPONSE_SIZE_TOO_LARGE,
 ]);
 
 const isDuplicateApplicationError = R.test(

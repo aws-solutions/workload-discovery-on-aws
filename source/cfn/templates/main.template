@@ -31,6 +31,7 @@ Parameters:
   OrganizationUnitId:
     Type: String
     Default: ''
+    AllowedPattern: ^(?:ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})?$
     Description: | 
       The organization unit you wish Workload Discovery discover, this will typically be the root organization unit ID.
       Parameter only used when CrossAccountDiscovery is set to AWS_ORGANIZATIONS.
