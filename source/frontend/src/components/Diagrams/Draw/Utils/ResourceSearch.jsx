@@ -10,7 +10,7 @@ import {fetchResources} from '../Canvas/Commands/CanvasCommands';
 import {useDiagramSettingsState} from '../../../Contexts/DiagramSettingsContext';
 import * as R from 'ramda';
 import {useResourcesSearch} from '../../../Hooks/useResources';
-import {useDebounce} from 'react-use';
+import {useDebouncedEffect} from '@react-hookz/web';
 
 const ResourceSearch = () => {
     const [{graphResources}] = useResourceState();
@@ -106,12 +106,12 @@ export const OpensearchResourceSelect = ({
             return setStatus('finished');
     }, [isFetching, hasNextPage, isFetched, isError]);
 
-    useDebounce(
+    useDebouncedEffect(
         () => {
             setDebouncedValue(search);
         },
-        1000,
-        [search]
+        [search],
+        1000
     );
 
     const byType = R.groupBy(e => e.label);

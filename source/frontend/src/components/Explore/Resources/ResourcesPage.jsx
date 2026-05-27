@@ -17,7 +17,7 @@ import {useResourceState} from '../../Contexts/ResourceContext';
 import AccountMultiSelect from './Types/TypeOverview/AccountMultiSelect';
 import RegionMultiSelect from './Types/TypeOverview/RegionMultiSelect';
 import * as R from 'ramda';
-import {useDeepCompareEffect} from 'react-use';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import ResourcesTable from '../Shared/ResourcesTable';
 
 const ResourcesPage = () => {

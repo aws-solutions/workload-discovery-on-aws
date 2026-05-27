@@ -21,7 +21,7 @@ import {useResourcesSearchPaginated} from '../../Hooks/useResources';
 import {createTableAriaLabels} from '../../../Utils/AccessibilityUtils';
 import {useResourceState} from '../../Contexts/ResourceContext';
 import {useNavigate} from 'react-router';
-import {useDebounce, useDeepCompareEffect} from 'react-use';
+import {useDebouncedEffect, useDeepCompareEffect} from '@react-hookz/web';
 import {CREATE_DIAGRAM} from '../../../routes';
 import PropTypes from 'prop-types';
 import {useGetResourceGraph} from '../../Hooks/useGetResourceGraph';
@@ -66,12 +66,12 @@ function ResourcesTable({accounts, resourceTypes}) {
         isError,
     } = useGetResourceGraph(R.map(e => e.properties.arn, selectedItems));
 
-    useDebounce(
+    useDebouncedEffect(
         () => {
             setDebouncedValue(filterText);
         },
-        1000,
-        [filterText]
+        [filterText],
+        1000
     );
 
     useDeepCompareEffect(() => {
