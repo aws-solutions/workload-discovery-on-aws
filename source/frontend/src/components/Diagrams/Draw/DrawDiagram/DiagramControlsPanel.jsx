@@ -34,7 +34,7 @@ import {
     usePutObject,
     useRemoveObject,
 } from '../../../Hooks/useS3Objects';
-import {usePrevious} from 'react-use';
+import {usePrevious} from '@react-hookz/web';
 import {DEFAULT_COSTS_INTERVAL} from '../../../../config/constants';
 import ExportDiagramModal from '../Canvas/Export/ExportDiagramModal';
 

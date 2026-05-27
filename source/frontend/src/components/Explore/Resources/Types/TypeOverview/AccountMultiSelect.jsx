@@ -5,7 +5,7 @@ import React from 'react';
 import {Button, FormField, Multiselect} from '@cloudscape-design/components';
 import * as R from 'ramda';
 import {useResourcesRegionMetadata} from '../../../../Hooks/useResourcesMetadata';
-import {useDeepCompareEffect} from 'react-use';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {useAccounts} from '../../../../Hooks/useAccounts';
 
 const AccountMultiSelect = ({

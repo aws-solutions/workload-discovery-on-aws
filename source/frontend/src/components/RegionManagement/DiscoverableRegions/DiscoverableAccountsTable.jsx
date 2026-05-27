@@ -25,7 +25,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as R from 'ramda';
-import {useDeepCompareEffect} from 'react-use';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {isUsingOrganizations} from '../../../Utils/AccountUtils';
 import {createTableAriaLabels} from '../../../Utils/AccessibilityUtils';
 dayjs.extend(localizedFormat);

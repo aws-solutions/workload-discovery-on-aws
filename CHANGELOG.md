@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.19] - 2026-05-27
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-jxxr-4gwj-5jf2) in `brace-expansion`.
+- Security [issue](https://github.com/advisories/GHSA-58qx-3vcg-4xpx) in `ws`.
+- Security [issue](https://github.com/advisories/GHSA-qjx8-664m-686j) in `js-cookie`.
+
+### Changed
+
+- Migrated frontend from `react-use` to `@react-hookz/web`.
+- Updated Amazon Linux 2023 base image to latest version.
+- Updated Node.js container image version from `24.15.0` to `24.16.0`.
+
 ## [2.3.18] - 2026-05-13
 
 ### Fixed

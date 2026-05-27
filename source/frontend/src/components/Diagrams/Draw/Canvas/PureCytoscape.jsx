@@ -12,7 +12,7 @@ import {fetchResources} from './Commands/CanvasCommands';
 import {getGridLayout} from './Layout/GridGraphLayout';
 import {useResourceState} from '../../../Contexts/ResourceContext';
 import * as R from 'ramda';
-import {useWindowSize} from 'react-use';
+import {useWindowSize} from '@react-hookz/web';
 
 import {getExpandCollapseGraphLayout} from './Layout/ExpandCollapseLayout';
 import expandCollapse from 'cytoscape-expand-collapse';
