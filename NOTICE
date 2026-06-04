@@ -1240,6 +1240,9 @@ cli-spinners under the MIT license.
 @smithy/hash-stream-node under the Apache-2.0 license.
 @smithy/md5-js under the Apache-2.0 license.
 @mswjs/data under the MIT license.
+@msw/data under the MIT license.
+es-toolkit under the MIT license.
+mutative under the MIT license.
 @types/lodash under the MIT license.
 @types/md5 under the MIT license.
 @types/pluralize under the MIT license.
