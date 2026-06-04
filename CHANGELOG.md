@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.20] - 2026-06-04
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-5xrq-8626-4rwp) in `vitest`.
+- Security [issue](https://github.com/advisories/GHSA-2h32-95rg-cppp) in `@vitest/browser`.
+- Security [issue](https://github.com/advisories/GHSA-w5hq-g745-h8pq) in `uuid`.
+
+### Changed
+
+- Migrated `metrics` test mocks from the deprecated `@mswjs/data` to `@msw/data` v1.
+- Updated Amazon Linux 2023 base image to latest version.
+
 ## [2.3.19] - 2026-05-27
 
 ### Fixed

@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.3.19",
+  "version": "2.3.20",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -14,8 +14,8 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.5.2",
     "@vitejs/plugin-react": "^6.0.0",
-    "@vitest/browser-playwright": "^4.1.5",
-    "@vitest/coverage-v8": "^4.1.5",
+    "@vitest/browser-playwright": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.8",
     "amplify-graphql-docs-generator": "^2.2.4",
     "eslint": "^8.44.0",
     "eslint-plugin-header": "^3.1.1",
@@ -29,7 +29,7 @@
     "vite": "^8.0.0",
     "vite-plugin-eslint2": "^5.0.3",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.5",
+    "vitest": "^4.1.8",
     "vitest-browser-react": "^2.0.0",
     "sass": "^1.86.0"
   },

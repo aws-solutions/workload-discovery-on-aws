@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal@sha256:081da1cfe1cc78d26449397c48294796b4b9c6799353108fabc7b4d14fc2ab9e
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal@sha256:25fb18d93f8f27b0812bdc61354ce1fd27f4aea43c5883b23590d1ccf4a35f61
 
 RUN dnf install -y shadow-utils
 
