@@ -1,3 +1,6 @@
+**Important: This AWS Solution will retire on August 14, 2026. Deployments (via CloudFormation or GitHub) will remain operational, but customers will assume responsibility for maintenance and API-related updates post-retirement. We encourage customers to explore using [Amazon CloudWatch Application Map](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ServiceMap.html) and [AWS DevOps Agent](https://aws.amazon.com/devops-agent) to discover, visualize, and explain workloads on AWS.**
+
+
 # Workload Discovery on AWS (v2.3.20)
 
 Workload Discovery on AWS is a tool that quickly visualizes AWS Cloud workloads as architecture diagrams.
