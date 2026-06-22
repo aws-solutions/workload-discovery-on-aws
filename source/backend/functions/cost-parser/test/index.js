@@ -696,6 +696,7 @@ describe('testing the athena query builder', () => {
 
             const resourceIds = [
                 '; Select * from nastypasty',
+                "arn:aws:s3:::bucket') OR 1=1 --",
                 'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
                 'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
                 'vol-012b559287dd97d1e',
@@ -713,6 +714,27 @@ describe('testing the athena query builder', () => {
             });
 
             assert.deepEqual(actual, queryResult);
+        });
+
+        it('should filter out SQL injection payload disguised as ARN', async () => {
+            const byResourceIdQuery =
+                athenaQueryBuilder.__get__('byResourceIdQuery');
+
+            const resourceIds = [
+                "arn:aws:s3:::bucket') OR 1=1 GROUP BY line_item_resource_id --",
+            ];
+            const athenaTableName = 'test-table';
+            const from = '2020-01-01 00:00:00.000';
+            const to = '2020-01-02 00:00:00.000';
+
+            const actual = byResourceIdQuery({
+                resourceIds: resourceIds,
+                athenaTableName: athenaTableName,
+                period: {from: from, to: to},
+            });
+
+            assert.notInclude(actual, 'OR 1=1');
+            assert.include(actual, 'IN ()');
         });
     });
 
@@ -803,6 +825,7 @@ describe('testing the athena query builder', () => {
 
             const resourceIds = [
                 '; Select * from nastypasty',
+                "arn:aws:s3:::bucket') OR 1=1 --",
                 'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhj',
                 'arn:aws:lambda:eu-west-2:XXXXXXXXXXXX:function:aws-perspective-XXXXXXXXXX-PerspectiveCostFunction-s4c66HdWdGhl',
                 'vol-012b559287dd97d1e',
@@ -819,6 +842,28 @@ describe('testing the athena query builder', () => {
                 period: {from: from, to: to},
             });
             assert.deepEqual(actual, queryResult);
+        });
+
+        it('should filter out SQL injection payload disguised as ARN', async () => {
+            const byResourceIdOrderedByDayQuery = athenaQueryBuilder.__get__(
+                'byResourceIdOrderedByDayQuery'
+            );
+
+            const resourceIds = [
+                "arn:aws:s3:::bucket') OR 1=1 GROUP BY line_item_resource_id, product_servicename, line_item_usage_account_id, pricing_term, line_item_usage_start_date, line_item_currency_code HAVING sum(line_item_unblended_cost) > 0 --",
+            ];
+            const athenaTableName = 'test-table';
+            const from = '2020-01-01 00:00:00.000';
+            const to = '2020-01-02 00:00:00.000';
+
+            const actual = byResourceIdOrderedByDayQuery({
+                resourceIds: resourceIds,
+                athenaTableName: athenaTableName,
+                period: {from: from, to: to},
+            });
+
+            assert.notInclude(actual, 'OR 1=1');
+            assert.include(actual, 'IN ()');
         });
     });
 });
