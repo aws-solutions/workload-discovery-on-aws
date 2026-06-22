@@ -5,6 +5,23 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.21] - 2026-06-22
+
+### Fixed
+
+- Security issues CVE-2026-9697 and CVE-2026-9678 in `undici`.
+- Security [issue](https://github.com/advisories/GHSA-hmw2-7cc7-3qxx) in `form-data`.
+- Security [issue](https://github.com/advisories/GHSA-96hv-2xvq-fx4p) in `ws`.
+- Security [issue](https://github.com/advisories/GHSA-h67p-54hq-rp68) in `js-yaml`.
+- Security [issue](https://github.com/advisories/GHSA-g7r4-m6w7-qqqr) in `esbuild`.
+- Security [issue](https://github.com/advisories/GHSA-537c-gmf6-5ccf) in `cryptography`.
+- Security [issue](https://github.com/advisories/GHSA-6v7p-g79w-8964) in `msgpack`.
+- Improved input validation in `getResourcesByCostByDay` and `getCostForResource` cost queries.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+
 ## [2.3.20] - 2026-06-04
 
 ### Fixed

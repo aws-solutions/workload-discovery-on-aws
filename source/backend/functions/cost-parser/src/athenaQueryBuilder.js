@@ -5,7 +5,8 @@ const R = require('ramda');
 const dayjs = require('dayjs');
 
 // Helper function that will app singe quotes to an array of values for use with IN SQL command.
-const createINValues = values => R.map(value => `'${value}'`, values);
+// Single quotes within values are escaped by doubling them (standard SQL escaping).
+const createINValues = values => R.map(value => `'${value.replaceAll("'", "''")}'`, values);
 
 const dateValidator = date => {
     if (dayjs(date).isValid()) return true;
@@ -27,11 +28,14 @@ const serviceNameValidator = serviceName => {
     else throw Error('Invalid service name');
 };
 
+// Validates a resource ID is a legitimate ARN or a safe non-ARN identifier.
+// Uses AND logic: ARNs must fully match the ARN format with no unsafe characters.
+// Non-ARN IDs must contain only alphanumeric characters, hyphens, underscores,
+// forward slashes, colons, dots, plus signs, and at signs.
 const resourceIdValidator = id => {
-    return R.or(
-        /arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):.*/.test(id),
-        !/[!@#$%^&*(),.?"{}:|<>;]/.test(id)
-    );
+    const isArn = /^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):[a-zA-Z0-9-]*:[a-zA-Z0-9-]*:\d{0,12}:[a-zA-Z0-9_/:.+@*-]+$/.test(id);
+    const isSafeId = /^[a-zA-Z0-9_/:.+@-]+$/.test(id);
+    return isArn || isSafeId;
 };
 
 const getResourcesByCostQuery = ({
