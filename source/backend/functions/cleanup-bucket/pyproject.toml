@@ -12,6 +12,6 @@ dev = [
     "crhelper==2.0.11",
     "mock==5.1.0",
     "pytest-mock==3.14.0",
-    "joserfc==1.6.3",
+    "joserfc==1.6.8",
     "pip-audit",
 ]

@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.22] - 2026-07-09
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-gg9x-qcx2-xmrh) in `joserfc`.
+- Security [issue](https://github.com/advisories/GHSA-wphv-vfrh-23q5) in `joserfc`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+- Updated Node.js container image version from `24.16.0` to `24.18.0`.
+
 ## [2.3.21] - 2026-06-22
 
 ### Fixed
