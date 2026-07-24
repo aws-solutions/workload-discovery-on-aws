@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.23] - 2026-07-24
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-3jxr-9vmj-r5cp) in `brace-expansion`.
+- Security [issue](https://github.com/advisories/GHSA-v2hh-gcrm-f6hx) in `fast-uri`.
+- Security [issue](https://github.com/advisories/GHSA-v39h-62p7-jpjc) in `fast-uri`.
+- Security [issue](https://github.com/advisories/GHSA-52cp-r559-cp3m) in `js-yaml`.
+- Security [issue](https://github.com/advisories/GHSA-v56q-mh7h-f735) in `immutable`.
+- Security [issue](https://github.com/advisories/GHSA-p63j-vcc4-9vmv) in `@vitest/browser`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+
 ## [2.3.22] - 2026-07-09
 
 ### Fixed
