@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.24] - 2026-07-29
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-r28c-9q8g-f849) in `postcss`.
+- Security [issue](https://github.com/advisories/GHSA-mh99-v99m-4gvg) in `brace-expansion`.
+- Security [issue](https://github.com/advisories/GHSA-qwww-vcr4-c8h2) in `react-router`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+
 ## [2.3.23] - 2026-07-24
 
 ### Fixed

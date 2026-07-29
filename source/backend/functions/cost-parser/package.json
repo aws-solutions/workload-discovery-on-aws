@@ -1,6 +1,6 @@
 {
   "name": "wd-cost",
-  "version": "2.3.23",
+  "version": "2.3.24",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -44,6 +44,7 @@
   "overrides": {
     "serialize-javascript": "7.0.5",
     "uuid": "11.1.1",
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.2.0",
+    "brace-expansion": "5.0.8"
   }
 }

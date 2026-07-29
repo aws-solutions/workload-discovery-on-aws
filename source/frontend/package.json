@@ -1,6 +1,6 @@
 {
   "name": "workload-discovery-ui",
-  "version": "2.3.23",
+  "version": "2.3.24",
   "private": true,
   "description": "UI code for the Workload Discovery solution",
   "author": {
@@ -60,11 +60,11 @@
     "p-limit": "4.0.0",
     "ramda": "0.28.0",
     "randomcolor": "0.5.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-error-boundary": "^3.1.4",
     "react-papaparse": "3.11.1",
-    "react-router": "^7.9.6",
+    "react-router": "^8.3.0",
     "svgcanvas": "2.5.0",
     "ua-parser-js": "1.0.35",
     "valid-filename": "4.0.0"
