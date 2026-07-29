@@ -814,6 +814,10 @@ describe('Diagrams Page', () => {
             },
         });
 
+        // allow the diagram layout animation to settle so the node is under the
+        // pointer before we click to select it
+        await sleep(5000);
+
         await user.click(canvas);
 
         await screen.getByRole('button', {name: /action/i}).click();
@@ -829,7 +833,7 @@ describe('Diagrams Page', () => {
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
             screenshotOptions: {scale: 'css'},
         });
-    });
+    }, 20000);
 
     it('focuses on selected resource', async ({worker}) => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
@@ -919,6 +923,10 @@ describe('Diagrams Page', () => {
             },
         });
 
+        // allow the diagram layout animation to settle so the node is under the
+        // pointer before we click to select it
+        await sleep(5000);
+
         await user.click(canvas);
 
         await screen.getByRole('button', {name: /action/i}).click();
@@ -936,7 +944,7 @@ describe('Diagrams Page', () => {
             comparatorOptions: {allowedMismatchedPixelRatio: 0.05},
             screenshotOptions: {scale: 'css'},
         });
-    });
+    }, 20000);
 
     it('deletes selected resource', async ({worker}) => {
         window.perspectiveMetadata = createSelfManagedPerspectiveMetadata();
@@ -1282,6 +1290,10 @@ describe('Diagrams Page', () => {
             },
         });
 
+        // allow the diagram layout animation to settle so the compound node is
+        // under the pointer before we click to select it
+        await sleep(5000);
+
         await user.click(canvas);
 
         await screen.getByRole('button', {name: /action/i}).click();
@@ -1297,5 +1309,5 @@ describe('Diagrams Page', () => {
             comparatorOptions: {allowedMismatchedPixelRatio: 0.075},
             screenshotOptions: {scale: 'css'},
         });
-    });
+    }, 20000);
 });
