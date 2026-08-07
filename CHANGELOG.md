@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.25] - 2026-08-07
+
+### Fixed
+
+- Security [issue](https://github.com/advisories/GHSA-5p4m-2wfm-xmqj) in `js-yaml`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-18446/) in `fast-uri`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-69152/) in `brace-expansion`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-13697/) in `undici`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-14643/) in `undici`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-15157/) in `undici`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-16728/) in `undici`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-16729/) in `undici`.
+- Security [issue](https://avd.aquasec.com/nvd/2026/cve-2026-69153/) in `postcss`.
+- Security [issue](https://github.com/advisories/GHSA-p423-j2cm-9vmq) in `cryptography`.
+
+### Changed
+
+- Updated Amazon Linux 2023 base image to latest version.
+- Updated Node.js container image version from `24.18.0` to `24.19.0`.
+
 ## [2.3.24] - 2026-07-29
 
 ### Fixed
