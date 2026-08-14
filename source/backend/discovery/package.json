@@ -1,6 +1,6 @@
 {
   "name": "wd-discovery",
-  "version": "2.3.25",
+  "version": "2.3.26",
   "description": "This contains the code that forms the discovery process for AWS Perspective.",
   "main": "index.mjs",
   "type": "module",
